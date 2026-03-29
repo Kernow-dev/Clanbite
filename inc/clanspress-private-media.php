@@ -203,32 +203,22 @@ function clanspress_handle_isolated_image_upload( string $files_key, int $post_p
 		return $file;
 	};
 
-	$GLOBALS['clanspress_hide_next_attachment'] = true;
-
-	$mark_hidden = static function ( int $attachment_id ): void {
-		if ( empty( $GLOBALS['clanspress_hide_next_attachment'] ) ) {
-			return;
-		}
-		update_post_meta( $attachment_id, CLANSPRESS_ATTACHMENT_HIDE_FROM_LIBRARY, '1' );
-		$GLOBALS['clanspress_hide_next_attachment'] = false;
-	};
-
 	add_filter( 'upload_dir', $upload_dir_cb );
 	add_filter( 'wp_handle_upload_prefilter', $prefilter_cb );
-	add_action( 'add_attachment', $mark_hidden, 5 );
 
 	$attachment_id = media_handle_upload( $files_key, $post_parent );
 
 	remove_filter( 'upload_dir', $upload_dir_cb );
 	remove_filter( 'wp_handle_upload_prefilter', $prefilter_cb );
-	remove_action( 'add_attachment', $mark_hidden, 5 );
-	$GLOBALS['clanspress_hide_next_attachment'] = false;
 
 	if ( is_wp_error( $attachment_id ) ) {
 		return $attachment_id;
 	}
 
-	return (int) $attachment_id;
+	$attachment_id = (int) $attachment_id;
+	update_post_meta( $attachment_id, CLANSPRESS_ATTACHMENT_HIDE_FROM_LIBRARY, '1' );
+
+	return $attachment_id;
 }
 
 add_action( 'plugins_loaded', 'clanspress_private_media_bootstrap', 2 );

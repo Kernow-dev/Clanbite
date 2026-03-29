@@ -1,12 +1,10 @@
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import { syncTeamFormTabs } from '../shared/sync-team-form-tabs.js';
 
-function escapeInviteLabel( text ) {
-	return String( text )
-		.replace( /&/g, '&amp;' )
-		.replace( /</g, '&lt;' )
-		.replace( />/g, '&gt;' )
-		.replace( /"/g, '&quot;' );
+function clearDomNode( node ) {
+	while ( node.firstChild ) {
+		node.removeChild( node.firstChild );
+	}
 }
 
 const { state, actions } = store( 'clanspress-team-create-form', {
@@ -351,8 +349,9 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 				return;
 			}
 
+			clearDomNode( list );
+
 			if ( state.inviteSuggestions.length < 1 ) {
-				list.innerHTML = '';
 				if ( input ) {
 					input.setAttribute( 'aria-expanded', 'false' );
 					input.removeAttribute( 'aria-activedescendant' );
@@ -367,18 +366,38 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 				state.inviteActiveIndex = -1;
 			}
 
-			list.innerHTML = state.inviteSuggestions
-				.map( ( user, index ) => {
-					const active =
-						index === state.inviteActiveIndex ? ' is-active' : '';
-					const label = escapeInviteLabel( user.label );
-					return `<li role="presentation"><button type="button" role="option" id="clanspress-invite-option-${ index }" class="clanspress-team-create-form__invite-option${ active }" data-invite-user-id="${
-						user.id
-					}" data-invite-suggestion-index="${ index }" aria-selected="${
-						index === state.inviteActiveIndex ? 'true' : 'false'
-					}">${ label }</button></li>`;
-				} )
-				.join( '' );
+			const frag = document.createDocumentFragment();
+			state.inviteSuggestions.forEach( ( user, index ) => {
+				const id = Number( user?.id );
+				if ( ! Number.isFinite( id ) || id < 1 ) {
+					return;
+				}
+
+				const li = document.createElement( 'li' );
+				li.setAttribute( 'role', 'presentation' );
+
+				const btn = document.createElement( 'button' );
+				btn.type = 'button';
+				btn.setAttribute( 'role', 'option' );
+				btn.id = `clanspress-invite-option-${ index }`;
+				btn.className =
+					'clanspress-team-create-form__invite-option' +
+					( index === state.inviteActiveIndex ? ' is-active' : '' );
+				btn.setAttribute( 'data-invite-user-id', String( id ) );
+				btn.setAttribute(
+					'data-invite-suggestion-index',
+					String( index )
+				);
+				btn.setAttribute(
+					'aria-selected',
+					index === state.inviteActiveIndex ? 'true' : 'false'
+				);
+				btn.textContent = String( user?.label ?? '' );
+
+				li.appendChild( btn );
+				frag.appendChild( li );
+			} );
+			list.appendChild( frag );
 
 			if ( input ) {
 				input.setAttribute( 'aria-expanded', 'true' );
@@ -405,23 +424,40 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 				return;
 			}
 
+			clearDomNode( list );
+
 			if ( state.invites.length < 1 ) {
-				list.innerHTML = '';
 				hidden.value = '';
 				return;
 			}
 
-			list.innerHTML = state.invites
-				.map(
-					( user ) =>
-						`<div class="clanspress-team-create-form__invite-chip"><span>${ escapeInviteLabel(
-							user.label
-						) }</span><button type="button" aria-label="Remove" data-remove-invite-id="${
-							user.id
-						}">×</button></div>`
-				)
-				.join( '' );
-			hidden.value = state.invites.map( ( user ) => user.id ).join( ',' );
+			const frag = document.createDocumentFragment();
+			const ids = [];
+			state.invites.forEach( ( user ) => {
+				const id = Number( user?.id );
+				if ( ! Number.isFinite( id ) || id < 1 ) {
+					return;
+				}
+				ids.push( id );
+
+				const wrap = document.createElement( 'div' );
+				wrap.className = 'clanspress-team-create-form__invite-chip';
+
+				const span = document.createElement( 'span' );
+				span.textContent = String( user?.label ?? '' );
+
+				const btn = document.createElement( 'button' );
+				btn.type = 'button';
+				btn.setAttribute( 'aria-label', 'Remove' );
+				btn.setAttribute( 'data-remove-invite-id', String( id ) );
+				btn.appendChild( document.createTextNode( '\u00d7' ) );
+
+				wrap.appendChild( span );
+				wrap.appendChild( btn );
+				frag.appendChild( wrap );
+			} );
+			list.appendChild( frag );
+			hidden.value = ids.join( ',' );
 		},
 	},
 	callbacks: {

@@ -1278,18 +1278,29 @@ class Teams extends Skeleton {
 	}
 
 	/**
-	 * Remove this team from every user’s membership index before the team post is deleted.
+	 * Collect user IDs that still reference this team in their membership index (while the team post exists).
 	 *
 	 * @param int $team_id Team post ID.
-	 * @return void
+	 * @return array<int, int>
 	 */
-	protected function cleanup_team_membership_index_for_team_deletion( int $team_id ): void {
+	protected function get_user_ids_for_team_membership_cleanup( int $team_id ): array {
 		$uids = array_map( 'intval', array_keys( $this->get_team_member_roles_map( $team_id ) ) );
 		$author = (int) get_post_field( 'post_author', $team_id );
 		if ( $author > 0 && ! in_array( $author, $uids, true ) ) {
 			$uids[] = $author;
 		}
-		foreach ( array_unique( $uids ) as $uid ) {
+		return array_values( array_unique( array_filter( array_map( 'intval', $uids ) ) ) );
+	}
+
+	/**
+	 * Remove this team from every affected user’s membership index (call after the team post is deleted).
+	 *
+	 * @param int        $team_id  Team post ID (used as the key to remove from each user’s list).
+	 * @param array<int> $user_ids Users to update (from {@see get_user_ids_for_team_membership_cleanup()} while the post existed).
+	 * @return void
+	 */
+	protected function cleanup_team_membership_index_for_team_deletion( int $team_id, array $user_ids ): void {
+		foreach ( $user_ids as $uid ) {
 			if ( $uid > 0 ) {
 				$this->remove_team_from_user_membership_index( $team_id, $uid );
 			}
@@ -2090,7 +2101,7 @@ class Teams extends Skeleton {
 		$team_entity->set_description( $team_description );
 		$team_entity->set_code( $team_code );
 		$team_entity->set_motto( $team_motto );
-		$team_entity->set_country( sanitize_text_field( wp_unslash( $_POST['team_country'] ?? '' ) ) );
+		$team_entity->set_country( $this->sanitize_team_country_input( (string) wp_unslash( $_POST['team_country'] ?? '' ) ) );
 		$team_entity->set_wins( absint( $_POST['team_wins'] ?? 0 ) );
 		$team_entity->set_losses( absint( $_POST['team_losses'] ?? 0 ) );
 		$team_entity->set_draws( absint( $_POST['team_draws'] ?? 0 ) );
@@ -2216,7 +2227,7 @@ class Teams extends Skeleton {
 			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
 		}
 
-		$this->cleanup_team_membership_index_for_team_deletion( $team_id );
+		$membership_cleanup_user_ids = $this->get_user_ids_for_team_membership_cleanup( $team_id );
 
 		/**
 		 * Fires before a team is permanently deleted from the front-end manage UI.
@@ -2238,6 +2249,8 @@ class Teams extends Skeleton {
 			);
 			exit;
 		}
+
+		$this->cleanup_team_membership_index_for_team_deletion( $team_id, $membership_cleanup_user_ids );
 
 		/**
 		 * Fires after a team has been permanently deleted from the front-end manage UI.
@@ -2512,31 +2525,24 @@ class Teams extends Skeleton {
 	/**
 	 * Allow reading/updating registered team meta when the user can edit the team post.
 	 *
-	 * @param mixed  $allowed        Whether to allow the meta capability.
-	 * @param string $meta_key       Meta key.
-	 * @param int    $object_id      Post ID.
-	 * @param int    $user_id        User ID (unused; capability uses current user).
-	 * @param string $object_type    Object type.
-	 * @param string $object_subtype Post type slug.
+	 * {@see register_meta()} passes: `$allowed`, `$meta_key`, `$object_id`, `$user_id`, `$cap`, `$caps`.
+	 *
+	 * @param mixed ...$args Filter arguments from `auth_post_meta_*`.
 	 * @return bool
 	 */
 	public function team_meta_auth_callback( ...$args ): bool {
-		$allowed        = $args[0] ?? false;
-		$object_id      = isset( $args[2] ) ? (int) $args[2] : 0;
-		$object_type    = isset( $args[4] ) ? (string) $args[4] : '';
-		$object_subtype = isset( $args[5] ) ? (string) $args[5] : '';
+		$object_id = isset( $args[2] ) ? (int) $args[2] : 0;
 
-		if ( $object_id < 1 ) {
+		if ( $object_id < 1 || 'cp_team' !== get_post_type( $object_id ) ) {
 			return false;
 		}
 
-		// Some core paths pass only ( $allowed, $meta_key, $object_id ); infer post type from the post.
-		if ( '' === $object_type && '' === $object_subtype ) {
-			return 'cp_team' === get_post_type( $object_id ) && current_user_can( 'edit_post', $object_id );
-		}
-
-		if ( 'post' !== $object_type || 'cp_team' !== $object_subtype ) {
-			return (bool) $allowed;
+		// Full `register_meta` callback (6 args): check the target user when provided.
+		if ( isset( $args[3] ) ) {
+			$uid = (int) $args[3];
+			if ( $uid > 0 ) {
+				return user_can( $uid, 'edit_post', $object_id );
+			}
 		}
 
 		return current_user_can( 'edit_post', $object_id );
@@ -3141,16 +3147,18 @@ class Teams extends Skeleton {
 		$base   = 'cp_team_avatar_id' === $meta_key ? 'avatar' : 'cover';
 
 		$old_id = (int) get_post_meta( $team_id, $meta_key, true );
-		if ( $old_id > 0 ) {
-			wp_delete_attachment( $old_id, true );
-		}
 
 		$attachment_id = clanspress_handle_isolated_image_upload( $field_name, $team_id, $subdir, $base );
 		if ( is_wp_error( $attachment_id ) ) {
 			return;
 		}
 
-		update_post_meta( $team_id, $meta_key, (int) $attachment_id );
+		$new_id = (int) $attachment_id;
+		update_post_meta( $team_id, $meta_key, $new_id );
+
+		if ( $old_id > 0 && $old_id !== $new_id ) {
+			wp_delete_attachment( $old_id, true );
+		}
 	}
 
 	/**

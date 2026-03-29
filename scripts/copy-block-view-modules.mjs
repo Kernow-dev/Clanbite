@@ -37,7 +37,9 @@ const teamsSharedSrc = path.join( srcBlocks, 'teams', 'shared' );
 const teamsSharedDest = path.join( root, 'build', 'teams', 'shared' );
 if ( fs.existsSync( teamsSharedSrc ) ) {
 	fs.mkdirSync( teamsSharedDest, { recursive: true } );
-	for ( const ent of fs.readdirSync( teamsSharedSrc, { withFileTypes: true } ) ) {
+	for ( const ent of fs.readdirSync( teamsSharedSrc, {
+		withFileTypes: true,
+	} ) ) {
 		if ( ! ent.isFile() || ! ent.name.endsWith( '.js' ) ) {
 			continue;
 		}
@@ -45,6 +47,11 @@ if ( fs.existsSync( teamsSharedSrc ) ) {
 		const to = path.join( teamsSharedDest, ent.name );
 		fs.copyFileSync( from, to );
 		// eslint-disable-next-line no-console
-		console.log( 'Copied', `teams/shared/${ ent.name }`, '->', `build/teams/shared/${ ent.name }` );
+		console.log(
+			'Copied',
+			`teams/shared/${ ent.name }`,
+			'->',
+			`build/teams/shared/${ ent.name }`
+		);
 	}
 }
