@@ -22,6 +22,8 @@ import {
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 
+import './style.css';
+
 const TAB_QUERY_KEY = 'tab';
 
 /**
@@ -110,6 +112,78 @@ function FieldControl( { field, value, onChange } ) {
 	};
 
 	switch ( field.type ) {
+		case 'image':
+			{
+				const previewUrl =
+					value ||
+					field.fallbackUrl ||
+					field.fallback_url ||
+					'';
+
+				const openMediaFrame = () => {
+					if ( ! window.wp || ! window.wp.media ) {
+						return;
+					}
+
+					const frame = window.wp.media( {
+						title:
+							field.mediaTitle ||
+							__( 'Select image', 'clanspress' ),
+						button: {
+							text:
+								field.mediaButtonText ||
+								__( 'Use image', 'clanspress' ),
+						},
+						library: { type: 'image' },
+						multiple: false,
+					} );
+
+					frame.on( 'select', () => {
+						const attachment = frame
+							.state()
+							.get( 'selection' )
+							.first()
+							?.toJSON();
+						onChange( id, attachment?.url || '' );
+					} );
+
+					frame.open();
+				};
+
+				return (
+					<div className="clanspress-field-image">
+						{ previewUrl ? (
+							<div className="clanspress-field-image-preview">
+								<img src={ previewUrl } alt="" />
+							</div>
+						) : null }
+						<div className="clanspress-field-image-actions">
+							<Button
+								variant="secondary"
+								onClick={ openMediaFrame }
+							>
+								{ __(
+									'Upload / choose image',
+									'clanspress'
+								) }
+							</Button>
+							<Button
+								variant="tertiary"
+								isDestructive
+								onClick={ () => onChange( id, '' ) }
+							>
+								{ __(
+									'Use plugin default',
+									'clanspress'
+								) }
+							</Button>
+						</div>
+						{ common.help ? (
+							<p className="description">{ common.help }</p>
+						) : null }
+					</div>
+				);
+			}
 		case 'checkbox':
 			return (
 				<ToggleControl
@@ -150,6 +224,31 @@ function FieldControl( { field, value, onChange } ) {
 	}
 }
 
+/**
+ * Check if a field's dependencies are satisfied.
+ *
+ * @param {Object}              field Field config with optional `depends_on`.
+ * @param {Object}              data  Current values for the option key.
+ * @return {boolean} True if field should be visible.
+ */
+function isFieldVisible( field, data ) {
+	if ( ! field.depends_on ) {
+		return true;
+	}
+	const { field: depField, value: depValue } = field.depends_on;
+	if ( ! depField ) {
+		return true;
+	}
+	const currentValue = data[ depField ];
+	if ( depValue === true ) {
+		return !! currentValue;
+	}
+	if ( depValue === false ) {
+		return ! currentValue;
+	}
+	return currentValue === depValue;
+}
+
 function SettingsSections( { sections, optionKey, values, onFieldChange } ) {
 	const data = values[ optionKey ] || {};
 
@@ -164,27 +263,40 @@ function SettingsSections( { sections, optionKey, values, onFieldChange } ) {
 		);
 	}
 
-	return sections.map( ( section ) => (
-		<div key={ section.id } style={ { marginBottom: '2rem' } }>
-			{ section.title ? <h3>{ section.title }</h3> : null }
+	return sections.map( ( section ) => {
+		const visibleFields = ( section.fields || [] ).filter( ( field ) =>
+			isFieldVisible( field, data )
+		);
+
+		if ( ! visibleFields.length ) {
+			return null;
+		}
+
+		return (
 			<div
-				className="clanspress-settings-fields"
-				style={ { maxWidth: 640, marginTop: '1rem' } }
+				key={ section.id }
+				className="clanspress-settings-section"
 			>
-				{ ( section.fields || [] ).map( ( field ) => (
-					<div key={ field.id } style={ { marginBottom: '1rem' } }>
-						<FieldControl
-							field={ field }
-							value={ data[ field.id ] }
-							onChange={ ( fid, v ) =>
-								onFieldChange( optionKey, fid, v )
-							}
-						/>
-					</div>
-				) ) }
+				{ section.title ? <h3>{ section.title }</h3> : null }
+				<div className="clanspress-settings-fields">
+					{ visibleFields.map( ( field ) => (
+						<div
+							key={ field.id }
+							className="clanspress-settings-field-row"
+						>
+							<FieldControl
+								field={ field }
+								value={ data[ field.id ] }
+								onChange={ ( fid, v ) =>
+									onFieldChange( optionKey, fid, v )
+								}
+							/>
+						</div>
+					) ) }
+				</div>
 			</div>
-		</div>
-	) );
+		);
+	} );
 }
 
 /**
@@ -209,10 +321,7 @@ function ExtensionRequiresCell( { requires, allExtensions, installedSlugs } ) {
 	}
 
 	return (
-		<ul
-			className="clanspress-extension-requires"
-			style={ { margin: 0, paddingLeft: '1.25rem', maxWidth: 280 } }
-		>
+		<ul className="clanspress-extension-requires">
 			{ requires.map( ( reqSlug ) => {
 				const reqExt = allExtensions.find(
 					( e ) => e.slug === reqSlug
@@ -223,10 +332,7 @@ function ExtensionRequiresCell( { requires, allExtensions, installedSlugs } ) {
 					<li key={ reqSlug }>
 						{ label }
 						{ ! isInstalled ? (
-							<span
-								className="description"
-								style={ { marginLeft: 4 } }
-							>
+							<span className="description">
 								({ __( 'not installed', 'clanspress' ) })
 							</span>
 						) : null }
@@ -255,6 +361,11 @@ function extensionCanBeTurnedOn( ext, pendingInstalledSlugs ) {
 }
 
 function App() {
+	const [ pluginMeta, setPluginMeta ] = useState( {
+		version: '',
+		isBeta: false,
+	} );
+
 	const [ bootstrap, setBootstrap ] = useState( null );
 	const [ values, setValues ] = useState( {} );
 	const [ installed, setInstalled ] = useState( [] );
@@ -277,6 +388,16 @@ function App() {
 				.filter( ( e ) => e.isInstalled )
 				.map( ( e ) => e.slug );
 			setInstalled( slugs );
+
+			if ( data?.plugin ) {
+				const v = String( data.plugin.version || '' );
+				const isBeta =
+					v && Number.parseFloat( v ) < 1 ? true : false;
+				setPluginMeta( {
+					version: v,
+					isBeta,
+				} );
+			}
 		} catch ( e ) {
 			setError(
 				e?.message || __( 'Failed to load settings.', 'clanspress' )
@@ -461,17 +582,73 @@ function App() {
 
 	const initialTabName = resolveInitialTabId( bootstrap.tabs );
 
+	const versionLabel = pluginMeta.version
+		? pluginMeta.isBeta
+			? sprintf(
+					/* translators: 1: version, 2: "beta" label */
+					__( '%1$s beta', 'clanspress' ),
+					pluginMeta.version
+			  )
+			: pluginMeta.version
+		: '';
+
 	return (
-		<div className="clanspress-admin-app" style={ { marginTop: '1rem' } }>
-			{ saveNotice ? (
-				<div
-					className="clanspress-admin-global-notice"
-					style={ { marginBottom: '1rem' } }
-					role="status"
-				>
-					{ saveNotice }
+		<div className="clanspress-admin-app clanspress-admin-shell">
+			<header className="clanspress-admin-header">
+				<div className="clanspress-admin-header-inner">
+					<div className="clanspress-admin-header-brand">
+						<span className="clanspress-admin-logo-wrap">
+							<img
+								src={
+									window.clanspressAdmin?.logoUrl || ''
+								}
+								alt=""
+								className="clanspress-admin-logo"
+							/>
+						</span>
+						{ versionLabel ? (
+							<div className="clanspress-admin-version">
+								{ versionLabel }
+							</div>
+						) : null }
+					</div>
+					<div className="clanspress-admin-header-actions">
+						<a
+							href="https://clanspress.com"
+							className="clanspress-admin-header-btn"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'Developers', 'clanspress' ) }
+						</a>
+						<a
+							href="https://github.com/Kernow-dev/Clanspress"
+							className="clanspress-admin-header-btn"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'GitHub', 'clanspress' ) }
+						</a>
+						<a
+							href="https://discord.gg/vCaA8JyGWh"
+							className="clanspress-admin-header-btn"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{ __( 'Discord', 'clanspress' ) }
+						</a>
+					</div>
 				</div>
-			) : null }
+			</header>
+			<div className="clanspress-admin-main">
+				{ saveNotice ? (
+					<div
+						className="clanspress-admin-global-notice"
+						role="status"
+					>
+						{ saveNotice }
+					</div>
+				) : null }
 			<TabPanel
 				key={ `clanspress-admin-tabpanel-${ tabPanelEpoch }` }
 				className="clanspress-admin-tabs"
@@ -489,7 +666,7 @@ function App() {
 					}
 					if ( meta.type === 'general' ) {
 						return (
-							<div style={ { paddingTop: '1rem' } }>
+							<div className="clanspress-admin-section-inner">
 								<SettingsSections
 									sections={ generalSections }
 									optionKey={ generalKey }
@@ -508,20 +685,14 @@ function App() {
 					}
 					if ( meta.type === 'extensions' ) {
 						return (
-							<div style={ { paddingTop: '1rem' } }>
+							<div className="clanspress-admin-section-inner">
 								<p className="description">
 									{ __(
 										'Enable or disable extensions. You can turn on dependencies and dependents in any order; save once when ready. Saving reloads this screen.',
 										'clanspress'
 									) }
 								</p>
-								<table
-									className="widefat striped"
-									style={ {
-										maxWidth: 960,
-										marginTop: '1rem',
-									} }
-								>
+								<table className="widefat striped clanspress-extensions-table">
 									<thead>
 										<tr>
 											<th>
@@ -560,12 +731,12 @@ function App() {
 												<tr key={ ext.slug }>
 													<td>
 														<span
-															style={ {
-																marginLeft:
-																	ext.parentSlug
-																		? 16
-																		: 0,
-															} }
+															className={
+																'clanspress-extension-name' +
+																( ext.parentSlug
+																	? ' clanspress-extension-name--child'
+																	: '' )
+															}
 														>
 															{ ext.parentSlug
 																? '— '
@@ -575,9 +746,7 @@ function App() {
 															</strong>
 															{ ext.isOfficial ? (
 																<span
-																	style={ {
-																		marginLeft: 8,
-																	} }
+																	className="clanspress-extension-badge"
 																>
 																	{ __(
 																		'Official',
@@ -664,7 +833,7 @@ function App() {
 								</table>
 								<Button
 									variant="primary"
-									style={ { marginTop: '1rem' } }
+									className="clanspress-extensions-save"
 									onClick={ saveExtensions }
 									isBusy={ saving }
 								>
@@ -675,17 +844,12 @@ function App() {
 					}
 					if ( meta.type === 'extension' ) {
 						return (
-							<div style={ { paddingTop: '1rem' } }>
+							<div className="clanspress-admin-section-inner">
 								{ ( meta.sectionGroups || [] ).map(
 									( group ) => (
 										<div
 											key={ `${ group.kind }-${ group.slug }` }
-											style={ {
-												marginBottom: '2rem',
-												paddingBottom: '2rem',
-												borderBottom:
-													'1px solid #c3c4c7',
-											} }
+											className="clanspress-settings-section"
 										>
 											{ group.kind === 'child' ? (
 												<h3>{ group.name }</h3>
@@ -704,9 +868,7 @@ function App() {
 													)
 												}
 												isBusy={ saving }
-												style={ {
-													marginTop: '0.5rem',
-												} }
+												className="clanspress-extension-save"
 											>
 												{ __( 'Save', 'clanspress' ) }
 											</Button>
@@ -719,6 +881,7 @@ function App() {
 					return null;
 				} }
 			</TabPanel>
+			</div>
 		</div>
 	);
 }

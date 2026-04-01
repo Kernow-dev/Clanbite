@@ -138,6 +138,7 @@ $context             = array(
 						<label for="clanspress-team-name"><?php esc_html_e( 'Team Name', 'clanspress' ); ?></label>
 						<input type="text" id="clanspress-team-name" name="team_name" required />
 					</p>
+					<p class="description"><?php esc_html_e( 'Team slug will be generated from your team name.', 'clanspress' ); ?></p>
 					<p>
 						<label for="clanspress-team-code"><?php esc_html_e( 'Team Code', 'clanspress' ); ?></label>
 						<input type="text" id="clanspress-team-code" name="team_code" />
@@ -165,7 +166,6 @@ $context             = array(
 							?>
 						</select>
 					</p>
-					<p class="description"><?php esc_html_e( 'Team slug will be generated from your team name.', 'clanspress' ); ?></p>
 				<?php elseif ( 'branding' === $step_key ) : ?>
 					<div class="clanspress-team-create-form__media-row" aria-label="<?php esc_attr_e( 'Team avatar and cover', 'clanspress' ); ?>">
 						<div class="clanspress-team-create-form__avatar-cover-preview">
@@ -228,20 +228,22 @@ $context             = array(
 					<div class="clanspress-team-create-form__invite-list" data-team-invite-list data-wp-on--click="actions.onInviteListClick"></div>
 					<input type="hidden" name="team_invites" value="" data-team-invite-hidden />
 				<?php elseif ( 'matches' === $step_key ) : ?>
-					<p class="clanspress-team-create-form__matches-field">
-						<input type="hidden" name="team_accept_challenges" value="0" />
-						<label for="clanspress-team-accept-challenges">
-							<input
-								type="checkbox"
-								id="clanspress-team-accept-challenges"
-								name="team_accept_challenges"
-								value="1"
-								checked
-							/>
-							<?php esc_html_e( 'Allow other teams to challenge this team', 'clanspress' ); ?>
-						</label>
-					</p>
-					<p class="description"><?php esc_html_e( 'You can change this later from your team settings.', 'clanspress' ); ?></p>
+					<div class="clanspress-team-create-form__matches-field">
+						<p>
+							<input type="hidden" name="team_accept_challenges" value="0" />
+							<label for="clanspress-team-accept-challenges">
+								<input
+									type="checkbox"
+									id="clanspress-team-accept-challenges"
+									name="team_accept_challenges"
+									value="1"
+									checked
+								/>
+								<?php esc_html_e( 'Allow other teams to challenge this team', 'clanspress' ); ?>
+							</label>
+						</p>
+						<p class="description"><?php esc_html_e( 'You can change this later from your team settings.', 'clanspress' ); ?></p>
+					</div>
 				<?php else : ?>
 					<?php
 					/**

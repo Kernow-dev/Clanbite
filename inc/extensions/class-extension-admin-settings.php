@@ -315,6 +315,14 @@ abstract class Abstract_Settings {
 					'default'     => $field['default'] ?? null,
 				);
 
+				if ( isset( $field['fallback_url'] ) ) {
+					$row['fallback_url'] = (string) $field['fallback_url'];
+				}
+
+				if ( isset( $field['depends_on'] ) && is_array( $field['depends_on'] ) ) {
+					$row['depends_on'] = $field['depends_on'];
+				}
+
 				if ( 'select' === $row['type'] && ! empty( $field['options'] ) && is_array( $field['options'] ) ) {
 					$opts = array();
 					foreach ( $field['options'] as $opt_val => $opt_label ) {

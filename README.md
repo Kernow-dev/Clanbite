@@ -116,6 +116,121 @@ Extensions can and should register their own FSE templates, so template availabi
   - `clanspress_extension_{slug}_templates`
   - `clanspress_extension_templates`
 
+### Player settings (front-end): plugin actions
+
+The **Player settings** block (`clanspress/player-settings`) uses the Interactivity API store `clanspress-player-settings`. Core exposes a generic **`actions.runPluginAction`** handler so extensions can add buttons or links inside player settings panels **without** inline scripts: the click runs `fetch()` against your URL, sends the WordPress REST nonce, and shows the block’s existing success/error toast.
+
+**Localized config** is attached as `window.CLANSPRESSPLAYERSETTINGS` when the Players extension enqueues scripts. Default keys:
+
+| Key | Purpose |
+|-----|---------|
+| `ajax_url` | Admin AJAX URL (legacy profile save). |
+| `nonce` | Nonce for `clanspress_profile_settings_save_action`. |
+| `rest_url` | Site REST root (for building route URLs in PHP). |
+| `rest_nonce` | Nonce for `wp_rest` (sent as `X-WP-Nonce` on plugin actions). |
+| `settings_url_base` | (Player settings page only.) Trailing-slash base URL, e.g. `https://example.com/players/settings/`. |
+| `settings_initial_nav` | (Player settings page only.) Resolved parent tab slug (`profile`, `account`, `teams`, …). |
+| `settings_initial_panel` | (Player settings page only.) Resolved panel slug (`profile-info`, `account-info`, …). |
+
+Extend or override the object with filter **`clanspress_player_settings_frontend_config`** (same array shape as above).
+
+**Deep links:** Each tab and sub-page has a canonical URL: `/players/settings/{nav}/{panel}/` (e.g. `/players/settings/account/account-info/`). `/players/settings/{nav}/` redirects to that nav’s first panel. Invalid slugs redirect to a valid default. The block updates the address bar when you switch tabs (history `pushState` / `replaceState`). After adding or changing rewrite rules, save **Settings → Permalinks** once (or flush rewrite rules) so WordPress routes new paths.
+
+**Markup contract** (on the clicked element, e.g. `<button type="button">`):
+
+| Attribute | Required | Description |
+|-----------|----------|-------------|
+| `data-wp-on--click="actions.runPluginAction"` | Yes | Wires the Interactivity action. |
+| `data-cp-action-url` | Yes | Full request URL (typically `rest_url( 'your-namespace/v1/...' )` from PHP). |
+| `data-cp-action-method` | No | HTTP method; default `POST`. `GET` / `HEAD` omit body. |
+| `data-cp-action-body` | No | JSON string for the request body (parsed client-side; empty object if omitted). |
+| `data-cp-action-confirm` | No | If set, `window.confirm()` must pass before the request runs. |
+| `data-cp-action-remove-closest` | No | CSS selector; on success, `closest(selector)` on the clicked element is removed (e.g. list row). |
+| `data-cp-action-success-message` / `data-cp-action-error-message` | No | Toast copy; sensible defaults if omitted. |
+
+Your REST route must validate `X-WP-Nonce`, check capabilities, and return appropriate HTTP status codes (`runPluginAction` treats non-OK responses as errors).
+
+### Social Kit: automatic activity posts
+
+When the **Clanspress Social Kit** extension is enabled, social “activity” posts are created automatically for common events and rendered in the **Social feed** block (`clanspress-social/social-feed`):
+
+- **Friendship accepted:** When two players become friends (`clanspress_social_kit_friendship_accepted`), Social Kit inserts an `activity` post for each user so that both see a “became friends” card in their feed.
+- **Team created:** When a team is created (`clanspress_team_created`), the creator gets an `activity` post that can show the team’s cover and avatar.
+- **Team joined:** When a player joins a team (`clanspress_team_roster_updated`), that player gets an `activity` post indicating they joined the team.
+
+Per-user toggles live in the **Player → Account → Social posts** settings panel (rendered by Social Kit):
+
+- **Default post visibility** and **Allow replies on new posts** (existing).
+- Additional booleans (stored as user meta) such as:
+  - `cp_social_kit_activity_friends_enabled` — show “became friends” updates.
+  - `cp_social_kit_activity_teams_enabled` — show team create/join updates.
+
+These are respected by Social Kit’s `Activity_Logger` before inserting new activity rows.
+
+#### Activity payload and filters
+
+Social Kit uses the `cp_social_posts` table with `post_type = 'activity'` for these items and fills structured context using existing columns:
+
+- `author_id` — the player whose feed the item belongs to.
+- `actor_user_id` — the “other” player for friendship events.
+- `team_id` — the team for create/join events.
+
+The low-level insert payload for automatic activity posts is filterable:
+
+```php
+add_filter(
+	'clanspress_social_kit_activity_payload',
+	function ( array $payload, int $user_id, array $args ) {
+		// Inspect/modify $payload before it is passed to Data_Access::insert_post().
+		// Example: change visibility, override post_type, or inject custom link metadata.
+		return $payload;
+	},
+	10,
+	3
+);
+```
+
+When Social Kit formats posts for the REST API, it also builds an `activity` structure for `activity` posts (user/team objects, labels, etc.). Per-activity filters allow customization of that structure before it is sent to the Social feed block:
+
+```php
+add_filter(
+	'clanspress_social_kit_activity_friendship',
+	function ( array $activity, object $row ) {
+		// $activity contains primary/secondary user payloads for "became friends" events.
+		// You can swap avatars, change labels, or attach extra metadata.
+		return $activity;
+	},
+	10,
+	2
+);
+
+add_filter(
+	'clanspress_social_kit_activity_team_created',
+	function ( array $activity, object $row ) {
+		// Customize “created the team” cards (e.g. extra badges or stats).
+		return $activity;
+	},
+	10,
+	2
+);
+```
+
+Finally, the short activity label shown next to the author name in the feed header can be overridden per type:
+
+```php
+add_filter(
+	'clanspress_social_kit_activity_label_friendship',
+	function ( string $label, array $activity, object $row ) {
+		// Replace the default “became friends” string.
+		return $label;
+	},
+	10,
+	3
+);
+```
+
+These hooks allow third-party plugins to completely change the text, imagery, or behaviour of automatic activity posts (friendships, teams, or future action types) without modifying core Social Kit code.
+
 ## Admin Extension Manager
 The `Clanspress > Extensions` screen should remain the source of truth for extension state.
 
@@ -484,6 +599,342 @@ add_action(
 - `clanspress_team_can_ban_players`
   - Filter ban capability.
   - Args: `bool $allowed`, `int $team_id`, `array $options`, `Teams $extension`
+
+## Social Kit: Automatic Activity Posts
+
+Social Kit automatically creates activity posts in users' feeds when certain events occur. Users can toggle these off in their player settings under "Activity posts".
+
+### Supported Activity Types
+
+| Activity Type | Trigger | Visibility |
+|---------------|---------|------------|
+| `team_created` | User creates a new team | Creator's feed only |
+| `team_joined` | User joins a team | User's feed + team's feed |
+| `friendship_accepted` | Two users become friends | Both users' feeds (reversed perspective) |
+
+### Activity Cards
+
+Activity posts display rich cards:
+- **Team activities**: Team cover image, avatar, and name with link to team profile
+- **Friendship activities**: Target user's avatar and name with link to their profile
+
+### PHP Filters
+
+**Modifying activity post data before insertion:**
+
+```php
+// Modify activity payload before insertion
+add_filter( 'clanspress_social_kit_activity_payload', function( $payload, $user_id, $args ) {
+    // Customize the activity post data
+    return $payload;
+}, 10, 3 );
+
+// Modify payload for a specific activity type
+add_filter( 'clanspress_social_kit_activity_team_created', function( $payload, $user_id, $args ) {
+    // Customize team_created activity specifically
+    return $payload;
+}, 10, 3 );
+
+// Customize the activity label shown in the feed header
+add_filter( 'clanspress_social_kit_activity_label_team_created', function( $label, $activity_type ) {
+    return __( 'founded a new team', 'my-plugin' );
+}, 10, 2 );
+```
+
+**Rendering custom activity cards:**
+
+Third-party developers can render custom activity cards for their own activity types:
+
+```php
+// Render a custom card for any activity type
+add_filter( 'clanspress_social_kit_activity_card_html', function( $html, $activity_type, $row, $team_payload, $target_user, $viewer_id ) {
+    if ( 'my_custom_activity' === $activity_type ) {
+        return '<div class="my-custom-card">Custom content here</div>';
+    }
+    return $html;
+}, 10, 6 );
+
+// Or use the type-specific filter (cleaner for single types)
+add_filter( 'clanspress_social_kit_activity_card_html_my_custom_activity', function( $html, $row, $team_payload, $target_user, $viewer_id ) {
+    return '<div class="my-custom-card">Custom content here</div>';
+}, 10, 5 );
+```
+
+The card HTML is rendered server-side and injected into the feed. Available data:
+- `$row` - Database row with `id`, `author_id`, `team_id`, `activity_type`, `content`, etc.
+- `$team_payload` - Array with `id`, `name`, `avatar_url`, `cover_url`, `profile_url` (if team activity)
+- `$target_user` - Array with `id`, `name`, `avatar_url`, `profile_url` (if friendship activity)
+- `$viewer_id` - Current logged-in user ID
+
+### User Preferences
+
+Users can disable specific activity types via user meta:
+- `cp_social_kit_activity_friendship_accepted_enabled` (default: `'1'`)
+- `cp_social_kit_activity_team_created_enabled` (default: `'1'`)
+- `cp_social_kit_activity_team_joined_enabled` (default: `'1'`)
+
+Set to `'0'` to disable that activity type for the user.
+
+## Notifications System
+
+Clanspress includes a core notifications system that supports both simple notifications and interactive notifications with action buttons. The system uses HTTP long polling for real-time updates with filters to swap in WebSocket transport.
+
+### Notification Bell Block
+
+Add the `clanspress/notification-bell` block to display a bell icon with unread count and dropdown. Block attributes:
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `showDropdown` | boolean | `true` | Show dropdown on click |
+| `dropdownCount` | number | `10` | Number of notifications in dropdown |
+
+### Sending Notifications
+
+```php
+// Simple notification
+clanspress_notify( $user_id, 'mention', 'You were mentioned in a post', [
+    'url'      => $post_url,
+    'actor_id' => $mentioner_id,
+] );
+
+// Interactive notification with actions
+clanspress_notify( $user_id, 'team_invite', sprintf( '%s invited you to join %s', $inviter_name, $team_name ), [
+    'actor_id'    => $inviter_id,
+    'object_type' => 'team',
+    'object_id'   => $team_id,
+    'url'         => $team_url,
+    'actions'     => [
+        [
+            'key'             => 'accept',
+            'label'           => __( 'Accept', 'clanspress' ),
+            'style'           => 'primary',
+            'handler'         => 'my_team_invite_accept',
+            'status'          => 'accepted',
+            'success_message' => __( 'You have joined the team!', 'clanspress' ),
+        ],
+        [
+            'key'             => 'decline',
+            'label'           => __( 'Decline', 'clanspress' ),
+            'style'           => 'secondary',
+            'handler'         => 'my_team_invite_decline',
+            'status'          => 'declined',
+            'success_message' => __( 'Invitation declined.', 'clanspress' ),
+        ],
+    ],
+] );
+```
+
+### Action Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `key` | string | Yes | Unique action identifier (e.g., 'accept', 'decline') |
+| `label` | string | Yes | Button label |
+| `style` | string | No | 'primary', 'secondary', or 'danger'. Default 'secondary' |
+| `handler` | string | Yes | Handler identifier for the action |
+| `status` | string | No | Status to set after action ('accepted', 'declined', 'dismissed') |
+| `success_message` | string | No | Message to show on success |
+| `confirm` | string/false | No | Confirmation message, or false for no confirm |
+
+### Handling Actions
+
+Extensions register their own action handlers. For example, the Teams extension registers handlers for `team_invite_accept` and `team_invite_decline`. Third-party plugins can register handlers using filters:
+
+```php
+// Handle actions by handler identifier (recommended)
+add_filter( 'clanspress_notification_action_handler', function( $result, $handler, $notification, $action, $user_id ) {
+    // Return early if another handler already processed this
+    if ( null !== $result ) {
+        return $result;
+    }
+
+    if ( 'my_custom_handler' === $handler ) {
+        // Perform your action logic
+        $object_id = $notification->object_id;
+        
+        // Return result array
+        return [
+            'success'  => true,
+            'message'  => __( 'Action completed!', 'my-plugin' ),
+            'redirect' => get_permalink( $object_id ), // Optional redirect
+        ];
+    }
+
+    // Return null to pass to next handler
+    return null;
+}, 10, 5 );
+
+// Or handle by notification type (fires before generic handler)
+add_filter( 'clanspress_notification_action_group_invite', function( $result, $notification, $action, $user_id ) {
+    if ( 'accept' === $action['key'] ) {
+        // Add user to group
+        return [
+            'success' => true,
+            'message' => __( 'You have joined the group!', 'my-plugin' ),
+        ];
+    }
+    return $result;
+}, 10, 4 );
+```
+
+**Handler registration pattern for extensions:**
+
+```php
+class My_Extension {
+    public function run(): void {
+        // Register notification action handlers
+        add_filter( 'clanspress_notification_action_handler', [ $this, 'handle_notification_actions' ], 10, 5 );
+    }
+
+    public function handle_notification_actions( $result, $handler, $notification, $action, $user_id ) {
+        if ( null !== $result ) {
+            return $result;
+        }
+
+        switch ( $handler ) {
+            case 'my_invite_accept':
+                return $this->handle_invite_accept( $notification, $user_id );
+            case 'my_invite_decline':
+                return $this->handle_invite_decline( $notification, $user_id );
+            default:
+                return null;
+        }
+    }
+}
+```
+
+### Helper Functions
+
+| Function | Description |
+|----------|-------------|
+| `clanspress_notify( $user_id, $type, $title, $args )` | Send a notification |
+| `clanspress_get_notifications( $user_id, $page, $per_page, $unread_only )` | Get notifications for a user |
+| `clanspress_get_notification( $id )` | Get a single notification |
+| `clanspress_get_unread_notification_count( $user_id )` | Get unread count |
+| `clanspress_mark_notification_read( $id, $user_id )` | Mark as read |
+| `clanspress_mark_all_notifications_read( $user_id )` | Mark all as read |
+| `clanspress_delete_notification( $id, $user_id )` | Delete a notification |
+| `clanspress_delete_all_notifications( $user_id )` | Delete all for a user |
+| `clanspress_delete_notifications_for_object( $type, $id )` | Delete by object |
+| `clanspress_execute_notification_action( $id, $action_key, $user_id )` | Execute an action |
+| `clanspress_dismiss_notification( $id, $user_id )` | Dismiss a notification |
+| `clanspress_get_notifications_url( $user_id )` | Get notifications page URL |
+| `clanspress_render_notification( $notification, $compact )` | Render notification HTML |
+
+### REST API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/clanspress/v1/notifications` | List notifications |
+| `GET` | `/clanspress/v1/notifications/poll` | Long polling for real-time updates |
+| `GET` | `/clanspress/v1/notifications/count` | Get unread count |
+| `GET` | `/clanspress/v1/notifications/{id}` | Get single notification |
+| `DELETE` | `/clanspress/v1/notifications/{id}` | Delete notification |
+| `POST` | `/clanspress/v1/notifications/{id}/read` | Mark as read |
+| `POST` | `/clanspress/v1/notifications/{id}/action` | Execute action |
+| `POST` | `/clanspress/v1/notifications/read-all` | Mark all as read |
+| `GET` | `/clanspress/v1/notifications/transport` | Get transport config |
+
+### Real-Time Updates (Long Polling)
+
+The notification bell uses HTTP long polling by default. The poll endpoint (`/notifications/poll`) waits up to 30 seconds for new notifications before returning.
+
+**Polling parameters:**
+- `since` - ISO timestamp to get notifications after
+- `last_id` - Get notifications with ID greater than this
+- `timeout` - Max wait time in seconds (default 30)
+
+**Response includes:**
+- `notifications` - Array of new notifications
+- `unread_count` - Current unread count
+- `timestamp` - Server timestamp for next poll
+- `next_poll` - Recommended interval until next poll (ms)
+
+### WebSocket Support
+
+The system is designed for WebSocket upgrade. Use these filters to provide WebSocket transport:
+
+```js
+// JavaScript: Enable WebSocket transport
+wp.hooks.addFilter(
+    'clanspress.notifications.useWebSocket',
+    'my-plugin/websocket',
+    ( useWs, context ) => {
+        // Return true if WebSocket is available
+        return myWebSocketService.isConnected();
+    }
+);
+
+// Provide WebSocket configuration
+wp.hooks.addFilter(
+    'clanspress.notifications.webSocketConfig',
+    'my-plugin/websocket-config',
+    ( config, context ) => {
+        return {
+            url: 'wss://example.com/notifications',
+            authMessage: { token: myAuthToken },
+        };
+    }
+);
+```
+
+```php
+// PHP: Override polling transport entirely
+add_filter( 'clanspress_notification_poll_transport', function( $response, $user_id, $since, $last_id, $request ) {
+    // Return a WP_REST_Response to bypass polling
+    // Useful for WebSocket-only setups
+    return new WP_REST_Response( [
+        'transport' => 'websocket',
+        'message'   => 'Use WebSocket connection instead',
+    ] );
+}, 10, 5 );
+
+// Customize transport configuration
+add_filter( 'clanspress_notification_transport_config', function( $config, $user_id ) {
+    if ( my_websocket_available() ) {
+        $config['type'] = 'websocket';
+        $config['websocket_url'] = 'wss://example.com/notifications';
+    }
+    return $config;
+}, 10, 2 );
+```
+
+### JavaScript Hooks
+
+| Hook | Description |
+|------|-------------|
+| `clanspress.notifications.useWebSocket` | Return true to use WebSocket transport |
+| `clanspress.notifications.webSocketConfig` | Provide WebSocket URL and auth config |
+| `clanspress.notifications.received` | Fired when new notifications arrive |
+| `clanspress.notifications.showToast` | Customize toast notification display |
+
+### PHP Filters
+
+| Filter | Description |
+|--------|-------------|
+| `clanspress_notification_poll_timeout` | Modify poll timeout |
+| `clanspress_notification_poll_interval` | Modify poll check interval |
+| `clanspress_notification_poll_transport` | Override polling with custom transport |
+| `clanspress_notification_next_poll_interval` | Modify next poll interval |
+| `clanspress_notification_transport_config` | Customize transport configuration |
+| `clanspress_notification_action_{type}` | Handle actions for a notification type |
+| `clanspress_notification_action_handler` | Generic action handler |
+| `clanspress_notification_types` | Register custom notification types |
+| `clanspress_render_notification` | Customize notification HTML |
+| `clanspress_format_notification_response` | Customize API response format |
+
+### Built-in Notification Types
+
+| Type | Description |
+|------|-------------|
+| `team_invite` | Team invitation with Accept/Decline actions |
+| `team_join` | User joined a team |
+| `team_role` | Team role changed |
+| `team_removed` | Removed from team |
+| `mention` | Mentioned in content |
+| `system` | System notifications |
+
+Third-party plugins can register additional types via the `clanspress_notification_types` filter.
 
 ## Maintenance Notes
 - Keep this README updated when extension architecture, hooks, or setup requirements change.

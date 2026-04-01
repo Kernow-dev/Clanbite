@@ -1,0 +1,1 @@
+(()=>{"use strict";const e=window.wp.blocks,n=JSON.parse('{"UU":"clanspress/team-profile-nav"}'),i=window.ReactJSXRuntime;(0,e.registerBlockType)(n.UU,{edit:()=>(0,i.jsx)("p",{children:"Team profile navigation (rendered on front-end)."})})})();

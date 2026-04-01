@@ -54,6 +54,7 @@
 | Players helpers | `inc/extensions/players/functions.php` | Theme-safe `clanspress_players_*()` wrappers. |
 | Matches extension | `Kernowdev\Clanspress\Extensions\Matches` | `cp_match` CPT, REST list/detail, JS blocks + editor sidebar; **requires** `cp_teams`, **not** a Teams sub-extension. |
 | Matches helpers | `inc/extensions/matches/functions.php` | `clanspress_matches()` and related theme-safe helpers. |
+| Player settings (front) | `build/players/player-settings/view.js` (source: `src/blocks/…`), `CLANSPRESSPLAYERSETTINGS` | Interactivity store; extensions use `actions.runPluginAction` + `data-cp-action-*` attributes instead of inline scripts. |
 
 ### Hook Reference (Core Extension Flow)
 **Filters**
@@ -62,6 +63,7 @@
 - `clanspress_extension_data_store` — Replace `Extension_Data_Store` for a given extension: args `( $data_store, $slug, Skeleton $extension )`.
 - `clanspress_extension_{slug}_block_directories` / `clanspress_extension_block_directories` — Block build paths before `register_block_type_from_metadata` when using `Skeleton::register_extension_blocks()` (not used by first-party metadata-collection registration).
 - `clanspress_extension_{slug}_templates` / `clanspress_extension_templates` — FSE template definitions for `register_block_template`.
+- `clanspress_player_settings_frontend_config` — Filter the array passed to `wp_localize_script` as `CLANSPRESSPLAYERSETTINGS` (keys: `ajax_url`, `nonce`, `rest_url`, `rest_nonce`, and on the player settings screen `settings_url_base`, `settings_initial_nav`, `settings_initial_panel`). Used by the player-settings block for REST-backed extension UI and deep-link routing; see README **Player settings (front-end): plugin actions**.
 - `clanspress_can_install_{slug}_extension` — Extra install gates: `(bool $can_install, Skeleton $extension)`.
 - `clanspress_validate_installed_extensions` — After admin saves extension list: `( $new_installed, $requested, $available_extensions )`.
 

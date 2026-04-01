@@ -1,0 +1,15 @@
+{
+  "apiVersion": 2,
+  "name": "clanspress/player-profile-nav",
+  "title": "Player Profile Navigation",
+  "category": "widgets",
+  "icon": "groups",
+  "description": "Displays the player profile subpage navigation.",
+  "supports": {
+    "html": false
+  },
+  "textdomain": "clanspress",
+  "editorScript": "file:./index.js",
+  "style": "file:./style.scss",
+  "render": "file:./render.php"
+}

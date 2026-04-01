@@ -1,6 +1,21 @@
 <?php
 // This file is generated. Do not modify it manually.
 return array(
+	'profile-nav' => array(
+		'apiVersion' => 2,
+		'name' => 'clanspress/team-profile-nav',
+		'title' => 'Team Profile Navigation',
+		'category' => 'widgets',
+		'icon' => 'groups',
+		'description' => 'Displays the team profile subpage navigation.',
+		'supports' => array(
+			'html' => false
+		),
+		'textdomain' => 'clanspress',
+		'editorScript' => 'file:./index.js',
+		'style' => 'file:./style.scss',
+		'render' => 'file:./render.php'
+	),
 	'team-avatar' => array(
 		'$schema' => 'https://schemas.wp.org/trunk/block.json',
 		'apiVersion' => 3,

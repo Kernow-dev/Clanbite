@@ -227,6 +227,81 @@ function clanspress_team_accepts_challenges( int $team_id ): bool {
 }
 
 /**
+ * Register a team profile subpage (tab) for the front-end team profile.
+ *
+ * @param string $slug Unique slug (used in the URL).
+ * @param array  $args {
+ *     @type string $label          Human-readable label.
+ *     @type string $template_id    FSE template identifier (defaults to "clanspress-team-{$slug}").
+ *     @type string $default_blocks Optional default block markup.
+ *     @type string $capability     Capability required to view (default "read").
+ *     @type int    $position       Sort order (lower first).
+ * }
+ * @return void
+ */
+function clanspress_register_team_subpage( string $slug, array $args = array() ): void {
+	static $registry = array();
+
+	$slug     = sanitize_key( $slug );
+	$defaults = array(
+		'label'         => ucfirst( $slug ),
+		'template_id'   => "clanspress-team-{$slug}",
+		'default_blocks'=> '',
+		'capability'    => 'read',
+		'position'      => 10,
+	);
+
+	$registry[ $slug ] = array_merge( $defaults, $args );
+
+	$GLOBALS['clanspress_team_subpages_registry'] = $registry;
+}
+
+/**
+ * All registered team profile subpages.
+ *
+ * @return array<string,array>
+ */
+function clanspress_get_team_subpages(): array {
+	$registry = isset( $GLOBALS['clanspress_team_subpages_registry'] ) && is_array( $GLOBALS['clanspress_team_subpages_registry'] )
+		? $GLOBALS['clanspress_team_subpages_registry']
+		: array();
+
+	/**
+	 * Filter team subpages registry for navigation and routing.
+	 *
+	 * @param array<string,array> $registry Raw registry keyed by slug.
+	 */
+	$subpages = (array) apply_filters( 'clanspress_team_subpages', $registry );
+
+	uasort(
+		$subpages,
+		static function ( $a, $b ) {
+			$pa = (int) ( $a['position'] ?? 10 );
+			$pb = (int) ( $b['position'] ?? 10 );
+			if ( $pa === $pb ) {
+				return strcmp( (string) ( $a['label'] ?? '' ), (string) ( $b['label'] ?? '' ) );
+			}
+			return $pa <=> $pb;
+		}
+	);
+
+	return $subpages;
+}
+
+/**
+ * Resolve a single team subpage config by slug.
+ *
+ * @param string $slug Subpage slug.
+ * @return array<string,mixed>|null
+ */
+function clanspress_get_team_subpage( string $slug ): ?array {
+	$slug     = sanitize_key( $slug );
+	$subpages = clanspress_get_team_subpages();
+
+	return isset( $subpages[ $slug ] ) ? $subpages[ $slug ] : null;
+}
+
+/**
  * Global default team avatar image URL (Teams settings, then bundled asset).
  *
  * @param int $team_id Team post ID for filters.

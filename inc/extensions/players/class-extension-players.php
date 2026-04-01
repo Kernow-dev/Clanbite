@@ -112,6 +112,9 @@ class Players extends Skeleton {
 		add_action( 'init', array( $this, 'register_profile_endpoints' ) );
 		add_filter( 'author_link', array( $this, 'modify_author_links' ), 10, 3 );
 		add_filter( 'query_vars', array( $this, 'register_profile_query_vars' ) );
+		add_action( 'template_redirect', array( $this, 'maybe_canonicalize_player_profile_subpage' ), 4 );
+		add_filter( 'template_include', array( $this, 'maybe_load_player_profile_template' ), 20 );
+		add_action( 'template_redirect', array( $this, 'maybe_canonicalize_player_settings_url' ), 5 );
 		add_filter( 'template_include', array( $this, 'maybe_load_player_settings_template' ) );
 		add_action( 'init', array( $this, 'register_profile_templates' ) );
 		add_action( 'after_setup_theme', array( $this, 'register_image_sizes' ) );
@@ -146,7 +149,21 @@ class Players extends Skeleton {
 	 * @return void
 	 */
 	public function register_profile_endpoints() {
-		// 1. Players settings page
+		// 1a. Players settings deep links: /players/settings/{nav}/{panel}/
+		add_rewrite_rule(
+			'^players/settings/([^/]+)/([^/]+)/?$',
+			'index.php?players_settings=1&players_settings_nav=$matches[1]&players_settings_panel=$matches[2]',
+			'top'
+		);
+
+		// 1b. /players/settings/{nav}/ → canonicalize to first panel in template_redirect
+		add_rewrite_rule(
+			'^players/settings/([^/]+)/?$',
+			'index.php?players_settings=1&players_settings_nav=$matches[1]',
+			'top'
+		);
+
+		// 1c. Players settings index
 		add_rewrite_rule(
 			'^players/settings/?$',
 			'index.php?players_settings=1',
@@ -160,14 +177,21 @@ class Players extends Skeleton {
 			'top'
 		);
 
-		// 3. Author first page
+		// 3. Player profile subpages: /players/{nicename}/{subpage}/
+		add_rewrite_rule(
+			'^players/(?!settings/?$)([^/]+)/([^/]+)/?$',
+			'index.php?author_name=$matches[1]&cp_player_subpage=$matches[2]',
+			'top'
+		);
+
+		// 4. Author first page (default profile overview).
 		add_rewrite_rule(
 			'^players/(?!settings/?$)([^/]+)/?$',
 			'index.php?author_name=$matches[1]',
 			'top'
 		);
 
-		// 4. Players archive
+		// 5. Players archive
 		add_rewrite_rule(
 			'^players/?$',
 			'index.php?post_type=player_list',
@@ -177,7 +201,143 @@ class Players extends Skeleton {
 
 	public function register_profile_query_vars( $vars ) {
 		$vars[] = 'players_settings';
+		$vars[] = 'players_settings_nav';
+		$vars[] = 'players_settings_panel';
+		$vars[] = 'cp_player_subpage';
 		return $vars;
+	}
+
+	/**
+	 * Redirect invalid player subpages to the profile root.
+	 *
+	 * The root URL (/players/{username}/) is the default profile view.
+	 * Only redirect if a subpage was requested but doesn't exist.
+	 *
+	 * @return void
+	 */
+	public function maybe_canonicalize_player_profile_subpage(): void {
+		if ( ! is_author() ) {
+			return;
+		}
+
+		$requested = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
+
+		// No subpage requested - this is the profile root, which is valid.
+		if ( empty( $requested ) ) {
+			return;
+		}
+
+		// Check if the requested subpage exists.
+		$subpages = function_exists( '\clanspress_get_player_subpages' ) ? \clanspress_get_player_subpages() : array();
+		if ( isset( $subpages[ $requested ] ) ) {
+			return;
+		}
+
+		// Invalid subpage requested - redirect to profile root.
+		$user = get_queried_object();
+		if ( ! $user instanceof \WP_User ) {
+			return;
+		}
+
+		$url = trailingslashit( home_url( '/players/' . $user->user_nicename ) );
+		wp_safe_redirect( $url, 301 );
+		exit;
+	}
+
+	/**
+	 * Prefer the Clanspress player profile template for author archives.
+	 *
+	 * @param string $template Resolved template path.
+	 * @return string
+	 */
+	public function maybe_load_player_profile_template( string $template ): string {
+		if ( ! is_author() ) {
+			return $template;
+		}
+
+		$templates = array( 'players/player-profile.php' );
+		$found     = locate_block_template( $template, 'players-player-profile', $templates );
+
+		return $found ?: $template;
+	}
+
+	/**
+	 * Resolve nav/panel slugs from query vars to registered settings sections.
+	 *
+	 * @return array{0: string, 1: string} Nav key and panel sub-key (may be empty if nothing registered).
+	 */
+	public function get_resolved_player_settings_route(): array {
+		$nav   = sanitize_key( (string) get_query_var( 'players_settings_nav' ) );
+		$panel = sanitize_key( (string) get_query_var( 'players_settings_panel' ) );
+
+		$nav_items = (array) apply_filters( 'clanspress_players_settings_nav_items', array() );
+		if ( empty( $nav_items ) ) {
+			return array( '', '' );
+		}
+
+		if ( $nav && ! isset( $nav_items[ $nav ] ) ) {
+			$nav   = '';
+			$panel = '';
+		}
+
+		if ( $nav && $panel ) {
+			$sub = (array) apply_filters( "clanspress_players_settings_nav_{$nav}_sub_items", array() );
+			if ( ! isset( $sub[ $panel ] ) ) {
+				$panel = '';
+			}
+		}
+
+		if ( $nav && ! $panel ) {
+			$sub = (array) apply_filters( "clanspress_players_settings_nav_{$nav}_sub_items", array() );
+			$panel = (string) array_key_first( $sub );
+		}
+
+		if ( ! $nav || ! $panel ) {
+			$nav = (string) array_key_first( $nav_items );
+			$sub = (array) apply_filters( "clanspress_players_settings_nav_{$nav}_sub_items", array() );
+			$panel = (string) array_key_first( $sub );
+		}
+
+		return array( $nav, $panel );
+	}
+
+	/**
+	 * Redirect single-segment settings URLs to /players/settings/{nav}/{first-panel}/.
+	 *
+	 * @return void
+	 */
+	public function maybe_canonicalize_player_settings_url(): void {
+		if ( ! get_query_var( 'players_settings' ) ) {
+			return;
+		}
+
+		$nav_in   = sanitize_key( (string) get_query_var( 'players_settings_nav' ) );
+		$panel_in = sanitize_key( (string) get_query_var( 'players_settings_panel' ) );
+
+		list( $canonical_nav, $canonical_panel ) = $this->get_resolved_player_settings_route();
+
+		if ( ! $canonical_nav || ! $canonical_panel ) {
+			return;
+		}
+
+		$target = trailingslashit( home_url( "/players/settings/{$canonical_nav}/{$canonical_panel}/" ) );
+
+		// /players/settings/ — keep as-is (JS defaults to first tab).
+		if ( ! $nav_in ) {
+			return;
+		}
+
+		// /players/settings/{nav}/ → /players/settings/{nav}/{first-panel}/
+		if ( $nav_in && ! $panel_in ) {
+			wp_safe_redirect( $target, 301 );
+			exit;
+		}
+
+		// Invalid or outdated slugs in the URL.
+		if ( $nav_in !== $canonical_nav || $panel_in !== $canonical_panel ) {
+			wp_safe_redirect( $target, 302 );
+			exit;
+		}
 	}
 
 	public function maybe_load_player_settings_template( $template ) {
@@ -222,6 +382,10 @@ class Players extends Skeleton {
 				'title' => __( 'Player Settings', 'clanspress' ),
 				'path'  => clanspress()->path . '/templates/players/player-settings.php',
 			),
+			'players-player-profile' => array(
+				'title' => __( 'Player Profile', 'clanspress' ),
+				'path'  => clanspress()->path . '/templates/players/player-profile.php',
+			),
 		);
 	}
 
@@ -249,12 +413,26 @@ class Players extends Skeleton {
 			true
 		);
 
+		$config = array(
+			'ajax_url'   => admin_url( 'admin-ajax.php' ),
+			'nonce'      => wp_create_nonce( 'clanspress_profile_settings_save_action' ),
+			'rest_url'   => esc_url_raw( rest_url() ),
+			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+		);
+
+		if ( get_query_var( 'players_settings' ) ) {
+			list( $settings_nav, $settings_panel ) = $this->get_resolved_player_settings_route();
+			$config['settings_url_base']      = trailingslashit( home_url( '/players/settings' ) );
+			$config['settings_initial_nav']   = $settings_nav;
+			$config['settings_initial_panel'] = $settings_panel;
+		}
+
 		wp_localize_script(
 			'clanspress-player-settings-localize',
 			'CLANSPRESSPLAYERSETTINGS',
-			array(
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'clanspress_profile_settings_save_action' ),
+			apply_filters(
+				'clanspress_player_settings_frontend_config',
+				$config
 			)
 		);
 
@@ -625,6 +803,7 @@ class Players extends Skeleton {
 			<div class="settings-section-row">
 				<div class="form-item">
 					<div class="form-input">
+						<label for="profile-description"><?php esc_html_e( 'Description', 'clanspress' ); ?></label>
 						<textarea id="profile-description" name="profile_description" data-wp-class--error="state.isError" placeholder="<?php esc_html_e( 'Write a little description about you...', 'clanspress' ); ?>"><?php echo wp_kses_post( $user_bio ); ?></textarea>
 						<div class="error-message" data-wp-bind--hidden="state.showError" data-wp-args="profile_description" data-wp-text="state.errorMessage"></div>
 					</div>
@@ -666,7 +845,7 @@ class Players extends Skeleton {
 			</div>
 			<div class="settings-section-row">
 				<div class="form-item">
-					<div class="form-input small active">
+					<div class="form-input">
 						<label for="profile-birthday"><?php esc_html_e( 'Birthday', 'clanspress' ); ?></label>
 						<input type="date" id="profile-birthday" name="profile_birthday" value="<?php echo esc_attr( $user_birthday ); ?>" data-wp-class--error="state.isError">
 						<div class="error-message" data-wp-bind--hidden="state.showError" data-wp-args="profile_birthday" data-wp-text="state.errorMessage"></div>
@@ -720,8 +899,8 @@ class Players extends Skeleton {
 				</div>
 				<div class="form-item">
 					<div class="form-input">
-						<?php /* translators: %s: Player profile URL base. */ ?>
-						<label for="account-url"><?php echo esc_html( sprintf( __( 'URL Username: %s', 'clanspress' ), home_url( '/players/' ) ) ); ?></label>
+						<label for="account-url"><?php esc_html_e( 'Profile URL', 'clanspress' ); ?></label>
+						<p class="description"><?php echo esc_html( trailingslashit( home_url( '/players/' ) ) ); ?></p>
 						<input type="text" id="account-url" name="account_url" value="<?php echo esc_attr( $user->user_nicename ); ?>" data-wp-class--error="state.isError" disabled>
 						<div class="error-message" data-wp-bind--hidden="state.showError" data-wp-args="account_url" data-wp-text="state.errorMessage"></div>
 					</div>

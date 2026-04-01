@@ -1,0 +1,34 @@
+.clanspress-team-profile-nav {
+	&__list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		list-style: none;
+		margin: 0 0 1rem;
+		padding: 0;
+	}
+
+	&__item {
+	}
+
+	&__link {
+		display: inline-block;
+		padding: 0.4rem 0.9rem;
+		border-radius: 999px;
+		background: var(--cp-chip-bg, rgba(0, 0, 0, 0.04));
+		color: inherit;
+		text-decoration: none;
+		font-size: 0.9rem;
+
+		&:hover,
+		&:focus-visible {
+			text-decoration: underline;
+		}
+	}
+
+	&__item.is-active .clanspress-team-profile-nav__link {
+		background: var(--cp-chip-active-bg, #111827);
+		color: #ffffff;
+	}
+}
+

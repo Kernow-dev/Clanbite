@@ -157,9 +157,10 @@ class Loader {
 	public function get_official_extensions(): array {
 		// All known official extensions.
 		$whitelist_extensions = array(
-			'cp_players' => 'Kernowdev\Clanspress\Extensions\Players',
-			'cp_teams'   => 'Kernowdev\Clanspress\Extensions\Teams',
-			'cp_matches' => 'Kernowdev\Clanspress\Extensions\Matches',
+			'cp_players'    => 'Kernowdev\Clanspress\Extensions\Players',
+			'cp_teams'      => 'Kernowdev\Clanspress\Extensions\Teams',
+			'cp_matches'    => 'Kernowdev\Clanspress\Extensions\Matches',
+			'cp_social_kit' => 'Kernowdev\ClanspressSocialKit\Extension\Social_Kit',
 		);
 
 		/**

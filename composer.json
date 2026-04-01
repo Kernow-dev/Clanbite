@@ -3,12 +3,16 @@
 	"description": "Community management system for gamers and sports teams plugin for Wordpress.",
 	"type": "wordpress-plugin",
 	"autoload": {
-      "classmap": [
-        "clanspress.php", "inc/"
-      ],
+		"classmap": [
+			"clanspress.php",
+			"inc/"
+		],
 		"psr-4": {
 			"Kernowdev\\Clanspress\\": "inc/"
-		}
+		},
+		"files": [
+			"inc/notifications/functions.php"
+		]
 	},
 	"authors": [
 		{

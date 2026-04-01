@@ -94,6 +94,9 @@ class Admin_Rest {
 				'optionSchemas'    => $schemas,
 				'extensions'       => $this->build_extensions_payload( $loader, $extensions ),
 				'generalOptionKey' => General_Settings::OPTION_KEY,
+				'plugin'           => array(
+					'version' => (string) \clanspress()->get_version(),
+				),
 			)
 		);
 	}
@@ -446,6 +449,9 @@ class Admin_Rest {
 		} else {
 			update_option( 'clanspress_installed_extensions', $new );
 		}
+
+		// Flush rewrite rules when extensions change (many register custom URLs).
+		flush_rewrite_rules();
 
 		return rest_ensure_response( array( 'installed' => $new ) );
 	}

@@ -3,6 +3,7 @@
 <!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} -->
 <main class="wp-block-group">
 	<!-- wp:clanspress/team-manage-link /-->
+	<!-- wp:clanspress/team-profile-nav /-->
 
 	<!-- wp:clanspress/team-cover {"minHeight":"280px","contentPosition":"bottom left"} -->
 	<!-- wp:group {"layout":{"type":"flex","flexWrap":"wrap","verticalAlignment":"top"},"style":{"spacing":{"blockGap":"1.5rem","margin":{"bottom":"1.5rem"}}}} -->

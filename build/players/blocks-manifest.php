@@ -166,5 +166,51 @@ return array(
 		'style' => 'file:./style-index.css',
 		'render' => 'file:./render.php',
 		'viewScriptModule' => 'file:./view.js'
+	),
+	'profile-nav' => array(
+		'apiVersion' => 2,
+		'name' => 'clanspress/player-profile-nav',
+		'title' => 'Player Profile Navigation',
+		'category' => 'widgets',
+		'icon' => 'groups',
+		'description' => 'Displays the player profile subpage navigation.',
+		'supports' => array(
+			'html' => false
+		),
+		'textdomain' => 'clanspress',
+		'editorScript' => 'file:./index.js',
+		'style' => 'file:./style.scss',
+		'render' => 'file:./render.php'
+	),
+	'user-nav' => array(
+		'$schema' => 'https://schemas.wp.org/trunk/block.json',
+		'apiVersion' => 3,
+		'name' => 'clanspress/user-nav',
+		'version' => '1.0.0',
+		'title' => 'User Navigation',
+		'category' => 'clanspress',
+		'icon' => 'admin-users',
+		'description' => 'Displays login/register links for guests, or user avatar with dropdown menu for logged-in users.',
+		'supports' => array(
+			'html' => false,
+			'align' => false,
+			'className' => true,
+			'interactivity' => true
+		),
+		'attributes' => array(
+			'avatarSize' => array(
+				'type' => 'number',
+				'default' => 32
+			),
+			'showUsername' => array(
+				'type' => 'boolean',
+				'default' => false
+			)
+		),
+		'textdomain' => 'clanspress',
+		'editorScript' => 'file:./index.js',
+		'viewScriptModule' => 'file:./view.js',
+		'style' => 'file:./style-index.css',
+		'render' => 'file:./render.php'
 	)
 );

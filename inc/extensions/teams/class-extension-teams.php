@@ -124,6 +124,9 @@ class Teams extends Skeleton {
 		add_action( 'admin_post_nopriv_clanspress_delete_team', array( $this, 'handle_delete_team_nopriv' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_team_editor_assets' ) );
 		add_action( 'wp_ajax_clanspress_team_invite_search', array( $this, 'ajax_team_invite_search' ) );
+
+		// Register notification action handlers for team invites.
+		add_filter( 'clanspress_notification_action_handler', array( $this, 'handle_notification_actions' ), 10, 5 );
 		add_action( 'init', array( $this, 'integrate_team_preferences' ), 5 );
 		add_filter( 'query_vars', array( $this, 'register_team_query_vars' ) );
 		add_filter( 'request', array( $this, 'filter_request_for_team_virtual_pages' ), 99 );
@@ -314,9 +317,6 @@ class Teams extends Skeleton {
 		?>
 		<div class="settings-section">
 			<h2 class="settings-section-title"><?php esc_html_e( 'Team invites', 'clanspress' ); ?></h2>
-			<p class="description">
-				<?php esc_html_e( 'If you turn this off, you will not appear in team invite search when captains add players to a new team.', 'clanspress' ); ?>
-			</p>
 			<div class="settings-section-row">
 				<div class="form-item">
 					<div class="form-input">
@@ -330,6 +330,9 @@ class Teams extends Skeleton {
 							/>
 							<?php esc_html_e( 'Allow team invites', 'clanspress' ); ?>
 						</label>
+						<p class="description">
+							<?php esc_html_e( 'If you turn this off, you will not appear in team invite search when captains add players to a new team.', 'clanspress' ); ?>
+						</p>
 					</div>
 				</div>
 			</div>
@@ -520,6 +523,7 @@ class Teams extends Skeleton {
 		$vars[] = 'clanspress_team_action';
 		$vars[] = 'clanspress_team_slug';
 		$vars[] = 'clanspress_manage_team_id';
+		$vars[] = 'cp_team_subpage';
 		return $vars;
 	}
 
@@ -1317,13 +1321,204 @@ class Teams extends Skeleton {
 	 */
 	protected function initialize_team_roster( int $team_id, int $creator_id, array $invite_user_ids ): void {
 		$map = array( $creator_id => self::TEAM_ROLE_ADMIN );
+
+		// Send invites instead of directly adding members.
 		foreach ( $invite_user_ids as $inv ) {
 			$inv = (int) $inv;
 			if ( $inv > 0 && $inv !== $creator_id ) {
-				$map[ $inv ] = self::TEAM_ROLE_MEMBER;
+				$this->send_team_invite( $team_id, $inv, $creator_id );
 			}
 		}
+
 		$this->persist_team_roles_map( $team_id, $map );
+	}
+
+	/**
+	 * Send a team invite notification to a user.
+	 *
+	 * @param int $team_id    Team ID.
+	 * @param int $user_id    User to invite.
+	 * @param int $inviter_id User sending the invite.
+	 * @return int|\WP_Error Notification ID or error.
+	 */
+	public function send_team_invite( int $team_id, int $user_id, int $inviter_id ) {
+		if ( ! function_exists( 'clanspress_notify' ) ) {
+			return new \WP_Error( 'notifications_unavailable', __( 'Notifications system not available.', 'clanspress' ) );
+		}
+
+		$team      = get_post( $team_id );
+		$inviter   = get_userdata( $inviter_id );
+		$team_name = $team ? $team->post_title : __( 'a team', 'clanspress' );
+		$team_url  = $team ? get_permalink( $team ) : '';
+
+		$title = sprintf(
+			/* translators: 1: inviter name, 2: team name */
+			__( '%1$s invited you to join %2$s', 'clanspress' ),
+			$inviter ? $inviter->display_name : __( 'Someone', 'clanspress' ),
+			$team_name
+		);
+
+		/**
+		 * Fires before a team invite notification is sent.
+		 *
+		 * @param int $team_id    Team ID.
+		 * @param int $user_id    User being invited.
+		 * @param int $inviter_id User sending the invite.
+		 */
+		do_action( 'clanspress_before_team_invite', $team_id, $user_id, $inviter_id );
+
+		$result = clanspress_notify(
+			$user_id,
+			'team_invite',
+			$title,
+			array(
+				'actor_id'    => $inviter_id,
+				'object_type' => 'team',
+				'object_id'   => $team_id,
+				'url'         => $team_url,
+				'actions'     => array(
+					array(
+						'key'             => 'accept',
+						'label'           => __( 'Accept', 'clanspress' ),
+						'style'           => 'primary',
+						'handler'         => 'team_invite_accept',
+						'status'          => 'accepted',
+						'success_message' => __( 'You have joined the team!', 'clanspress' ),
+					),
+					array(
+						'key'             => 'decline',
+						'label'           => __( 'Decline', 'clanspress' ),
+						'style'           => 'secondary',
+						'handler'         => 'team_invite_decline',
+						'status'          => 'declined',
+						'success_message' => __( 'Invitation declined.', 'clanspress' ),
+					),
+				),
+			)
+		);
+
+		if ( ! is_wp_error( $result ) ) {
+			/**
+			 * Fires after a team invite notification is sent.
+			 *
+			 * @param int $notification_id Notification ID.
+			 * @param int $team_id         Team ID.
+			 * @param int $user_id         User being invited.
+			 * @param int $inviter_id      User sending the invite.
+			 */
+			do_action( 'clanspress_team_invite_sent', $result, $team_id, $user_id, $inviter_id );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Handle notification actions for team-related notifications.
+	 *
+	 * @param array|null $result       Current result (null if not handled).
+	 * @param string     $handler      Handler identifier.
+	 * @param object     $notification Notification object.
+	 * @param array      $action       Action configuration.
+	 * @param int        $user_id      User executing the action.
+	 * @return array|null Result array or null to pass to next handler.
+	 */
+	public function handle_notification_actions( $result, string $handler, object $notification, array $action, int $user_id ) {
+		// Only handle our own handlers.
+		if ( null !== $result ) {
+			return $result;
+		}
+
+		switch ( $handler ) {
+			case 'team_invite_accept':
+				return $this->handle_team_invite_accept( $notification, $user_id );
+
+			case 'team_invite_decline':
+				return $this->handle_team_invite_decline( $notification, $user_id );
+
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Handle team invite accept action.
+	 *
+	 * @param object $notification Notification object.
+	 * @param int    $user_id      User accepting the invite.
+	 * @return array{success: bool, message: string, redirect?: string}
+	 */
+	private function handle_team_invite_accept( object $notification, int $user_id ): array {
+		$team_id = $notification->object_id ?? 0;
+
+		if ( $team_id <= 0 ) {
+			return array(
+				'success' => false,
+				'message' => __( 'Invalid team.', 'clanspress' ),
+			);
+		}
+
+		$team = get_post( $team_id );
+		if ( ! $team || self::POST_TYPE !== $team->post_type ) {
+			return array(
+				'success' => false,
+				'message' => __( 'Team not found.', 'clanspress' ),
+			);
+		}
+
+		// Check if user is already a member.
+		$roles_map = $this->get_team_member_roles_map( $team_id );
+		if ( isset( $roles_map[ $user_id ] ) ) {
+			return array(
+				'success' => false,
+				'message' => __( 'You are already a member of this team.', 'clanspress' ),
+			);
+		}
+
+		// Add user to team as member.
+		$roles_map[ $user_id ] = self::TEAM_ROLE_MEMBER;
+		$this->persist_team_roles_map( $team_id, $roles_map );
+
+		/**
+		 * Fires after a user accepts a team invite.
+		 *
+		 * @param int    $team_id Team ID.
+		 * @param int    $user_id User who accepted.
+		 * @param object $notification The notification object.
+		 */
+		do_action( 'clanspress_team_invite_accepted', $team_id, $user_id, $notification );
+
+		$team_url = get_permalink( $team_id );
+
+		return array(
+			'success'  => true,
+			'message'  => __( 'You have joined the team!', 'clanspress' ),
+			'redirect' => $team_url ?: null,
+		);
+	}
+
+	/**
+	 * Handle team invite decline action.
+	 *
+	 * @param object $notification Notification object.
+	 * @param int    $user_id      User declining the invite.
+	 * @return array{success: bool, message: string}
+	 */
+	private function handle_team_invite_decline( object $notification, int $user_id ): array {
+		$team_id = $notification->object_id ?? 0;
+
+		/**
+		 * Fires after a user declines a team invite.
+		 *
+		 * @param int    $team_id Team ID.
+		 * @param int    $user_id User who declined.
+		 * @param object $notification The notification object.
+		 */
+		do_action( 'clanspress_team_invite_declined', $team_id, $user_id, $notification );
+
+		return array(
+			'success' => true,
+			'message' => __( 'Invitation declined.', 'clanspress' ),
+		);
 	}
 
 	/**
@@ -1508,6 +1703,7 @@ class Teams extends Skeleton {
 						accept="image/png,image/jpeg"
 					/>
 				</p>
+				<p class="description"><?php esc_html_e( 'PNG or JPEG images only. Uploading replaces the current image.', 'clanspress' ); ?></p>
 			</div>
 			<div class="clanspress-team-manage-form__media-field">
 				<p>
@@ -1548,8 +1744,8 @@ class Teams extends Skeleton {
 						accept="image/png,image/jpeg"
 					/>
 				</p>
+				<p class="description"><?php esc_html_e( 'PNG or JPEG images only. Uploading replaces the current image.', 'clanspress' ); ?></p>
 			</div>
-			<p class="description"><?php esc_html_e( 'PNG or JPEG images only. Uploading replaces the current image.', 'clanspress' ); ?></p>
 		</div>
 		<?php
 	}

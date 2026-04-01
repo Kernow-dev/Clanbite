@@ -23,6 +23,7 @@ namespace Kernowdev\Clanspress;
 use AllowDynamicProperties;
 use Kernowdev\Clanspress\Admin\Settings;
 use Kernowdev\Clanspress\Extensions\Loader as Extension_Loader;
+use Kernowdev\Clanspress\Notifications\Notifications;
 
 // Use composer autoload.
 require_once __DIR__ . '/vendor/autoload.php';
@@ -39,7 +40,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.0.0';
+	public const VERSION = '0.0.1';
 
 	/**
 	 * What version of maintenance upgrades we are at.
@@ -243,7 +244,7 @@ final class Main {
 
 		add_filter( 'block_categories_all', array( $this, 'register_block_categories' ), 5, 2 );
 
-		// Scripts and styles
+		// Scripts and styles.
 		add_action(
 			'admin_enqueue_scripts',
 			array( $this, 'enqueue_admin_styles' )
@@ -305,6 +306,9 @@ final class Main {
 		// Must run on every request: REST (`/wp-json/...`) is not `is_admin()`, but the
 		// React settings app calls `clanspress/v1/admin/*` from the browser.
 		Settings::instance();
+
+		// Initialize notifications system.
+		Notifications::instance();
 	}
 
 	/**
