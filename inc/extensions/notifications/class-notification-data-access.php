@@ -155,6 +155,7 @@ final class Notification_Data_Access {
 					$user_id
 				)
 			);
+			$unread_count = $total;
 		} else {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
 			$total = (int) $wpdb->get_var(
@@ -163,12 +164,11 @@ final class Notification_Data_Access {
 					$user_id
 				)
 			);
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
+			$unread_count = (int) $wpdb->get_var(
+				$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND is_read = 0", $user_id )
+			);
 		}
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
-		$unread_count = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND is_read = 0", $user_id )
-		);
 
 		if ( $unread_only ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
