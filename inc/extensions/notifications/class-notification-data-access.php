@@ -170,25 +170,28 @@ final class Notification_Data_Access {
 			);
 		}
 
+		$limit  = (int) $per_page;
+		$offset = (int) $offset;
+
 		if ( $unread_only ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
-			$sql = $wpdb->prepare(
-				"SELECT * FROM {$table} WHERE user_id = %d AND is_read = 0 ORDER BY created_at DESC LIMIT %d OFFSET %d",
-				$user_id,
-				$per_page,
-				$offset
+			$sql_base = $wpdb->prepare(
+				"SELECT * FROM {$table} WHERE user_id = %d AND is_read = 0 ORDER BY created_at DESC",
+				$user_id
 			);
 		} else {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
-			$sql = $wpdb->prepare(
-				"SELECT * FROM {$table} WHERE user_id = %d ORDER BY created_at DESC LIMIT %d OFFSET %d",
-				$user_id,
-				$per_page,
-				$offset
+			$sql_base = $wpdb->prepare(
+				"SELECT * FROM {$table} WHERE user_id = %d ORDER BY created_at DESC",
+				$user_id
 			);
 		}
 
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- $sql from $wpdb->prepare() above.
+		// Append LIMIT/OFFSET as integers only (no placeholders): some DB drivers / wpdb::prepare combinations mishandle %d in LIMIT.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql_base is from $wpdb->prepare(); LIMIT/OFFSET are non-negative ints.
+		$sql = $sql_base . sprintf( ' LIMIT %d OFFSET %d', $limit, $offset );
+
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Hybrid query: prepared WHERE + integer-cast LIMIT/OFFSET.
 		$rows = $wpdb->get_results( $sql );
 
 		$notifications = array_map( array( self::class, 'hydrate_row' ), $rows ?: array() );
