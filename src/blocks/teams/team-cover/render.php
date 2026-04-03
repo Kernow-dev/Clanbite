@@ -106,6 +106,25 @@ $render_toolbar = static function ( int $tid, string $panel_id, string $file_id 
 	<?php
 };
 
+$render_cover_toast = static function (): void {
+	?>
+	<div
+		class="toast-box clanspress-team-cover__toast"
+		role="status"
+		aria-live="polite"
+		aria-atomic="true"
+		data-wp-bind--hidden="!state.toast.visible"
+		data-wp-class--success="state.isToastSuccess"
+		data-wp-class--error="state.isToastError"
+	>
+		<div class="toast-box-icon"></div>
+		<div class="toast-box-text">
+			<p class="toast-description" data-wp-text="state.toast.message"></p>
+		</div>
+	</div>
+	<?php
+};
+
 if ( $team_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes(
 		array(
@@ -151,6 +170,9 @@ if ( ! $url ) {
 	echo '<div class="team-cover__content-container">';
 	echo wp_kses_post( $content );
 	echo '</div>';
+	if ( $show_controls ) {
+		$render_cover_toast();
+	}
 	echo '</div>';
 	return;
 }
@@ -174,4 +196,7 @@ if ( $show_controls ) {
 echo '<div class="team-cover__content-container">';
 echo wp_kses_post( $content );
 echo '</div>';
+if ( $show_controls ) {
+	$render_cover_toast();
+}
 echo '</div>';

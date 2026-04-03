@@ -8,6 +8,7 @@ const { state, actions } = store( 'clanspress-team-avatar', {
 		root: null,
 		activePanel: null,
 		isSaving: false,
+		previewObjectUrl: null,
 		toast: {
 			visible: false,
 			type: 'success',
@@ -71,18 +72,34 @@ const { state, actions } = store( 'clanspress-team-avatar', {
 			if ( ! [ 'image/png', 'image/jpeg' ].includes( file.type ) ) {
 				if ( window.wp?.a11y?.speak ) {
 					window.wp.a11y.speak( badType, 'assertive' );
-				} else {
-					window.alert( badType );
 				}
+				const noticesDispatcher =
+					window.wp?.data?.dispatch?.( 'core/notices' );
+				if ( noticesDispatcher?.createNotice ) {
+					noticesDispatcher.createNotice( 'error', badType, {
+						type: 'snackbar',
+					} );
+				}
+				actions.showToast( {
+					type: 'error',
+					message: badType,
+					duration: 6000,
+				} );
 				event.target.value = '';
 				return;
 			}
+			if ( state.previewObjectUrl ) {
+				URL.revokeObjectURL( state.previewObjectUrl );
+				state.previewObjectUrl = null;
+			}
+			const url = URL.createObjectURL( file );
+			state.previewObjectUrl = url;
 			const preview = state.root?.querySelector(
 				'.clanspress-team-avatar__img'
 			);
 			if ( preview && preview.tagName === 'IMG' ) {
 				preview.classList.remove( 'clanspress-team-avatar__img--empty' );
-				preview.src = URL.createObjectURL( file );
+				preview.src = url;
 			}
 		},
 
@@ -157,6 +174,10 @@ const { state, actions } = store( 'clanspress-team-avatar', {
 						'.clanspress-team-avatar__img'
 					);
 					if ( img && img.tagName === 'IMG' ) {
+						if ( state.previewObjectUrl ) {
+							URL.revokeObjectURL( state.previewObjectUrl );
+							state.previewObjectUrl = null;
+						}
 						img.src = json.data.avatarUrl;
 						img.classList.remove(
 							'clanspress-team-avatar__img--empty'

@@ -176,4 +176,20 @@ if ( ! empty( $attributes['isLink'] ) && function_exists( 'clanspress_block_enti
 		</div>
 		<?php endif; ?>
 	</div>
+	<?php if ( $show_controls ) : ?>
+	<div
+		class="toast-box clanspress-team-avatar__toast"
+		role="status"
+		aria-live="polite"
+		aria-atomic="true"
+		data-wp-bind--hidden="!state.toast.visible"
+		data-wp-class--success="state.isToastSuccess"
+		data-wp-class--error="state.isToastError"
+	>
+		<div class="toast-box-icon"></div>
+		<div class="toast-box-text">
+			<p class="toast-description" data-wp-text="state.toast.message"></p>
+		</div>
+	</div>
+	<?php endif; ?>
 </div>

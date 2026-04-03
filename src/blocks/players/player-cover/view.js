@@ -9,6 +9,8 @@ const { state, actions } = store( 'clanspress-player-cover', {
 		activePanel: null,
 		isSaving: false,
 		errors: {},
+		/** @type {string|null} Revoked when replaced or after successful team-style saves; player AJAX does not return new media URLs. */
+		previewObjectUrl: null,
 		toast: {
 			visible: false,
 			type: 'success',
@@ -79,8 +81,26 @@ const { state, actions } = store( 'clanspress-player-cover', {
 			}
 
 			const rect = box.getBoundingClientRect();
-			let x = 0;
-			let y = 0;
+			const coverXInput = state.root.querySelector(
+				'input[name="profile_cover_position_x"]'
+			);
+			const coverYInput = state.root.querySelector(
+				'input[name="profile_cover_position_y"]'
+			);
+			let posX = 50;
+			let posY = 50;
+			const ix = coverXInput?.value
+				? parseFloat( coverXInput.value )
+				: NaN;
+			const iy = coverYInput?.value
+				? parseFloat( coverYInput.value )
+				: NaN;
+			if ( ! Number.isNaN( ix ) ) {
+				posX = Math.min( 100, Math.max( 0, ix * 100 ) );
+			}
+			if ( ! Number.isNaN( iy ) ) {
+				posY = Math.min( 100, Math.max( 0, iy * 100 ) );
+			}
 
 			const move = ( moveEvent ) => {
 				const clientX =
@@ -90,13 +110,15 @@ const { state, actions } = store( 'clanspress-player-cover', {
 				if ( clientX === undefined || clientY === undefined ) {
 					return;
 				}
-				x = ( ( clientX - rect.left ) / rect.width ) * 100;
-				y = ( ( clientY - rect.top ) / rect.height ) * 100;
-				x = Math.min( 100, Math.max( 0, Math.round( x ) ) );
-				y = Math.min( 100, Math.max( 0, Math.round( y ) ) );
-				ref.style.left = `${ x }%`;
-				ref.style.top = `${ y }%`;
-				image.style.objectPosition = `${ x }% ${ y }%`;
+				const rawX =
+					( ( clientX - rect.left ) / rect.width ) * 100;
+				const rawY =
+					( ( clientY - rect.top ) / rect.height ) * 100;
+				posX = Math.min( 100, Math.max( 0, rawX ) );
+				posY = Math.min( 100, Math.max( 0, rawY ) );
+				ref.style.left = `${ posX }%`;
+				ref.style.top = `${ posY }%`;
+				image.style.objectPosition = `${ posX }% ${ posY }%`;
 			};
 
 			const stop = () => {
@@ -105,17 +127,13 @@ const { state, actions } = store( 'clanspress-player-cover', {
 				document.removeEventListener( 'touchmove', move );
 				document.removeEventListener( 'touchend', stop );
 				ref.classList.remove( 'is-dragging' );
-				const coverXInput = state.root.querySelector(
-					'input[name="profile_cover_position_x"]'
-				);
-				const coverYInput = state.root.querySelector(
-					'input[name="profile_cover_position_y"]'
-				);
+				const xRounded = Math.round( posX );
+				const yRounded = Math.round( posY );
 				if ( coverXInput ) {
-					coverXInput.value = String( x / 100 );
+					coverXInput.value = String( xRounded / 100 );
 				}
 				if ( coverYInput ) {
-					coverYInput.value = String( y / 100 );
+					coverYInput.value = String( yRounded / 100 );
 				}
 			};
 
@@ -141,21 +159,29 @@ const { state, actions } = store( 'clanspress-player-cover', {
 				if ( window.wp?.a11y?.speak ) {
 					window.wp.a11y.speak( badType, 'assertive' );
 				}
-				if ( state.toast.timeout ) {
-					clearTimeout( state.toast.timeout );
+				const noticesDispatcher =
+					window.wp?.data?.dispatch?.( 'core/notices' );
+				if ( noticesDispatcher?.createNotice ) {
+					noticesDispatcher.createNotice( 'error', badType, {
+						type: 'snackbar',
+					} );
 				}
-				state.toast.type = 'error';
-				state.toast.heading = '';
-				state.toast.message = badType;
-				state.toast.visible = true;
-				state.toast.timeout = setTimeout( () => {
-					state.toast.visible = false;
-				}, 6000 );
+				actions.showToast( {
+					type: 'error',
+					heading: '',
+					message: badType,
+					duration: 6000,
+				} );
 				event.target.value = '';
 				return;
 			}
 
+			if ( state.previewObjectUrl ) {
+				URL.revokeObjectURL( state.previewObjectUrl );
+				state.previewObjectUrl = null;
+			}
 			const url = URL.createObjectURL( file );
+			state.previewObjectUrl = url;
 			const preview = state.root?.querySelector(
 				'.clanspress-player-cover__media'
 			);

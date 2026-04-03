@@ -8,6 +8,7 @@ const { state, actions } = store( 'clanspress-team-cover', {
 		root: null,
 		activePanel: null,
 		isSaving: false,
+		previewObjectUrl: null,
 		toast: {
 			visible: false,
 			type: 'success',
@@ -72,18 +73,27 @@ const { state, actions } = store( 'clanspress-team-cover', {
 				if ( window.wp?.a11y?.speak ) {
 					window.wp.a11y.speak( badType, 'assertive' );
 				}
-				if ( state.toast.timeout ) {
-					clearTimeout( state.toast.timeout );
+				const noticesDispatcher =
+					window.wp?.data?.dispatch?.( 'core/notices' );
+				if ( noticesDispatcher?.createNotice ) {
+					noticesDispatcher.createNotice( 'error', badType, {
+						type: 'snackbar',
+					} );
 				}
-				state.toast.type = 'error';
-				state.toast.message = badType;
-				state.toast.visible = true;
-				state.toast.timeout = setTimeout( () => {
-					state.toast.visible = false;
-				}, 6000 );
+				actions.showToast( {
+					type: 'error',
+					message: badType,
+					duration: 6000,
+				} );
 				event.target.value = '';
 				return;
 			}
+			if ( state.previewObjectUrl ) {
+				URL.revokeObjectURL( state.previewObjectUrl );
+				state.previewObjectUrl = null;
+			}
+			const url = URL.createObjectURL( file );
+			state.previewObjectUrl = url;
 			const preview = state.root?.querySelector(
 				'.clanspress-team-cover__media'
 			);
@@ -91,7 +101,7 @@ const { state, actions } = store( 'clanspress-team-cover', {
 				preview.classList.remove( 'clanspress-team-cover__media--empty' );
 				preview.style.opacity = '';
 				preview.style.pointerEvents = '';
-				preview.src = URL.createObjectURL( file );
+				preview.src = url;
 			}
 		},
 
@@ -166,6 +176,10 @@ const { state, actions } = store( 'clanspress-team-cover', {
 						'.clanspress-team-cover__media'
 					);
 					if ( img ) {
+						if ( state.previewObjectUrl ) {
+							URL.revokeObjectURL( state.previewObjectUrl );
+							state.previewObjectUrl = null;
+						}
 						img.src = json.data.coverUrl;
 						img.classList.remove(
 							'clanspress-team-cover__media--empty'

@@ -176,6 +176,23 @@ if ( ! $has_cover ) {
 	<div class="player-cover__content-container">
 		<?php echo wp_kses_post( $content ); ?>
 	</div>
+	<?php if ( $show_controls ) : ?>
+	<div
+		class="toast-box clanspress-player-cover__toast"
+		role="status"
+		aria-live="polite"
+		aria-atomic="true"
+		data-wp-bind--hidden="!state.toast.visible"
+		data-wp-class--success="state.isToastSuccess"
+		data-wp-class--error="state.isToastError"
+	>
+		<div class="toast-box-icon"></div>
+		<div class="toast-box-text">
+			<p class="toast-heading" data-wp-text="state.toast.heading"></p>
+			<p class="toast-description" data-wp-text="state.toast.message"></p>
+		</div>
+	</div>
+	<?php endif; ?>
 </div>
 	<?php
 	return;
@@ -210,4 +227,21 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	<div class="player-cover__content-container">
 		<?php echo wp_kses_post( $content ); ?>
 	</div>
+	<?php if ( $show_controls ) : ?>
+	<div
+		class="toast-box clanspress-player-cover__toast"
+		role="status"
+		aria-live="polite"
+		aria-atomic="true"
+		data-wp-bind--hidden="!state.toast.visible"
+		data-wp-class--success="state.isToastSuccess"
+		data-wp-class--error="state.isToastError"
+	>
+		<div class="toast-box-icon"></div>
+		<div class="toast-box-text">
+			<p class="toast-heading" data-wp-text="state.toast.heading"></p>
+			<p class="toast-description" data-wp-text="state.toast.message"></p>
+		</div>
+	</div>
+	<?php endif; ?>
 </div>
