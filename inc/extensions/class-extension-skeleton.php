@@ -1,6 +1,7 @@
 <?php
 
 namespace Kernowdev\Clanspress\Extensions;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Extension skeleton.
@@ -209,7 +210,7 @@ class Skeleton {
 	protected function validate_version( string $version ): string {
 		if ( ! preg_match( '/^\d+\.\d+\.\d+$/', $version ) ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message; translated for localized error UI.
-			throw new \InvalidArgumentException( __( 'Version must be in format x.y.z', 'clanspress' ) );
+			throw new \InvalidArgumentException( __( 'Version must be in format x.y.z.', 'clanspress' ) );
 		}
 
 		return $version;

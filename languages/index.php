@@ -5,4 +5,6 @@
  * @package clanspress
  */
 
+defined( 'ABSPATH' ) || exit;
+
 // Silence is golden.

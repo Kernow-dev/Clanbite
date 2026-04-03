@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions\Notification;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Handles database table creation and upgrades for notifications.
  */

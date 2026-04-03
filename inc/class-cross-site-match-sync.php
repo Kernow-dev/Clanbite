@@ -11,6 +11,7 @@
  */
 
 namespace Kernowdev\Clanspress;
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanspress\Admin\General_Settings;
 use WP_Error;

@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Player Query block: roster subset, ordering, meta filters, and exclusions.
  *

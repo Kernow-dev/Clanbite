@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Country flag assets (Flagpack) and filterable markup for country blocks.
  *

@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Procedural helpers for scheduled events (feature flags, team/group scope).
  *

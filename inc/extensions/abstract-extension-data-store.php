@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Abstract base: slug normalization and configurable option key.
  */

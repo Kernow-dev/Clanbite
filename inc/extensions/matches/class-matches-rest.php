@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions\Matches;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use WP_Post;
 use WP_REST_Request;
 use WP_REST_Server;

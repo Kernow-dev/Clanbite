@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Events;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Handles database table creation and upgrades for event RSVPs.
  */

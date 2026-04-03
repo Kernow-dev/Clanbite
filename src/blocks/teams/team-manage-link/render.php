@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Render callback: “Manage team” link (only when the viewer may manage the team).
  *

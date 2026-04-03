@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Server-side render: repeat inner blocks for each roster user with `clanspress/playerId` context.
  *

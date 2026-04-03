@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions\Teams;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Kernowdev\Clanspress\Events\Event_Post_Type;
 use Kernowdev\Clanspress\Events\Event_Rsvp_Data_Access;
 use WP_Error;

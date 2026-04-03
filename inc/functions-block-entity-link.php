@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Default permalinks and attributes for “link to entity” block options.
  *

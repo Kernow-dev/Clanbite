@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Option-backed persistence for `Skeleton::get_data()` / `set_data()`.
  */
