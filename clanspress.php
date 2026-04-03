@@ -13,7 +13,7 @@
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: clanspress
- * Domain Path: languages
+ * Domain Path: /languages
  *
  * @link    https://clanspress.com/
  *
@@ -336,6 +336,7 @@ final class Main {
 		}
 
 		// Load translated strings for the plugin.
+		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Standard plugin i18n; languages live under /languages (not only language packs).
 		load_plugin_textdomain(
 			'clanspress',
 			false,

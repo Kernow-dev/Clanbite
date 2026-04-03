@@ -301,11 +301,12 @@ class Players extends Skeleton {
 	 * @return string
 	 */
 	protected function get_canonical_request_path(): string {
-		if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+		$raw = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( (string) $_SERVER['REQUEST_URI'] ) : '';
+		if ( '' === $raw ) {
 			return '';
 		}
 
-		$uri  = wp_unslash( $_SERVER['REQUEST_URI'] );
+		$uri = sanitize_text_field( $raw );
 		$path = wp_parse_url( $uri, PHP_URL_PATH );
 		if ( ! is_string( $path ) ) {
 			return '';
@@ -955,29 +956,23 @@ class Players extends Skeleton {
 			return;
 		}
 
+		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Core global `$_wp_current_template_id` for block theme / Site Editor resolution.
 		global $_wp_current_template_id;
 
 		if ( (int) get_query_var( 'cp_players_directory' ) ) {
 			$_wp_current_template_id = 'clanspress//players-directory';
-			return;
-		}
-
-		if ( get_query_var( 'players_settings' ) ) {
+		} elseif ( get_query_var( 'players_settings' ) ) {
 			$_wp_current_template_id = 'clanspress//player-settings';
-			return;
+		} else {
+			$sub = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
+			if ( '' !== $sub && is_author() && $this->player_subpage_has_dedicated_template( $sub ) ) {
+				$_wp_current_template_id = 'clanspress//player-' . $sub;
+			} elseif ( $this->should_use_player_profile_template() ) {
+				$_wp_current_template_id = 'clanspress//players-player-profile';
+			}
 		}
 
-		$sub = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
-		if ( '' !== $sub && is_author() && $this->player_subpage_has_dedicated_template( $sub ) ) {
-			$_wp_current_template_id = 'clanspress//player-' . $sub;
-			return;
-		}
-
-		if ( ! $this->should_use_player_profile_template() ) {
-			return;
-		}
-
-		$_wp_current_template_id = 'clanspress//players-player-profile';
+		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 	}
 
 	/**
