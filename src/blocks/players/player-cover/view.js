@@ -3,7 +3,7 @@
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import {
-	clearClanspressPreviewObjectUrl,
+	applyClanspressInlineMediaSavePayload,
 	createClanspressHideToast,
 	createClanspressShowToast,
 	createClanspressToolbarPanelToggler,
@@ -244,26 +244,26 @@ const { state, actions } = store( 'clanspress-player-cover', {
 					ref.classList.add( 'saved' );
 					state.errors = {};
 					const payload = json.data || {};
-					if ( payload.coverUrl ) {
-						const img = state.root.querySelector(
-							'.clanspress-player-cover__media'
-						);
-						const posBox = state.root.querySelector(
-							'.clanspress-player-cover__position-box'
-						);
-						if ( img ) {
-							clearClanspressPreviewObjectUrl( state );
-							img.src = payload.coverUrl;
-							img.classList.remove(
-								'clanspress-player-cover__media--empty'
-							);
-						}
-						if ( posBox ) {
-							posBox.style.backgroundImage = `url(${ JSON.stringify(
-								payload.coverUrl
-							) })`;
-						}
-					}
+					applyClanspressInlineMediaSavePayload( state, payload, {
+						items: [
+							{
+								urlKey: 'coverUrl',
+								mediaSelector: '.clanspress-player-cover__media',
+								emptyClass:
+									'clanspress-player-cover__media--empty',
+								afterApply( root, url ) {
+									const posBox = root.querySelector(
+										'.clanspress-player-cover__position-box'
+									);
+									if ( posBox ) {
+										posBox.style.backgroundImage = `url(${ JSON.stringify(
+											url
+										) })`;
+									}
+								},
+							},
+						],
+					} );
 					if ( avatarInput ) {
 						avatarInput.value = '';
 					}

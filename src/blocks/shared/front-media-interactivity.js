@@ -61,8 +61,8 @@ export function announceClanspressInvalidImageFile(
  * @param {File|undefined|null} file
  * @param {HTMLInputElement|null|undefined} fileInput
  * @param {{ invalidFileType?: string }} strings
- * @param {object} options
- * @param {Function} options.showToast
+ * @param {object} [options]
+ * @param {Function} [options.showToast]
  * @param {object} [options.toastPayload]
  * @return {boolean} True when the file is invalid (caller should return early).
  */
@@ -70,7 +70,7 @@ export function rejectClanspressInvalidImageFile(
 	file,
 	fileInput,
 	strings,
-	{ showToast, toastPayload }
+	{ showToast, toastPayload } = {}
 ) {
 	if ( isClanspressInlineImageMimeType( file ) ) {
 		return false;
@@ -91,6 +91,82 @@ export function clearClanspressPreviewObjectUrl( state ) {
 		URL.revokeObjectURL( state.previewObjectUrl );
 		state.previewObjectUrl = null;
 	}
+}
+
+/**
+ * After a successful save, point preview media at server URLs, revoke any blob URL once, and clear named file inputs.
+ *
+ * @param {{ previewObjectUrl: string|null }} state
+ * @param {Record<string, unknown>}         payload Response `data` (e.g. avatarUrl / coverUrl).
+ * @param {{
+ *   root?: Element|null,
+ *   items: Array<{
+ *     urlKey: string,
+ *     mediaSelector: string,
+ *     emptyClass?: string,
+ *     requireImg?: boolean,
+ *     clearInputName?: string,
+ *     clearInputNames?: string[],
+ *     afterApply?: ( root: Element, url: string, mediaEl: Element ) => void,
+ *   }>
+ * }} config
+ * @return {boolean} True when at least one `urlKey` was applied to a matching element.
+ */
+export function applyClanspressInlineMediaSavePayload( state, payload, config ) {
+	const root = config.root ?? state.root;
+	if ( ! root || ! payload || ! Array.isArray( config.items ) ) {
+		return false;
+	}
+
+	let didApply = false;
+	let revokedBlob = false;
+
+	for ( const item of config.items ) {
+		const url = payload[ item.urlKey ];
+		if ( ! url || typeof url !== 'string' ) {
+			continue;
+		}
+
+		const media = root.querySelector( item.mediaSelector );
+		if ( ! media ) {
+			continue;
+		}
+
+		if ( item.requireImg && media.tagName !== 'IMG' ) {
+			continue;
+		}
+
+		if ( ! revokedBlob ) {
+			clearClanspressPreviewObjectUrl( state );
+			revokedBlob = true;
+		}
+
+		if ( media.tagName === 'IMG' ) {
+			media.src = url;
+		}
+
+		if ( item.emptyClass ) {
+			media.classList.remove( item.emptyClass );
+		}
+
+		if ( typeof item.afterApply === 'function' ) {
+			item.afterApply( root, url, media );
+		}
+
+		if ( item.clearInputName ) {
+			root.querySelector( `input[name="${ item.clearInputName }"]` )?.value =
+				'';
+		}
+		if ( item.clearInputNames?.length ) {
+			for ( const name of item.clearInputNames ) {
+				root.querySelector( `input[name="${ name }"]` )?.value = '';
+			}
+		}
+
+		didApply = true;
+	}
+
+	return didApply;
 }
 
 /**

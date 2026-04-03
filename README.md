@@ -133,7 +133,7 @@ To set **defaults for every Clanspress block** from your theme, merge the `style
 
 Nested keys under each block’s `color` object (`text`, `background`, `link`) mirror that block’s `selectors.color` map in its `block.json`—core maps them onto the inner DOM nodes those selectors describe. Where `selectors` includes `typography` or `filter.duotone`, the scaffold shows matching `styles.blocks[…].typography` / `filter` entries (see `clanspress/player-cover` for `filter.duotone`). Blocks that declare `selectors.border`, or that support spacing, shadows, and other features in `block.json`, accept the usual keys under `styles.blocks[ blockName ]` as in the [Styles reference](https://developer.wordpress.org/themes/global-settings-and-styles/styles/styles-reference/).
 
-The **copy-paste file** below is valid `theme.json`. It adds small **`cp-scaffold-*`** palette, font-size, and duotone presets under `settings` so every `var:preset|color|…`, `var:preset|font-size|…`, and `var:preset|duotone|…` value resolves. Merge into an existing theme by combining those presets with yours (rename slugs if they collide) and merging `styles.blocks`, or use the file as a new block theme starter and swap tokens for your design.
+The **copy-paste file** below is valid `theme.json`. It adds a small **`cp-scaffold-*`** palette, font-size, and duotone presets under `settings` so every `var:preset|color|…`, `var:preset|font-size|…`, and `var:preset|duotone|…` value resolves. Merge into an existing theme by combining those presets with yours (rename slugs if they collide) and merging `styles.blocks`, or use the file as a new block theme starter and swap tokens for your design.
 
 One-off override example (uses CSS variables instead of `var:preset|…`):
 

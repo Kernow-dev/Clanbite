@@ -3,7 +3,7 @@
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import {
-	clearClanspressPreviewObjectUrl,
+	applyClanspressInlineMediaSavePayload,
 	createClanspressShowToast,
 	createClanspressToolbarPanelToggler,
 	rejectClanspressInvalidImageFile,
@@ -125,17 +125,17 @@ const { state, actions } = store( 'clanspress-team-avatar', {
 
 				if ( json.success && json.data?.avatarUrl ) {
 					ref.classList.add( 'saved' );
-					const img = state.root.querySelector(
-						'.clanspress-team-avatar__img'
-					);
-					if ( img && img.tagName === 'IMG' ) {
-						clearClanspressPreviewObjectUrl( state );
-						img.src = json.data.avatarUrl;
-						img.classList.remove(
-							'clanspress-team-avatar__img--empty'
-						);
-					}
-					fileInput.value = '';
+					applyClanspressInlineMediaSavePayload( state, json.data, {
+						items: [
+							{
+								urlKey: 'avatarUrl',
+								mediaSelector: '.clanspress-team-avatar__img',
+								requireImg: true,
+								emptyClass: 'clanspress-team-avatar__img--empty',
+								clearInputName: 'team_avatar',
+							},
+						],
+					} );
 					actions.showToast( {
 						type: 'success',
 						message:

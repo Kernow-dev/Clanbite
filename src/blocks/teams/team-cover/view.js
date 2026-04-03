@@ -3,7 +3,7 @@
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import {
-	clearClanspressPreviewObjectUrl,
+	applyClanspressInlineMediaSavePayload,
 	createClanspressShowToast,
 	createClanspressToolbarPanelToggler,
 	rejectClanspressInvalidImageFile,
@@ -127,17 +127,16 @@ const { state, actions } = store( 'clanspress-team-cover', {
 
 				if ( json.success && json.data?.coverUrl ) {
 					ref.classList.add( 'saved' );
-					const img = state.root.querySelector(
-						'.clanspress-team-cover__media'
-					);
-					if ( img ) {
-						clearClanspressPreviewObjectUrl( state );
-						img.src = json.data.coverUrl;
-						img.classList.remove(
-							'clanspress-team-cover__media--empty'
-						);
-					}
-					fileInput.value = '';
+					applyClanspressInlineMediaSavePayload( state, json.data, {
+						items: [
+							{
+								urlKey: 'coverUrl',
+								mediaSelector: '.clanspress-team-cover__media',
+								emptyClass: 'clanspress-team-cover__media--empty',
+								clearInputName: 'team_cover',
+							},
+						],
+					} );
 					actions.showToast( {
 						type: 'success',
 						message:
