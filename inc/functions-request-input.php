@@ -58,6 +58,8 @@ function clanspress_get_canonical_request_path(): string {
 	return trim( (string) $path, '/' );
 }
 
+// phpcs:disable WordPress.Security.NonceVerification.Missing -- POST helpers are only used after callers verify nonces or capabilities.
+
 /**
  * Read a scalar `$_POST` field as plain text.
  *
@@ -68,7 +70,6 @@ function clanspress_get_canonical_request_path(): string {
  * @return string
  */
 function clanspress_request_post_text( string $key, string $default = '' ): string {
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Caller must verify a nonce before reading POST.
 	if ( ! isset( $_POST[ $key ] ) ) {
 		return $default;
 	}
@@ -84,7 +85,6 @@ function clanspress_request_post_text( string $key, string $default = '' ): stri
  * @return string
  */
 function clanspress_request_post_html( string $key, string $default = '' ): string {
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Caller must verify a nonce before reading POST.
 	if ( ! isset( $_POST[ $key ] ) ) {
 		return $default;
 	}
@@ -100,7 +100,6 @@ function clanspress_request_post_html( string $key, string $default = '' ): stri
  * @return int
  */
 function clanspress_request_post_absint( string $key, int $default = 0 ): int {
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Caller must verify a nonce before reading POST.
 	if ( ! isset( $_POST[ $key ] ) ) {
 		return $default;
 	}
@@ -115,7 +114,6 @@ function clanspress_request_post_absint( string $key, int $default = 0 ): int {
  * @return bool
  */
 function clanspress_request_post_has_key( string $key ): bool {
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Caller must verify a nonce before reading POST.
 	return array_key_exists( $key, $_POST );
 }
 
@@ -128,7 +126,6 @@ function clanspress_request_post_has_key( string $key ): bool {
  * @return bool
  */
 function clanspress_request_post_flag( string $key ): bool {
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Caller must verify a nonce before reading POST.
 	if ( ! isset( $_POST[ $key ] ) ) {
 		return false;
 	}
@@ -141,3 +138,5 @@ function clanspress_request_post_flag( string $key ): bool {
 
 	return ! empty( $raw );
 }
+
+// phpcs:enable WordPress.Security.NonceVerification.Missing
