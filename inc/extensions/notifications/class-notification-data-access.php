@@ -7,6 +7,10 @@
 
 namespace Kernowdev\Clanspress\Extensions\Notification;
 
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery -- Table names from `Notification_Schema::table_name()`; values use `$wpdb->prepare()`.
+
 /**
  * CRUD and query operations for notifications.
  */
@@ -170,8 +174,8 @@ final class Notification_Data_Access {
 			);
 		}
 
-		$limit  = (int) $per_page;
-		$offset = (int) $offset;
+		$limit  = max( 0, (int) $per_page );
+		$offset = max( 0, (int) $offset );
 
 		if ( $unread_only ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
@@ -191,7 +195,7 @@ final class Notification_Data_Access {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql_base is from $wpdb->prepare(); LIMIT/OFFSET are non-negative ints.
 		$sql = $sql_base . sprintf( ' LIMIT %d OFFSET %d', $limit, $offset );
 
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Hybrid query: prepared WHERE + integer-cast LIMIT/OFFSET.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Hybrid query: $sql_base from prepare() + integer-cast LIMIT/OFFSET.
 		$rows = $wpdb->get_results( $sql );
 
 		$notifications = array_map( array( self::class, 'hydrate_row' ), $rows ?: array() );
@@ -582,3 +586,5 @@ final class Notification_Data_Access {
 		return (object) apply_filters( 'clanspress_notification_hydrate', $row );
 	}
 }
+
+// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery

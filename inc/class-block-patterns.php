@@ -11,6 +11,9 @@
 
 namespace Kernowdev\Clanspress;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Registers Clanspress block patterns and pattern categories.
  */

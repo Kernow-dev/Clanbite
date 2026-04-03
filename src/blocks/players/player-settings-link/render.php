@@ -1,4 +1,9 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Renders a link to player settings for the profile owner.
  *

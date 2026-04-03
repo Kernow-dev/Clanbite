@@ -7,6 +7,10 @@
 
 namespace Kernowdev\Clanspress\Extensions\Notification;
 
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery -- Notifications table from schema; dynamic SQL fragments built with `$wpdb->prepare()`.
+
 use WP_REST_Controller;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -635,3 +639,5 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		return (array) apply_filters( 'clanspress_format_notification_response', $formatted, $notification );
 	}
 }
+
+// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery

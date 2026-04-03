@@ -11,6 +11,7 @@
  */
 
 namespace Kernowdev\Clanspress;
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanspress\Admin\General_Settings;
 use WP_Error;
@@ -662,6 +663,7 @@ final class Cross_Site_Match_Sync {
 				'fields'                 => 'ids',
 				'no_found_rows'          => true,
 				'update_post_meta_cache' => false,
+				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Single `posts_per_page => 1` duplicate check on indexed sync meta keys.
 				'meta_query'             => array(
 					'relation' => 'AND',
 					array(

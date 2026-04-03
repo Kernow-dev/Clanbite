@@ -23,6 +23,8 @@
 
 namespace Kernowdev\Clanspress;
 
+defined( 'ABSPATH' ) || exit;
+
 use AllowDynamicProperties;
 use Kernowdev\Clanspress\Admin\Settings;
 use Kernowdev\Clanspress\Extensions\Loader as Extension_Loader;
@@ -35,6 +37,7 @@ require_once __DIR__ . '/inc/class-block-patterns.php';
 require_once __DIR__ . '/inc/clanspress-private-media.php';
 require_once __DIR__ . '/inc/clanspress-team-challenge-uploads.php';
 require_once __DIR__ . '/inc/functions-block-templates.php';
+require_once __DIR__ . '/inc/functions-request-input.php';
 require_once __DIR__ . '/inc/functions-country-flags.php';
 require_once __DIR__ . '/inc/functions-block-entity-link.php';
 require_once __DIR__ . '/shortcut-function.php';
@@ -334,6 +337,7 @@ final class Main {
 		}
 
 		// Load translated strings for the plugin.
+		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Standard plugin i18n; languages live under /languages (not only language packs).
 		load_plugin_textdomain(
 			'clanspress',
 			false,

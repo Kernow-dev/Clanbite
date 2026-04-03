@@ -131,11 +131,35 @@ function clanspress_relocate_team_challenge_logo_to_match_dir( int $attachment_i
 		}
 	}
 
-	if ( ! @rename( $old_path, $dest_path ) ) {
-		if ( ! @copy( $old_path, $dest_path ) ) {
-			return false;
+	global $wp_filesystem;
+	if ( ! function_exists( 'WP_Filesystem' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+	}
+
+	$filesystem_ok = WP_Filesystem() && $wp_filesystem;
+	$moved           = false;
+
+	if ( $filesystem_ok ) {
+		// Third argument true: mirror PHP rename() overwrite when the destination already exists.
+		$moved = $wp_filesystem->move( $old_path, $dest_path, true );
+		if ( ! $moved ) {
+			if ( $wp_filesystem->copy( $old_path, $dest_path, true ) && $wp_filesystem->delete( $old_path, false ) ) {
+				$moved = true;
+			}
 		}
-		wp_delete_file( $old_path );
+	} else {
+		// When credentials are not configured, direct PHP IO often still works on the same host.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Intentional: probe OS rename before copy+delete.
+		if ( @rename( $old_path, $dest_path ) ) {
+			$moved = true;
+		} elseif ( @copy( $old_path, $dest_path ) ) {
+			wp_delete_file( $old_path );
+			$moved = true;
+		}
+	}
+
+	if ( ! $moved ) {
+		return false;
 	}
 
 	$relative_file = $relative_dir . '/' . wp_basename( $dest_path );

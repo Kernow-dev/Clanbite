@@ -1,4 +1,9 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Server-side render: repeat inner blocks for each roster user with `clanspress/playerId` context.
  *

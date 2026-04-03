@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Integration API for group profiles (no `cp_group` CPT and no group templates or blocks in core).
  *

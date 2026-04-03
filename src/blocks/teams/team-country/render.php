@@ -1,4 +1,9 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Render callback: team country.
  *
@@ -10,7 +15,8 @@ if ( $team_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes(
 		array(
 			'class' => 'clanspress-team-country clanspress-country-display clanspress-country-display--placeholder',
-		)
+		),
+		$block
 	);
 	echo '<div ' . $wrapper . '><span class="clanspress-country-display__label">' . esc_html__( 'Team country', 'clanspress' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
 	return;

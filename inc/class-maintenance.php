@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Runs one-shot maintenance steps keyed by {@see Main::MAINTENANCE_VERSION}.
  *

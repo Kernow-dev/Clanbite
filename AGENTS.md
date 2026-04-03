@@ -10,6 +10,49 @@
 - Follow the latest WordPress Coding Standards (WPCS), modern PHP practices, and secure WP APIs.
 - Use strict sanitization/escaping, capability checks, nonce verification, and i18n functions.
 
+## WordPress.org Plugin Check And PHPCS (Agent Checklist)
+
+These items recur in **Plugin Check** / **PHPCS** runs. Prefer fixing **errors** before **warnings**; avoid drive-by warning sweeps unless the maintainer asks.
+
+### Direct file access (`ABSPATH`)
+- **Every** PHP file that ships with the plugin should include `defined( 'ABSPATH' ) || exit;` (or equivalent) so the file cannot be executed directly.
+- **Namespaced files** (`namespace …;`): put the guard on the line **immediately after** the `namespace` statement. Only `declare()` may appear before `namespace` in PHP; do **not** place the guard before `namespace`.
+- **Procedural files** (no namespace): put the guard right after `<?php`, before `use` imports or other logic (e.g. `shortcut-function.php`, `templates/**/*.php`, `languages/index.php`).
+- **Block server markup**: add the guard in **`src/blocks/**/render.php`** (source of truth). Webpack copies into **`build/`**; editing only `build/` is lost on the next `npm run build`.
+- **`build/**/blocks-manifest.php`**: treat like other shipped PHP; include the guard.
+
+### Generated `*.asset.php` (webpack / `@wordpress/scripts`)
+- Default output is often a **single line**: `<?php return array( … );`. If Plugin Check requires a direct-access guard, the file must be **multi-line** so the guard runs **before** `return`:
+  - `<?php` → blank line → `defined( 'ABSPATH' ) || exit;` → blank line → `return array( … );`
+- **Do not** append the guard **after** a one-line `return` (it never executes).
+- **`npm run build`** may **regenerate** `build/**/index.asset.php` (and similar). If checks regress after a build, restore this shape, adjust the build pipeline, or exclude generated assets per project policy—do not assume a one-time manual edit sticks.
+
+### Plugin header: `Domain Path`
+- **`Domain Path`** must use a **leading slash** per WordPress / Plugin Check (e.g. `/languages`) and match a **real** folder under the plugin root (`languages/`). Keep a minimal `languages/index.php` with a direct-access guard so the directory is valid even before `.mo` files exist.
+
+### Shipped assets: file names
+- Under **`assets/`** (and anywhere in the distributable zip), use **no spaces** and **no odd characters** in file and folder names (Plugin Check `badly_named_files`). Prefer lowercase `a-z0-9._-`.
+- **`node_modules/`** may contain third-party files with bad names (e.g. copied flag packs). Release artifacts should **exclude** `node_modules` (see **`.distignore`**). When running Plugin Check locally on a dev tree, **exclude `node_modules`** from the scan scope if the tool allows—do not rename files inside dependencies.
+
+### Filesystem moves (uploads / temp files)
+- Avoid bare PHP **`rename()`** for paths WordPress owns; use **`WP_Filesystem`** and **`$wp_filesystem->move()`** after `WP_Filesystem()` is initialized (satisfies `WordPress.WP.AlternativeFunctions.rename_rename`).
+
+### Database (`$wpdb`)
+- Favor **`$wpdb->prepare()`** for all dynamic **values**. Table names are not placeholders: build them from trusted sources (e.g. `$wpdb->prefix` + known suffix) and document why; use a **narrow `phpcs:ignore`** with a one-line rationale when sniffs flag “NotPrepared” for identifier-safe SQL.
+- **`LIMIT` / `OFFSET`**: use integer casting or placeholders in a way your PHPCS rules accept; avoid passing unchecked user strings into raw SQL fragments.
+
+### Admin / developer diagnostics (`_doing_it_wrong`, loader validation)
+- Messages passed to **`_doing_it_wrong()`** (and similar core APIs) are **developer-facing**, not theme output. **Do not** blindly wrap them in `esc_html()` if that breaks translation placeholders.
+- If **`WordPress.Security.EscapeOutput.OutputNotEscaped`** fires on those calls, use a **tight `phpcs:disable` / `phpcs:enable`** around the specific block, or an inline ignore on the line, with a short comment.
+
+### Exceptions with translated strings
+- **`InvalidArgumentException`** (and similar) with `__( … )` may trigger **`ExceptionNotEscaped`**. Prefer a documented **`phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped`** on the `throw` line over removing translations.
+
+### Expectations: warnings you may not “fix” in one pass
+- **Block `render.php`** and classic templates often trigger **`PrefixAllGlobals`** for `$block`, `$attributes`, etc.; that is normal for WordPress templates unless the project adopts file-level exclusions.
+- **`load_plugin_textdomain()`** may be flagged as discouraged for WordPress.org-hosted plugins; follow product policy (keep for non.org installs or drop when fully on language packs only).
+- Do **not** rename WordPress core globals (e.g. `$_wp_current_template_id`) to satisfy prefix rules.
+
 ## Documentation Standard (Required For Third-Party Extensibility)
 
 ### PHPDoc (PHP)

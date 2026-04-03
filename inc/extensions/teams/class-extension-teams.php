@@ -1,6 +1,7 @@
 <?php
 
 namespace Kernowdev\Clanspress\Extensions;
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanspress\Main;
 use Kernowdev\Clanspress\Extensions\Abstract_Settings;
@@ -141,6 +142,7 @@ class Teams extends Skeleton {
 		add_action( 'admin_post_nopriv_clanspress_delete_team', array( $this, 'handle_delete_team_nopriv' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_team_editor_assets' ) );
 		add_action( 'wp_ajax_clanspress_team_invite_search', array( $this, 'ajax_team_invite_search' ) );
+		add_action( 'wp_ajax_clanspress_save_team_media', array( $this, 'ajax_save_team_media' ) );
 
 		// Register notification action handlers for team invites.
 		add_filter( 'clanspress_notification_action_handler', array( $this, 'handle_notification_actions' ), 10, 5 );
@@ -599,32 +601,7 @@ class Teams extends Skeleton {
 	 * @return string
 	 */
 	protected function get_canonical_request_path(): string {
-		if ( empty( $_SERVER['REQUEST_URI'] ) ) {
-			return '';
-		}
-
-		$uri  = wp_unslash( $_SERVER['REQUEST_URI'] );
-		$path = wp_parse_url( $uri, PHP_URL_PATH );
-		if ( ! is_string( $path ) ) {
-			return '';
-		}
-
-		$path = rawurldecode( $path );
-
-		$home_path = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
-		$home_path = is_string( $home_path ) ? $home_path : '';
-
-		if ( '' !== $home_path && '/' !== $home_path ) {
-			$home_trim = untrailingslashit( $home_path );
-			if ( str_starts_with( $path, $home_trim ) ) {
-				$path = substr( $path, strlen( $home_trim ) );
-			}
-		}
-
-		$path = ltrim( $path, '/' );
-		$path = preg_replace( '#^index\.php/?#i', '', $path );
-
-		return trim( (string) $path, '/' );
+		return clanspress_get_canonical_request_path();
 	}
 
 	/**
@@ -882,42 +859,32 @@ class Teams extends Skeleton {
 			return;
 		}
 
+		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Core global `$_wp_current_template_id` for block theme / Site Editor resolution.
 		global $_wp_current_template_id;
 
 		if ( is_singular( 'cp_team' ) ) {
 			$_wp_current_template_id = 'clanspress//single-cp_team';
-			return;
-		}
-
-		if ( ! $this->is_team_directories_mode() ) {
-			return;
-		}
-
-		if ( (int) get_query_var( 'clanspress_team_create' ) ) {
-			$_wp_current_template_id = 'clanspress//teams-create';
-			return;
-		}
-
-		$action = sanitize_key( (string) get_query_var( 'clanspress_team_action' ) );
-		if ( '' === $action ) {
-			return;
-		}
-
-		if ( 'manage' === $action ) {
-			$_wp_current_template_id = 'clanspress//teams-manage';
-			return;
-		}
-
-		if ( 'events' === $action && $this->events_extension_is_active() ) {
-			$events_sub = sanitize_key( (string) get_query_var( 'clanspress_team_events_sub' ) );
-			if ( 'create' === $events_sub ) {
-				$_wp_current_template_id = 'clanspress//teams-events-create';
-				return;
+		} elseif ( $this->is_team_directories_mode() ) {
+			if ( (int) get_query_var( 'clanspress_team_create' ) ) {
+				$_wp_current_template_id = 'clanspress//teams-create';
+			} else {
+				$action = sanitize_key( (string) get_query_var( 'clanspress_team_action' ) );
+				if ( 'manage' === $action ) {
+					$_wp_current_template_id = 'clanspress//teams-manage';
+				} elseif ( 'events' === $action && $this->events_extension_is_active() ) {
+					$events_sub = sanitize_key( (string) get_query_var( 'clanspress_team_events_sub' ) );
+					if ( 'create' === $events_sub ) {
+						$_wp_current_template_id = 'clanspress//teams-events-create';
+					} else {
+						$_wp_current_template_id = ( (int) get_query_var( 'clanspress_team_event_id' ) > 0 )
+							? 'clanspress//teams-events-single'
+							: 'clanspress//teams-events';
+					}
+				}
 			}
-			$_wp_current_template_id = ( (int) get_query_var( 'clanspress_team_event_id' ) > 0 )
-				? 'clanspress//teams-events-single'
-				: 'clanspress//teams-events';
 		}
+
+		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 	}
 
 	/**
@@ -1227,7 +1194,7 @@ class Teams extends Skeleton {
 
 		$scheme = is_ssl() ? 'https' : 'http';
 		$host   = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) );
-		$uri    = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
+		$uri    = clanspress_sanitize_request_uri( '/' );
 
 		return esc_url_raw( $scheme . '://' . $host . $uri );
 	}
@@ -2313,9 +2280,11 @@ class Teams extends Skeleton {
 			return;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Display-only status query arg after save redirect; value is `sanitize_key()`-ed.
 		$manage_status = isset( $_GET['clanspress_team_manage_status'] )
 			? sanitize_key( wp_unslash( $_GET['clanspress_team_manage_status'] ) )
 			: '';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		$action_url = admin_url( 'admin-post.php' );
 		$sections   = $this->get_team_manage_form_sections( $team_id );
@@ -2598,7 +2567,7 @@ class Teams extends Skeleton {
 			exit;
 		}
 
-		$team_id = isset( $_POST['clanspress_team_id'] ) ? absint( wp_unslash( $_POST['clanspress_team_id'] ) ) : 0;
+		$team_id = clanspress_request_post_absint( 'clanspress_team_id', 0 );
 		if ( $team_id < 1 ) {
 			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
 		}
@@ -2615,10 +2584,10 @@ class Teams extends Skeleton {
 			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
 		}
 
-		$team_name        = sanitize_text_field( wp_unslash( $_POST['team_name'] ?? '' ) );
-		$team_code        = sanitize_text_field( wp_unslash( $_POST['team_code'] ?? '' ) );
-		$team_motto       = sanitize_text_field( wp_unslash( $_POST['team_motto'] ?? '' ) );
-		$team_description = wp_kses_post( wp_unslash( $_POST['team_description'] ?? '' ) );
+		$team_name        = clanspress_request_post_text( 'team_name' );
+		$team_code        = clanspress_request_post_text( 'team_code' );
+		$team_motto       = clanspress_request_post_text( 'team_motto' );
+		$team_description = clanspress_request_post_html( 'team_description' );
 
 		if ( '' === $team_name ) {
 			wp_safe_redirect(
@@ -2640,24 +2609,16 @@ class Teams extends Skeleton {
 		$team_entity->set_description( $team_description );
 		$team_entity->set_code( $team_code );
 		$team_entity->set_motto( $team_motto );
-		$team_entity->set_country( $this->sanitize_team_country_input( (string) wp_unslash( $_POST['team_country'] ?? '' ) ) );
-		$team_entity->set_wins( absint( $_POST['team_wins'] ?? 0 ) );
-		$team_entity->set_losses( absint( $_POST['team_losses'] ?? 0 ) );
-		$team_entity->set_draws( absint( $_POST['team_draws'] ?? 0 ) );
+		$team_entity->set_country( $this->sanitize_team_country_input( clanspress_request_post_text( 'team_country' ) ) );
+		$team_entity->set_wins( clanspress_request_post_absint( 'team_wins', 0 ) );
+		$team_entity->set_losses( clanspress_request_post_absint( 'team_losses', 0 ) );
+		$team_entity->set_draws( clanspress_request_post_absint( 'team_draws', 0 ) );
 
-		$team_entity->set_join_mode( $this->sanitize_team_join_mode( wp_unslash( $_POST['team_join_mode'] ?? 'open_join' ) ) );
-		$team_entity->set_allow_invites(
-			isset( $_POST['team_allow_invites'] ) && '1' === (string) wp_unslash( $_POST['team_allow_invites'] )
-		);
-		$team_entity->set_allow_frontend_edit(
-			isset( $_POST['team_allow_frontend_edit'] ) && '1' === (string) wp_unslash( $_POST['team_allow_frontend_edit'] )
-		);
-		$team_entity->set_allow_ban_players(
-			isset( $_POST['team_allow_ban_players'] ) && '1' === (string) wp_unslash( $_POST['team_allow_ban_players'] )
-		);
-		$team_entity->set_accept_challenges(
-			isset( $_POST['team_accept_challenges'] ) && '1' === (string) wp_unslash( $_POST['team_accept_challenges'] )
-		);
+		$team_entity->set_join_mode( $this->sanitize_team_join_mode( clanspress_request_post_text( 'team_join_mode', 'open_join' ) ) );
+		$team_entity->set_allow_invites( clanspress_request_post_flag( 'team_allow_invites' ) );
+		$team_entity->set_allow_frontend_edit( clanspress_request_post_flag( 'team_allow_frontend_edit' ) );
+		$team_entity->set_allow_ban_players( clanspress_request_post_flag( 'team_allow_ban_players' ) );
+		$team_entity->set_accept_challenges( clanspress_request_post_flag( 'team_accept_challenges' ) );
 
 		/**
 		 * Fires after the manage form has populated the team entity and before it is saved.
@@ -2673,10 +2634,10 @@ class Teams extends Skeleton {
 		$has_avatar_upload = $this->team_manage_form_has_image_upload( 'team_avatar' );
 		$has_cover_upload    = $this->team_manage_form_has_image_upload( 'team_cover' );
 
-		if ( ! $has_avatar_upload && ! empty( $_POST['team_avatar_remove'] ) ) {
+		if ( ! $has_avatar_upload && clanspress_request_post_flag( 'team_avatar_remove' ) ) {
 			$this->maybe_remove_team_manage_image( $team_id, 'cp_team_avatar_id' );
 		}
-		if ( ! $has_cover_upload && ! empty( $_POST['team_cover_remove'] ) ) {
+		if ( ! $has_cover_upload && clanspress_request_post_flag( 'team_cover_remove' ) ) {
 			$this->maybe_remove_team_manage_image( $team_id, 'cp_team_cover_id' );
 		}
 
@@ -2686,9 +2647,11 @@ class Teams extends Skeleton {
 		if ( $this->user_is_team_admin_on_frontend( $team_id, $user_id )
 			&& isset( $_POST['member_roles'] )
 			&& is_array( $_POST['member_roles'] ) ) {
-			$new_map = array();
-			foreach ( wp_unslash( $_POST['member_roles'] ) as $mid => $role ) {
-				$new_map[ (int) $mid ] = $this->sanitize_team_member_role( (string) $role );
+			$new_map       = array();
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Unslashed map; each role string is sanitized in the loop.
+			$member_roles = wp_unslash( $_POST['member_roles'] );
+			foreach ( $member_roles as $mid => $role ) {
+				$new_map[ absint( $mid ) ] = $this->sanitize_team_member_role( sanitize_text_field( (string) $role ) );
 			}
 			if ( ! $this->persist_team_roles_map( $team_id, $new_map ) ) {
 				wp_safe_redirect(
@@ -2733,7 +2696,7 @@ class Teams extends Skeleton {
 			exit;
 		}
 
-		$team_id = isset( $_POST['clanspress_team_id'] ) ? absint( wp_unslash( $_POST['clanspress_team_id'] ) ) : 0;
+		$team_id = clanspress_request_post_absint( 'clanspress_team_id', 0 );
 		if ( $team_id < 1 ) {
 			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
 		}
@@ -3128,8 +3091,7 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		$enabled_raw = isset( $_POST['cp_team_events_enabled'] ) ? wp_unslash( $_POST['cp_team_events_enabled'] ) : '';
-		$enabled     = ( '1' === (string) $enabled_raw );
+		$enabled = clanspress_request_post_flag( 'cp_team_events_enabled' );
 		update_post_meta( $post_id, 'cp_team_events_enabled', $enabled );
 	}
 
@@ -3544,12 +3506,12 @@ class Teams extends Skeleton {
 		check_admin_referer( 'clanspress_create_team_action', '_clanspress_create_team_nonce' );
 
 		$user_id          = get_current_user_id();
-		$team_name        = sanitize_text_field( wp_unslash( $_POST['team_name'] ?? '' ) );
-		$team_code        = sanitize_text_field( wp_unslash( $_POST['team_code'] ?? '' ) );
-		$team_motto       = sanitize_text_field( wp_unslash( $_POST['team_motto'] ?? '' ) );
-		$team_description = wp_kses_post( wp_unslash( $_POST['team_description'] ?? '' ) );
-		$team_invites_raw = sanitize_text_field( wp_unslash( $_POST['team_invites'] ?? '' ) );
-		$team_country     = $this->sanitize_team_country_input( (string) wp_unslash( $_POST['team_country'] ?? '' ) );
+		$team_name        = clanspress_request_post_text( 'team_name' );
+		$team_code        = clanspress_request_post_text( 'team_code' );
+		$team_motto       = clanspress_request_post_text( 'team_motto' );
+		$team_description = clanspress_request_post_html( 'team_description' );
+		$team_invites_raw = clanspress_request_post_text( 'team_invites' );
+		$team_country     = $this->sanitize_team_country_input( clanspress_request_post_text( 'team_country' ) );
 
 		if ( '' === $team_name ) {
 			$this->redirect_after_team_create( false, 'missing_name' );
@@ -3574,8 +3536,8 @@ class Teams extends Skeleton {
 		$team->set_draws( 0 );
 
 		if ( function_exists( 'clanspress_matches' ) && clanspress_matches() ) {
-			if ( array_key_exists( 'team_accept_challenges', $_POST ) ) {
-				$team->set_accept_challenges( '1' === (string) wp_unslash( $_POST['team_accept_challenges'] ) );
+			if ( clanspress_request_post_has_key( 'team_accept_challenges' ) ) {
+				$team->set_accept_challenges( clanspress_request_post_flag( 'team_accept_challenges' ) );
 			} else {
 				$team->set_accept_challenges( true );
 			}
@@ -3708,20 +3670,113 @@ class Teams extends Skeleton {
 	}
 
 	/**
+	 * Ajax: save team avatar and/or cover from front-end blocks (multipart POST).
+	 *
+	 * Expects `clanspress_team_id`, `_clanspress_team_media_nonce`, and optional `team_avatar` / `team_cover` files.
+	 *
+	 * @return void
+	 */
+	public function ajax_save_team_media(): void {
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error(
+				array( 'message' => __( 'You must be logged in.', 'clanspress' ) ),
+				403
+			);
+		}
+
+		// Team id from POST; file fields stay on `$_FILES` and are validated in `team_manage_form_has_image_upload()` / `maybe_handle_team_media_upload()`.
+		$team_id = clanspress_request_post_absint( 'clanspress_team_id' );
+		if ( $team_id < 1 ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid team.', 'clanspress' ) ),
+				400
+			);
+		}
+
+		check_ajax_referer( 'clanspress_team_media_' . $team_id, '_clanspress_team_media_nonce' );
+
+		$user_id = get_current_user_id();
+		if ( ! $this->user_can_manage_team_on_frontend( $team_id, $user_id ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'You cannot edit this team.', 'clanspress' ) ),
+				403
+			);
+		}
+
+		$post = get_post( $team_id );
+		if ( ! $post instanceof \WP_Post || 'cp_team' !== $post->post_type ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid team.', 'clanspress' ) ),
+				400
+			);
+		}
+
+		$had_avatar = $this->team_manage_form_has_image_upload( 'team_avatar' );
+		$had_cover  = $this->team_manage_form_has_image_upload( 'team_cover' );
+
+		if ( ! $had_avatar && ! $had_cover ) {
+			wp_send_json_error(
+				array( 'message' => __( 'No image was uploaded.', 'clanspress' ) ),
+				400
+			);
+		}
+
+		if ( $had_avatar ) {
+			$this->maybe_handle_team_media_upload( $team_id, 'team_avatar', 'cp_team_avatar_id' );
+		}
+		if ( $had_cover ) {
+			$this->maybe_handle_team_media_upload( $team_id, 'team_cover', 'cp_team_cover_id' );
+		}
+
+		/**
+		 * Fires after team avatar/cover media was saved via Ajax from front-end blocks.
+		 *
+		 * @param int   $team_id   Team post ID.
+		 * @param Teams $extension Teams extension instance.
+		 */
+		do_action( 'clanspress_team_media_ajax_saved', $team_id, $this );
+
+		$avatar_id = (int) get_post_meta( $team_id, 'cp_team_avatar_id', true );
+		$cover_id  = (int) get_post_meta( $team_id, 'cp_team_cover_id', true );
+
+		$avatar_url = $avatar_id ? (string) wp_get_attachment_image_url( $avatar_id, 'medium' ) : '';
+		if ( '' === $avatar_url && function_exists( 'clanspress_teams_get_default_avatar_url' ) ) {
+			$avatar_url = clanspress_teams_get_default_avatar_url( $team_id );
+		}
+
+		$cover_url = $cover_id ? (string) wp_get_attachment_image_url( $cover_id, 'full' ) : '';
+		if ( '' === $cover_url && function_exists( 'clanspress_teams_get_default_cover_url' ) ) {
+			$cover_url = clanspress_teams_get_default_cover_url( $team_id );
+		}
+
+		wp_send_json_success(
+			array(
+				'avatarUrl' => $avatar_url,
+				'coverUrl'  => $cover_url,
+			)
+		);
+	}
+
+	/**
 	 * Whether the manage form submitted a new image file for a field.
 	 *
 	 * @param string $field_name `$_FILES` key (e.g. team_avatar).
 	 * @return bool
 	 */
 	protected function team_manage_form_has_image_upload( string $field_name ): bool {
-		if ( empty( $_FILES[ $field_name ] ) || ! is_array( $_FILES[ $field_name ] ) ) {
-			return false;
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` checked here; nonce verified in `handle_save_team_manage()`.
+		try {
+			if ( empty( $_FILES[ $field_name ] ) || ! is_array( $_FILES[ $field_name ] ) ) {
+				return false;
+			}
+
+			$err = isset( $_FILES[ $field_name ]['error'] ) ? (int) $_FILES[ $field_name ]['error'] : UPLOAD_ERR_NO_FILE;
+
+			return UPLOAD_ERR_OK === $err
+				&& ! empty( $_FILES[ $field_name ]['size'] );
+		} finally {
+			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing
 		}
-
-		$err = isset( $_FILES[ $field_name ]['error'] ) ? (int) $_FILES[ $field_name ]['error'] : UPLOAD_ERR_NO_FILE;
-
-		return UPLOAD_ERR_OK === $err
-			&& ! empty( $_FILES[ $field_name ]['size'] );
 	}
 
 	/**
@@ -3762,8 +3817,13 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		if ( empty( $_FILES[ $field_name ] ) || ! is_array( $_FILES[ $field_name ] ) ) {
-			return;
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` passed to `clanspress_handle_isolated_image_upload()` after nonce check in `handle_save_team_manage()`.
+		try {
+			if ( empty( $_FILES[ $field_name ] ) || ! is_array( $_FILES[ $field_name ] ) ) {
+				return;
+			}
+		} finally {
+			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing
 		}
 
 		$subdir = 'clanspress/teams/' . $team_id;
@@ -4032,14 +4092,17 @@ class Teams extends Skeleton {
 			return $pre_render;
 		}
 
+		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Core `$wp_query` / `$_wp_current_template_id` for singular team template priming.
 		global $wp_query, $_wp_current_template_id;
 
 		if ( ! $wp_query instanceof \WP_Query || ! $wp_query->is_singular( 'cp_team' ) || in_the_loop() ) {
+			// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 			return null;
 		}
 
 		$tpl_id = ( isset( $_wp_current_template_id ) && is_string( $_wp_current_template_id ) ) ? $_wp_current_template_id : '';
 		if ( '' === $tpl_id || ! str_starts_with( $tpl_id, 'clanspress//' ) ) {
+			// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 			return null;
 		}
 
@@ -4048,6 +4111,7 @@ class Teams extends Skeleton {
 			$done = true;
 		}
 
+		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 		return null;
 	}
 

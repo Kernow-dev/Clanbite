@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Admin;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Kernowdev\Clanspress\Extensions\Abstract_Settings;
 
 /**

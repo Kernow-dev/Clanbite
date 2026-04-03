@@ -7,6 +7,10 @@
 
 namespace Kernowdev\Clanspress\Extensions\Notification;
 
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery -- Custom table lifecycle (dbDelta, SHOW TABLES, DROP TABLE); names from `$wpdb->prefix` + static DDL.
+
 /**
  * Handles database table creation and upgrades for notifications.
  */
@@ -113,3 +117,5 @@ final class Notification_Schema {
 		delete_option( self::OPTION_DB_VERSION );
 	}
 }
+
+// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery

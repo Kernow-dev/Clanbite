@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions\Teams;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Kernowdev\Clanspress\Events\Event_Post_Type;
 use Kernowdev\Clanspress\Events\Event_Rsvp_Data_Access;
 use WP_Error;
@@ -225,6 +228,8 @@ final class Team_Challenges {
 			return new WP_Error( 'clanspress_challenge_bad_team', __( 'Team not found.', 'clanspress' ), array( 'status' => 404 ) );
 		}
 
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` after REST nonce check; validated by `wp_handle_upload()`.
+		try {
 		if ( empty( $_FILES['file'] ) || ! is_array( $_FILES['file'] ) ) {
 			return new WP_Error( 'clanspress_challenge_no_file', __( 'No file uploaded.', 'clanspress' ), array( 'status' => 400 ) );
 		}
@@ -307,6 +312,9 @@ final class Team_Challenges {
 			),
 			201
 		);
+		} finally {
+			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing
+		}
 	}
 
 	/**

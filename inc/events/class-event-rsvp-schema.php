@@ -7,6 +7,10 @@
 
 namespace Kernowdev\Clanspress\Events;
 
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery -- Custom RSVP table (dbDelta, DROP TABLE); names from `$wpdb->prefix` + static DDL.
+
 /**
  * Handles database table creation and upgrades for event RSVPs.
  */
@@ -87,4 +91,6 @@ final class Event_Rsvp_Schema {
 		delete_option( self::OPTION_DB_VERSION );
 	}
 }
+
+// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery
 

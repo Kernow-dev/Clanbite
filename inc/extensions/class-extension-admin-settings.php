@@ -1,6 +1,9 @@
 <?php
 
 namespace Kernowdev\Clanspress\Extensions;
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Extension settings API uses `{$this->option_key}_*` hook names; keys are registered option slugs.
 
 abstract class Abstract_Settings {
 
@@ -374,3 +377,5 @@ abstract class Abstract_Settings {
 	abstract protected function get_sections(): array;
 	abstract public function render_page(): void;
 }
+
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound

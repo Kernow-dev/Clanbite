@@ -1,4 +1,9 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * User Navigation block render.
  *
@@ -38,7 +43,8 @@ $context = array(
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
 		'class' => 'clanspress-user-nav' . ( $is_logged_in ? ' is-logged-in' : ' is-guest' ),
-	)
+	),
+	$block
 );
 ?>
 <div
