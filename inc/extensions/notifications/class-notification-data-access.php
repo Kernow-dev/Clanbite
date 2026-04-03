@@ -173,8 +173,8 @@ final class Notification_Data_Access {
 			);
 		}
 
-		$limit  = (int) $per_page;
-		$offset = (int) $offset;
+		$limit  = max( 0, (int) $per_page );
+		$offset = max( 0, (int) $offset );
 
 		if ( $unread_only ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
