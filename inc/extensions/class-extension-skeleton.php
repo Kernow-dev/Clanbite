@@ -143,7 +143,7 @@ class Skeleton {
 	protected function validate_name( string $name ): string {
 		$name = trim( $name );
 		if ( empty( $name ) ) {
-			throw new \InvalidArgumentException( __( 'Extension name cannot be empty.', 'clanspress' ) );
+			throw new \InvalidArgumentException( 'Extension name cannot be empty.' );
 		}
 
 		return $name;
@@ -160,7 +160,7 @@ class Skeleton {
 		$slug = strtolower( trim( $slug ) );
 		$slug = preg_replace( '/[^a-z0-9-_]/', '', $slug );
 		if ( empty( $slug ) ) {
-			throw new \InvalidArgumentException( __( 'Extension slug must contain only lowercase letters, numbers, dashes, or underscores.', 'clanspress' ) );
+			throw new \InvalidArgumentException( 'Extension slug must contain only lowercase letters, numbers, dashes, or underscores.' );
 		}
 
 		return $slug;
@@ -184,7 +184,7 @@ class Skeleton {
 		$parent_slug = preg_replace( '/[^a-z0-9-_]/', '', $parent_slug );
 
 		if ( empty( $parent_slug ) ) {
-			throw new \InvalidArgumentException( __( 'Extension slug must contain only lowercase letters, numbers, dashes, or underscores.', 'clanspress' ) );
+			throw new \InvalidArgumentException( 'Extension parent slug must contain only lowercase letters, numbers, dashes, or underscores.' );
 		}
 
 		$this->type = 'child';
@@ -201,7 +201,7 @@ class Skeleton {
 	 */
 	protected function validate_version( string $version ): string {
 		if ( ! preg_match( '/^\d+\.\d+\.\d+$/', $version ) ) {
-			throw new \InvalidArgumentException( __( 'Version must be in format x.y.z', 'clanspress' ) );
+			throw new \InvalidArgumentException( 'Version must be in format x.y.z.' );
 		}
 
 		return $version;
@@ -217,7 +217,7 @@ class Skeleton {
 	protected function validate_requires( array $requires ): array {
 		foreach ( $requires as $require ) {
 			if ( ! is_string( $require ) || empty( trim( $require ) ) ) {
-				throw new \InvalidArgumentException( __( 'All extension requirements must be non-empty strings.', 'clanspress' ) );
+				throw new \InvalidArgumentException( 'All extension requirements must be non-empty strings.' );
 			}
 		}
 

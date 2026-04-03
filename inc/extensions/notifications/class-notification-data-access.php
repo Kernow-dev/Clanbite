@@ -147,30 +147,49 @@ final class Notification_Data_Access {
 		$per_page = min( 50, max( 1, absint( $per_page ) ) );
 		$offset   = ( max( 1, $page ) - 1 ) * $per_page;
 
-		$where = $wpdb->prepare( 'WHERE user_id = %d', $user_id );
 		if ( $unread_only ) {
-			$where .= ' AND is_read = 0';
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
+			$total = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND is_read = 0",
+					$user_id
+				)
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
+			$total = (int) $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM {$table} WHERE user_id = %d",
+					$user_id
+				)
+			);
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} {$where}" );
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
 		$unread_count = (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND is_read = 0", $user_id )
 		);
 
-		// Integer LIMIT/OFFSET avoids wpdb::prepare edge cases with LIMIT placeholders on some environments.
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$rows = $wpdb->get_results(
-			sprintf(
-				'SELECT * FROM %s %s ORDER BY created_at DESC LIMIT %d OFFSET %d',
-				$table,
-				$where,
+		if ( $unread_only ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
+			$sql = $wpdb->prepare(
+				"SELECT * FROM {$table} WHERE user_id = %d AND is_read = 0 ORDER BY created_at DESC LIMIT %d OFFSET %d",
+				$user_id,
 				$per_page,
 				$offset
-			)
-		);
+			);
+		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
+			$sql = $wpdb->prepare(
+				"SELECT * FROM {$table} WHERE user_id = %d ORDER BY created_at DESC LIMIT %d OFFSET %d",
+				$user_id,
+				$per_page,
+				$offset
+			);
+		}
+
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- $sql from $wpdb->prepare() above.
+		$rows = $wpdb->get_results( $sql );
 
 		$notifications = array_map( array( self::class, 'hydrate_row' ), $rows ?: array() );
 

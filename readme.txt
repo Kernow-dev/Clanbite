@@ -2,7 +2,7 @@
 Contributors: kernowdev
 Tags: community, teams, esports, gaming
 Requires at least: 6.7
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 8.2
 Stable tag: 1.0.0
 License: GPLv2 or later

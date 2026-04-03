@@ -3,9 +3,9 @@
  * Plugin Name: Clanspress
  * Plugin URI: https://clanspress.com
  * Description: Community management system for Gamers and Sports teams
- * Version: 0.1.0
+ * Version: 1.0.0
  * Requires at least: 6.7
- * Tested up to: 6.8
+ * Tested up to: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
  * Author URI: https://kernow.dev
@@ -49,7 +49,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '0.1.0';
+	public const VERSION = '1.0.0';
 
 	/**
 	 * Maintenance upgrade counter (single step for 1.0.0 public release).
@@ -202,11 +202,12 @@ final class Main {
 	public function requirements_not_met_notice(): void {
 		// Compile default message.
 		$default_message = sprintf(
+			/* translators: %s: URL to the Plugins admin screen. */
 			__(
 				'Clanspress Plugin is missing requirements and has been <a href="%s">deactivated</a>. Please make sure all requirements are available.',
 				'clanspress'
 			),
-			admin_url( 'plugins.php' )
+			esc_url( admin_url( 'plugins.php' ) )
 		);
 
 		// Default details to null.
