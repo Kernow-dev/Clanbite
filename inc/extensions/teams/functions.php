@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Procedural API for the Teams extension (themes and third-party plugins).
  *

@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions;
 
+defined( 'ABSPATH' ) || exit;
+
+
 interface Extension_Data_Store {
 	/**
 	 * Read the persisted payload for one extension slug.

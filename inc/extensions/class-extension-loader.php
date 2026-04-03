@@ -10,6 +10,8 @@
 
 namespace Kernowdev\Clanspress\Extensions;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Extension loader (singleton).
  */
@@ -335,6 +337,7 @@ class Loader {
 		 */
 		$extensions = (array) apply_filters( 'clanspress_registered_extensions', array() );
 
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- _doing_it_wrong() expects a raw diagnostic string (core pattern); notices escape when rendered.
 		foreach ( $extensions as $slug => $extension ) {
 			// Must not have the same slug as an official extension.
 			if ( isset( $official_extensions[ $slug ] ) ) {
@@ -402,6 +405,7 @@ class Loader {
 				unset( $extensions[ $slug ] );
 			}
 		}
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// Finally return an array of available, validated extensions.
 		return array_merge( $official_extensions, $extensions );
@@ -440,6 +444,7 @@ class Loader {
 		// Verified official extension buffer.
 		$official_extensions = array();
 
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- _doing_it_wrong() expects a raw diagnostic string (core pattern); notices escape when rendered.
 		foreach ( $whitelist_extensions as $slug => $expected_class ) {
 			// Must be registered via the filter.
 			if ( ! isset( $registered_extensions[ $slug ] ) ) {
@@ -483,6 +488,7 @@ class Loader {
 
 			$official_extensions[ $slug ] = $registered_extensions[ $slug ];
 		}
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		return $official_extensions;
 	}

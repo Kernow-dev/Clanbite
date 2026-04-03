@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions\Teams;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * CRUD for a single team (`cp_team` by default).
  */

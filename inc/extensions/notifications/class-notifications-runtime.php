@@ -6,6 +6,7 @@
  */
 
 namespace Kernowdev\Clanspress\Extensions\Notification;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Registers WordPress hooks for the Notifications extension runtime.

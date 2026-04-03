@@ -6,6 +6,7 @@
  */
 
 namespace Kernowdev\Clanspress\Events;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Custom post type and meta for front-end events (in-person or virtual).

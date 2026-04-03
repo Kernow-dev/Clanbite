@@ -6,6 +6,7 @@
  */
 
 namespace Kernowdev\Clanspress\Events;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Initializes the core events/RSVP system.

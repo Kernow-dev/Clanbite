@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions\Notification;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * CRUD and query operations for notifications.
  */
@@ -191,7 +194,7 @@ final class Notification_Data_Access {
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql_base is from $wpdb->prepare(); LIMIT/OFFSET are non-negative ints.
 		$sql = $sql_base . sprintf( ' LIMIT %d OFFSET %d', $limit, $offset );
 
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Hybrid query: prepared WHERE + integer-cast LIMIT/OFFSET.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Hybrid query: $sql_base from prepare() + integer-cast LIMIT/OFFSET.
 		$rows = $wpdb->get_results( $sql );
 
 		$notifications = array_map( array( self::class, 'hydrate_row' ), $rows ?: array() );

@@ -6,6 +6,7 @@
  */
 
 namespace Kernowdev\Clanspress\Events;
+defined( 'ABSPATH' ) || exit;
 
 use WP_Error;
 use WP_REST_Controller;

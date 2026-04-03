@@ -2,6 +2,9 @@
 
 namespace Kernowdev\Clanspress\Extensions\Teams;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Kernowdev\Clanspress\Extensions\Abstract_Settings;
 
 /**

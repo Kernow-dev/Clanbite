@@ -1,6 +1,7 @@
 <?php
 
 namespace Kernowdev\Clanspress\Extensions\Players;
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanspress\Extensions\Abstract_Settings;
 

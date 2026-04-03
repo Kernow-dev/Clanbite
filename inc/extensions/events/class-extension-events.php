@@ -10,6 +10,7 @@
  */
 
 namespace Kernowdev\Clanspress\Extensions;
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanspress\Events\Event_Rsvp_Schema;
 use Kernowdev\Clanspress\Events\Events as Events_Runtime;

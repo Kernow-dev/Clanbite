@@ -6,6 +6,7 @@
  */
 
 namespace Kernowdev\Clanspress\Extensions;
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanspress\Extensions\Notification\Notification_Schema;
 use Kernowdev\Clanspress\Extensions\Notification\Notifications_Runtime;

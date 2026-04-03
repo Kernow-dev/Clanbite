@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Events;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Permissions for team/group scoped events.
  */

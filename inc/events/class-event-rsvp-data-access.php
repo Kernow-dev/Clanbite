@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Events;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Low-level CRUD for the event RSVP table.
  */

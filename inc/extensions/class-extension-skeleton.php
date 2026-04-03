@@ -1,6 +1,7 @@
 <?php
 
 namespace Kernowdev\Clanspress\Extensions;
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Extension skeleton.

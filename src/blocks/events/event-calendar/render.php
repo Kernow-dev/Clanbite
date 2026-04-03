@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Server render: Event calendar (Interactivity: month / week / day, REST range queries).
  *

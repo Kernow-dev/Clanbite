@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Procedural helpers for the Matches extension (themes and integrations).
  *

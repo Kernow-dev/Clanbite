@@ -10,6 +10,9 @@
 
 namespace Kernowdev\Clanspress\Extensions\Teams;
 
+defined( 'ABSPATH' ) || exit;
+
+
 /**
  * Team entity: mirrors core post fields plus team meta (code, roster, flags, etc.).
  */

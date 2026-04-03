@@ -7,6 +7,9 @@
 
 namespace Kernowdev\Clanspress\Extensions\Teams;
 
+defined( 'ABSPATH' ) || exit;
+
+
 use Kernowdev\Clanspress\Extensions\Data_Stores\WP_Post_Meta_Data_Store;
 
 /**

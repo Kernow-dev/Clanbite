@@ -9,6 +9,7 @@
  */
 
 namespace Kernowdev\Clanspress\Extensions;
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanspress\Extensions\Abstract_Settings;
 use Kernowdev\Clanspress\Extensions\Matches\Admin as Matches_Settings_Admin;

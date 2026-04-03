@@ -1,6 +1,7 @@
 <?php
 
 namespace Kernowdev\Clanspress\Extensions;
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanspress\Main;
 use Kernowdev\Clanspress\Extensions\Abstract_Settings;

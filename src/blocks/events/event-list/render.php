@@ -1,4 +1,7 @@
 <?php
+
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Server render: Event list block (Interactivity: time filter, pagination).
  *
