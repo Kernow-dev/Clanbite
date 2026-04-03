@@ -7,6 +7,10 @@ namespace Kernowdev\Clanspress\Extensions;
  *
  * This skeleton outlines the requirements for an extension for the Clanspress plugin.
  * All extensions will need to extend this class.
+ *
+ * When validation fails, this class throws \InvalidArgumentException with translatable strings
+ * (text domain `clanspress`) so messages can be localized if misconfiguration surfaces in admin or
+ * other user-visible error UIs; the primary audience remains extension authors constructing subclasses in PHP.
  */
 class Skeleton {
 	/**
@@ -143,7 +147,8 @@ class Skeleton {
 	protected function validate_name( string $name ): string {
 		$name = trim( $name );
 		if ( empty( $name ) ) {
-			throw new \InvalidArgumentException( 'Extension name cannot be empty.' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message; translated for localized error UI.
+			throw new \InvalidArgumentException( __( 'Extension name cannot be empty.', 'clanspress' ) );
 		}
 
 		return $name;
@@ -160,7 +165,8 @@ class Skeleton {
 		$slug = strtolower( trim( $slug ) );
 		$slug = preg_replace( '/[^a-z0-9-_]/', '', $slug );
 		if ( empty( $slug ) ) {
-			throw new \InvalidArgumentException( 'Extension slug must contain only lowercase letters, numbers, dashes, or underscores.' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message; translated for localized error UI.
+			throw new \InvalidArgumentException( __( 'Extension slug must contain only lowercase letters, numbers, dashes, or underscores.', 'clanspress' ) );
 		}
 
 		return $slug;
@@ -184,7 +190,8 @@ class Skeleton {
 		$parent_slug = preg_replace( '/[^a-z0-9-_]/', '', $parent_slug );
 
 		if ( empty( $parent_slug ) ) {
-			throw new \InvalidArgumentException( 'Extension parent slug must contain only lowercase letters, numbers, dashes, or underscores.' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message; translated for localized error UI.
+			throw new \InvalidArgumentException( __( 'Extension parent slug must contain only lowercase letters, numbers, dashes, or underscores.', 'clanspress' ) );
 		}
 
 		$this->type = 'child';
@@ -201,7 +208,8 @@ class Skeleton {
 	 */
 	protected function validate_version( string $version ): string {
 		if ( ! preg_match( '/^\d+\.\d+\.\d+$/', $version ) ) {
-			throw new \InvalidArgumentException( 'Version must be in format x.y.z.' );
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message; translated for localized error UI.
+			throw new \InvalidArgumentException( __( 'Version must be in format x.y.z', 'clanspress' ) );
 		}
 
 		return $version;
@@ -217,7 +225,8 @@ class Skeleton {
 	protected function validate_requires( array $requires ): array {
 		foreach ( $requires as $require ) {
 			if ( ! is_string( $require ) || empty( trim( $require ) ) ) {
-				throw new \InvalidArgumentException( 'All extension requirements must be non-empty strings.' );
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message; translated for localized error UI.
+				throw new \InvalidArgumentException( __( 'All extension requirements must be non-empty strings.', 'clanspress' ) );
 			}
 		}
 
