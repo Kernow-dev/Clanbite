@@ -6,11 +6,12 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	overflow: hidden;
-	overflow: clip;
+	// Allow the edit toolbar + panel to extend past the cover bounds (overflow would clip them).
+	overflow: visible;
 	box-sizing: border-box;
 	width: 100%;
 	min-height: 12rem;
+	isolation: isolate;
 
 	&.clanspress-player-cover--placeholder {
 		min-height: unset;
@@ -66,6 +67,7 @@
 		display: block;
 		position: absolute;
 		inset: 0;
+		z-index: 0;
 		object-fit: cover;
 		height: 100%;
 		width: 100%;
@@ -75,7 +77,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		z-index: 2;
+		z-index: 3;
 		padding: 0.5rem;
 		pointer-events: none;
 		opacity: 0;
@@ -188,7 +190,7 @@
 
 	.player-cover__content-container {
 		position: relative;
-		z-index: 1;
+		z-index: 2;
 		padding: 16px;
 		margin-block-start: 0;
 		box-sizing: border-box;

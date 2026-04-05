@@ -552,6 +552,8 @@ On **failure**, `wp_send_json_error()` returns `success: false` and `data` typic
 
 Extend or override the object with filter **`clanspress_player_settings_frontend_config`** (same array shape as above).
 
+By default, that script is **only** enqueued on the player settings route, on **logged-in** author/player profile views, and on singular content that contains the player-settings / avatar / cover blocks (to avoid nonce + inline script work on unrelated front pages). Use filter **`clanspress_should_enqueue_player_settings_frontend_assets`** with `(bool $enqueue)` to force or extend that behavior for custom templates.
+
 **Deep links:** Each tab and sub-page has a canonical URL: `/players/settings/{nav}/{panel}/` (e.g. `/players/settings/account/account-info/`). `/players/settings/{nav}/` redirects to that nav’s first panel. Invalid slugs redirect to a valid default. The block updates the address bar when you switch tabs (history `pushState` / `replaceState`). After adding or changing rewrite rules, save **Settings → Permalinks** once (or flush rewrite rules) so WordPress routes new paths.
 
 **Markup contract** (on the clicked element, e.g. `<button type="button">`):

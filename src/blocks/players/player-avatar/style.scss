@@ -10,18 +10,25 @@
 	position: relative;
 	display: inline-block;
 	line-height: 0;
+	max-width: 100%;
+}
+
+// Circular mask applies only to the image so the edit toolbar can sit outside the disc.
+.clanspress-player-avatar__clip {
+	position: relative;
+	display: inline-block;
+	line-height: 0;
 	border-radius: 50%;
 	overflow: hidden;
 	border: 3px solid #fff;
 	box-shadow: 0 1px 4px rgb(0 0 0 / 12%);
-	max-width: 100%;
+	vertical-align: top;
 }
 
 .clanspress-player-avatar__link {
 	display: block;
-	height: 100%;
-	border-radius: inherit;
 	line-height: 0;
+	border-radius: inherit;
 }
 
 .clanspress-player-avatar__img {
@@ -58,17 +65,26 @@
 
 .clanspress-player-avatar__toolbar {
 	position: absolute;
-	inset: 0;
+	top: 100%;
+	right: 0;
+	left: auto;
+	margin-top: 0.35rem;
 	display: flex;
+	flex-direction: column;
 	align-items: flex-end;
-	justify-content: flex-end;
-	padding: 0.35rem;
+	justify-content: flex-start;
+	padding: 0;
 	pointer-events: none;
 	opacity: 0;
 	transition: opacity 0.15s ease;
+	z-index: 5;
 }
 
-.clanspress-player-avatar:is(:hover, :focus-within) .clanspress-player-avatar__toolbar {
+.wp-block-clanspress-player-avatar.clanspress-player-avatar-block:is(
+		:hover,
+		:focus-within
+	)
+	.clanspress-player-avatar__toolbar {
 	opacity: 1;
 }
 

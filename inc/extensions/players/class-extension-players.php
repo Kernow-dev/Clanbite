@@ -1299,7 +1299,64 @@ class Players extends Skeleton {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
+	/**
+	 * Whether to print `CLANSPRESSPLAYERSETTINGS` for this front request.
+	 *
+	 * Defaults avoid per-request nonce generation and inline script output on pages that
+	 * never mount player settings / inline avatar / cover editing (most cached views).
+	 *
+	 * @return bool
+	 */
+	protected function should_enqueue_player_settings_frontend_assets(): bool {
+		if ( is_admin() ) {
+			return false;
+		}
+
+		$enqueue = false;
+
+		if ( (int) get_query_var( 'players_settings' ) ) {
+			$enqueue = true;
+		} elseif ( (int) get_query_var( 'cp_players_directory' ) ) {
+			$enqueue = false;
+		} elseif ( is_user_logged_in() ) {
+			// Author archives include `/players/{nicename}/` after the main query runs on `wp`.
+			if ( is_author() ) {
+				$enqueue = true;
+			} elseif ( is_singular() ) {
+				$post = get_queried_object();
+				if ( $post instanceof \WP_Post ) {
+					$player_blocks = array(
+						'clanspress/player-settings',
+						'clanspress/player-avatar',
+						'clanspress/player-cover',
+					);
+					foreach ( $player_blocks as $block_name ) {
+						if ( has_block( $block_name, $post ) ) {
+							$enqueue = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		/**
+		 * Whether to enqueue the inline script that defines `CLANSPRESSPLAYERSETTINGS`.
+		 *
+		 * Return true if a custom template or block needs REST/ajax nonces outside the
+		 * default routes (player settings URL, author profile, or singular posts that
+		 * contain player-settings / avatar / cover blocks).
+		 *
+		 * @param bool $enqueue Default decision from core heuristics.
+		 */
+		return (bool) apply_filters( 'clanspress_should_enqueue_player_settings_frontend_assets', $enqueue );
+	}
+
 	public function enqueue_scripts() {
+		if ( ! $this->should_enqueue_player_settings_frontend_assets() ) {
+			return;
+		}
+
 		wp_register_script(
 			'clanspress-player-settings-localize',
 			'',
