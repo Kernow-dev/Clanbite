@@ -4,10 +4,11 @@
 	display: flex;
 	justify-content: center;
 	align-items: flex-end;
-	overflow: hidden;
-	overflow: clip;
+	// Allow the edit toolbar + panel to extend past the cover bounds (overflow would clip them).
+	overflow: visible;
 	box-sizing: border-box;
 	width: 100%;
+	isolation: isolate;
 
 	// Position: Top
 	&.is-position-top-left {
@@ -75,7 +76,7 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		z-index: 2;
+		z-index: 3;
 		padding: 0.5rem;
 		pointer-events: none;
 		opacity: 0;
@@ -151,7 +152,7 @@
 
 	.team-cover__content-container {
 		position: relative;
-		z-index: 1;
+		z-index: 2;
 		width: 100%;
 		padding: 16px;
 		margin-block-start: 0;

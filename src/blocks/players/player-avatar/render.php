@@ -100,13 +100,17 @@ if ( ! empty( $attributes['isLink'] ) && function_exists( 'clanspress_block_play
 	}
 }
 
+$avatar_clip_open  = '<div class="clanspress-player-avatar__clip">';
+$avatar_clip_close = '</div>';
+$avatar_media      = $avatar_clip_open . $img_inner . $avatar_clip_close;
+
 ?>
 <div
 	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
 	<?php echo $interactive_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data-wp-* built with esc_attr( wp_json_encode() ). ?>
 >
 	<div class="clanspress-player-avatar">
-		<?php echo $img_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built with esc_url/esc_attr/esc_html. ?>
+		<?php echo $avatar_media; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built with esc_url/esc_attr/esc_html. ?>
 		<?php if ( $show_controls ) : ?>
 		<div class="clanspress-player-avatar__toolbar">
 			<div class="clanspress-player-avatar__toolbar-inner">
