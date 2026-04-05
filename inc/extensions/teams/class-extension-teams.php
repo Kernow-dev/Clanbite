@@ -155,6 +155,7 @@ class Teams extends Skeleton {
 		add_action( 'wp', array( $this, 'set_plugin_block_template_id_for_site_editor' ), 99 );
 		add_action( 'template_redirect', array( $this, 'maybe_fix_team_create_route_404' ), 0 );
 		add_action( 'template_redirect', array( $this, 'maybe_fix_team_events_route_404' ), 0 );
+		add_action( 'template_redirect', array( $this, 'maybe_redirect_disallowed_team_virtual_actions' ), 3 );
 		add_action( 'template_redirect', array( $this, 'maybe_block_banned_team_access' ), 5 );
 		add_filter( 'pre_render_block', array( $this, 'prime_cp_team_single_loop_for_plugin_template' ), 0, 3 );
 		add_filter( 'render_block_context', array( $this, 'filter_team_singular_block_context' ), 10, 3 );
@@ -591,6 +592,7 @@ class Teams extends Skeleton {
 		$vars[] = 'clanspress_team_event_id';
 		$vars[] = 'clanspress_team_events_sub';
 		$vars[] = 'clanspress_events_team_id';
+		$vars[] = 'clanspress_matches_team_id';
 		$vars[] = 'cp_team_subpage';
 		return $vars;
 	}
@@ -791,6 +793,53 @@ class Teams extends Skeleton {
 	}
 
 	/**
+	 * When an extension disables its team profile subpage, redirect virtual URLs to the public team profile.
+	 *
+	 * @return void
+	 */
+	public function maybe_redirect_disallowed_team_virtual_actions(): void {
+		$action = sanitize_key( (string) get_query_var( 'clanspress_team_action' ) );
+		if ( '' === $action ) {
+			return;
+		}
+
+		if ( 'events' === $action ) {
+			$allowed = function_exists( 'clanspress_events_extension_active' ) && clanspress_events_extension_active()
+				&& function_exists( 'clanspress_events_subpage_team_enabled' ) && clanspress_events_subpage_team_enabled();
+			if ( $allowed ) {
+				return;
+			}
+			$this->redirect_team_directory_slug_to_profile();
+			return;
+		}
+
+		if ( 'matches' === $action ) {
+			$allowed = function_exists( 'clanspress_matches' ) && clanspress_matches()
+				&& function_exists( 'clanspress_matches_subpage_team_enabled' ) && clanspress_matches_subpage_team_enabled();
+			if ( $allowed ) {
+				return;
+			}
+			$this->redirect_team_directory_slug_to_profile();
+		}
+	}
+
+	/**
+	 * 301 from the current `clanspress_team_slug` request to `/teams/{slug}/`.
+	 *
+	 * @return void
+	 */
+	private function redirect_team_directory_slug_to_profile(): void {
+		$slug = sanitize_title( (string) get_query_var( 'clanspress_team_slug' ) );
+		if ( '' === $slug ) {
+			return;
+		}
+
+		$url = home_url( user_trailingslashit( 'teams/' . $slug ) );
+		wp_safe_redirect( $url, 301 );
+		exit;
+	}
+
+	/**
 	 * Stop the main query from behaving as the blog / front page for team virtual routes.
 	 *
 	 * @param \WP_Query $query Main query.
@@ -880,6 +929,10 @@ class Teams extends Skeleton {
 							? 'clanspress//teams-events-single'
 							: 'clanspress//teams-events';
 					}
+				} elseif ( 'matches' === $action
+					&& function_exists( 'clanspress_matches' ) && clanspress_matches()
+					&& function_exists( 'clanspress_matches_subpage_team_enabled' ) && clanspress_matches_subpage_team_enabled() ) {
+					$_wp_current_template_id = 'clanspress//teams-matches';
 				}
 			}
 		}
@@ -921,7 +974,7 @@ class Teams extends Skeleton {
 
 		$team_action = sanitize_key( (string) get_query_var( 'clanspress_team_action' ) );
 		if ( '' !== $team_action ) {
-			if ( 'events' !== $team_action && ! is_user_logged_in() ) {
+			if ( 'events' !== $team_action && 'matches' !== $team_action && ! is_user_logged_in() ) {
 				wp_safe_redirect( wp_login_url( $this->get_current_url() ) );
 				exit;
 			}
@@ -1032,6 +1085,37 @@ class Teams extends Skeleton {
 				return (string) apply_filters(
 					'clanspress_load_team_action_template',
 					function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-events', $hierarchy ) : $located,
+					$team_action,
+					$team_id,
+					$this
+				);
+			}
+
+			if ( 'matches' === $team_action ) {
+				if ( ! function_exists( 'clanspress_matches' ) || ! clanspress_matches() ) {
+					status_header( 404 );
+					nocache_headers();
+					$not_found = get_404_template();
+					return $not_found ? $not_found : $template;
+				}
+				if ( ! function_exists( 'clanspress_matches_subpage_team_enabled' ) || ! clanspress_matches_subpage_team_enabled() ) {
+					status_header( 404 );
+					nocache_headers();
+					$not_found = get_404_template();
+					return $not_found ? $not_found : $template;
+				}
+
+				set_query_var( 'clanspress_matches_team_id', $team_id );
+
+				$hierarchy = array( 'teams-matches.php', 'index.php' );
+				$located   = locate_template( array( 'teams-matches.php' ) );
+				if ( ! $located ) {
+					$located = clanspress()->path . 'templates/teams/teams-matches.php';
+				}
+
+				return (string) apply_filters(
+					'clanspress_load_team_action_template',
+					function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-matches', $hierarchy ) : $located,
 					$team_action,
 					$team_id,
 					$this
@@ -2352,6 +2436,10 @@ class Teams extends Skeleton {
 		?>
 		<?php if ( 'saved' === $manage_status ) : ?>
 			<p id="clanspress-team-manage-notice" class="clanspress-team-manage-form__notice is-success" role="status" tabindex="-1"><?php esc_html_e( 'Changes saved.', 'clanspress' ); ?></p>
+		<?php elseif ( 'missing_name' === $manage_status ) : ?>
+			<p id="clanspress-team-manage-notice" class="clanspress-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'Team name is required.', 'clanspress' ); ?></p>
+		<?php elseif ( 'wordban' === $manage_status ) : ?>
+			<p id="clanspress-team-manage-notice" class="clanspress-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'That text is not allowed.', 'clanspress' ); ?></p>
 		<?php elseif ( 'roster_invalid' === $manage_status ) : ?>
 			<p id="clanspress-team-manage-notice" class="clanspress-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'Roster must include at least one admin.', 'clanspress' ); ?></p>
 		<?php elseif ( 'delete_failed' === $manage_status ) : ?>
@@ -2598,6 +2686,39 @@ class Teams extends Skeleton {
 				)
 			);
 			exit;
+		}
+
+		if ( function_exists( 'clanspress_wordban_validate_strict_text' ) ) {
+			$wb = clanspress_wordban_validate_strict_text( $team_name );
+			if ( $wb instanceof \WP_Error ) {
+				wp_safe_redirect(
+					add_query_arg(
+						'clanspress_team_manage_status',
+						'wordban',
+						$this->get_team_manage_url( $team_id )
+					)
+				);
+				exit;
+			}
+			if ( '' !== $team_code ) {
+				$wb = clanspress_wordban_validate_strict_text( $team_code );
+				if ( $wb instanceof \WP_Error ) {
+					wp_safe_redirect(
+						add_query_arg(
+							'clanspress_team_manage_status',
+							'wordban',
+							$this->get_team_manage_url( $team_id )
+						)
+					);
+					exit;
+				}
+			}
+		}
+		if ( function_exists( 'clanspress_wordban_mask_plain_text' ) ) {
+			$team_motto = clanspress_wordban_mask_plain_text( $team_motto );
+		}
+		if ( function_exists( 'clanspress_wordban_mask_html_content' ) ) {
+			$team_description = clanspress_wordban_mask_html_content( $team_description );
 		}
 
 		$team_entity = $this->get_team( $team_id );
@@ -3517,6 +3638,25 @@ class Teams extends Skeleton {
 			$this->redirect_after_team_create( false, 'missing_name' );
 		}
 
+		if ( function_exists( 'clanspress_wordban_validate_strict_text' ) ) {
+			$wb = clanspress_wordban_validate_strict_text( $team_name );
+			if ( $wb instanceof \WP_Error ) {
+				$this->redirect_after_team_create( false, 'wordban' );
+			}
+			if ( '' !== $team_code ) {
+				$wb = clanspress_wordban_validate_strict_text( $team_code );
+				if ( $wb instanceof \WP_Error ) {
+					$this->redirect_after_team_create( false, 'wordban' );
+				}
+			}
+		}
+		if ( function_exists( 'clanspress_wordban_mask_plain_text' ) ) {
+			$team_motto = clanspress_wordban_mask_plain_text( $team_motto );
+		}
+		if ( function_exists( 'clanspress_wordban_mask_html_content' ) ) {
+			$team_description = clanspress_wordban_mask_html_content( $team_description );
+		}
+
 		$team_slug = sanitize_title( $team_name );
 		$team_slug = (string) apply_filters( 'clanspress_pre_insert_team_slug', $team_slug, $team_name, $user_id );
 
@@ -4261,6 +4401,11 @@ class Teams extends Skeleton {
 				'title'       => __( 'Teams — Create event', 'clanspress' ),
 				'description' => __( 'Create team event at /teams/{slug}/events/create/ (managers only).', 'clanspress' ),
 				'path'        => clanspress()->path . 'templates/teams/teams-events-create.html',
+			),
+			'teams-matches'         => array(
+				'title'       => __( 'Teams — Matches', 'clanspress' ),
+				'description' => __( 'Team match list at /teams/{slug}/matches/ when the Matches extension team subpage is enabled.', 'clanspress' ),
+				'path'        => clanspress()->path . 'templates/teams/teams-matches.html',
 			),
 		);
 
