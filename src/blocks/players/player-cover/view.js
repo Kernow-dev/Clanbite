@@ -7,11 +7,17 @@ import {
 	createClanspressHideToast,
 	createClanspressShowToast,
 	createClanspressToolbarPanelToggler,
+	getClanspressInteractivityStateGetter,
 	rejectClanspressInvalidImageFile,
 	setClanspressPreviewObjectUrlFromFile,
 } from '../../shared/front-media-interactivity.js';
 
-const { state, actions } = store( 'clanspress-player-cover', {
+const STORE_NAMESPACE = 'clanspress-player-cover';
+
+const getPlayerCoverState =
+	getClanspressInteractivityStateGetter( STORE_NAMESPACE );
+
+const { state, actions } = store( STORE_NAMESPACE, {
 	state: {
 		root: null,
 		activePanel: null,
@@ -41,7 +47,7 @@ const { state, actions } = store( 'clanspress-player-cover', {
 	},
 
 	actions: {
-		togglePanel: createClanspressToolbarPanelToggler( state, {
+		togglePanel: createClanspressToolbarPanelToggler( getPlayerCoverState, {
 			panelSelectorPrefix: '.clanspress-player-cover__panel--',
 			allPanelsSelector: '.clanspress-player-cover__panel',
 		} ),
@@ -167,9 +173,11 @@ const { state, actions } = store( 'clanspress-player-cover', {
 			}
 		},
 
-		showToast: createClanspressShowToast( state, { includeHeading: true } ),
+		showToast: createClanspressShowToast( getPlayerCoverState, {
+			includeHeading: true,
+		} ),
 
-		hideToast: createClanspressHideToast( state ),
+		hideToast: createClanspressHideToast( getPlayerCoverState ),
 
 		async save() {
 			const { ref } = getElement();
