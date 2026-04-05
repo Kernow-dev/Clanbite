@@ -4,13 +4,28 @@
 import { getElement, store } from '@wordpress/interactivity';
 
 /**
- * Returns a lazy accessor for store state so factories can run inside `store( ns, { actions } )`
- * without reading `state` before `const { state } = store( … )` initializes (TDZ).
+ * Returns a lazy accessor for `@wordpress/interactivity` store state so factories can run inside
+ * `store( ns, { actions } )` without reading `state` before `const { state } = store( … )` initializes (TDZ).
  *
- * @param {string} namespace Same namespace passed to `store()`.
- * @return {() => object} Call after registration; returns reactive state proxy.
+ * **Call order:** Pass the same string you pass to `store( namespace, config )`. In each module,
+ * define the getter, pass it into helpers (e.g. `createClanspressToolbarPanelToggler`), then call
+ * `store( namespace, { state, actions, … } )` so registration finishes before the returned getter
+ * runs. The getter is normally first invoked from user-driven actions after hydration; do not call
+ * it synchronously during module evaluation before `store( namespace, … )` has executed.
+ *
+ * Note: `store( namespace )` with no config still registers an empty store in WordPress; wrong
+ * ordering can yield subtle bugs rather than a hard error—keep the pattern above.
+ *
+ * @param {string} namespace Interactivity store namespace (must match `store()`).
+ * @return {() => object} Lazy accessor; returns the reactive `state` proxy for `namespace`.
+ * @throws {Error} If `namespace` is not a non-empty string.
  */
 export function getClanspressInteractivityStateGetter( namespace ) {
+	if ( typeof namespace !== 'string' || '' === namespace ) {
+		throw new Error(
+			'[clanspress] getClanspressInteractivityStateGetter: `namespace` must be a non-empty string.'
+		);
+	}
 	return () => store( namespace ).state;
 }
 

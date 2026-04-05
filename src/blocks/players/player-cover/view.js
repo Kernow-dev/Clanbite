@@ -12,11 +12,12 @@ import {
 	setClanspressPreviewObjectUrlFromFile,
 } from '../../shared/front-media-interactivity.js';
 
-const getPlayerCoverState = getClanspressInteractivityStateGetter(
-	'clanspress-player-cover'
-);
+const STORE_NAMESPACE = 'clanspress-player-cover';
 
-const { state, actions } = store( 'clanspress-player-cover', {
+const getPlayerCoverState =
+	getClanspressInteractivityStateGetter( STORE_NAMESPACE );
+
+const { state, actions } = store( STORE_NAMESPACE, {
 	state: {
 		root: null,
 		activePanel: null,
