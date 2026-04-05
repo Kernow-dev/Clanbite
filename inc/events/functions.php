@@ -242,3 +242,5 @@ function clanspress_event_calendar_month_grid_markup( string $anchor_ymd, array 
 
 	return $html;
 }
+
+require_once __DIR__ . '/event-block-ssr.php';

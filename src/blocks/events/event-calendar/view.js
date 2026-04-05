@@ -511,6 +511,11 @@ const { actions } = store( 'clanspress-event-calendar', {
 				ctx.view = 'month';
 			}
 			syncViewButtons( root, ctx.view );
+			if ( ctx.calSsrHydrated ) {
+				ctx.calLoading = false;
+				ctx.fetchError = '';
+				return;
+			}
 			void actions.load();
 		},
 	},
