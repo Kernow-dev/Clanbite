@@ -134,6 +134,7 @@ function UserIdListControl( { field, value, onChange } ) {
 	const [ suggestions, setSuggestions ] = useState( [] );
 	const [ loading, setLoading ] = useState( false );
 	const [ details, setDetails ] = useState( {} );
+	const searchRequestIdRef = useRef( 0 );
 
 	const idsKey = ids.slice().sort( ( a, b ) => a - b ).join( ',' );
 
@@ -195,6 +196,7 @@ function UserIdListControl( { field, value, onChange } ) {
 			return;
 		}
 		const handle = setTimeout( async () => {
+			const reqId = ++searchRequestIdRef.current;
 			setLoading( true );
 			try {
 				const users = await apiFetch( {
@@ -202,14 +204,25 @@ function UserIdListControl( { field, value, onChange } ) {
 						q
 					) }&per_page=10&_fields=id,name,slug,avatar_urls`,
 				} );
+				if ( reqId !== searchRequestIdRef.current ) {
+					return;
+				}
 				setSuggestions( Array.isArray( users ) ? users : [] );
 			} catch {
+				if ( reqId !== searchRequestIdRef.current ) {
+					return;
+				}
 				setSuggestions( [] );
 			} finally {
-				setLoading( false );
+				if ( reqId === searchRequestIdRef.current ) {
+					setLoading( false );
+				}
 			}
 		}, 300 );
-		return () => clearTimeout( handle );
+		return () => {
+			clearTimeout( handle );
+			searchRequestIdRef.current += 1;
+		};
 	}, [ query, searchPath ] );
 
 	const addUser = ( u ) => {

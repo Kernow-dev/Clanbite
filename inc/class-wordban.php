@@ -293,29 +293,48 @@ final class Wordban {
 		if ( ! self::is_enabled() || '' === $html ) {
 			return $html;
 		}
-		$parts = preg_split( '/(<[^>]*>)/', $html, -1, PREG_SPLIT_DELIM_CAPTURE );
+
+		// Preserve entire `<script>` / `<style>` blocks so we never mutate JS/CSS or misparse `>` inside them.
+		$placeholders = array();
+		$stripped     = (string) preg_replace_callback(
+			'#<(?:script|style)\b[^>]*>.*?</(?:script|style)>#is',
+			static function ( array $m ) use ( &$placeholders ): string {
+				$key                  = '<!--clanspress-wb-' . \wp_generate_password( 12, false, false ) . '-->';
+				$placeholders[ $key ] = $m[0];
+				return $key;
+			},
+			$html
+		);
+
+		$parts = preg_split( '/(<[^>]*>)/', $stripped, -1, PREG_SPLIT_DELIM_CAPTURE );
 		if ( ! is_array( $parts ) ) {
-			return self::mask_plain_text( $html );
+			$out = self::mask_plain_text( $stripped );
+		} else {
+			$buf = '';
+			foreach ( $parts as $part ) {
+				if ( '' === $part ) {
+					continue;
+				}
+				if ( 1 === preg_match( '/^<[^>]+>$/', $part ) ) {
+					$buf .= $part;
+				} else {
+					$buf .= self::mask_plain_text( $part );
+				}
+			}
+			$out = $buf;
 		}
-		$buf = '';
-		foreach ( $parts as $part ) {
-			if ( '' === $part ) {
-				continue;
-			}
-			if ( 1 === preg_match( '/^<[^>]+>$/', $part ) ) {
-				$buf .= $part;
-			} else {
-				$buf .= self::mask_plain_text( $part );
-			}
+
+		if ( array() !== $placeholders ) {
+			$out = strtr( $out, $placeholders );
 		}
 
 		/**
 		 * Filter HTML after the word mask runs on text nodes.
 		 *
-		 * @param string $buf  Masked HTML.
+		 * @param string $out  Masked HTML.
 		 * @param string $html Original HTML.
 		 */
-		return (string) apply_filters( 'clanspress_wordban_masked_html', $buf, $html );
+		return (string) apply_filters( 'clanspress_wordban_masked_html', $out, $html );
 	}
 
 	/**

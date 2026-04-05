@@ -824,7 +824,10 @@ class Teams extends Skeleton {
 	}
 
 	/**
-	 * 301 from the current `clanspress_team_slug` request to `/teams/{slug}/`.
+	 * 301 from the current `clanspress_team_slug` request to the canonical team profile URL.
+	 *
+	 * Uses `get_permalink()` when a matching `cp_team` exists so the target stays aligned with
+	 * the post type’s rewrite slug and any core permalink filters.
 	 *
 	 * @return void
 	 */
@@ -834,9 +837,47 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		$url = home_url( user_trailingslashit( 'teams/' . $slug ) );
+		$url = $this->get_team_profile_url_for_slug( $slug );
+		if ( '' === $url ) {
+			return;
+		}
+
 		wp_safe_redirect( $url, 301 );
 		exit;
+	}
+
+	/**
+	 * Public profile URL for a team slug (`cp_team` permalink, or fallback from the registered rewrite slug).
+	 *
+	 * @param string $slug Post name (`post_name`).
+	 * @return string Empty when the slug is invalid.
+	 */
+	public function get_team_profile_url_for_slug( string $slug ): string {
+		$slug = sanitize_title( $slug );
+		if ( '' === $slug ) {
+			return '';
+		}
+
+		$post = get_page_by_path( $slug, OBJECT, 'cp_team' );
+		if ( $post instanceof \WP_Post ) {
+			$permalink = get_permalink( $post );
+			$url       = is_string( $permalink ) ? $permalink : '';
+		} else {
+			$pto = get_post_type_object( 'cp_team' );
+			$base = ( $pto && is_array( $pto->rewrite ) && ! empty( $pto->rewrite['slug'] ) )
+				? (string) $pto->rewrite['slug']
+				: 'teams';
+			$url  = home_url( user_trailingslashit( $base . '/' . $slug ) );
+		}
+
+		/**
+		 * Filter the team profile URL built from a slug (no virtual action segment).
+		 *
+		 * @param string $url     Full URL.
+		 * @param string $slug    Sanitized `post_name`.
+		 * @param Teams  $extension Teams extension instance.
+		 */
+		return (string) apply_filters( 'clanspress_team_profile_url_for_slug', $url, $slug, $this );
 	}
 
 	/**

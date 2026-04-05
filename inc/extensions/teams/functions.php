@@ -78,6 +78,18 @@ function clanspress_teams_get_team_create_url(): string {
 }
 
 /**
+ * Canonical front-end URL for a team profile given its `post_name` slug.
+ *
+ * @param string $slug Team slug (`post_name`).
+ * @return string Empty when Teams is inactive or the slug is invalid.
+ */
+function clanspress_teams_get_team_profile_url_for_slug( string $slug ): string {
+	$t = clanspress_teams();
+
+	return $t ? $t->get_team_profile_url_for_slug( $slug ) : '';
+}
+
+/**
  * Front-end URL for the team manage screen.
  *
  * @param int $team_id Team post ID.
