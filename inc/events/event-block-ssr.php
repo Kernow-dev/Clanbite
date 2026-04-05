@@ -7,8 +7,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Events\Event_Entity_Rest_Controller;
-
 /**
  * Run the same collection query as `GET clanspress/v1/event-posts` for block SSR.
  *
@@ -16,12 +14,20 @@ use Kernowdev\Clanspress\Events\Event_Entity_Rest_Controller;
  * @return array{items: array<int, array<string, mixed>>, total: int}|WP_Error
  */
 function clanspress_events_block_query_collection( array $params ) {
+	if ( ! class_exists( \Kernowdev\Clanspress\Events\Event_Entity_Rest_Controller::class ) ) {
+		return new \WP_Error(
+			'clanspress_events_rest_unavailable',
+			__( 'The events REST API is not available.', 'clanspress' ),
+			array( 'status' => 503 )
+		);
+	}
+
 	$request = new \WP_REST_Request( 'GET', '/clanspress/v1/event-posts' );
 	foreach ( $params as $key => $value ) {
 		$request->set_param( $key, $value );
 	}
 
-	$controller = new Event_Entity_Rest_Controller();
+	$controller = new \Kernowdev\Clanspress\Events\Event_Entity_Rest_Controller();
 	$response   = $controller->get_items( $request );
 
 	if ( $response instanceof WP_Error ) {
@@ -45,9 +51,11 @@ function clanspress_events_block_query_collection( array $params ) {
 }
 
 /**
- * UTC ISO-8601 bounds for the calendar range (matches client `fetchEvents` window).
+ * UTC ISO-8601 bounds for the calendar range (matches client `rangeForView` / `fetchEvents` in `event-calendar/view.js`).
  *
- * @param string $view      month|week|day|list.
+ * List view uses the same anchored calendar month as month view (prev/next shift months) so SSR, hydration, and client refetch stay aligned.
+ *
+ * @param string $view       month|week|day|list.
  * @param string $anchor_ymd Y-m-d in site timezone.
  * @return array{starts_after: string, starts_before: string}
  */
@@ -69,7 +77,7 @@ function clanspress_events_calendar_range_iso_for_view( string $view, string $an
 		$start = $anchor->modify( '-' . $dow . ' days' )->setTime( 0, 0, 0 );
 		$end   = $start->modify( '+6 days' )->setTime( 23, 59, 59 );
 	} else {
-		// month + list: full month.
+		// month + list: full anchored month (see docblock; must match `rangeForView` in event-calendar view).
 		$start = $anchor->modify( 'first day of this month' )->setTime( 0, 0, 0 );
 		$end   = $anchor->modify( 'last day of this month' )->setTime( 23, 59, 59 );
 	}

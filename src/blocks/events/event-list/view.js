@@ -123,8 +123,9 @@ const { state, actions } = store( 'clanspress-event-list', {
 			}
 			state.root = root;
 			const ctx = getContext();
+			const cap = Number( ctx.maxPerPage ) || 50;
 			state.perPage = Math.min(
-				50,
+				cap,
 				Math.max( 1, Number( ctx.perPage ) || 20 )
 			);
 			state.timeScope = 'all';

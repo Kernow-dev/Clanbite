@@ -15,7 +15,13 @@ use Kernowdev\Clanspress\Events\Event_Post_Type;
 $scope    = sanitize_key( (string) ( $attributes['scopeType'] ?? 'team' ) );
 $team_id  = (int) ( $attributes['teamId'] ?? 0 );
 $group_id = (int) ( $attributes['groupId'] ?? 0 );
-$limit    = max( 1, min( 50, (int) ( $attributes['limit'] ?? 20 ) ) );
+$max_list   = function_exists( 'clanspress_events_rest_max_per_page_paginated' )
+	? clanspress_events_rest_max_per_page_paginated()
+	: 50;
+$default_pp = function_exists( 'clanspress_events_rest_default_per_page_paginated' )
+	? clanspress_events_rest_default_per_page_paginated()
+	: 20;
+$limit      = max( 1, min( (int) $max_list, (int) ( $attributes['limit'] ?? $default_pp ) ) );
 
 if ( $team_id < 1 ) {
 	$team_id = (int) get_query_var( 'clanspress_events_team_id' );
@@ -48,12 +54,13 @@ if ( 'group' === $scope && function_exists( 'clanspress_events_are_enabled_for_g
 }
 
 $config = array(
-	'scope'    => 'team' === $scope ? Event_Post_Type::SCOPE_TEAM : Event_Post_Type::SCOPE_GROUP,
-	'teamId'   => $team_id,
-	'groupId'  => $group_id,
-	'restUrl'  => esc_url_raw( rest_url( 'clanspress/v1/event-posts' ) ),
-	'nonce'    => wp_create_nonce( 'wp_rest' ),
-	'perPage'  => $limit,
+	'scope'      => 'team' === $scope ? Event_Post_Type::SCOPE_TEAM : Event_Post_Type::SCOPE_GROUP,
+	'teamId'     => $team_id,
+	'groupId'    => $group_id,
+	'restUrl'    => esc_url_raw( rest_url( 'clanspress/v1/event-posts' ) ),
+	'nonce'      => wp_create_nonce( 'wp_rest' ),
+	'perPage'    => $limit,
+	'maxPerPage' => (int) $max_list,
 	'i18n'     => array(
 		'timeAll'       => __( 'All', 'clanspress' ),
 		'timeUpcoming'  => __( 'Upcoming', 'clanspress' ),
