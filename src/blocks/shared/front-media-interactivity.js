@@ -221,8 +221,10 @@ export function setClanspressPreviewObjectUrlFromFile( state, file ) {
 }
 
 /**
- * Resolves `data-wp-args` for the current interactivity element (hydration may expose hyphenated
- * or camelCased keys on `attributes`; fall back to the live DOM attribute).
+ * Resolves the toolbar panel id for the current interactivity element.
+ *
+ * Uses `data-cp-panel` because `data-wp-*` attributes are Interactivity directives; unknown
+ * names (e.g. `data-wp-args`) are not rendered onto the live DOM after hydration.
  *
  * @param {Record<string, unknown>|undefined} attributes From `getElement().attributes`.
  * @param {Element|null|undefined}            ref         From `getElement().ref`.
@@ -230,12 +232,18 @@ export function setClanspressPreviewObjectUrlFromFile( state, file ) {
  */
 export function getClanspressDataWpArgs( attributes, ref ) {
 	const fromProps =
-		attributes?.[ 'data-wp-args' ] ?? attributes?.dataWpArgs;
+		attributes?.[ 'data-cp-panel' ] ??
+		attributes?.dataCpPanel ??
+		attributes?.[ 'data-wp-args' ] ??
+		attributes?.dataWpArgs;
 	if ( typeof fromProps === 'string' && fromProps !== '' ) {
 		return fromProps;
 	}
 	if ( ref && typeof ref.getAttribute === 'function' ) {
-		return ref.getAttribute( 'data-wp-args' );
+		return (
+			ref.getAttribute( 'data-cp-panel' ) ||
+			ref.getAttribute( 'data-wp-args' )
+		);
 	}
 	return null;
 }
@@ -251,21 +259,28 @@ export function createClanspressToolbarPanelToggler( getState, config ) {
 	return function togglePanel() {
 		const state = getState();
 		const { ref, attributes } = getElement();
-		if ( ! ref || ! ref.parentNode ) {
+		if ( ! ref ) {
+			return;
+		}
+		const scope =
+			ref.closest(
+				'.clanspress-player-cover__toolbar-inner, .clanspress-team-cover__toolbar-inner, .clanspress-player-avatar__toolbar-inner, .clanspress-team-avatar__toolbar-inner'
+			) || ref.parentElement;
+		if ( ! scope ) {
 			return;
 		}
 		const panelName = getClanspressDataWpArgs( attributes, ref );
 		if ( ! panelName ) {
 			return;
 		}
-		const panel = ref.parentNode.querySelector(
+		const panel = scope.querySelector(
 			`${ panelSelectorPrefix }${ panelName }`
 		);
 		if ( ! panel ) {
 			return;
 		}
 		const willOpen = ! panel.classList.contains( 'is-open' );
-		ref.parentNode
+		scope
 			.querySelectorAll( allPanelsSelector )
 			.forEach( ( p ) => p.classList.remove( 'is-open' ) );
 		if ( willOpen ) {
