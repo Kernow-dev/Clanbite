@@ -323,7 +323,7 @@ function clanspress_players_get_default_cover( $player_id ) {
 		: '';
 
 	if ( empty( $default_cover ) ) {
-		$default_cover = clanspress()->url . 'assets/img/covers/default-cover.png';
+		$default_cover = clanspress()->url . 'assets/img/covers/default-player-cover-image.png';
 	}
 
 	return apply_filters( 'clanspress_players_get_default_cover', $default_cover, $player_id );

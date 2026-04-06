@@ -149,7 +149,7 @@ if ( ! $url && function_exists( 'clanspress_teams_get_default_cover_url' ) ) {
 }
 $url = trim( (string) $url );
 if ( ! $url && function_exists( 'clanspress' ) ) {
-	$url = clanspress()->url . 'assets/img/covers/default-cover.png';
+	$url = clanspress()->url . 'assets/img/covers/default-team-cover-image.png';
 }
 
 if ( ! $url ) {

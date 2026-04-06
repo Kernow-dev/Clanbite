@@ -191,6 +191,7 @@ if ( ! $has_cover ) {
 		role="status"
 		aria-live="polite"
 		aria-atomic="true"
+		hidden
 		data-wp-bind--hidden="!state.toast.visible"
 		data-wp-class--success="state.isToastSuccess"
 		data-wp-class--error="state.isToastError"
@@ -244,6 +245,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		role="status"
 		aria-live="polite"
 		aria-atomic="true"
+		hidden
 		data-wp-bind--hidden="!state.toast.visible"
 		data-wp-class--success="state.isToastSuccess"
 		data-wp-class--error="state.isToastError"

@@ -109,8 +109,16 @@
 		gap: 0.25rem;
 	}
 
+	// Match `player-avatar` toolbar controls + neutralize theme `button` rules (tap target + look).
 	.clanspress-player-cover__toggle,
 	.clanspress-player-cover__panel-action {
+		-webkit-appearance: none;
+		appearance: none;
+		box-sizing: border-box;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin: 0;
 		font: inherit;
 		font-size: 0.75rem;
 		line-height: 1.4;
@@ -121,6 +129,7 @@
 		color: #1d2327;
 		cursor: pointer;
 		box-shadow: 0 1px 0 rgb(0 0 0 / 5%);
+		text-align: center;
 	}
 
 	.clanspress-player-cover__toggle:hover,
@@ -217,11 +226,13 @@
 		gap: 0.65rem;
 		position: absolute;
 		right: 0.5rem;
-		top: 0.5rem;
-		z-index: 40;
+		bottom: 0.5rem;
+		top: auto;
+		z-index: $clanspress-media-toast-z;
 		max-width: min(100%, 22rem);
 		opacity: 0;
 		transform: translateY(6px);
+		pointer-events: none;
 		transition:
 			opacity 0.25s ease,
 			transform 0.25s ease;
@@ -235,6 +246,7 @@
 		&:not([hidden]) {
 			opacity: 1;
 			transform: translateY(0);
+			pointer-events: auto;
 		}
 
 		.toast-box-icon::before {

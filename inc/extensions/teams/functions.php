@@ -539,7 +539,7 @@ function clanspress_teams_get_default_cover_url( int $team_id = 0 ): string {
 	$url = trim( $url );
 
 	if ( '' === $url ) {
-		$url = clanspress()->url . 'assets/img/covers/default-cover.png';
+		$url = clanspress()->url . 'assets/img/covers/default-team-cover-image.png';
 	}
 
 	/**

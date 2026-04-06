@@ -5,7 +5,7 @@
 // - 2: `.player-cover__content-container` (nested blocks such as avatar)
 // - $clanspress-media-avatar-toolbar-z: avatar inline-edit toolbar (sits on top of avatar box)
 // - $clanspress-media-cover-toolbar-z: cover inline-edit toolbar (must beat nested content for clicks)
-// - $clanspress-media-toast-z: block toasts above local toolbars
+// - $clanspress-media-toast-z: block toasts (position away from the top-right toolbar, or use pointer-events when hidden)
 
 $clanspress-media-avatar-toolbar-z: 5;
 $clanspress-media-cover-toolbar-z: 35;
