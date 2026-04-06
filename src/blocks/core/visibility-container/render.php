@@ -7,12 +7,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
+use Kernowdev\Clanspress\Blocks\Visibility_Container;
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render scope: $attributes, $content, $block.
-if ( ! function_exists( 'clanspress_visibility_container_should_show' ) ) {
+if ( ! class_exists( Visibility_Container::class ) ) {
 	return '';
 }
 
-if ( ! clanspress_visibility_container_should_show( $attributes, $block ) ) {
+if ( ! Visibility_Container::should_show( $attributes, $block ) ) {
 	return '';
 }
 

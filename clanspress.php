@@ -398,6 +398,34 @@ final class Main {
 			return;
 		}
 
+		$registry = \WP_Block_Type_Registry::get_instance();
+		$block    = $registry->get_registered( 'clanspress/visibility-container' );
+		if ( ! $block instanceof \WP_Block_Type || empty( $block->editor_script ) ) {
+			return;
+		}
+
+		$handle = $block->editor_script;
+		if ( is_array( $handle ) ) {
+			$handle = $handle[0];
+		}
+		$handle = (string) $handle;
+		if ( '' === $handle || ! wp_script_is( $handle, 'registered' ) ) {
+			return;
+		}
+
+		/**
+		 * Filter the editor script handle used to localize visibility-container role data.
+		 *
+		 * Default is the handle WordPress registered for the block’s `editorScript` (from block.json).
+		 *
+		 * @param string $handle Editor script handle.
+		 */
+		$handle = (string) apply_filters( 'clanspress_visibility_container_editor_script_handle', $handle );
+
+		if ( '' === $handle || ! wp_script_is( $handle, 'registered' ) ) {
+			return;
+		}
+
 		$roles_out = array();
 		foreach ( wp_roles()->roles as $slug => $details ) {
 			$roles_out[] = array(
@@ -407,7 +435,7 @@ final class Main {
 		}
 
 		wp_localize_script(
-			'wp-block-editor',
+			$handle,
 			'clanspressVisibilityContainer',
 			array( 'roles' => $roles_out )
 		);
