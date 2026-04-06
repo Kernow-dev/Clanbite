@@ -125,7 +125,9 @@ class Admin extends Abstract_Settings {
 							'default'     => '',
 							'fallback_url' => function_exists( 'clanspress_teams_get_default_cover_url' )
 								? \clanspress_teams_get_default_cover_url( 0 )
-								: \clanspress()->url . 'assets/img/covers/default-team-cover-image.png',
+								: ( function_exists( 'clanspress_teams_get_bundled_default_cover_url' )
+									? \clanspress_teams_get_bundled_default_cover_url()
+									: '' ),
 							'sanitize'    => 'esc_url_raw',
 						),
 					),
