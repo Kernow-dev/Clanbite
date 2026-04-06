@@ -77,20 +77,38 @@ function safeHttpUrl( href ) {
  * Sanitize CSS class suffix from API (e.g. status slug).
  *
  * @param {string} raw Raw slug.
- * @return {string}
+ * @return {string} Sanitized suffix safe for CSS class names.
  */
 function safeClassSuffix( raw ) {
 	return String( raw || '' ).replace( /[^a-z0-9-]/gi, '' );
 }
 
 /**
+ * True when the event is a plain primary-button activation (no modifiers).
+ * Lets middle-click and modified clicks use the browser default (e.g. new tab).
+ *
+ * @param {MouseEvent} e Click event.
+ * @return {boolean} True when primary button with no modifier keys.
+ */
+function isPlainLeftClick( e ) {
+	return (
+		e.button === 0 &&
+		! e.metaKey &&
+		! e.ctrlKey &&
+		! e.shiftKey &&
+		! e.altKey
+	);
+}
+
+/**
  * Build one notification row using DOM APIs (avoid innerHTML with API-sourced strings).
  *
  * @param {Object} notification Notification data.
- * @param {Object} i18n         Internationalization strings.
- * @return {HTMLElement|null}
+ * @param {Object} ctx          Context: `i18n`, `restUrl`, `nonce`.
+ * @return {HTMLElement|null} Row element, or null when the notification id is invalid.
  */
-function createNotificationItemElement( notification, i18n ) {
+function createNotificationItemElement( notification, ctx ) {
+	const i18n = ctx?.i18n || {};
 	const id = parseInt( notification?.id, 10 );
 	if ( ! Number.isFinite( id ) || id < 1 ) {
 		return null;
@@ -154,6 +172,34 @@ function createNotificationItemElement( notification, i18n ) {
 			? String( notification.title )
 			: '';
 		a.appendChild( titleSpan );
+		if ( ! notification.is_read && ctx?.restUrl && ctx?.nonce ) {
+			a.addEventListener( 'click', async ( e ) => {
+				if ( ! isPlainLeftClick( e ) ) {
+					return;
+				}
+				e.preventDefault();
+				try {
+					await restFetch( ctx.restUrl, ctx.nonce, {
+						path: `notifications/${ id }/read`,
+						method: 'POST',
+					} );
+					if (
+						typeof ctx.unreadCount === 'number' &&
+						ctx.unreadCount > 0
+					) {
+						ctx.unreadCount -= 1;
+					}
+					window.location.assign( linkUrl );
+				} catch ( err ) {
+					// eslint-disable-next-line no-console -- surfaced for site owners when REST mark-read fails
+					console.error(
+						'Clanspress: failed to mark notification as read before navigation',
+						err
+					);
+					window.location.assign( linkUrl );
+				}
+			} );
+		}
 		header.appendChild( a );
 	} else {
 		const titleSpan = document.createElement( 'span' );
@@ -257,7 +303,7 @@ function renderNotificationsList( ctx, ref ) {
 
 	const frag = document.createDocumentFragment();
 	ctx.notifications.forEach( ( n ) => {
-		const el = createNotificationItemElement( n, ctx.i18n );
+		const el = createNotificationItemElement( n, ctx );
 		if ( el ) {
 			frag.appendChild( el );
 		}
