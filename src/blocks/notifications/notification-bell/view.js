@@ -77,10 +77,27 @@ function safeHttpUrl( href ) {
  * Sanitize CSS class suffix from API (e.g. status slug).
  *
  * @param {string} raw Raw slug.
- * @return {string}
+ * @return {string} Sanitized suffix safe for CSS class names.
  */
 function safeClassSuffix( raw ) {
 	return String( raw || '' ).replace( /[^a-z0-9-]/gi, '' );
+}
+
+/**
+ * True when the event is a plain primary-button activation (no modifiers).
+ * Lets middle-click and modified clicks use the browser default (e.g. new tab).
+ *
+ * @param {MouseEvent} e Click event.
+ * @return {boolean} True when primary button with no modifier keys.
+ */
+function isPlainLeftClick( e ) {
+	return (
+		e.button === 0 &&
+		! e.metaKey &&
+		! e.ctrlKey &&
+		! e.shiftKey &&
+		! e.altKey
+	);
 }
 
 /**
@@ -88,7 +105,7 @@ function safeClassSuffix( raw ) {
  *
  * @param {Object} notification Notification data.
  * @param {Object} ctx          Context: `i18n`, `restUrl`, `nonce`.
- * @return {HTMLElement|null}
+ * @return {HTMLElement|null} Row element, or null when the notification id is invalid.
  */
 function createNotificationItemElement( notification, ctx ) {
 	const i18n = ctx?.i18n || {};
@@ -155,12 +172,11 @@ function createNotificationItemElement( notification, ctx ) {
 			? String( notification.title )
 			: '';
 		a.appendChild( titleSpan );
-		if (
-			! notification.is_read &&
-			ctx?.restUrl &&
-			ctx?.nonce
-		) {
+		if ( ! notification.is_read && ctx?.restUrl && ctx?.nonce ) {
 			a.addEventListener( 'click', async ( e ) => {
+				if ( ! isPlainLeftClick( e ) ) {
+					return;
+				}
 				e.preventDefault();
 				try {
 					await restFetch( ctx.restUrl, ctx.nonce, {
@@ -173,10 +189,15 @@ function createNotificationItemElement( notification, ctx ) {
 					) {
 						ctx.unreadCount -= 1;
 					}
+					window.location.assign( linkUrl );
 				} catch ( err ) {
-					console.error( 'Failed to mark notification read:', err );
+					// eslint-disable-next-line no-console -- surfaced for site owners when REST mark-read fails
+					console.error(
+						'Clanspress: failed to mark notification as read before navigation',
+						err
+					);
+					window.location.assign( linkUrl );
 				}
-				window.location.assign( linkUrl );
 			} );
 		}
 		header.appendChild( a );

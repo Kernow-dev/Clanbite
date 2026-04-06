@@ -732,6 +732,15 @@ function clanspress_render_player_notifications_page_markup(): string {
 			color: rgba(0, 0, 0, 0.5);
 			font-size: 0.875rem;
 		}
+		.clanspress-notifications-page__read-error {
+			margin: 0 0 1rem;
+			padding: 0.75rem 1rem;
+			color: #1e1e1e;
+			background: #fcf0f1;
+			border: 1px solid #d63638;
+			border-radius: 4px;
+			font-size: 0.875rem;
+		}
 	</style>
 	<script>
 	(function () {
@@ -744,9 +753,21 @@ function clanspress_render_player_notifications_page_markup(): string {
 		if (!restBase || !nonce) {
 			return;
 		}
+		function isPlainLeftClick(ev) {
+			return (
+				ev.button === 0 &&
+				!ev.metaKey &&
+				!ev.ctrlKey &&
+				!ev.shiftKey &&
+				!ev.altKey
+			);
+		}
 		root.addEventListener('click', function (ev) {
 			const a = ev.target.closest('a.clanspress-notification__link[data-notification-id]');
 			if (!a || !root.contains(a)) {
+				return;
+			}
+			if (!isPlainLeftClick(ev)) {
 				return;
 			}
 			const id = a.getAttribute('data-notification-id');
@@ -768,11 +789,36 @@ function clanspress_render_player_notifications_page_markup(): string {
 					'X-WP-Nonce': nonce,
 				},
 			})
-				.catch(function () {})
-				.finally(function () {
+				.then(function (res) {
+					if (!res.ok) {
+						return res.text().then(function (body) {
+							var msg = body ? body.slice(0, 200) : '';
+							throw new Error(msg || ('HTTP ' + res.status));
+						});
+					}
+				})
+				.then(function () {
 					if (href) {
 						window.location.assign(href);
 					}
+				})
+				.catch(function (err) {
+					console.error('Clanspress: failed to mark notification as read', err);
+					var note = document.createElement('p');
+					note.className = 'clanspress-notifications-page__read-error';
+					note.setAttribute('role', 'alert');
+					note.textContent = 'Could not mark this notification as read. Opening the link anyway — see the browser console for details.';
+					var header = root.querySelector('.clanspress-notifications-page__header');
+					if (header && header.nextSibling) {
+						root.insertBefore(note, header.nextSibling);
+					} else {
+						root.insertBefore(note, root.firstChild);
+					}
+					setTimeout(function () {
+						if (href) {
+							window.location.assign(href);
+						}
+					}, 2000);
 				});
 		});
 	})();
