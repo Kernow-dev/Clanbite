@@ -19,9 +19,20 @@ const STORE_NAMESPACE = 'clanspress-player-cover';
 const getPlayerCoverState =
 	getClanspressInteractivityStateGetter( STORE_NAMESPACE );
 
+const togglePanelBase = createClanspressToolbarPanelToggler(
+	getPlayerCoverState,
+	{
+		panelSelectorPrefix: '.clanspress-player-cover__panel--',
+		allPanelsSelector: '.clanspress-player-cover__panel',
+		islandRootSelector:
+			CLANSPRESS_MEDIA_ISLAND_ROOT_SELECTORS.playerCover,
+	}
+);
+
 const { state, actions } = store( STORE_NAMESPACE, {
 	state: {
 		root: null,
+		toolbarVisible: false,
 		activePanel: null,
 		isSaving: false,
 		errors: {},
@@ -39,6 +50,15 @@ const { state, actions } = store( STORE_NAMESPACE, {
 			return this.activePanel === getClanspressToolbarPanelId( attributes, ref );
 		},
 
+		/**
+		 * Mirrors `!toolbarVisible` for `aria-hidden` on the toolbar (true = hidden from assistive tech).
+		 *
+		 * @return {boolean}
+		 */
+		isToolbarHidden() {
+			return ! this.toolbarVisible;
+		},
+
 		isToastSuccess() {
 			return this.toast.type === 'success';
 		},
@@ -49,12 +69,41 @@ const { state, actions } = store( STORE_NAMESPACE, {
 	},
 
 	actions: {
-		togglePanel: createClanspressToolbarPanelToggler( getPlayerCoverState, {
-			panelSelectorPrefix: '.clanspress-player-cover__panel--',
-			allPanelsSelector: '.clanspress-player-cover__panel',
-			islandRootSelector:
-				CLANSPRESS_MEDIA_ISLAND_ROOT_SELECTORS.playerCover,
-		} ),
+		togglePanel() {
+			state.toolbarVisible = true;
+			togglePanelBase();
+		},
+
+		showToolbar() {
+			state.toolbarVisible = true;
+		},
+
+		hideToolbar() {
+			if ( state.activePanel ) {
+				return;
+			}
+			state.toolbarVisible = false;
+		},
+
+		/**
+		 * Hides the toolbar when focus leaves the cover block (unless the edit panel is open).
+		 *
+		 * @param {FocusEvent} event
+		 */
+		handleToolbarFocusOut( event ) {
+			const root = state.root;
+			if ( ! root ) {
+				return;
+			}
+			const next = event.relatedTarget;
+			if ( next && root.contains( next ) ) {
+				return;
+			}
+			if ( state.activePanel ) {
+				return;
+			}
+			state.toolbarVisible = false;
+		},
 
 		startDrag( event ) {
 			event.preventDefault();

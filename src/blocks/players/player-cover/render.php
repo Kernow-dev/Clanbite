@@ -64,7 +64,9 @@ if ( $show_controls ) {
 		),
 	);
 	$interactive_attrs = sprintf(
-		' data-wp-interactive="clanspress-player-cover" data-wp-context="%1$s" data-wp-init="callbacks.init"',
+		' data-wp-interactive="clanspress-player-cover" data-wp-context="%1$s" data-wp-init="callbacks.init"' .
+		' data-wp-on--mouseenter="actions.showToolbar" data-wp-on--mouseleave="actions.hideToolbar"' .
+		' data-wp-on--focusin="actions.showToolbar" data-wp-on--focusout="actions.handleToolbarFocusOut"',
 		esc_attr( wp_json_encode( $context ) )
 	);
 }
@@ -78,7 +80,12 @@ if ( $show_controls ) {
  */
 $render_cover_toolbar = static function ( string $panel_id, string $file_input_id, string $cover_url ) use ( $has_cover, $background_position_x, $background_position_y, $user_id ): void {
 	?>
-	<div class="clanspress-player-cover__toolbar">
+	<div
+		class="clanspress-player-cover__toolbar"
+		aria-hidden="true"
+		data-wp-class--is-toolbar-visible="state.toolbarVisible"
+		data-wp-bind--aria-hidden="state.isToolbarHidden"
+	>
 		<div
 			class="clanspress-player-cover__toolbar-inner"
 			aria-label="<?php esc_attr_e( 'Cover controls', 'clanspress' ); ?>"
