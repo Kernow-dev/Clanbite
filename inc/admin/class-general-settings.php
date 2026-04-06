@@ -40,10 +40,11 @@ class General_Settings extends Abstract_Settings {
 	protected function get_defaults(): array {
 		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanspress_general_settings_defaults`.
 		return array(
-			'admin_notes'          => '',
-			'events_enabled'       => true,
-			'wordban_enabled'      => false,
-			'wordban_custom_list'  => '',
+			'admin_notes'                      => '',
+			'events_enabled'                   => true,
+			'wordban_enabled'                  => false,
+			'wordban_custom_list'              => '',
+			'hide_wp_admin_bar_for_non_admins' => false,
 		);
 	}
 
@@ -65,6 +66,12 @@ class General_Settings extends Abstract_Settings {
 						'type'        => 'checkbox',
 						'description' => __( 'When off, team and group events, REST endpoints, and front-end event routes are disabled site-wide. Individual teams and groups can still turn events off when this is on.', 'clanspress' ),
 						'default'     => true,
+					),
+					'hide_wp_admin_bar_for_non_admins' => array(
+						'label'       => __( 'Hide WordPress toolbar on the front end for non-administrators', 'clanspress' ),
+						'type'        => 'checkbox',
+						'description' => __( 'When on, only users who can manage options (and super admins on multisite) see the admin bar while viewing the site. The dashboard and block editor are unchanged.', 'clanspress' ),
+						'default'     => false,
 					),
 				),
 			),
