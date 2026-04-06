@@ -301,6 +301,8 @@ class Players extends Skeleton {
 	 *
 	 * The `players-player-profile` template renders `post-content` without a `player-query` ancestor, so
 	 * those blocks would otherwise miss profile owner context. They declare `usesContext` for this key.
+	 * Resolves the profile owner user ID at most once per request (static cache) because this filter runs
+	 * for every block.
 	 *
 	 * @param array<string, mixed>      $context      Default block context.
 	 * @param array<string, mixed>      $parsed_block Parsed block (core shape).
@@ -310,13 +312,24 @@ class Players extends Skeleton {
 	public function filter_render_block_context_social_on_player_profile( array $context, array $parsed_block, $parent_block ): array {
 		unset( $parent_block );
 
-		$name = isset( $parsed_block['blockName'] ) ? (string) $parsed_block['blockName'] : '';
-		if ( 'clanspress-social/social-feed' !== $name && 'clanspress-social/social-composer' !== $name ) {
+		static $cached_profile_owner_id = null;
+
+		$allowed_blocks = array(
+			'clanspress-social/social-feed',
+			'clanspress-social/social-composer',
+		);
+
+		$name = (string) ( $parsed_block['blockName'] ?? '' );
+		if ( ! in_array( $name, $allowed_blocks, true ) ) {
 			return $context;
 		}
 
-		$attrs = isset( $parsed_block['attrs'] ) && is_array( $parsed_block['attrs'] ) ? $parsed_block['attrs'] : array();
-		$feed  = isset( $attrs['feedContext'] ) && is_string( $attrs['feedContext'] ) ? $attrs['feedContext'] : 'home';
+		$attrs = $parsed_block['attrs'] ?? array();
+		if ( ! is_array( $attrs ) ) {
+			$attrs = array();
+		}
+		$feed = $attrs['feedContext'] ?? 'home';
+		$feed = is_string( $feed ) ? $feed : 'home';
 		if ( 'profile' !== $feed ) {
 			return $context;
 		}
@@ -325,16 +338,17 @@ class Players extends Skeleton {
 			return $context;
 		}
 
-		if ( ! function_exists( 'clanspress_player_profile_context_user_id' ) ) {
+		if ( null === $cached_profile_owner_id ) {
+			$cached_profile_owner_id = function_exists( 'clanspress_player_profile_context_user_id' )
+				? (int) clanspress_player_profile_context_user_id()
+				: 0;
+		}
+
+		if ( $cached_profile_owner_id <= 0 ) {
 			return $context;
 		}
 
-		$uid = (int) clanspress_player_profile_context_user_id();
-		if ( $uid <= 0 ) {
-			return $context;
-		}
-
-		$context['clanspress/playerId'] = $uid;
+		$context['clanspress/playerId'] = $cached_profile_owner_id;
 
 		return $context;
 	}
