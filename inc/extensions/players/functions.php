@@ -293,6 +293,19 @@ function clanspress_players_get_countries() {
 	return $countries;
 }
 
+/**
+ * URL of the plugin-bundled default player cover (used when Players → default cover is unset).
+ *
+ * @return string Empty when `clanspress()` is unavailable.
+ */
+function clanspress_players_get_bundled_default_cover_url(): string {
+	if ( ! function_exists( 'clanspress' ) ) {
+		return '';
+	}
+
+	return clanspress()->url . 'assets/img/covers/default-player-cover-image.png';
+}
+
 function clanspress_players_get_default_avatar( $player_id ) {
 	$loader = clanspress()->extensions;
 	if ( null === $loader ) {
@@ -323,7 +336,7 @@ function clanspress_players_get_default_cover( $player_id ) {
 		: '';
 
 	if ( empty( $default_cover ) ) {
-		$default_cover = clanspress()->url . 'assets/img/covers/default-cover.png';
+		$default_cover = clanspress_players_get_bundled_default_cover_url();
 	}
 
 	return apply_filters( 'clanspress_players_get_default_cover', $default_cover, $player_id );

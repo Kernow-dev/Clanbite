@@ -113,6 +113,7 @@ $render_cover_toast = static function (): void {
 		role="status"
 		aria-live="polite"
 		aria-atomic="true"
+		hidden
 		data-wp-bind--hidden="!state.toast.visible"
 		data-wp-class--success="state.isToastSuccess"
 		data-wp-class--error="state.isToastError"
@@ -148,8 +149,8 @@ if ( ! $url && function_exists( 'clanspress_teams_get_default_cover_url' ) ) {
 	$url = clanspress_teams_get_default_cover_url( $team_id );
 }
 $url = trim( (string) $url );
-if ( ! $url && function_exists( 'clanspress' ) ) {
-	$url = clanspress()->url . 'assets/img/covers/default-cover.png';
+if ( ! $url && function_exists( 'clanspress_teams_get_bundled_default_cover_url' ) ) {
+	$url = clanspress_teams_get_bundled_default_cover_url();
 }
 
 if ( ! $url ) {

@@ -125,7 +125,9 @@ class Admin extends Abstract_Settings {
 							'type'        => 'image',
 							'description' => __( 'Shown when a player has no custom cover. Leave empty to use the plugin bundled image.', 'clanspress' ),
 							'default'     => '',
-							'fallback_url' => \clanspress()->url . 'assets/img/covers/default-cover.png',
+							'fallback_url' => function_exists( 'clanspress_players_get_bundled_default_cover_url' )
+								? \clanspress_players_get_bundled_default_cover_url()
+								: '',
 							'sanitize'    => 'esc_url_raw',
 						),
 					),

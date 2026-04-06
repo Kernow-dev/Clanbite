@@ -528,6 +528,19 @@ function clanspress_teams_get_default_avatar_url( int $team_id = 0 ): string {
 }
 
 /**
+ * URL of the plugin-bundled default team cover (used when Teams → default cover is unset).
+ *
+ * @return string Empty when `clanspress()` is unavailable.
+ */
+function clanspress_teams_get_bundled_default_cover_url(): string {
+	if ( ! function_exists( 'clanspress' ) ) {
+		return '';
+	}
+
+	return clanspress()->url . 'assets/img/covers/default-team-cover-image.png';
+}
+
+/**
  * Global default team cover image URL (Teams settings, then bundled asset).
  *
  * @param int $team_id Team post ID for filters.
@@ -539,7 +552,7 @@ function clanspress_teams_get_default_cover_url( int $team_id = 0 ): string {
 	$url = trim( $url );
 
 	if ( '' === $url ) {
-		$url = clanspress()->url . 'assets/img/covers/default-cover.png';
+		$url = clanspress_teams_get_bundled_default_cover_url();
 	}
 
 	/**
