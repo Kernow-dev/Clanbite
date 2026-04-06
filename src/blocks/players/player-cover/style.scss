@@ -1,5 +1,7 @@
 // Front-end: align with team-cover layout; minimal WP-admin-style toolbar when inline edit is enabled.
 
+@use '../../shared/clanspress-media-stacking' as *;
+
 .wp-block-clanspress-player-cover.clanspress-player-cover-block {
 	position: relative;
 	background-position: center center;
@@ -77,8 +79,8 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		// Above `.player-cover__content-container` (z-index: 2) so nested blocks (e.g. avatar) do not steal clicks from Edit.
-		z-index: 35;
+		// Stacking: see `_clanspress-media-stacking.scss` — above `.player-cover__content-container` (z-index: 2).
+		z-index: $clanspress-media-cover-toolbar-z;
 		padding: 0.5rem;
 		pointer-events: none;
 		opacity: 0;

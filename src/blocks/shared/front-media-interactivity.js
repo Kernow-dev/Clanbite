@@ -43,6 +43,52 @@ export const CLANSPRESS_MEDIA_TOOLBAR_INNER_SELECTOR =
 	'.clanspress-player-cover__toolbar-inner, .clanspress-team-cover__toolbar-inner, .clanspress-player-avatar__toolbar-inner, .clanspress-team-avatar__toolbar-inner';
 
 /**
+ * Root wrapper class selectors for front media Interactivity islands.
+ * Align with each block’s server `get_block_wrapper_attributes` root class (typically `*-block`).
+ *
+ * @type {Readonly<{
+ *   playerCover: string,
+ *   teamCover: string,
+ *   playerAvatar: string,
+ *   teamAvatar: string,
+ * }>}
+ */
+export const CLANSPRESS_MEDIA_ISLAND_ROOT_SELECTORS = Object.freeze( {
+	playerCover: '.clanspress-player-cover-block',
+	teamCover: '.clanspress-team-cover-block',
+	playerAvatar: '.clanspress-player-avatar-block',
+	teamAvatar: '.clanspress-team-avatar-block',
+} );
+
+/**
+ * DOM subtree used to query toolbar panels (prefers hydrated `state.root`, then island wrapper).
+ *
+ * @param {{ root?: Element|null }}              state
+ * @param {Element|null|undefined}               ref
+ * @param {string|undefined}                     islandRootSelector From {@link CLANSPRESS_MEDIA_ISLAND_ROOT_SELECTORS}.
+ * @return {Element|null}
+ */
+export function getClanspressToolbarScope( state, ref, islandRootSelector ) {
+	if ( ! ref ) {
+		return null;
+	}
+	if ( state?.root && typeof state.root.querySelector === 'function' ) {
+		return state.root;
+	}
+	if ( islandRootSelector && typeof ref.closest === 'function' ) {
+		const island = ref.closest( islandRootSelector );
+		if ( island ) {
+			return island;
+		}
+	}
+	const scopeRoot =
+		typeof ref.closest === 'function'
+			? ref.closest( CLANSPRESS_MEDIA_TOOLBAR_INNER_SELECTOR )
+			: null;
+	return scopeRoot || ref.parentElement || ref.parentNode || null;
+}
+
+/**
  * @param {File|undefined|null} file
  * @return {boolean}
  */
@@ -271,7 +317,7 @@ export function getClanspressToolbarPanelId( attributes, ref ) {
  *   panelSelectorPrefix: string,
  *   allPanelsSelector: string,
  *   islandRootSelector?: string,
- * }} config `panelSelectorPrefix` includes the trailing `--` (e.g. `.clanspress-team-cover__panel--`). Optional `islandRootSelector` matches the block wrapper when `state.root` is not set yet.
+ * }} config `panelSelectorPrefix` includes the trailing `--` (e.g. `.clanspress-team-cover__panel--`). Prefer {@link CLANSPRESS_MEDIA_ISLAND_ROOT_SELECTORS} for `islandRootSelector` when `state.root` is not set yet.
  * @return {() => void}
  */
 export function createClanspressToolbarPanelToggler( getState, config ) {
@@ -281,31 +327,11 @@ export function createClanspressToolbarPanelToggler( getState, config ) {
 	return function togglePanel() {
 		const state = getState();
 		const { ref, attributes } = getElement();
-		if ( ! ref ) {
-			return;
-		}
-		let scope = null;
-		if (
-			state?.root &&
-			typeof state.root.querySelector === 'function'
-		) {
-			scope = state.root;
-		}
-		if (
-			! scope &&
-			islandRootSelector &&
-			typeof ref.closest === 'function'
-		) {
-			scope = ref.closest( islandRootSelector );
-		}
-		if ( ! scope ) {
-			const scopeRoot =
-				typeof ref.closest === 'function'
-					? ref.closest( CLANSPRESS_MEDIA_TOOLBAR_INNER_SELECTOR )
-					: null;
-			scope =
-				scopeRoot || ref.parentElement || ref.parentNode;
-		}
+		const scope = getClanspressToolbarScope(
+			state,
+			ref,
+			islandRootSelector
+		);
 		if ( ! scope || typeof scope.querySelector !== 'function' ) {
 			return;
 		}
