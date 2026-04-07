@@ -56,7 +56,8 @@ class Groups_Settings extends Abstract_Settings {
 	 */
 	protected function get_defaults(): array {
 		return array(
-			'events_profile_subpage' => true,
+			'events_profile_subpage'       => true,
+			'group_name_wordban_custom_list' => '',
 		);
 	}
 
@@ -76,6 +77,13 @@ class Groups_Settings extends Abstract_Settings {
 						'description' => __( 'When the Events extension is enabled, register the group Events subpage and block template. When off, those integrations are not loaded.', 'clanspress' ),
 						'default'     => true,
 						'sanitize'    => 'rest_sanitize_boolean',
+					),
+					'group_name_wordban_custom_list' => array(
+						'label'       => __( 'Additional banned words for group names', 'clanspress' ),
+						'type'        => 'textarea',
+						'description' => __( 'Comma- or line-separated. These are enforced only for group names. When the global word filter is enabled, this list is added on top of it; when global is off, this list still applies to group names.', 'clanspress' ),
+						'default'     => '',
+						'sanitize'    => 'sanitize_textarea_field',
 					),
 				),
 			),
