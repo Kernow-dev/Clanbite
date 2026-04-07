@@ -121,11 +121,7 @@ class Admin extends Abstract_Settings {
 							'type'        => 'image',
 							'description' => __( 'Shown when a team has no avatar set. Leave empty to use the plugin bundled image.', 'clanspress' ),
 							'default'     => '',
-							'fallback_url' => function_exists( 'clanspress_teams_get_default_avatar_url' )
-								? \clanspress_teams_get_default_avatar_url( 0 )
-								: ( function_exists( 'clanspress_teams_get_bundled_default_avatar_url' )
-									? \clanspress_teams_get_bundled_default_avatar_url()
-									: '' ),
+							'fallback_url' => \clanspress_teams_get_default_avatar_url( 0 ),
 							'sanitize'    => 'esc_url_raw',
 						),
 						'default_team_cover'  => array(
@@ -133,11 +129,7 @@ class Admin extends Abstract_Settings {
 							'type'        => 'image',
 							'description' => __( 'Shown when a team has no cover image set. Leave empty to use the plugin bundled image.', 'clanspress' ),
 							'default'     => '',
-							'fallback_url' => function_exists( 'clanspress_teams_get_default_cover_url' )
-								? \clanspress_teams_get_default_cover_url( 0 )
-								: ( function_exists( 'clanspress_teams_get_bundled_default_cover_url' )
-									? \clanspress_teams_get_bundled_default_cover_url()
-									: '' ),
+							'fallback_url' => \clanspress_teams_get_default_cover_url( 0 ),
 							'sanitize'    => 'esc_url_raw',
 						),
 					),
