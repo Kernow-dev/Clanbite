@@ -188,11 +188,18 @@ final class Wordban {
 	 */
 	public static function filter_rest_pre_insert_team( $prepared_post, $request ) {
 		unset( $request );
-		if ( ! self::is_enabled() || $prepared_post instanceof WP_Error || ! is_object( $prepared_post ) ) {
+		if ( $prepared_post instanceof WP_Error || ! is_object( $prepared_post ) ) {
+			return $prepared_post;
+		}
+		$extra = self::get_team_name_extra_canonical_words();
+		if ( ! self::is_enabled() && array() === $extra ) {
 			return $prepared_post;
 		}
 		$title = isset( $prepared_post->post_title ) ? (string) $prepared_post->post_title : '';
-		$err   = self::validate_strict_text( $title );
+		$err   = self::validate_strict_name_text(
+			$title,
+			$extra
+		);
 		return $err instanceof WP_Error ? $err : $prepared_post;
 	}
 
@@ -205,11 +212,18 @@ final class Wordban {
 	 */
 	public static function filter_rest_pre_insert_group( $prepared_post, $request ) {
 		unset( $request );
-		if ( ! self::is_enabled() || $prepared_post instanceof WP_Error || ! is_object( $prepared_post ) ) {
+		if ( $prepared_post instanceof WP_Error || ! is_object( $prepared_post ) ) {
+			return $prepared_post;
+		}
+		$extra = self::get_group_name_extra_canonical_words();
+		if ( ! self::is_enabled() && array() === $extra ) {
 			return $prepared_post;
 		}
 		$title = isset( $prepared_post->post_title ) ? (string) $prepared_post->post_title : '';
-		$err   = self::validate_strict_text( $title );
+		$err   = self::validate_strict_name_text(
+			$title,
+			$extra
+		);
 		return $err instanceof WP_Error ? $err : $prepared_post;
 	}
 
@@ -219,13 +233,46 @@ final class Wordban {
 	 * @param string $text Text to check.
 	 * @return \WP_Error|null Null when allowed.
 	 */
-	public static function validate_strict_text( string $text ): ?WP_Error {
+	public static function validate_strict_text( string $text, array $extra_canonical_words = array() ): ?WP_Error {
 		if ( ! self::is_enabled() || '' === trim( $text ) ) {
 			return null;
 		}
 
+		$wordset = self::get_merged_canonical_words( $extra_canonical_words );
+		return self::validate_strict_text_with_wordset( $text, $wordset );
+	}
+
+	/**
+	 * Validate entity names where extra per-entity banned words should apply even if global wordban is disabled.
+	 *
+	 * @param string             $text                  Text to validate.
+	 * @param array<int, string> $extra_canonical_words Team/group additional banned words.
+	 * @return \WP_Error|null
+	 */
+	private static function validate_strict_name_text( string $text, array $extra_canonical_words ): ?WP_Error {
+		if ( '' === trim( $text ) ) {
+			return null;
+		}
+
+		$wordset = self::is_enabled()
+			? self::get_merged_canonical_words( $extra_canonical_words )
+			: array_values( array_unique( array_filter( array_map( 'trim', $extra_canonical_words ) ) ) );
+
+		if ( array() === $wordset ) {
+			return null;
+		}
+
+		return self::validate_strict_text_with_wordset( $text, $wordset );
+	}
+
+	/**
+	 * @param string             $text    Text to validate.
+	 * @param array<int, string> $wordset Canonical banned words/phrases.
+	 * @return \WP_Error|null
+	 */
+	private static function validate_strict_text_with_wordset( string $text, array $wordset ): ?WP_Error {
 		$tokens = self::tokenize_for_strict( $text );
-		$banned = self::get_single_token_map();
+		$banned = self::build_single_token_map( $wordset );
 
 		foreach ( $tokens as $t ) {
 			if ( '' === $t || strlen( $t ) < 2 ) {
@@ -234,9 +281,13 @@ final class Wordban {
 			if ( isset( $banned[ $t ] ) ) {
 				return self::blocked_error();
 			}
+			// Catch common bypasses like `cuntflaps` / `p155flaps` where a banned root is embedded in a longer token.
+			if ( self::token_contains_banned_root( $t, $banned ) ) {
+				return self::blocked_error();
+			}
 		}
 
-		foreach ( self::get_phrases() as $phrase ) {
+		foreach ( self::build_phrases( $wordset ) as $phrase ) {
 			if ( self::tokens_contain_phrase( $tokens, $phrase ) ) {
 				return self::blocked_error();
 			}
@@ -272,6 +323,19 @@ final class Wordban {
 				},
 				$out
 			);
+
+			if ( strlen( $word ) >= 4 ) {
+				$embedded_pattern = self::build_flexible_word_pattern( $word, false );
+				if ( '' !== $embedded_pattern ) {
+					$out = (string) preg_replace_callback(
+						$embedded_pattern,
+						static function ( array $m ): string {
+							return self::asterisk_mask_match( $m[0] );
+						},
+						$out
+					);
+				}
+			}
 		}
 
 		/**
@@ -470,8 +534,16 @@ final class Wordban {
 		if ( null !== self::$single_token_cache ) {
 			return self::$single_token_cache;
 		}
-		$words = self::get_merged_canonical_words();
-		$map   = array();
+		self::$single_token_cache = self::build_single_token_map( self::get_merged_canonical_words() );
+		return self::$single_token_cache;
+	}
+
+	/**
+	 * @param array<int, string> $words Canonical words/phrases list.
+	 * @return array<string, true>
+	 */
+	private static function build_single_token_map( array $words ): array {
+		$map = array();
 		foreach ( $words as $w ) {
 			if ( strlen( $w ) < 2 ) {
 				continue;
@@ -481,8 +553,7 @@ final class Wordban {
 			}
 			$map[ $w ] = true;
 		}
-		self::$single_token_cache = $map;
-		return self::$single_token_cache;
+		return $map;
 	}
 
 	/**
@@ -492,8 +563,17 @@ final class Wordban {
 		if ( null !== self::$phrase_cache ) {
 			return self::$phrase_cache;
 		}
+		self::$phrase_cache = self::build_phrases( self::get_merged_canonical_words() );
+		return self::$phrase_cache;
+	}
+
+	/**
+	 * @param array<int, string> $words Canonical words/phrases list.
+	 * @return array<int, array<int, string>>
+	 */
+	private static function build_phrases( array $words ): array {
 		$out = array();
-		foreach ( self::get_merged_canonical_words() as $w ) {
+		foreach ( $words as $w ) {
 			if ( ! str_contains( $w, ' ' ) ) {
 				continue;
 			}
@@ -510,8 +590,7 @@ final class Wordban {
 				$out[] = $norm;
 			}
 		}
-		self::$phrase_cache = $out;
-		return self::$phrase_cache;
+		return $out;
 	}
 
 	/**
@@ -552,10 +631,10 @@ final class Wordban {
 	 *
 	 * @return array<int, string>
 	 */
-	private static function get_merged_canonical_words(): array {
+	private static function get_merged_canonical_words( array $extra_canonical_words = array() ): array {
 		$defaults = self::default_banned_canonical();
 		$custom   = self::parse_custom_list();
-		$merged   = array_merge( $defaults, $custom );
+		$merged   = array_merge( $defaults, $custom, $extra_canonical_words );
 		$merged   = array_values( array_unique( array_filter( array_map( 'trim', $merged ) ) ) );
 
 		/**
@@ -628,6 +707,34 @@ final class Wordban {
 	private static function parse_custom_list(): array {
 		$settings = get_option( General_Settings::OPTION_KEY, array() );
 		$raw      = isset( $settings['wordban_custom_list'] ) ? (string) $settings['wordban_custom_list'] : '';
+		return self::parse_raw_list_to_canonical_words( $raw );
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private static function get_team_name_extra_canonical_words(): array {
+		$settings = get_option( 'clanspress_teams_settings', array() );
+		$raw      = isset( $settings['team_name_wordban_custom_list'] ) ? (string) $settings['team_name_wordban_custom_list'] : '';
+		return self::parse_raw_list_to_canonical_words( $raw );
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private static function get_group_name_extra_canonical_words(): array {
+		$settings = get_option( 'clanspress_groups_settings', array() );
+		$raw      = isset( $settings['group_name_wordban_custom_list'] ) ? (string) $settings['group_name_wordban_custom_list'] : '';
+		return self::parse_raw_list_to_canonical_words( $raw );
+	}
+
+	/**
+	 * Parse a comma/newline list into canonical words/phrases.
+	 *
+	 * @param string $raw Raw textarea setting.
+	 * @return array<int, string>
+	 */
+	private static function parse_raw_list_to_canonical_words( string $raw ): array {
 		$raw      = str_replace( array( "\r\n", "\r" ), "\n", $raw );
 		$bits     = preg_split( '/[,\n]+/', $raw, -1, PREG_SPLIT_NO_EMPTY );
 		if ( ! is_array( $bits ) ) {
@@ -667,10 +774,31 @@ final class Wordban {
 	}
 
 	/**
+	 * @param string              $token  Canonical token to test.
+	 * @param array<string, true> $banned Single-token banned map.
+	 * @return bool
+	 */
+	private static function token_contains_banned_root( string $token, array $banned ): bool {
+		foreach ( array_keys( $banned ) as $root ) {
+			// Avoid excessive false positives for tiny roots like "ass" or "tit".
+			if ( strlen( $root ) < 4 ) {
+				continue;
+			}
+			if ( strlen( $token ) <= strlen( $root ) ) {
+				continue;
+			}
+			if ( false !== strpos( $token, $root ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * @param string $canonical Lowercase letters only.
 	 * @return string Regex with `u` modifier recommended.
 	 */
-	private static function build_flexible_word_pattern( string $canonical ): string {
+	private static function build_flexible_word_pattern( string $canonical, bool $with_boundaries = true ): string {
 		$chars = preg_split( '//u', $canonical, -1, PREG_SPLIT_NO_EMPTY );
 		if ( ! is_array( $chars ) || array() === $chars ) {
 			return '';
@@ -687,7 +815,11 @@ final class Wordban {
 			);
 			$chunks[] = '(?:' . implode( '|', $quoted ) . ')';
 		}
-		return '/(?<![\p{L}\p{N}])' . implode( '[^\p{L}\p{N}]*', $chunks ) . '(?![\p{L}\p{N}])/iu';
+		$body = implode( '[^\p{L}\p{N}]*', $chunks );
+		if ( $with_boundaries ) {
+			return '/(?<![\p{L}\p{N}])' . $body . '(?![\p{L}\p{N}])/iu';
+		}
+		return '/' . $body . '/iu';
 	}
 
 	/**
