@@ -163,6 +163,7 @@ class Players extends Skeleton {
 		add_filter( 'clanspress_players_settings_nav_account_sub_items', array( $this, 'register_account_nav_items' ) );
 		add_action( 'clanspress_player_settings_panel_profile-info', array( $this, 'do_profile_avatar_fields' ) );
 		add_action( 'clanspress_player_settings_panel_profile-info', array( $this, 'do_profile_info_fields' ), 20 );
+		add_action( 'clanspress_player_settings_panel_social-networks', array( $this, 'do_social_networks_fields' ) );
 		add_action( 'clanspress_player_settings_panel_account-info', array( $this, 'do_account_info_fields' ) );
 
 		// Save profile settings.
@@ -1744,6 +1745,27 @@ class Players extends Skeleton {
 			)
 		);
 
+		if ( function_exists( 'clanspress_players_get_social_profile_field_definitions' ) ) {
+			foreach ( array_keys( clanspress_players_get_social_profile_field_definitions() ) as $social_slug ) {
+				$meta_key = clanspress_players_social_profile_meta_key( $social_slug );
+				register_meta(
+					'user',
+					$meta_key,
+					array(
+						'type'              => 'string',
+						'description'       => 'Player social profile: ' . $social_slug,
+						'single'            => true,
+						'sanitize_callback' => 'clanspress_players_sanitize_social_profile_value',
+						'show_in_rest'      => true,
+						'default'           => '',
+						'auth_callback'     => function () {
+							return current_user_can( 'read' );
+						},
+					)
+				);
+			}
+		}
+
 		// register_meta(
 		// 'user',
 		// 'clanspress_player_avatar_id',
@@ -1765,7 +1787,7 @@ class Players extends Skeleton {
 
 		$items['social-networks'] = array(
 			'label'       => __( 'Social Networks', 'clanspress' ),
-			'description' => __( 'General account data', 'clanspress' ),
+			'description' => __( 'Public social links', 'clanspress' ),
 		);
 
 		return $items;
@@ -1990,6 +2012,73 @@ class Players extends Skeleton {
 		do_action( 'clanspress_after_account_info_fields', $user_id, $user );
 	}
 
+	/**
+	 * Renders Profile → Social Networks fields on the front-end player settings screen.
+	 *
+	 * @return void
+	 */
+	public function do_social_networks_fields() {
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id || ! function_exists( 'clanspress_players_get_social_profile_field_definitions' ) ) {
+			return;
+		}
+
+		$definitions = clanspress_players_get_social_profile_field_definitions();
+		if ( array() === $definitions ) {
+			return;
+		}
+
+		do_action( 'clanspress_before_social_networks_fields', $user_id );
+		?>
+		<div class="settings-section">
+			<h2 class="settings-section-title"><?php esc_html_e( 'Social profiles', 'clanspress' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'These may be shown on your public player profile. Use a full URL, @handle, or username depending on the network.', 'clanspress' ); ?></p>
+			<?php
+			$row_open = false;
+			$index    = 0;
+			foreach ( $definitions as $slug => $field ) {
+				$label       = isset( $field['label'] ) ? (string) $field['label'] : $slug;
+				$placeholder = isset( $field['placeholder'] ) ? (string) $field['placeholder'] : '';
+				$post_name   = 'profile_social_' . sanitize_key( $slug );
+				$input_id    = 'profile-social-' . sanitize_key( $slug );
+				$value       = clanspress_players_get_display_social( (string) $slug, $user_id, true );
+
+				if ( 0 === $index % 2 ) {
+					if ( $row_open ) {
+						echo '</div>';
+					}
+					echo '<div class="settings-section-row">';
+					$row_open = true;
+				}
+				?>
+			<div class="form-item">
+				<div class="form-input">
+					<label for="<?php echo esc_attr( $input_id ); ?>"><?php echo esc_html( $label ); ?></label>
+					<input
+						type="text"
+						id="<?php echo esc_attr( $input_id ); ?>"
+						name="<?php echo esc_attr( $post_name ); ?>"
+						value="<?php echo esc_attr( $value ); ?>"
+						placeholder="<?php echo esc_attr( $placeholder ); ?>"
+						autocomplete="off"
+						data-wp-class--error="state.isError"
+					>
+					<div class="error-message" data-wp-bind--hidden="state.showError" data-wp-args="<?php echo esc_attr( $post_name ); ?>" data-wp-text="state.errorMessage"></div>
+				</div>
+			</div>
+				<?php
+				++$index;
+			}
+			if ( $row_open ) {
+				echo '</div>';
+			}
+			?>
+		</div>
+		<?php
+		do_action( 'clanspress_after_social_networks_fields', $user_id );
+	}
+
 	public function save_player_profile_settings( $filtered_data, $data, $files, $user_id ) {
 		$errors = array();
 
@@ -2140,6 +2229,34 @@ class Players extends Skeleton {
 				update_user_meta( $user_id, 'cp_player_birthday', $display_birthday );
 			} else {
 				$errors['profile_birthday'] = $display_birthday->get_error_message();
+			}
+		}
+
+		if ( function_exists( 'clanspress_players_get_social_profile_field_definitions' ) ) {
+			foreach ( array_keys( clanspress_players_get_social_profile_field_definitions() ) as $social_slug ) {
+				$social_slug = sanitize_key( (string) $social_slug );
+				if ( '' === $social_slug ) {
+					continue;
+				}
+				$post_key = 'profile_social_' . $social_slug;
+				if ( ! array_key_exists( $post_key, $filtered_data ) ) {
+					continue;
+				}
+				$raw = clanspress_players_sanitize_social_profile_value( (string) $filtered_data[ $post_key ] );
+				/**
+				 * Filters a social profile value before it is saved from player settings.
+				 *
+				 * @param string|WP_Error $value     Sanitized string, or WP_Error to reject.
+				 * @param string          $slug      Field slug (e.g. `facebook`).
+				 * @param int             $user_id   User ID.
+				 */
+				$stored = apply_filters( 'clanspress_player_settings_update_social_profile_value', $raw, $social_slug, $user_id );
+				if ( is_wp_error( $stored ) ) {
+					$errors[ $post_key ] = $stored->get_error_message();
+					continue;
+				}
+				$stored = clanspress_players_sanitize_social_profile_value( (string) $stored );
+				update_user_meta( $user_id, clanspress_players_social_profile_meta_key( $social_slug ), $stored );
 			}
 		}
 
