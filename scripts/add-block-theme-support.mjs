@@ -106,7 +106,8 @@ function buildSelectors( name ) {
 				background: wp,
 				link: `${ wp } .clanspress-player-display-name__link`,
 			},
-			typography: `${ wp } .clanspress-player-display-name__text`,
+			// Wrapper only: matches editor useBlockProps() and render.php wrapper. Inner __text/__link use font:inherit (style.scss).
+			typography: wp,
 			border: wp,
 		},
 		'clanspress/team-description': {
