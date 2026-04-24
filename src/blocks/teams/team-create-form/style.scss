@@ -1,10 +1,10 @@
-.wp-block-clanspress-team-create-form {
+.wp-block-clanbite-team-create-form {
 	border: 1px solid #dcdcde;
 	border-radius: 6px;
 	padding: 1rem;
 }
 
-.clanspress-team-create-form__tabs {
+.clanbite-team-create-form__tabs {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
@@ -13,7 +13,7 @@
 	border-bottom: 1px solid #dcdcde;
 }
 
-.clanspress-team-create-form__tab {
+.clanbite-team-create-form__tab {
 	flex: 1 1 140px;
 	min-width: 0;
 	display: flex;
@@ -60,7 +60,7 @@
 	}
 }
 
-.clanspress-team-create-form__tab-index {
+.clanbite-team-create-form__tab-index {
 	flex-shrink: 0;
 	display: inline-flex;
 	align-items: center;
@@ -74,56 +74,56 @@
 	color: #1d2327;
 }
 
-.clanspress-team-create-form__tab.is-active .clanspress-team-create-form__tab-index {
+.clanbite-team-create-form__tab.is-active .clanbite-team-create-form__tab-index {
 	background: #2271b1;
 	color: #fff;
 }
 
-.clanspress-team-create-form__tab.is-complete:not(.is-active) .clanspress-team-create-form__tab-index {
+.clanbite-team-create-form__tab.is-complete:not(.is-active) .clanbite-team-create-form__tab-index {
 	background: #00a32a;
 	color: #fff;
 }
 
-.clanspress-team-create-form__tab-text {
+.clanbite-team-create-form__tab-text {
 	display: flex;
 	flex-direction: column;
 	gap: 0.15rem;
 	min-width: 0;
 }
 
-.clanspress-team-create-form__tab-title {
+.clanbite-team-create-form__tab-title {
 	font-weight: 600;
 	font-size: 0.875rem;
 	line-height: 1.3;
 }
 
-.clanspress-team-create-form__tab-description {
+.clanbite-team-create-form__tab-description {
 	font-size: 0.75rem;
 	line-height: 1.35;
 	color: #646970;
 }
 
-.clanspress-team-create-form__tab.is-active .clanspress-team-create-form__tab-description {
+.clanbite-team-create-form__tab.is-active .clanbite-team-create-form__tab-description {
 	color: #50575e;
 }
 
-.clanspress-team-create-form__form {
+.clanbite-team-create-form__form {
 	display: grid;
 	gap: 1rem;
 
 	/* Step panels: visibility follows data-active-step on the form (avoids Interactivity ref timing with data-wp-bind--hidden). */
-	& > .clanspress-team-create-form__step {
+	& > .clanbite-team-create-form__step {
 		display: none;
 	}
 
-	&[data-active-step='1'] > .clanspress-team-create-form__step[data-team-step='1'],
-	&[data-active-step='2'] > .clanspress-team-create-form__step[data-team-step='2'],
-	&[data-active-step='3'] > .clanspress-team-create-form__step[data-team-step='3'],
-	&[data-active-step='4'] > .clanspress-team-create-form__step[data-team-step='4'],
-	&[data-active-step='5'] > .clanspress-team-create-form__step[data-team-step='5'],
-	&[data-active-step='6'] > .clanspress-team-create-form__step[data-team-step='6'],
-	&[data-active-step='7'] > .clanspress-team-create-form__step[data-team-step='7'],
-	&[data-active-step='8'] > .clanspress-team-create-form__step[data-team-step='8'] {
+	&[data-active-step='1'] > .clanbite-team-create-form__step[data-team-step='1'],
+	&[data-active-step='2'] > .clanbite-team-create-form__step[data-team-step='2'],
+	&[data-active-step='3'] > .clanbite-team-create-form__step[data-team-step='3'],
+	&[data-active-step='4'] > .clanbite-team-create-form__step[data-team-step='4'],
+	&[data-active-step='5'] > .clanbite-team-create-form__step[data-team-step='5'],
+	&[data-active-step='6'] > .clanbite-team-create-form__step[data-team-step='6'],
+	&[data-active-step='7'] > .clanbite-team-create-form__step[data-team-step='7'],
+	&[data-active-step='8'] > .clanbite-team-create-form__step[data-team-step='8'] {
 		display: block !important;
 	}
 
@@ -134,14 +134,14 @@
 	}
 }
 
-.clanspress-team-create-form__media-row {
+.clanbite-team-create-form__media-row {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 1rem;
 	align-items: flex-start;
 }
 
-.clanspress-team-create-form__avatar-cover-preview {
+.clanbite-team-create-form__avatar-cover-preview {
 	position: relative;
 	height: 150px;
 	width: 100%;
@@ -152,7 +152,7 @@
 	border: 1px solid #dcdcde;
 }
 
-.clanspress-team-create-form__cover-preview {
+.clanbite-team-create-form__cover-preview {
 	width: 100%;
 	height: 50%;
 	background-size: cover;
@@ -161,7 +161,7 @@
 	background-color: #e8e8ea;
 }
 
-.clanspress-team-create-form__avatar-preview {
+.clanbite-team-create-form__avatar-preview {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -177,14 +177,14 @@
 	box-shadow: 0 1px 4px rgb(0 0 0 / 12%);
 }
 
-.clanspress-team-create-form__media-buttons {
+.clanbite-team-create-form__media-buttons {
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
 	min-width: 160px;
 }
 
-.clanspress-team-create-form__change-media {
+.clanbite-team-create-form__change-media {
 	appearance: none;
 	margin: 0;
 	padding: 0.5rem 0.75rem;
@@ -206,20 +206,20 @@
 	}
 }
 
-.clanspress-team-create-form__actions {
+.clanbite-team-create-form__actions {
 	display: flex;
 	gap: 0.5rem;
 	align-items: center;
 }
 
-.clanspress-team-create-form__actions--split {
+.clanbite-team-create-form__actions--split {
 	justify-content: space-between;
 	flex-wrap: wrap;
 	width: 100%;
 	max-width: 42rem;
 }
 
-.clanspress-team-create-form__actions-end {
+.clanbite-team-create-form__actions-end {
 	display: flex;
 	gap: 0.5rem;
 	align-items: center;
@@ -227,7 +227,7 @@
 	flex-wrap: wrap;
 }
 
-.clanspress-team-create-form__nav-btn {
+.clanbite-team-create-form__nav-btn {
 	appearance: none;
 	margin: 0;
 	padding: 0.5rem 0.75rem;
@@ -249,7 +249,7 @@
 	}
 }
 
-.clanspress-team-create-form__nav-btn--primary {
+.clanbite-team-create-form__nav-btn--primary {
 	background: #2271b1;
 	border-color: #2271b1;
 	color: #fff;
@@ -260,26 +260,26 @@
 	}
 }
 
-.clanspress-team-create-form__notice {
+.clanbite-team-create-form__notice {
 	padding: 0.75rem;
 	border-radius: 4px;
 }
 
-.clanspress-team-create-form__notice.is-success {
+.clanbite-team-create-form__notice.is-success {
 	background: #ecf7ed;
 }
 
-.clanspress-team-create-form__notice.is-error {
+.clanbite-team-create-form__notice.is-error {
 	background: #fdecea;
 }
 
-.clanspress-team-create-form__invite-suggestions {
+.clanbite-team-create-form__invite-suggestions {
 	list-style: none;
 	padding: 0;
 	margin: 0;
 }
 
-.clanspress-team-create-form__invite-option {
+.clanbite-team-create-form__invite-option {
 	background: transparent;
 	border: 0;
 	padding: 0.35rem 0.5rem;
@@ -289,19 +289,19 @@
 	border-radius: 4px;
 }
 
-.clanspress-team-create-form__invite-option.is-active,
-.clanspress-team-create-form__invite-option:focus-visible {
+.clanbite-team-create-form__invite-option.is-active,
+.clanbite-team-create-form__invite-option:focus-visible {
 	background: #e8f0fe;
 	outline: 0;
 }
 
-.clanspress-team-create-form__invite-list {
+.clanbite-team-create-form__invite-list {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
 }
 
-.clanspress-team-create-form__invite-chip {
+.clanbite-team-create-form__invite-chip {
 	display: inline-flex;
 	gap: 0.4rem;
 	align-items: center;
@@ -310,7 +310,7 @@
 	border-radius: 999px;
 }
 
-.clanspress-team-create-form__invite-chip button {
+.clanbite-team-create-form__invite-chip button {
 	border: 0;
 	background: transparent;
 	cursor: pointer;

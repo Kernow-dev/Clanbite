@@ -5,8 +5,8 @@ import './editor.scss';
 export default function Edit() {
 	return (
 		<div { ...useBlockProps() }>
-			<p className="clanspress-player-block-placeholder">
-				{ __( 'Player settings link (owner only)', 'clanspress' ) }
+			<p className="clanbite-player-block-placeholder">
+				{ __( 'Player settings link (owner only)', 'clanbite' ) }
 			</p>
 		</div>
 	);

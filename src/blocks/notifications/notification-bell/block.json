@@ -1,10 +1,10 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/notification-bell",
+	"name": "clanbite/notification-bell",
 	"version": "1.0.0",
 	"title": "Notification Bell",
-	"category": "clanspress",
+	"category": "clanbite",
 	"icon": "bell",
 	"description": "Displays a notification bell with unread count and dropdown.",
 	"supports": {
@@ -39,18 +39,18 @@
 			"default": 10
 		}
 	},
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"editorScript": "file:./index.js",
 	"viewScriptModule": "file:./view.js",
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-notification-bell",
+		"root": ".wp-block-clanbite-notification-bell",
 		"color": {
-			"text": ".wp-block-clanspress-notification-bell .clanspress-notification-bell__trigger, .wp-block-clanspress-notification-bell .clanspress-notification-bell__dropdown",
-			"background": ".wp-block-clanspress-notification-bell"
+			"text": ".wp-block-clanbite-notification-bell .clanbite-notification-bell__trigger, .wp-block-clanbite-notification-bell .clanbite-notification-bell__dropdown",
+			"background": ".wp-block-clanbite-notification-bell"
 		},
-		"typography": ".wp-block-clanspress-notification-bell .clanspress-notification-bell__trigger",
-		"border": ".wp-block-clanspress-notification-bell"
+		"typography": ".wp-block-clanbite-notification-bell .clanbite-notification-bell__trigger",
+		"border": ".wp-block-clanbite-notification-bell"
 	}
 }

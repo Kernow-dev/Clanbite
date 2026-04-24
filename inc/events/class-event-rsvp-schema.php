@@ -2,10 +2,10 @@
 /**
  * Events RSVP database schema.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Events;
+namespace Kernowdev\Clanbite\Events;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Handles database table creation and upgrades for event RSVPs.
  */
 final class Event_Rsvp_Schema {
-	public const OPTION_DB_VERSION = 'clanspress_event_rsvps_db_version';
+	public const OPTION_DB_VERSION = 'clanbite_event_rsvps_db_version';
 	public const DB_VERSION        = '1.0.0';
 
 	/**
@@ -73,7 +73,7 @@ final class Event_Rsvp_Schema {
 	 */
 	public static function table_name(): string {
 		global $wpdb;
-		return $wpdb->prefix . 'clanspress_event_rsvps';
+		return $wpdb->prefix . 'clanbite_event_rsvps';
 	}
 
 	/**

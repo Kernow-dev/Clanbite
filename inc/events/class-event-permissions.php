@@ -2,10 +2,10 @@
 /**
  * Visibility and capability checks for `cp_event` posts.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Events;
+namespace Kernowdev\Clanbite\Events;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -52,23 +52,23 @@ final class Event_Permissions {
 
 		if ( Event_Post_Type::SCOPE_TEAM === $scope && $team_id > 0 ) {
 			if ( Event_Post_Type::VISIBILITY_TEAM_ADMINS === $visibility ) {
-				return function_exists( 'clanspress_teams_user_can_manage' )
-					&& clanspress_teams_user_can_manage( $team_id, $viewer_id );
+				return function_exists( 'clanbite_teams_user_can_manage' )
+					&& clanbite_teams_user_can_manage( $team_id, $viewer_id );
 			}
 			if ( Event_Post_Type::VISIBILITY_TEAM_MEMBERS === $visibility ) {
-				return function_exists( 'clanspress_teams_get_member_role' )
-					&& null !== clanspress_teams_get_member_role( $team_id, $viewer_id );
+				return function_exists( 'clanbite_teams_get_member_role' )
+					&& null !== clanbite_teams_get_member_role( $team_id, $viewer_id );
 			}
 		}
 
 		if ( Event_Post_Type::SCOPE_GROUP === $scope && $group_id > 0 ) {
 			if ( Event_Post_Type::VISIBILITY_TEAM_ADMINS === $visibility ) {
-				return function_exists( 'clanspress_groups_user_can_manage' )
-					&& clanspress_groups_user_can_manage( $group_id, $viewer_id );
+				return function_exists( 'clanbite_groups_user_can_manage' )
+					&& clanbite_groups_user_can_manage( $group_id, $viewer_id );
 			}
 			if ( Event_Post_Type::VISIBILITY_TEAM_MEMBERS === $visibility ) {
-				return function_exists( 'clanspress_groups_user_is_member' )
-					&& clanspress_groups_user_is_member( $group_id, $viewer_id );
+				return function_exists( 'clanbite_groups_user_is_member' )
+					&& clanbite_groups_user_is_member( $group_id, $viewer_id );
 			}
 		}
 
@@ -79,7 +79,7 @@ final class Event_Permissions {
 		 * @param \WP_Post $post      Event post.
 		 * @param int      $viewer_id Viewer user ID.
 		 */
-		return (bool) apply_filters( 'clanspress_cp_event_viewer_can_see', false, $post, $viewer_id );
+		return (bool) apply_filters( 'clanbite_cp_event_viewer_can_see', false, $post, $viewer_id );
 	}
 
 	/**
@@ -111,12 +111,12 @@ final class Event_Permissions {
 		$team_id  = (int) get_post_meta( $post_id, 'cp_event_team_id', true );
 		$group_id = (int) get_post_meta( $post_id, 'cp_event_group_id', true );
 
-		if ( Event_Post_Type::SCOPE_TEAM === $scope && $team_id > 0 && function_exists( 'clanspress_teams_user_can_manage' ) ) {
-			return clanspress_teams_user_can_manage( $team_id, $user_id );
+		if ( Event_Post_Type::SCOPE_TEAM === $scope && $team_id > 0 && function_exists( 'clanbite_teams_user_can_manage' ) ) {
+			return clanbite_teams_user_can_manage( $team_id, $user_id );
 		}
 
-		if ( Event_Post_Type::SCOPE_GROUP === $scope && $group_id > 0 && function_exists( 'clanspress_groups_user_can_manage' ) ) {
-			return clanspress_groups_user_can_manage( $group_id, $user_id );
+		if ( Event_Post_Type::SCOPE_GROUP === $scope && $group_id > 0 && function_exists( 'clanbite_groups_user_can_manage' ) ) {
+			return clanbite_groups_user_can_manage( $group_id, $user_id );
 		}
 
 		/**
@@ -126,7 +126,7 @@ final class Event_Permissions {
 		 * @param int  $post_id Event post ID.
 		 * @param int  $user_id User ID.
 		 */
-		return (bool) apply_filters( 'clanspress_cp_event_user_can_manage', false, $post_id, $user_id );
+		return (bool) apply_filters( 'clanbite_cp_event_user_can_manage', false, $post_id, $user_id );
 	}
 
 	/**
@@ -162,12 +162,12 @@ final class Event_Permissions {
 		$team_id  = (int) get_post_meta( $post->ID, 'cp_event_team_id', true );
 		$group_id = (int) get_post_meta( $post->ID, 'cp_event_group_id', true );
 
-		if ( Event_Post_Type::SCOPE_TEAM === $scope && $team_id > 0 && function_exists( 'clanspress_teams_get_member_role' ) ) {
-			return null !== clanspress_teams_get_member_role( $team_id, $viewer_id );
+		if ( Event_Post_Type::SCOPE_TEAM === $scope && $team_id > 0 && function_exists( 'clanbite_teams_get_member_role' ) ) {
+			return null !== clanbite_teams_get_member_role( $team_id, $viewer_id );
 		}
 
-		if ( Event_Post_Type::SCOPE_GROUP === $scope && $group_id > 0 && function_exists( 'clanspress_groups_user_is_member' ) ) {
-			return clanspress_groups_user_is_member( $group_id, $viewer_id );
+		if ( Event_Post_Type::SCOPE_GROUP === $scope && $group_id > 0 && function_exists( 'clanbite_groups_user_is_member' ) ) {
+			return clanbite_groups_user_is_member( $group_id, $viewer_id );
 		}
 
 		return false;

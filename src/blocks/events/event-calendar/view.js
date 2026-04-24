@@ -66,7 +66,7 @@ function rangeForView( view, anchorDate ) {
 	if ( view === 'week' ) {
 		return { start: startOfWeek( a ), end: endOfWeek( a ) };
 	}
-	/* month + list: anchored month (must match PHP `clanspress_events_calendar_range_iso_for_view`). */
+	/* month + list: anchored month (must match PHP `clanbite_events_calendar_range_iso_for_view`). */
 	return { start: startOfMonth( a ), end: endOfMonth( a ) };
 }
 
@@ -197,38 +197,38 @@ function renderSkeleton( surface, view ) {
 		let rows = '';
 		for ( let i = 0; i < 8; i++ ) {
 			rows +=
-				'<div class="clanspress-event-calendar__skel-list-row"><span class="clanspress-event-calendar__skel-pill"></span><span class="clanspress-event-calendar__skel-line"></span></div>';
+				'<div class="clanbite-event-calendar__skel-list-row"><span class="clanbite-event-calendar__skel-pill"></span><span class="clanbite-event-calendar__skel-line"></span></div>';
 		}
-		surface.innerHTML = `<div class="clanspress-event-calendar__skeleton clanspress-event-calendar__skeleton--list">${ rows }</div>`;
+		surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--list">${ rows }</div>`;
 		return;
 	}
 	if ( v === 'day' ) {
 		let rows = '';
 		for ( let i = 0; i < 5; i++ ) {
-			rows += '<div class="clanspress-event-calendar__skel-line"></div>';
+			rows += '<div class="clanbite-event-calendar__skel-line"></div>';
 		}
-		surface.innerHTML = `<div class="clanspress-event-calendar__skeleton clanspress-event-calendar__skeleton--day">${ rows }</div>`;
+		surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--day">${ rows }</div>`;
 		return;
 	}
 	if ( v === 'week' ) {
 		let cols = '';
 		for ( let i = 0; i < 7; i++ ) {
 			cols +=
-				'<div class="clanspress-event-calendar__skeleton-week-col"><div class="clanspress-event-calendar__skel-line"></div><div class="clanspress-event-calendar__skel-line"></div><div class="clanspress-event-calendar__skel-line clanspress-event-calendar__skel-line--short"></div></div>';
+				'<div class="clanbite-event-calendar__skeleton-week-col"><div class="clanbite-event-calendar__skel-line"></div><div class="clanbite-event-calendar__skel-line"></div><div class="clanbite-event-calendar__skel-line clanbite-event-calendar__skel-line--short"></div></div>';
 		}
-		surface.innerHTML = `<div class="clanspress-event-calendar__skeleton clanspress-event-calendar__skeleton--week">${ cols }</div>`;
+		surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--week">${ cols }</div>`;
 		return;
 	}
 	let dow = '';
 	for ( let i = 0; i < 7; i++ ) {
-		dow += '<div class="clanspress-event-calendar__skel-dow"></div>';
+		dow += '<div class="clanbite-event-calendar__skel-dow"></div>';
 	}
 	let grid = '';
 	for ( let c = 0; c < 42; c++ ) {
 		grid +=
-			'<div class="clanspress-event-calendar__skel-cell"><span class="clanspress-event-calendar__skel-num"></span><span class="clanspress-event-calendar__skel-line"></span><span class="clanspress-event-calendar__skel-line clanspress-event-calendar__skel-line--short"></span></div>';
+			'<div class="clanbite-event-calendar__skel-cell"><span class="clanbite-event-calendar__skel-num"></span><span class="clanbite-event-calendar__skel-line"></span><span class="clanbite-event-calendar__skel-line clanbite-event-calendar__skel-line--short"></span></div>';
 	}
-	surface.innerHTML = `<div class="clanspress-event-calendar__skeleton clanspress-event-calendar__skeleton--month"><div class="clanspress-event-calendar__skel-dow-row">${ dow }</div><div class="clanspress-event-calendar__skel-grid">${ grid }</div></div>`;
+	surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--month"><div class="clanbite-event-calendar__skel-dow-row">${ dow }</div><div class="clanbite-event-calendar__skel-grid">${ grid }</div></div>`;
 }
 
 function renderMonthCellEvents( ranges, cellYmd, i18n, maxItems ) {
@@ -247,26 +247,26 @@ function renderMonthCellEvents( ranges, cellYmd, i18n, maxItems ) {
 				? formatTime( ev.startsAt )
 				: '';
 		if ( kind === 'mid' || kind === 'end' ) {
-			html += `<li class="clanspress-event-calendar__ev-seg clanspress-event-calendar__ev-seg--span" title="${ esc(
+			html += `<li class="clanbite-event-calendar__ev-seg clanbite-event-calendar__ev-seg--span" title="${ esc(
 				t
-			) }"><span class="clanspress-event-calendar__ev-bar" aria-hidden="true"></span><span class="clanspress-event-calendar__sr-only">${ esc(
+			) }"><span class="clanbite-event-calendar__ev-bar" aria-hidden="true"></span><span class="clanbite-event-calendar__sr-only">${ esc(
 				t
 			) }</span></li>`;
 		} else if ( u ) {
-			html += `<li class="clanspress-event-calendar__ev-seg"><a href="${ esc(
+			html += `<li class="clanbite-event-calendar__ev-seg"><a href="${ esc(
 				u
-			) }"><span class="clanspress-event-calendar__ev-time">${ esc(
+			) }"><span class="clanbite-event-calendar__ev-time">${ esc(
 				timeLbl
 			) }</span> ${ esc( t ) }</a></li>`;
 		} else {
-			html += `<li class="clanspress-event-calendar__ev-seg"><span class="clanspress-event-calendar__ev-time">${ esc(
+			html += `<li class="clanbite-event-calendar__ev-seg"><span class="clanbite-event-calendar__ev-time">${ esc(
 				timeLbl
 			) }</span> ${ esc( t ) }</li>`;
 		}
 		n++;
 	}
 	if ( ranges.length > maxItems ) {
-		html += `<li class="clanspress-event-calendar__more">+${
+		html += `<li class="clanbite-event-calendar__more">+${
 			ranges.length - maxItems
 		}</li>`;
 	}
@@ -309,8 +309,8 @@ function syncViewButtons( root, view ) {
 }
 
 function renderSurface( root, ctx, items, i18n ) {
-	const surface = root.querySelector( '.clanspress-event-calendar__surface' );
-	const heading = root.querySelector( '.clanspress-event-calendar__heading' );
+	const surface = root.querySelector( '.clanbite-event-calendar__surface' );
+	const heading = root.querySelector( '.clanbite-event-calendar__heading' );
 	if ( heading ) {
 		heading.textContent = headingFor( ctx.view, ctx.anchor );
 	}
@@ -327,14 +327,14 @@ function renderSurface( root, ctx, items, i18n ) {
 		startGrid.setDate( startGrid.getDate() - startGrid.getDay() );
 		const weekdays = i18n.weekdays || [];
 
-		let html = '<div class="clanspress-event-calendar__month">';
-		html += '<div class="clanspress-event-calendar__dow">';
+		let html = '<div class="clanbite-event-calendar__month">';
+		html += '<div class="clanbite-event-calendar__dow">';
 		for ( let i = 0; i < 7; i++ ) {
-			html += `<div class="clanspress-event-calendar__dow-cell">${ esc(
+			html += `<div class="clanbite-event-calendar__dow-cell">${ esc(
 				weekdays[ i ] || ''
 			) }</div>`;
 		}
-		html += '</div><div class="clanspress-event-calendar__grid">';
+		html += '</div><div class="clanbite-event-calendar__grid">';
 		const cursor = new Date( startGrid );
 		for ( let w = 0; w < 6; w++ ) {
 			for ( let col = 0; col < 7; col++ ) {
@@ -342,14 +342,14 @@ function renderSurface( root, ctx, items, i18n ) {
 				const inMonth = cursor.getMonth() === a.getMonth();
 				const ranges = eventsTouchingYmd( items, ymd );
 				const isToday = ymd === formatYmdLocal( new Date() );
-				let cellCls = 'clanspress-event-calendar__cell';
+				let cellCls = 'clanbite-event-calendar__cell';
 				if ( ! inMonth ) {
 					cellCls += ' is-muted';
 				}
 				if ( isToday ) {
 					cellCls += ' is-today';
 				}
-				html += `<div class="${ cellCls }"><div class="clanspress-event-calendar__cell-num">${ cursor.getDate() }</div><ul class="clanspress-event-calendar__cell-events">`;
+				html += `<div class="${ cellCls }"><div class="clanbite-event-calendar__cell-num">${ cursor.getDate() }</div><ul class="clanbite-event-calendar__cell-events">`;
 				html += renderMonthCellEvents( ranges, ymd, i18n, 3 );
 				html += '</ul></div>';
 				cursor.setDate( cursor.getDate() + 1 );
@@ -362,14 +362,14 @@ function renderSurface( root, ctx, items, i18n ) {
 
 	if ( ctx.view === 'week' ) {
 		const s = startOfWeek( anchor );
-		let html = '<div class="clanspress-event-calendar__week">';
+		let html = '<div class="clanbite-event-calendar__week">';
 		for ( let i = 0; i < 7; i++ ) {
 			const day = new Date( s );
 			day.setDate( s.getDate() + i );
 			const ymd = formatYmdLocal( day );
 			const ranges = eventsTouchingYmd( items, ymd );
-			html += '<div class="clanspress-event-calendar__week-day">';
-			html += `<div class="clanspress-event-calendar__week-day-head">${ esc(
+			html += '<div class="clanbite-event-calendar__week-day">';
+			html += `<div class="clanbite-event-calendar__week-day-head">${ esc(
 				day.toLocaleDateString( undefined, {
 					weekday: 'short',
 					month: 'short',
@@ -377,7 +377,7 @@ function renderSurface( root, ctx, items, i18n ) {
 				} )
 			) }</div><ul>`;
 			if ( ranges.length === 0 ) {
-				html += `<li class="clanspress-event-calendar__empty">${ esc(
+				html += `<li class="clanbite-event-calendar__empty">${ esc(
 					i18n.noEvents || ''
 				) }</li>`;
 			} else {
@@ -415,9 +415,9 @@ function renderSurface( root, ctx, items, i18n ) {
 				return ta - tb;
 			} );
 		let html =
-			'<div class="clanspress-event-calendar__list-view"><ul class="clanspress-event-calendar__list">';
+			'<div class="clanbite-event-calendar__list-view"><ul class="clanbite-event-calendar__list">';
 		if ( sorted.length === 0 ) {
-			html += `<li class="clanspress-event-calendar__empty">${ esc(
+			html += `<li class="clanbite-event-calendar__empty">${ esc(
 				i18n.noEvents || ''
 			) }</li>`;
 		} else {
@@ -445,16 +445,16 @@ function renderSurface( root, ctx, items, i18n ) {
 							timeStyle: 'short',
 						} );
 				}
-				html += '<li class="clanspress-event-calendar__list-item">';
-				html += `<span class="clanspress-event-calendar__list-when">${ esc(
+				html += '<li class="clanbite-event-calendar__list-item">';
+				html += `<span class="clanbite-event-calendar__list-when">${ esc(
 					when
 				) }</span>`;
 				if ( u ) {
-					html += `<a class="clanspress-event-calendar__list-title" href="${ esc(
+					html += `<a class="clanbite-event-calendar__list-title" href="${ esc(
 						u
 					) }">${ esc( t ) }</a>`;
 				} else {
-					html += `<span class="clanspress-event-calendar__list-title">${ esc(
+					html += `<span class="clanbite-event-calendar__list-title">${ esc(
 						t
 					) }</span>`;
 				}
@@ -469,9 +469,9 @@ function renderSurface( root, ctx, items, i18n ) {
 	/* day */
 	const ymd = formatYmdLocal( anchor );
 	const ranges = eventsTouchingYmd( items, ymd );
-	let html = '<div class="clanspress-event-calendar__day"><ul>';
+	let html = '<div class="clanbite-event-calendar__day"><ul>';
 	if ( ranges.length === 0 ) {
-		html += `<li class="clanspress-event-calendar__empty">${ esc(
+		html += `<li class="clanbite-event-calendar__empty">${ esc(
 			i18n.noEvents || ''
 		) }</li>`;
 	} else {
@@ -497,11 +497,11 @@ function renderSurface( root, ctx, items, i18n ) {
 	surface.innerHTML = html;
 }
 
-const { actions } = store( 'clanspress-event-calendar', {
+const { actions } = store( 'clanbite-event-calendar', {
 	callbacks: {
 		init() {
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-event-calendar-wrap' );
+			const root = ref?.closest( '.clanbite-event-calendar-wrap' );
 			if ( ! root ) {
 				return;
 			}
@@ -571,14 +571,14 @@ const { actions } = store( 'clanspress-event-calendar', {
 			const range = rangeForView( ctx.view, anchorDate );
 
 			const calHeading = root.querySelector(
-				'.clanspress-event-calendar__heading'
+				'.clanbite-event-calendar__heading'
 			);
 			if ( calHeading ) {
 				calHeading.textContent = headingFor( ctx.view, ctx.anchor );
 			}
 
 			const surface = root.querySelector(
-				'.clanspress-event-calendar__surface'
+				'.clanbite-event-calendar__surface'
 			);
 			if ( surface ) {
 				renderSkeleton( surface, ctx.view );
@@ -592,7 +592,7 @@ const { actions } = store( 'clanspress-event-calendar', {
 				ctx.fetchError =
 					e?.message || i18n.error || 'Could not load events.';
 				const surface = root.querySelector(
-					'.clanspress-event-calendar__surface'
+					'.clanbite-event-calendar__surface'
 				);
 				if ( surface ) {
 					surface.innerHTML = '';

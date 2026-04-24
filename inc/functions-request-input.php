@@ -5,7 +5,7 @@
  * POST helpers assume the caller has already verified a nonce or equivalent capability
  * (e.g. `check_admin_referer`, `save_post` hooks). Do not call them on unauthenticated input.
  *
- * @package clanspress
+ * @package clanbite
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * @param string $when_missing Value when the header is missing or empty after sanitization.
  * @return string
  */
-function clanspress_sanitize_request_uri( string $when_missing = '' ): string {
+function clanbite_sanitize_request_uri( string $when_missing = '' ): string {
 	if ( empty( $_SERVER['REQUEST_URI'] ) ) {
 		return $when_missing;
 	}
@@ -32,8 +32,8 @@ function clanspress_sanitize_request_uri( string $when_missing = '' ): string {
  *
  * @return string
  */
-function clanspress_get_canonical_request_path(): string {
-	$uri = clanspress_sanitize_request_uri( '' );
+function clanbite_get_canonical_request_path(): string {
+	$uri = clanbite_sanitize_request_uri( '' );
 	if ( '' === $uri ) {
 		return '';
 	}
@@ -70,7 +70,7 @@ function clanspress_get_canonical_request_path(): string {
  * @param string $default Default when missing.
  * @return string
  */
-function clanspress_request_post_text( string $key, string $default = '' ): string {
+function clanbite_request_post_text( string $key, string $default = '' ): string {
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- Caller verified nonce/caps; see file header.
 	if ( ! isset( $_POST[ $key ] ) ) {
 		return $default;
@@ -87,7 +87,7 @@ function clanspress_request_post_text( string $key, string $default = '' ): stri
  * @param string $default Default when missing.
  * @return string
  */
-function clanspress_request_post_html( string $key, string $default = '' ): string {
+function clanbite_request_post_html( string $key, string $default = '' ): string {
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- Caller verified nonce/caps; see file header.
 	if ( ! isset( $_POST[ $key ] ) ) {
 		return $default;
@@ -104,7 +104,7 @@ function clanspress_request_post_html( string $key, string $default = '' ): stri
  * @param int    $default Default when missing or invalid.
  * @return int
  */
-function clanspress_request_post_absint( string $key, int $default = 0 ): int {
+function clanbite_request_post_absint( string $key, int $default = 0 ): int {
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- Caller verified nonce/caps; see file header.
 	if ( ! isset( $_POST[ $key ] ) ) {
 		return $default;
@@ -120,7 +120,7 @@ function clanspress_request_post_absint( string $key, int $default = 0 ): int {
  * @param string $key Field name.
  * @return bool
  */
-function clanspress_request_post_has_key( string $key ): bool {
+function clanbite_request_post_has_key( string $key ): bool {
 	// phpcs:disable WordPress.Security.NonceVerification.Missing -- Caller verified nonce/caps; see file header.
 	return array_key_exists( $key, $_POST );
 	// phpcs:enable WordPress.Security.NonceVerification.Missing
@@ -134,7 +134,7 @@ function clanspress_request_post_has_key( string $key ): bool {
  * @param string $key Field name.
  * @return bool
  */
-function clanspress_request_post_flag( string $key ): bool {
+function clanbite_request_post_flag( string $key ): bool {
 	// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Caller verified nonce/caps; loose truthy check for checkbox/removal fields.
 	if ( ! isset( $_POST[ $key ] ) ) {
 		return false;
@@ -147,4 +147,143 @@ function clanspress_request_post_flag( string $key ): bool {
 
 	return ! empty( $raw );
 	// phpcs:enable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+}
+
+/**
+ * Sanitize the full `$_POST` tree for the player settings AJAX save entry point.
+ *
+ * Call only after nonce verification. Unknown keys are treated as plain text; known rich-text
+ * fields use {@see wp_kses_post()}.
+ *
+ * @param array<string, mixed> $post Raw POST (`wp_unslash( $_POST )` or `$_POST` with slashes intact — values are unslashed per field).
+ * @return array<string, mixed>
+ */
+function clanbite_sanitize_player_settings_post_array( array $post ): array {
+	$skip = array(
+		'action'                               => true,
+		'_clanbite_profile_settings_save_nonce' => true,
+		'_wp_http_referer'                     => true,
+	);
+
+	$html_keys = array(
+		'profile_description' => true,
+	);
+
+	$out = array();
+
+	foreach ( $post as $key => $value ) {
+		$key = sanitize_key( (string) $key );
+		if ( '' === $key || isset( $skip[ $key ] ) ) {
+			continue;
+		}
+
+		if ( is_array( $value ) ) {
+			$out[ $key ] = map_deep( wp_unslash( $value ), 'sanitize_text_field' );
+			continue;
+		}
+
+		if ( ! is_string( $value ) ) {
+			continue;
+		}
+
+		$unslashed = wp_unslash( $value );
+
+		if ( isset( $html_keys[ $key ] ) ) {
+			$out[ $key ] = wp_kses_post( $unslashed );
+		} else {
+			$out[ $key ] = sanitize_text_field( $unslashed );
+		}
+	}
+
+	return $out;
+}
+
+/**
+ * Whitelist and normalize upload payloads for the player settings save flow.
+ *
+ * @return array<string, array<string, mixed>> Map of field name to PHP file array shape.
+ */
+function clanbite_sanitize_player_settings_files_array(): array {
+	$allowed_fields = array( 'profile_avatar', 'profile_cover' );
+	$out            = array();
+
+	foreach ( $allowed_fields as $field ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Caller verified nonce before invoking.
+		if ( empty( $_FILES[ $field ] ) || ! is_array( $_FILES[ $field ] ) ) {
+			continue;
+		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Normalized below; structure validated.
+		$file = wp_unslash( $_FILES[ $field ] );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		if ( ! isset( $file['name'], $file['type'], $file['tmp_name'], $file['error'], $file['size'] ) ) {
+			continue;
+		}
+
+		$out[ $field ] = array(
+			'name'     => sanitize_file_name( (string) $file['name'] ),
+			'type'     => sanitize_mime_type( (string) $file['type'] ),
+			'tmp_name' => (string) $file['tmp_name'],
+			'error'    => (int) $file['error'],
+			'size'     => (int) $file['size'],
+		);
+	}
+
+	return $out;
+}
+
+/**
+ * Sanitize `$_POST` for the front-end team create form (`handle_create_team`).
+ *
+ * Call only after nonce verification. Preserves arbitrary extra field names from the form
+ * (for example custom steps registered on `clanbite_team_create_form_step_*`) while
+ * normalizing values to plain text or block-safe HTML for known rich fields.
+ *
+ * @return array<string, mixed>
+ */
+function clanbite_sanitize_team_create_post_array(): array {
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- Caller verified `check_admin_referer` before invoking.
+	if ( empty( $_POST ) || ! is_array( $_POST ) ) {
+		return array();
+	}
+
+	$post = wp_unslash( $_POST );
+	// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+	$skip = array(
+		'_clanbite_create_team_nonce' => true,
+		'_wp_http_referer'              => true,
+	);
+
+	$html_keys = array(
+		'team_description' => true,
+	);
+
+	$out = array();
+
+	foreach ( $post as $key => $value ) {
+		$key = sanitize_key( (string) $key );
+		if ( '' === $key || isset( $skip[ $key ] ) ) {
+			continue;
+		}
+
+		if ( is_array( $value ) ) {
+			$out[ $key ] = map_deep( wp_unslash( $value ), 'sanitize_text_field' );
+			continue;
+		}
+
+		if ( ! is_string( $value ) ) {
+			continue;
+		}
+
+		$unslashed = wp_unslash( $value );
+
+		if ( isset( $html_keys[ $key ] ) ) {
+			$out[ $key ] = wp_kses_post( $unslashed );
+		} else {
+			$out[ $key ] = sanitize_text_field( $unslashed );
+		}
+	}
+
+	return $out;
 }

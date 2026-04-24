@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-tagline",
+	"name": "clanbite/player-tagline",
 	"version": "1.0.0",
 	"title": "Player tagline",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "editor-textcolor",
 	"description": "Displays the player tagline when set (profile and player loops).",
-	"textdomain": "clanspress",
-	"usesContext": [ "postId", "postType", "clanspress/playerId" ],
+	"textdomain": "clanbite",
+	"usesContext": [ "postId", "postType", "clanbite/playerId" ],
 	"attributes": {
 		"textAlign": {
 			"type": "string"
@@ -50,12 +50,12 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-tagline",
+		"root": ".wp-block-clanbite-player-tagline",
 		"color": {
-			"text": ".wp-block-clanspress-player-tagline .clanspress-player-tagline__text",
-			"background": ".wp-block-clanspress-player-tagline"
+			"text": ".wp-block-clanbite-player-tagline .clanbite-player-tagline__text",
+			"background": ".wp-block-clanbite-player-tagline"
 		},
-		"typography": ".wp-block-clanspress-player-tagline .clanspress-player-tagline__text",
-		"border": ".wp-block-clanspress-player-tagline"
+		"typography": ".wp-block-clanbite-player-tagline .clanbite-player-tagline__text",
+		"border": ".wp-block-clanbite-player-tagline"
 	}
 }

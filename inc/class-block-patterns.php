@@ -6,16 +6,16 @@
  * for registration and can be kept in sync with plugin templates that reference
  * them via the `core/pattern` block.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress;
+namespace Kernowdev\Clanbite;
 
 defined( 'ABSPATH' ) || exit;
 
 
 /**
- * Registers Clanspress block patterns and pattern categories.
+ * Registers Clanbite block patterns and pattern categories.
  */
 final class Block_Patterns {
 
@@ -31,21 +31,21 @@ final class Block_Patterns {
 
 		self::register_categories();
 
-		$base = clanspress()->path . 'patterns/';
+		$base = clanbite()->path . 'patterns/';
 		$defs = array(
-			'clanspress/team-profile-header-nav' => array(
-				'title'       => __( 'Team profile shell & navigation', 'clanspress' ),
-				'description' => __( 'Team cover, avatar, name blocks, and horizontal section tabs. Insert into templates or pages, then edit blocks or detach from the pattern wrapper in the site editor.', 'clanspress' ),
-				'categories'  => array( 'clanspress-teams' ),
+			'clanbite/team-profile-header-nav' => array(
+				'title'       => __( 'Team profile shell & navigation', 'clanbite' ),
+				'description' => __( 'Team cover, avatar, name blocks, and horizontal section tabs. Insert into templates or pages, then edit blocks or detach from the pattern wrapper in the site editor.', 'clanbite' ),
+				'categories'  => array( 'clanbite-teams' ),
 				'file'        => 'team-profile-header-nav.html',
-				'keywords'    => array( 'team', 'clanspress', 'cover', 'navigation' ),
+				'keywords'    => array( 'team', 'clanbite', 'cover', 'navigation' ),
 			),
-			'clanspress/player-profile-header-nav' => array(
-				'title'       => __( 'Player profile navigation', 'clanspress' ),
-				'description' => __( 'Horizontal profile section tabs. Insert into templates or pages, then edit blocks or detach from the pattern wrapper.', 'clanspress' ),
-				'categories'  => array( 'clanspress-players' ),
+			'clanbite/player-profile-header-nav' => array(
+				'title'       => __( 'Player profile navigation', 'clanbite' ),
+				'description' => __( 'Horizontal profile section tabs. Insert into templates or pages, then edit blocks or detach from the pattern wrapper.', 'clanbite' ),
+				'categories'  => array( 'clanbite-players' ),
 				'file'        => 'player-profile-header-nav.html',
-				'keywords'    => array( 'player', 'clanspress', 'navigation' ),
+				'keywords'    => array( 'player', 'clanbite', 'navigation' ),
 			),
 		);
 
@@ -84,8 +84,8 @@ final class Block_Patterns {
 		}
 
 		$cats = array(
-			'clanspress-teams'   => __( 'Clanspress Teams', 'clanspress' ),
-			'clanspress-players' => __( 'Clanspress Players', 'clanspress' ),
+			'clanbite-teams'   => __( 'Clanbite Teams', 'clanbite' ),
+			'clanbite-players' => __( 'Clanbite Players', 'clanbite' ),
 		);
 
 		foreach ( $cats as $slug => $label ) {

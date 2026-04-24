@@ -1,24 +1,24 @@
 <?php
 /**
- * REST API for the unified Clanspress React admin.
+ * REST API for the unified Clanbite React admin.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Admin;
+namespace Kernowdev\Clanbite\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
-use Kernowdev\Clanspress\Extensions\Loader;
-use Kernowdev\Clanspress\Extensions\Skeleton;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Loader;
+use Kernowdev\Clanbite\Extensions\Skeleton;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 
 /**
- * Registers `clanspress/v1/admin/*` routes.
+ * Registers `clanbite/v1/admin/*` routes.
  */
 class Admin_Rest {
 
@@ -36,7 +36,7 @@ class Admin_Rest {
 
 	public function register_routes(): void {
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/admin/bootstrap',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -46,7 +46,7 @@ class Admin_Rest {
 		);
 
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/admin/settings/(?P<option_key>[a-z0-9_]+)',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -62,7 +62,7 @@ class Admin_Rest {
 		);
 
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/admin/extensions',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -83,15 +83,15 @@ class Admin_Rest {
 	 */
 	public static function get_default_icon_picker_i18n(): array {
 		$icon_picker_i18n = array(
-			'title'        => __( 'Choose icon', 'clanspress' ),
-			'none'         => __( 'No icon', 'clanspress' ),
-			'noIcons'      => __( 'No icon packs registered yet.', 'clanspress' ),
-			'chooseIcon'   => __( 'Choose icon', 'clanspress' ),
-			'mediaLibrary' => __( 'Media Library…', 'clanspress' ),
-			'clear'        => __( 'Clear', 'clanspress' ),
+			'title'        => __( 'Choose icon', 'clanbite' ),
+			'none'         => __( 'No icon', 'clanbite' ),
+			'noIcons'      => __( 'No icon packs registered yet.', 'clanbite' ),
+			'chooseIcon'   => __( 'Choose icon', 'clanbite' ),
+			'mediaLibrary' => __( 'Media Library…', 'clanbite' ),
+			'clear'        => __( 'Clear', 'clanbite' ),
 		);
 
-		return (array) apply_filters( 'clanspress_admin_icon_picker_i18n', $icon_picker_i18n );
+		return (array) apply_filters( 'clanbite_admin_icon_picker_i18n', $icon_picker_i18n );
 	}
 
 	/**
@@ -109,14 +109,14 @@ class Admin_Rest {
 	 * @return void
 	 */
 	protected static function require_companion_icon_pack_classes(): void {
-		if ( ! class_exists( \Kernowdev\ClanspressPoints\Points\Icon_Packs::class, false )
+		if ( ! class_exists( \Kernowdev\ClanbitePoints\Points\Icon_Packs::class, false )
 			&& defined( 'CLANSPRESS_POINTS_PATH' ) ) {
 			$file = \CLANSPRESS_POINTS_PATH . 'inc/Points/Icon_Packs.php';
 			if ( is_readable( $file ) ) {
 				require_once $file;
 			}
 		}
-		if ( ! class_exists( \Kernowdev\ClanspressRanks\Ranks\Icon_Packs::class, false )
+		if ( ! class_exists( \Kernowdev\ClanbiteRanks\Ranks\Icon_Packs::class, false )
 			&& defined( 'CLANSPRESS_RANKS_PATH' ) ) {
 			$file = \CLANSPRESS_RANKS_PATH . 'inc/Ranks/Icon_Packs.php';
 			if ( is_readable( $file ) ) {
@@ -136,13 +136,10 @@ class Admin_Rest {
 		if ( '' === $id ) {
 			return 'all';
 		}
-		if ( 'clanspress-points-starter' === $id || str_starts_with( $id, 'clanspress-points-' ) ) {
+		if ( 'clanbite-points-starter' === $id || str_starts_with( $id, 'clanbite-points-' ) ) {
 			return 'points';
 		}
-		if ( 'clanspress-starter' === $id || str_starts_with( $id, 'clanspress-starter-' ) ) {
-			return 'ranks';
-		}
-		if ( str_starts_with( $id, 'clanspress-ranks-' ) || str_starts_with( $id, 'clanspress-rank-' ) ) {
+		if ( 'clanbite-ranks-starter' === $id || str_starts_with( $id, 'clanbite-ranks-' ) ) {
 			return 'ranks';
 		}
 
@@ -217,7 +214,7 @@ class Admin_Rest {
 	}
 
 	/**
-	 * Last-resort starter packs built from companion plugin paths (skips `clanspress_*_icon_packs` filters).
+	 * Last-resort starter packs built from companion plugin paths (skips `clanbite_*_icon_packs` filters).
 	 *
 	 * Used when every icon row was stripped (hostile filters, empty `get_icon_packs()`) but SVGs exist on disk.
 	 *
@@ -231,37 +228,37 @@ class Admin_Rest {
 			if ( is_readable( $check ) ) {
 				$base = trailingslashit( plugins_url( 'assets/point-icons/starter', CLANSPRESS_POINTS_FILE ) );
 				$raw[] = array(
-					'id'    => 'clanspress-points-starter',
-					'label' => __( 'Clanspress Points Starter', 'clanspress' ),
+					'id'    => 'clanbite-points-starter',
+					'label' => __( 'Clanbite Points Starter', 'clanbite' ),
 					'icons' => array(
 						array(
 							'id'    => 'coin-bronze',
-							'label' => __( 'Bronze Coin', 'clanspress' ),
+							'label' => __( 'Bronze Coin', 'clanbite' ),
 							'url'   => $base . 'coin-bronze.svg',
 						),
 						array(
 							'id'    => 'coin-silver',
-							'label' => __( 'Silver Coin', 'clanspress' ),
+							'label' => __( 'Silver Coin', 'clanbite' ),
 							'url'   => $base . 'coin-silver.svg',
 						),
 						array(
 							'id'    => 'coin-gold',
-							'label' => __( 'Gold Coin', 'clanspress' ),
+							'label' => __( 'Gold Coin', 'clanbite' ),
 							'url'   => $base . 'coin-gold.svg',
 						),
 						array(
 							'id'    => 'gem-blue',
-							'label' => __( 'Blue Gem', 'clanspress' ),
+							'label' => __( 'Blue Gem', 'clanbite' ),
 							'url'   => $base . 'gem-blue.svg',
 						),
 						array(
 							'id'    => 'gem-purple',
-							'label' => __( 'Purple Gem', 'clanspress' ),
+							'label' => __( 'Purple Gem', 'clanbite' ),
 							'url'   => $base . 'gem-purple.svg',
 						),
 						array(
 							'id'    => 'star-token',
-							'label' => __( 'Star Token', 'clanspress' ),
+							'label' => __( 'Star Token', 'clanbite' ),
 							'url'   => $base . 'star-token.svg',
 						),
 					),
@@ -274,37 +271,37 @@ class Admin_Rest {
 			if ( is_readable( $check ) ) {
 				$base = trailingslashit( plugins_url( 'assets/rank-icons/starter', CLANSPRESS_RANKS_FILE ) );
 				$raw[] = array(
-					'id'    => 'clanspress-starter',
-					'label' => __( 'Clanspress Starter', 'clanspress' ),
+					'id'    => 'clanbite-starter',
+					'label' => __( 'Clanbite Starter', 'clanbite' ),
 					'icons' => array(
 						array(
 							'id'    => 'wood',
-							'label' => __( 'Wood', 'clanspress' ),
+							'label' => __( 'Wood', 'clanbite' ),
 							'url'   => $base . 'wood.svg',
 						),
 						array(
 							'id'    => 'bronze',
-							'label' => __( 'Bronze', 'clanspress' ),
+							'label' => __( 'Bronze', 'clanbite' ),
 							'url'   => $base . 'bronze.svg',
 						),
 						array(
 							'id'    => 'silver',
-							'label' => __( 'Silver', 'clanspress' ),
+							'label' => __( 'Silver', 'clanbite' ),
 							'url'   => $base . 'silver.svg',
 						),
 						array(
 							'id'    => 'gold',
-							'label' => __( 'Gold', 'clanspress' ),
+							'label' => __( 'Gold', 'clanbite' ),
 							'url'   => $base . 'gold.svg',
 						),
 						array(
 							'id'    => 'platinum',
-							'label' => __( 'Platinum', 'clanspress' ),
+							'label' => __( 'Platinum', 'clanbite' ),
 							'url'   => $base . 'platinum.svg',
 						),
 						array(
 							'id'    => 'diamond',
-							'label' => __( 'Diamond', 'clanspress' ),
+							'label' => __( 'Diamond', 'clanbite' ),
 							'url'   => $base . 'diamond.svg',
 						),
 					),
@@ -318,7 +315,7 @@ class Admin_Rest {
 	/**
 	 * Normalized icon packs for the unified admin (points + ranks starter SVGs, etc.).
 	 *
-	 * Merges `clanspress_admin_icon_packs` with packs from companion plugins when those
+	 * Merges `clanbite_admin_icon_packs` with packs from companion plugins when those
 	 * classes exist, deduped by pack id. Filter-only results that are empty after
 	 * normalization, or invalid associative shapes, still get starter packs from Points/Ranks.
 	 *
@@ -327,7 +324,7 @@ class Admin_Rest {
 	protected static function collect_bootstrap_icon_packs(): array {
 		self::require_companion_icon_pack_classes();
 
-		$raw = apply_filters( 'clanspress_admin_icon_packs', array() );
+		$raw = apply_filters( 'clanbite_admin_icon_packs', array() );
 		if ( ! is_array( $raw ) ) {
 			$raw = array();
 		}
@@ -348,16 +345,16 @@ class Admin_Rest {
 		}
 
 		$fallback = array();
-		if ( class_exists( \Kernowdev\ClanspressPoints\Points\Icon_Packs::class ) ) {
+		if ( class_exists( \Kernowdev\ClanbitePoints\Points\Icon_Packs::class ) ) {
 			$fallback = array_merge(
 				$fallback,
-				\Kernowdev\ClanspressPoints\Points\Icon_Packs::get_icon_packs()
+				\Kernowdev\ClanbitePoints\Points\Icon_Packs::get_icon_packs()
 			);
 		}
-		if ( class_exists( \Kernowdev\ClanspressRanks\Ranks\Icon_Packs::class ) ) {
+		if ( class_exists( \Kernowdev\ClanbiteRanks\Ranks\Icon_Packs::class ) ) {
 			$fallback = array_merge(
 				$fallback,
-				\Kernowdev\ClanspressRanks\Ranks\Icon_Packs::get_icon_packs()
+				\Kernowdev\ClanbiteRanks\Ranks\Icon_Packs::get_icon_packs()
 			);
 		}
 		foreach ( $fallback as $pack ) {
@@ -410,7 +407,7 @@ class Admin_Rest {
 				'iconPacks'        => self::get_unified_icon_packs(),
 				'iconPickerI18n'   => self::get_default_icon_picker_i18n(),
 				'plugin'           => array(
-					'version' => (string) \clanspress()->get_version(),
+					'version' => (string) \clanbite()->get_version(),
 				),
 			)
 		);
@@ -425,12 +422,12 @@ class Admin_Rest {
 			array(
 				'id'    => 'general',
 				'type'  => 'general',
-				'label' => __( 'General', 'clanspress' ),
+				'label' => __( 'General', 'clanbite' ),
 			),
 			array(
 				'id'    => 'extensions',
 				'type'  => 'extensions',
-				'label' => __( 'Extensions', 'clanspress' ),
+				'label' => __( 'Extensions', 'clanbite' ),
 			),
 		);
 
@@ -442,11 +439,11 @@ class Admin_Rest {
 				$tabs[] = array(
 					'id'            => 'core-groups',
 					'type'          => 'extension',
-					'label'         => __( 'Groups', 'clanspress' ),
+					'label'         => __( 'Groups', 'clanbite' ),
 					'sectionGroups' => array(
 						array(
 							'kind'      => 'primary',
-							'name'      => __( 'Groups', 'clanspress' ),
+							'name'      => __( 'Groups', 'clanbite' ),
 							'slug'      => 'groups',
 							'optionKey' => $groups_key,
 							'sections'  => $groups_schema,
@@ -623,8 +620,8 @@ class Admin_Rest {
 				'type'                    => $ext->type,
 				'parentSlug'              => (string) ( $ext->parent_slug ?? '' ),
 				'requires'                => array_values( $ext->requires ),
-				'requiresClanspress'      => $ext->get_requires_clanspress_version(),
-				'meetsClanspressVersion'  => $ext->meets_clanspress_version_requirement(),
+				'requiresClanbite'      => $ext->get_requires_clanbite_version(),
+				'meetsClanbiteVersion'  => $ext->meets_clanbite_version_requirement(),
 				'isOfficial'              => isset( $official[ $slug ] ),
 				'isCoreBundled'           => in_array( $slug, $core_bundle, true ),
 				'isInstalled'             => isset( $installed[ $slug ] ),
@@ -739,7 +736,7 @@ class Admin_Rest {
 		$key = sanitize_key( (string) $request->get_param( 'option_key' ) );
 
 		if ( ! isset( $this->settings_by_option[ $key ] ) ) {
-			return new WP_Error( 'clanspress_unknown_option', __( 'Unknown settings group.', 'clanspress' ), array( 'status' => 404 ) );
+			return new WP_Error( 'clanbite_unknown_option', __( 'Unknown settings group.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
 		$body  = $request->get_json_params();
@@ -817,7 +814,7 @@ class Admin_Rest {
 	public function rest_save_extensions( WP_REST_Request $request ) {
 		$body = $request->get_json_params();
 		if ( ! is_array( $body ) || ! isset( $body['installed'] ) || ! is_array( $body['installed'] ) ) {
-			return new WP_Error( 'clanspress_bad_payload', __( 'Invalid extensions payload.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_bad_payload', __( 'Invalid extensions payload.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		$requested_raw = array_map( 'sanitize_key', $body['installed'] );
@@ -856,7 +853,7 @@ class Admin_Rest {
 			);
 		}
 
-		$new = (array) apply_filters( 'clanspress_validate_installed_extensions', $new, $requested, $available );
+		$new = (array) apply_filters( 'clanbite_validate_installed_extensions', $new, $requested, $available );
 
 		foreach ( $required as $req_slug ) {
 			if ( isset( $available[ $req_slug ] ) && $available[ $req_slug ] instanceof Skeleton ) {
@@ -867,9 +864,9 @@ class Admin_Rest {
 		}
 
 		if ( is_multisite() && is_network_admin() ) {
-			update_site_option( 'clanspress_installed_extensions', $new );
+			update_site_option( 'clanbite_installed_extensions', $new );
 		} else {
-			update_option( 'clanspress_installed_extensions', $new );
+			update_option( 'clanbite_installed_extensions', $new );
 		}
 
 		// Defer regeneration to the next request so `init` runs with the new install list (rewrite rules match registered routes).

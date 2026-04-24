@@ -9,21 +9,21 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Country display', 'clanspress' ) }>
+				<PanelBody title={ __( 'Country display', 'clanbite' ) }>
 					<SelectControl
-						label={ __( 'Show', 'clanspress' ) }
+						label={ __( 'Show', 'clanbite' ) }
 						value={ countryDisplay || 'both' }
 						options={ [
 							{
-								label: __( 'Flag and country', 'clanspress' ),
+								label: __( 'Flag and country', 'clanbite' ),
 								value: 'both',
 							},
 							{
-								label: __( 'Flag only', 'clanspress' ),
+								label: __( 'Flag only', 'clanbite' ),
 								value: 'flag',
 							},
 							{
-								label: __( 'Country only', 'clanspress' ),
+								label: __( 'Country only', 'clanbite' ),
 								value: 'text',
 							},
 						] }
@@ -35,15 +35,15 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 					{ countryDisplay === 'both' || ! countryDisplay ? (
 						<SelectControl
-							label={ __( 'Order', 'clanspress' ) }
+							label={ __( 'Order', 'clanbite' ) }
 							value={ flagFirst ? 'flag' : 'text' }
 							options={ [
 								{
-									label: __( 'Flag first', 'clanspress' ),
+									label: __( 'Flag first', 'clanbite' ),
 									value: 'flag',
 								},
 								{
-									label: __( 'Country first', 'clanspress' ),
+									label: __( 'Country first', 'clanbite' ),
 									value: 'text',
 								},
 							] }
@@ -57,7 +57,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<ToggleControl
 						label={ __(
 							'Show country code in text',
-							'clanspress'
+							'clanbite'
 						) }
 						checked={ !! showCode }
 						onChange={ ( v ) =>
@@ -65,7 +65,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						}
 						help={ __(
 							'When the country name is shown, append the ISO code in parentheses.',
-							'clanspress'
+							'clanbite'
 						) }
 						__nextHasNoMarginBottom
 					/>
@@ -73,29 +73,29 @@ export default function Edit( { attributes, setAttributes } ) {
 			</InspectorControls>
 			<div
 				{ ...useBlockProps( {
-					className: 'clanspress-team-country-editor',
+					className: 'clanbite-team-country-editor',
 				} ) }
 			>
-				<div className="clanspress-country-display clanspress-country-display--preview">
+				<div className="clanbite-country-display clanbite-country-display--preview">
 					{ ( countryDisplay === 'both' || ! countryDisplay ) && (
 						<>
 							{ flagFirst ? (
 								<>
 									<span
-										className="clanspress-country-flag clanspress-country-flag--preview"
+										className="clanbite-country-flag clanbite-country-flag--preview"
 										aria-hidden="true"
 									/>
-									<span className="clanspress-country-display__label">
-										{ __( 'United Kingdom', 'clanspress' ) }
+									<span className="clanbite-country-display__label">
+										{ __( 'United Kingdom', 'clanbite' ) }
 									</span>
 								</>
 							) : (
 								<>
-									<span className="clanspress-country-display__label">
-										{ __( 'United Kingdom', 'clanspress' ) }
+									<span className="clanbite-country-display__label">
+										{ __( 'United Kingdom', 'clanbite' ) }
 									</span>
 									<span
-										className="clanspress-country-flag clanspress-country-flag--preview"
+										className="clanbite-country-flag clanbite-country-flag--preview"
 										aria-hidden="true"
 									/>
 								</>
@@ -103,21 +103,21 @@ export default function Edit( { attributes, setAttributes } ) {
 						</>
 					) }
 					{ countryDisplay === 'text' && (
-						<span className="clanspress-country-display__label">
-							{ __( 'United Kingdom', 'clanspress' ) }
+						<span className="clanbite-country-display__label">
+							{ __( 'United Kingdom', 'clanbite' ) }
 						</span>
 					) }
 					{ countryDisplay === 'flag' && (
 						<span
-							className="clanspress-country-flag clanspress-country-flag--preview"
+							className="clanbite-country-flag clanbite-country-flag--preview"
 							aria-hidden="true"
 						/>
 					) }
 				</div>
-				<p className="clanspress-team-block-placeholder">
+				<p className="clanbite-team-block-placeholder">
 					{ __(
 						'Team country (single team template)',
-						'clanspress'
+						'clanbite'
 					) }
 				</p>
 			</div>

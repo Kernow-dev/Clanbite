@@ -1,74 +1,74 @@
 <?php
 
-namespace Kernowdev\Clanspress\Extensions\Teams;
+namespace Kernowdev\Clanbite\Extensions\Teams;
 
 defined( 'ABSPATH' ) || exit;
 
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
 
 /**
  * Teams admin settings and functionality.
  */
 class Admin extends Abstract_Settings {
-	protected string $option_key     = 'clanspress_teams_settings';
-	protected string $settings_group = 'clanspress_teams';
-	protected string $page_slug      = 'clanspress-teams';
+	protected string $option_key     = 'clanbite_teams_settings';
+	protected string $settings_group = 'clanbite_teams';
+	protected string $page_slug      = 'clanbite-teams';
 
 	protected function get_page_title(): string {
-		return __( 'Teams', 'clanspress' );
+		return __( 'Teams', 'clanbite' );
 	}
 
 	protected function get_menu_title(): string {
-		return __( 'Teams', 'clanspress' );
+		return __( 'Teams', 'clanbite' );
 	}
 
 	protected function get_defaults(): array {
 		return apply_filters(
-			'clanspress_teams_defaults',
+			'clanbite_teams_defaults',
 			array(
 				'team_mode'                      => 'single_team',
 				'player_team_membership'         => 'multiple',
 				'default_team_avatar'            => '',
 				'default_team_cover'             => '',
 				'team_name_wordban_custom_list'  => '',
-				'global_auto_join_team_ids'      => \clanspress_teams_global_auto_join_team_ids(),
+				'global_auto_join_team_ids'      => \clanbite_teams_global_auto_join_team_ids(),
 				'events_profile_subpage'         => true,
-				'team_avatar_image_size_large'   => 'clanspress-team-avatar-large',
-				'team_avatar_image_size_medium'  => 'clanspress-team-avatar-medium',
-				'team_avatar_image_size_small'   => 'clanspress-team-avatar-small',
+				'team_avatar_image_size_large'   => 'clanbite-team-avatar-large',
+				'team_avatar_image_size_medium'  => 'clanbite-team-avatar-medium',
+				'team_avatar_image_size_small'   => 'clanbite-team-avatar-small',
 			)
 		);
 	}
 
 	protected function get_sections(): array {
 		return apply_filters(
-			'clanspress_teams_sections',
+			'clanbite_teams_sections',
 			array(
 				'general'  => array(
-					'title'  => __( 'General', 'clanspress' ),
+					'title'  => __( 'General', 'clanbite' ),
 					'fields' => array(
 						'team_mode'              => array(
-							'label'       => __( 'Team mode', 'clanspress' ),
+							'label'       => __( 'Team mode', 'clanbite' ),
 							'type'        => 'select',
-							'description' => __( 'Choose how teams should behave for your community.', 'clanspress' ),
+							'description' => __( 'Choose how teams should behave for your community.', 'clanbite' ),
 							'default'     => 'single_team',
 							'options'     => $this->get_team_mode_options(),
 							'sanitize'    => array( $this, 'sanitize_team_mode' ),
 						),
 						'player_team_membership' => array(
-							'label'       => __( 'Player team membership', 'clanspress' ),
+							'label'       => __( 'Player team membership', 'clanbite' ),
 							'type'        => 'select',
-							'description' => __( 'Single: a player may only belong to one team (invite search hides anyone who already leads a team). Multiple: no limit from this setting.', 'clanspress' ),
+							'description' => __( 'Single: a player may only belong to one team (invite search hides anyone who already leads a team). Multiple: no limit from this setting.', 'clanbite' ),
 							'default'     => 'multiple',
 							'options'     => $this->get_player_team_membership_options(),
 							'sanitize'    => array( $this, 'sanitize_player_team_membership' ),
 						),
 						'global_auto_join_team_ids' => array(
-							'label'              => __( 'Default team joins', 'clanspress' ),
+							'label'              => __( 'Default team joins', 'clanbite' ),
 							'type'               => 'post_id_list',
 							'post_search_path'   => 'wp/v2/cp_team',
-							'description'        => __( 'Every player is added to these team rosters as a member when they register or log in.', 'clanspress' ),
+							'description'        => __( 'Every player is added to these team rosters as a member when they register or log in.', 'clanbite' ),
 							'default'            => array(),
 							'sanitize'           => static function ( $value ): array {
 								if ( ! is_array( $value ) ) {
@@ -78,72 +78,72 @@ class Admin extends Abstract_Settings {
 							},
 						),
 						'team_name_wordban_custom_list' => array(
-							'label'       => __( 'Additional banned words for team names', 'clanspress' ),
+							'label'       => __( 'Additional banned words for team names', 'clanbite' ),
 							'type'        => 'textarea',
-							'description' => __( 'Comma- or line-separated. These are enforced only for team names. When the global word filter is enabled, this list is added on top of it; when global is off, this list still applies to team names.', 'clanspress' ),
+							'description' => __( 'Comma- or line-separated. These are enforced only for team names. When the global word filter is enabled, this list is added on top of it; when global is off, this list still applies to team names.', 'clanbite' ),
 							'default'     => '',
 							'sanitize'    => 'sanitize_textarea_field',
 						),
 					),
 				),
 				'integrations' => array(
-					'title'  => __( 'Extension integrations', 'clanspress' ),
+					'title'  => __( 'Extension integrations', 'clanbite' ),
 					'fields' => array(
 						'events_profile_subpage' => array(
-							'label'       => __( 'Team profile: Events tab', 'clanspress' ),
+							'label'       => __( 'Team profile: Events tab', 'clanbite' ),
 							'type'        => 'checkbox',
-							'description' => __( 'When the Events extension is enabled, show the team Events tab and /teams/{slug}/events/. When off, those routes redirect to the public team profile.', 'clanspress' ),
+							'description' => __( 'When the Events extension is enabled, show the team Events tab and /teams/{slug}/events/. When off, those routes redirect to the public team profile.', 'clanbite' ),
 							'default'     => true,
 							'sanitize'    => 'rest_sanitize_boolean',
 						),
 					),
 				),
 				'team_avatar_sizes' => array(
-					'title'  => __( 'Team avatar image sizes', 'clanspress' ),
+					'title'  => __( 'Team avatar image sizes', 'clanbite' ),
 					'fields' => array(
 						'team_avatar_image_size_large' => array(
-							'label'       => __( 'Large — team profiles', 'clanspress' ),
+							'label'       => __( 'Large — team profiles', 'clanbite' ),
 							'type'        => 'select',
-							'description' => __( 'Team profile pages and the team avatar block. Preset “large” in code.', 'clanspress' ),
-							'default'     => 'clanspress-team-avatar-large',
+							'description' => __( 'Team profile pages and the team avatar block. Preset “large” in code.', 'clanbite' ),
+							'default'     => 'clanbite-team-avatar-large',
 							'options'     => $this->get_team_avatar_image_size_options(),
 							'sanitize'    => array( $this, 'sanitize_team_avatar_size_large' ),
 						),
 						'team_avatar_image_size_medium' => array(
-							'label'       => __( 'Medium — forums and social-style feeds', 'clanspress' ),
+							'label'       => __( 'Medium — forums and social-style feeds', 'clanbite' ),
 							'type'        => 'select',
-							'description' => __( 'Lists, cards, and feed-style team logos. Preset “medium”.', 'clanspress' ),
-							'default'     => 'clanspress-team-avatar-medium',
+							'description' => __( 'Lists, cards, and feed-style team logos. Preset “medium”.', 'clanbite' ),
+							'default'     => 'clanbite-team-avatar-medium',
 							'options'     => $this->get_team_avatar_image_size_options(),
 							'sanitize'    => array( $this, 'sanitize_team_avatar_size_medium' ),
 						),
 						'team_avatar_image_size_small' => array(
-							'label'       => __( 'Small — compact UI', 'clanspress' ),
+							'label'       => __( 'Small — compact UI', 'clanbite' ),
 							'type'        => 'select',
-							'description' => __( 'Small team marks in tight layouts. Preset “small”.', 'clanspress' ),
-							'default'     => 'clanspress-team-avatar-small',
+							'description' => __( 'Small team marks in tight layouts. Preset “small”.', 'clanbite' ),
+							'default'     => 'clanbite-team-avatar-small',
 							'options'     => $this->get_team_avatar_image_size_options(),
 							'sanitize'    => array( $this, 'sanitize_team_avatar_size_small' ),
 						),
 					),
 				),
 				'branding' => array(
-					'title'  => __( 'Branding defaults', 'clanspress' ),
+					'title'  => __( 'Branding defaults', 'clanbite' ),
 					'fields' => array(
 						'default_team_avatar' => array(
-							'label'       => __( 'Default team avatar image', 'clanspress' ),
+							'label'       => __( 'Default team avatar image', 'clanbite' ),
 							'type'        => 'image',
-							'description' => __( 'Shown when a team has no avatar set. Leave empty to use the plugin bundled image.', 'clanspress' ),
+							'description' => __( 'Shown when a team has no avatar set. Leave empty to use the plugin bundled image.', 'clanbite' ),
 							'default'     => '',
-							'fallback_url' => \clanspress_teams_get_default_avatar_url( 0 ),
+							'fallback_url' => \clanbite_teams_get_default_avatar_url( 0 ),
 							'sanitize'    => 'esc_url_raw',
 						),
 						'default_team_cover'  => array(
-							'label'       => __( 'Default team cover image', 'clanspress' ),
+							'label'       => __( 'Default team cover image', 'clanbite' ),
 							'type'        => 'image',
-							'description' => __( 'Shown when a team has no cover image set. Leave empty to use the plugin bundled image.', 'clanspress' ),
+							'description' => __( 'Shown when a team has no cover image set. Leave empty to use the plugin bundled image.', 'clanbite' ),
 							'default'     => '',
-							'fallback_url' => \clanspress_teams_get_default_cover_url( 0 ),
+							'fallback_url' => \clanbite_teams_get_default_cover_url( 0 ),
 							'sanitize'    => 'esc_url_raw',
 						),
 					),
@@ -193,8 +193,8 @@ class Admin extends Abstract_Settings {
 	 */
 	public function get_player_team_membership_options(): array {
 		$options = array(
-			'multiple' => __( 'Multiple teams', 'clanspress' ),
-			'single'   => __( 'Single team only', 'clanspress' ),
+			'multiple' => __( 'Multiple teams', 'clanbite' ),
+			'single'   => __( 'Single team only', 'clanbite' ),
 		);
 
 		/**
@@ -203,7 +203,7 @@ class Admin extends Abstract_Settings {
 		 * @param array $options Key-value map.
 		 * @param Admin $admin   Teams admin instance.
 		 */
-		return (array) apply_filters( 'clanspress_teams_player_team_membership_options', $options, $this );
+		return (array) apply_filters( 'clanbite_teams_player_team_membership_options', $options, $this );
 	}
 
 	/**
@@ -213,9 +213,9 @@ class Admin extends Abstract_Settings {
 	 */
 	public function get_team_mode_options(): array {
 		$options = array(
-			'single_team'      => __( 'Single team (sports team style)', 'clanspress' ),
-			'multiple_teams'   => __( 'Multiple teams (clan style)', 'clanspress' ),
-			'team_directories' => __( 'Team directories (users create teams)', 'clanspress' ),
+			'single_team'      => __( 'Single team (sports team style)', 'clanbite' ),
+			'multiple_teams'   => __( 'Multiple teams (clan style)', 'clanbite' ),
+			'team_directories' => __( 'Team directories (users create teams)', 'clanbite' ),
 		);
 
 		/**
@@ -224,11 +224,11 @@ class Admin extends Abstract_Settings {
 		 * @param array $options Mode options keyed by mode slug.
 		 * @param Admin $admin   Teams admin settings instance.
 		 */
-		return (array) apply_filters( 'clanspress_teams_mode_options', $options, $this );
+		return (array) apply_filters( 'clanbite_teams_mode_options', $options, $this );
 	}
 
 	public function render_page(): void {
-		$this->render_settings_page( __( 'Teams', 'clanspress' ) );
+		$this->render_settings_page( __( 'Teams', 'clanbite' ) );
 	}
 
 	/**
@@ -237,13 +237,13 @@ class Admin extends Abstract_Settings {
 	 * @return array<string, string>
 	 */
 	protected function get_team_avatar_image_size_options(): array {
-		return function_exists( 'clanspress_players_get_image_size_choices_for_settings' )
-			? clanspress_players_get_image_size_choices_for_settings()
+		return function_exists( 'clanbite_players_get_image_size_choices_for_settings' )
+			? clanbite_players_get_image_size_choices_for_settings()
 			: array(
-				'thumbnail' => __( 'Thumbnail', 'clanspress' ),
-				'medium'    => __( 'Medium', 'clanspress' ),
-				'large'     => __( 'Large', 'clanspress' ),
-				'full'      => __( 'Full size', 'clanspress' ),
+				'thumbnail' => __( 'Thumbnail', 'clanbite' ),
+				'medium'    => __( 'Medium', 'clanbite' ),
+				'large'     => __( 'Large', 'clanbite' ),
+				'full'      => __( 'Full size', 'clanbite' ),
 			);
 	}
 
@@ -252,9 +252,9 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	public function sanitize_team_avatar_size_large( $value ): string {
-		return function_exists( 'clanspress_players_sanitize_image_size_setting_value' )
-			? clanspress_players_sanitize_image_size_setting_value( (string) $value, 'clanspress-team-avatar-large' )
-			: 'clanspress-team-avatar-large';
+		return function_exists( 'clanbite_players_sanitize_image_size_setting_value' )
+			? clanbite_players_sanitize_image_size_setting_value( (string) $value, 'clanbite-team-avatar-large' )
+			: 'clanbite-team-avatar-large';
 	}
 
 	/**
@@ -262,9 +262,9 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	public function sanitize_team_avatar_size_medium( $value ): string {
-		return function_exists( 'clanspress_players_sanitize_image_size_setting_value' )
-			? clanspress_players_sanitize_image_size_setting_value( (string) $value, 'clanspress-team-avatar-medium' )
-			: 'clanspress-team-avatar-medium';
+		return function_exists( 'clanbite_players_sanitize_image_size_setting_value' )
+			? clanbite_players_sanitize_image_size_setting_value( (string) $value, 'clanbite-team-avatar-medium' )
+			: 'clanbite-team-avatar-medium';
 	}
 
 	/**
@@ -272,8 +272,8 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	public function sanitize_team_avatar_size_small( $value ): string {
-		return function_exists( 'clanspress_players_sanitize_image_size_setting_value' )
-			? clanspress_players_sanitize_image_size_setting_value( (string) $value, 'clanspress-team-avatar-small' )
-			: 'clanspress-team-avatar-small';
+		return function_exists( 'clanbite_players_sanitize_image_size_setting_value' )
+			? clanbite_players_sanitize_image_size_setting_value( (string) $value, 'clanbite-team-avatar-small' )
+			: 'clanbite-team-avatar-small';
 	}
 }

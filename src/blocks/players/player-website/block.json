@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-website",
+	"name": "clanbite/player-website",
 	"version": "1.0.0",
 	"title": "Player website",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "admin-links",
 	"description": "Displays the player public website when set. Optional link to the URL.",
-	"textdomain": "clanspress",
-	"usesContext": [ "postId", "postType", "clanspress/playerId" ],
+	"textdomain": "clanbite",
+	"usesContext": [ "postId", "postType", "clanbite/playerId" ],
 	"attributes": {
 		"textAlign": {
 			"type": "string"
@@ -66,13 +66,13 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-website",
+		"root": ".wp-block-clanbite-player-website",
 		"color": {
-			"text": ".wp-block-clanspress-player-website .clanspress-player-website__text, .wp-block-clanspress-player-website .clanspress-player-website__link",
-			"background": ".wp-block-clanspress-player-website",
-			"link": ".wp-block-clanspress-player-website .clanspress-player-website__link"
+			"text": ".wp-block-clanbite-player-website .clanbite-player-website__text, .wp-block-clanbite-player-website .clanbite-player-website__link",
+			"background": ".wp-block-clanbite-player-website",
+			"link": ".wp-block-clanbite-player-website .clanbite-player-website__link"
 		},
-		"typography": ".wp-block-clanspress-player-website .clanspress-player-website__text, .wp-block-clanspress-player-website .clanspress-player-website__link",
-		"border": ".wp-block-clanspress-player-website"
+		"typography": ".wp-block-clanbite-player-website .clanbite-player-website__text, .wp-block-clanbite-player-website .clanbite-player-website__link",
+		"border": ".wp-block-clanbite-player-website"
 	}
 }

@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/team-draws",
+	"name": "clanbite/team-draws",
 	"version": "1.0.0",
 	"title": "Team draws",
-	"category": "clanspress-teams",
+	"category": "clanbite-teams",
 	"icon": "minus",
 	"description": "Displays the team’s draw count with optional prefix and postfix text.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"postTypes": [ "cp_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"attributes": {
@@ -55,9 +55,9 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-team-draws",
-		"color": ".wp-block-clanspress-team-draws",
-		"typography": ".wp-block-clanspress-team-draws",
-		"border": ".wp-block-clanspress-team-draws"
+		"root": ".wp-block-clanbite-team-draws",
+		"color": ".wp-block-clanbite-team-draws",
+		"typography": ".wp-block-clanbite-team-draws",
+		"border": ".wp-block-clanbite-team-draws"
 	}
 }

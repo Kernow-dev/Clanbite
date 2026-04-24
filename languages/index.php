@@ -2,7 +2,7 @@
 /**
  * Languages directory (translation files may be added here).
  *
- * @package clanspress
+ * @package clanbite
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

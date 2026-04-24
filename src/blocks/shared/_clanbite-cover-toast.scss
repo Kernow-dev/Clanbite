@@ -2,7 +2,7 @@
 // Use with markup: `hidden` + `data-wp-bind--hidden` and these visibility / pointer-events rules.
 
 /// Bottom-right placement so the toast does not stack over the top edit toolbar.
-@mixin clanspress-cover-toast-placement( $z-index ) {
+@mixin clanbite-cover-toast-placement( $z-index ) {
 	position: absolute;
 	right: 0.5rem;
 	bottom: 0.5rem;
@@ -11,7 +11,7 @@
 }
 
 /// Opacity / motion; `pointer-events` pairs with `[hidden]` from Interactivity.
-@mixin clanspress-cover-toast-visibility {
+@mixin clanbite-cover-toast-visibility {
 	opacity: 0;
 	transform: translateY(6px);
 	pointer-events: none;
@@ -26,7 +26,7 @@
 	}
 }
 
-@mixin clanspress-cover-toast-chrome {
+@mixin clanbite-cover-toast-chrome {
 	display: flex;
 	justify-content: flex-start;
 	align-items: flex-start;

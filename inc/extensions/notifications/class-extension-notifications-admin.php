@@ -2,22 +2,22 @@
 /**
  * Option-backed settings for the Notifications extension (unified React admin tab).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Notifications;
+namespace Kernowdev\Clanbite\Extensions\Notifications;
 
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
 
 /**
- * Notifications extension settings for the unified React admin (`clanspress_notifications_settings`).
+ * Notifications extension settings for the unified React admin (`clanbite_notifications_settings`).
  */
 class Admin extends Abstract_Settings {
-	protected string $option_key     = 'clanspress_notifications_settings';
-	protected string $settings_group = 'clanspress_notifications';
-	protected string $page_slug      = 'clanspress-notifications';
+	protected string $option_key     = 'clanbite_notifications_settings';
+	protected string $settings_group = 'clanbite_notifications';
+	protected string $page_slug      = 'clanbite-notifications';
 
 	/**
 	 * Browser title for the legacy standalone settings page (if enabled).
@@ -25,7 +25,7 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	protected function get_page_title(): string {
-		return __( 'Notifications', 'clanspress' );
+		return __( 'Notifications', 'clanbite' );
 	}
 
 	/**
@@ -34,7 +34,7 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	protected function get_menu_title(): string {
-		return __( 'Notifications', 'clanspress' );
+		return __( 'Notifications', 'clanbite' );
 	}
 
 	/**
@@ -57,24 +57,24 @@ class Admin extends Abstract_Settings {
 	protected function get_sections(): array {
 		return array(
 			'profile_subpages' => array(
-				'title'  => __( 'Profile subpages', 'clanspress' ),
+				'title'  => __( 'Profile subpages', 'clanbite' ),
 				'fields' => array(
 					'subpage_player' => array(
-						'label'       => __( 'Player profile: Notifications tab', 'clanspress' ),
+						'label'       => __( 'Player profile: Notifications tab', 'clanbite' ),
 						'type'        => 'checkbox',
-						'description' => __( 'When off, the notifications template and tab are omitted and that URL redirects to the profile root.', 'clanspress' ),
+						'description' => __( 'When off, the notifications template and tab are omitted and that URL redirects to the profile root.', 'clanbite' ),
 						'default'     => true,
 						'sanitize'    => 'rest_sanitize_boolean',
 					),
 				),
 			),
 			'notification_bell' => array(
-				'title'  => __( 'Notification bell', 'clanspress' ),
+				'title'  => __( 'Notification bell', 'clanbite' ),
 				'fields' => array(
 					'poll_long_polling' => array(
-						'label'       => __( 'Use long-polling', 'clanspress' ),
+						'label'       => __( 'Use long-polling', 'clanbite' ),
 						'type'        => 'checkbox',
-						'description' => __( 'When enabled, poll requests may stay open until new notifications arrive or a timeout is reached (fewer HTTP round-trips). When off, each poll checks once and returns immediately (better for busy sites and limited PHP workers). Developers can still override behavior with the clanspress_notification_poll_blocking_wait filter.', 'clanspress' ),
+						'description' => __( 'When enabled, poll requests may stay open until new notifications arrive or a timeout is reached (fewer HTTP round-trips). When off, each poll checks once and returns immediately (better for busy sites and limited PHP workers). Developers can still override behavior with the clanbite_notification_poll_blocking_wait filter.', 'clanbite' ),
 						'default'     => false,
 						'sanitize'    => 'rest_sanitize_boolean',
 					),
@@ -89,6 +89,6 @@ class Admin extends Abstract_Settings {
 	 * @return void
 	 */
 	public function render_page(): void {
-		$this->render_settings_page( __( 'Notifications', 'clanspress' ) );
+		$this->render_settings_page( __( 'Notifications', 'clanbite' ) );
 	}
 }

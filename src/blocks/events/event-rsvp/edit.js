@@ -18,53 +18,53 @@ export default function Edit( { attributes, setAttributes, context } ) {
 			: postId > 0 &&
 			  ( ( eventType === 'match' && postType === 'cp_match' ) ||
 					( eventType === 'group' && postType === 'cp_group' ) ||
-					( eventType === 'clanspress_event' &&
+					( eventType === 'clanbite_event' &&
 						postType === 'cp_event' ) )
 			? postId
 			: 0;
 
 	const blockProps = useBlockProps( {
-		className: 'clanspress-event-rsvp-editor',
+		className: 'clanbite-event-rsvp-editor',
 	} );
 
 	const typeLabel =
 		eventType === 'group'
-			? __( 'Group', 'clanspress' )
-			: eventType === 'clanspress_event'
-			? __( 'Event', 'clanspress' )
-			: __( 'Match', 'clanspress' );
+			? __( 'Group', 'clanbite' )
+			: eventType === 'clanbite_event'
+			? __( 'Event', 'clanbite' )
+			: __( 'Match', 'clanbite' );
 
 	return (
 		<div { ...blockProps }>
 			<InspectorControls>
-				<PanelBody title={ __( 'Event', 'clanspress' ) }>
+				<PanelBody title={ __( 'Event', 'clanbite' ) }>
 					<SelectControl
-						label={ __( 'Event type', 'clanspress' ) }
+						label={ __( 'Event type', 'clanbite' ) }
 						value={ eventType }
 						options={ [
 							{
-								label: __( 'Match (cp_match)', 'clanspress' ),
+								label: __( 'Match (cp_match)', 'clanbite' ),
 								value: 'match',
 							},
 							{
-								label: __( 'Group (cp_group)', 'clanspress' ),
+								label: __( 'Group (cp_group)', 'clanbite' ),
 								value: 'group',
 							},
 							{
 								label: __(
 									'Scheduled event (cp_event)',
-									'clanspress'
+									'clanbite'
 								),
-								value: 'clanspress_event',
+								value: 'clanbite_event',
 							},
 						] }
 						onChange={ ( v ) => setAttributes( { eventType: v } ) }
 					/>
 					<TextControl
-						label={ __( 'Event ID (optional)', 'clanspress' ) }
+						label={ __( 'Event ID (optional)', 'clanbite' ) }
 						help={ __(
 							'Leave 0 to use the current template post in the editor or on single event pages.',
-							'clanspress'
+							'clanbite'
 						) }
 						type="number"
 						value={ eventId || '' }
@@ -75,7 +75,7 @@ export default function Edit( { attributes, setAttributes, context } ) {
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
-						label={ __( 'Show attendee list', 'clanspress' ) }
+						label={ __( 'Show attendee list', 'clanbite' ) }
 						checked={ showAttendees }
 						onChange={ ( v ) =>
 							setAttributes( { showAttendees: v } )
@@ -84,14 +84,14 @@ export default function Edit( { attributes, setAttributes, context } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<p className="clanspress-event-rsvp-editor__title">
-				<strong>{ __( 'Event RSVP', 'clanspress' ) }</strong>
+			<p className="clanbite-event-rsvp-editor__title">
+				<strong>{ __( 'Event RSVP', 'clanbite' ) }</strong>
 			</p>
 			{ resolvedId < 1 && (
 				<p>
 					{ __(
 						'Select a match or group template, or set an event ID.',
-						'clanspress'
+						'clanbite'
 					) }
 				</p>
 			) }
@@ -99,7 +99,7 @@ export default function Edit( { attributes, setAttributes, context } ) {
 				<p>
 					{ sprintf(
 						/* translators: 1: event kind, 2: numeric ID */
-						__( 'Linked %1$s — ID %2$d', 'clanspress' ),
+						__( 'Linked %1$s — ID %2$d', 'clanbite' ),
 						typeLabel,
 						resolvedId
 					) }

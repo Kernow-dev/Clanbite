@@ -1,4 +1,4 @@
-.clanspress-country-display {
+.clanbite-country-display {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
@@ -6,30 +6,30 @@
 	margin: 0;
 }
 
-.clanspress-country-flag {
+.clanbite-country-flag {
 	display: inline-flex;
 	align-items: center;
 	line-height: 0;
 }
 
-.clanspress-country-flag__img {
+.clanbite-country-flag__img {
 	display: block;
 	height: auto;
 	vertical-align: middle;
 }
 
-.clanspress-country-display__label {
+.clanbite-country-display__label {
 	margin: 0;
 }
 
-.clanspress-country-display__code {
+.clanbite-country-display__code {
 	opacity: 0.85;
 	font-size: 0.9em;
 }
 
-.clanspress-team-country.clanspress-country-display--placeholder,
-.clanspress-player-country.clanspress-country-display--placeholder,
-.clanspress-country-display--placeholder {
+.clanbite-team-country.clanbite-country-display--placeholder,
+.clanbite-player-country.clanbite-country-display--placeholder,
+.clanbite-country-display--placeholder {
 	border: 1px dashed #c3c4c7;
 	padding: 0.75rem;
 	border-radius: 4px;
@@ -37,11 +37,11 @@
 	font-size: 0.875rem;
 }
 
-.clanspress-country-display--preview {
+.clanbite-country-display--preview {
 	margin-bottom: 0.5rem;
 }
 
-.clanspress-country-flag--preview {
+.clanbite-country-flag--preview {
 	display: inline-block;
 	width: 24px;
 	height: 18px;

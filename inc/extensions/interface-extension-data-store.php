@@ -2,10 +2,10 @@
 /**
  * Extension data store contract.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 
 defined( 'ABSPATH' ) || exit;
 

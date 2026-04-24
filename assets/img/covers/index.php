@@ -2,7 +2,7 @@
 /**
  * Silence is golden.
  *
- * @package clanspress
+ * @package clanbite
  */
 
 defined( 'ABSPATH' ) || exit;

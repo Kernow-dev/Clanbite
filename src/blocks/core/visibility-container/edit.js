@@ -18,26 +18,26 @@ import {
 import './editor.scss';
 
 const SHOW_OPTIONS = [
-	{ label: __( 'Everyone', 'clanspress' ), value: 'all' },
+	{ label: __( 'Everyone', 'clanbite' ), value: 'all' },
 	{
-		label: __( 'Guests only (not logged in)', 'clanspress' ),
+		label: __( 'Guests only (not logged in)', 'clanbite' ),
 		value: 'guests',
 	},
-	{ label: __( 'Logged-in users', 'clanspress' ), value: 'logged_in' },
-	{ label: __( 'Selected roles only', 'clanspress' ), value: 'roles' },
+	{ label: __( 'Logged-in users', 'clanbite' ), value: 'logged_in' },
+	{ label: __( 'Selected roles only', 'clanbite' ), value: 'roles' },
 ];
 
 const HIDE_OPTIONS = [
-	{ label: __( 'No one (do not hide)', 'clanspress' ), value: 'none' },
-	{ label: __( 'Guests', 'clanspress' ), value: 'guests' },
-	{ label: __( 'Logged-in users', 'clanspress' ), value: 'logged_in' },
-	{ label: __( 'Selected roles', 'clanspress' ), value: 'roles' },
+	{ label: __( 'No one (do not hide)', 'clanbite' ), value: 'none' },
+	{ label: __( 'Guests', 'clanbite' ), value: 'guests' },
+	{ label: __( 'Logged-in users', 'clanbite' ), value: 'logged_in' },
+	{ label: __( 'Selected roles', 'clanbite' ), value: 'roles' },
 ];
 
 function getRoleSuggestions() {
 	const cfg =
 		typeof window !== 'undefined'
-			? window.clanspressVisibilityContainer
+			? window.clanbiteVisibilityContainer
 			: null;
 	if ( ! cfg?.roles?.length ) {
 		return [];
@@ -48,7 +48,7 @@ function getRoleSuggestions() {
 function tokensToSlugs( tokens ) {
 	const cfg =
 		typeof window !== 'undefined'
-			? window.clanspressVisibilityContainer
+			? window.clanbiteVisibilityContainer
 			: null;
 	if ( ! cfg?.roles?.length ) {
 		return tokens.map( ( t ) =>
@@ -93,7 +93,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	} = attributes;
 
 	const blockProps = useBlockProps( {
-		className: 'clanspress-visibility-container-editor',
+		className: 'clanbite-visibility-container-editor',
 	} );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
@@ -103,21 +103,21 @@ export default function Edit( { attributes, setAttributes } ) {
 	const suggestions = getRoleSuggestions();
 	const cfg =
 		typeof window !== 'undefined'
-			? window.clanspressVisibilityContainer
+			? window.clanbiteVisibilityContainer
 			: null;
 
 	return (
 		<>
 			<InspectorControls>
 				<PanelBody
-					title={ __( 'Visibility', 'clanspress' ) }
+					title={ __( 'Visibility', 'clanbite' ) }
 					initialOpen={ true }
 				>
 					<SelectControl
-						label={ __( 'Show to', 'clanspress' ) }
+						label={ __( 'Show to', 'clanbite' ) }
 						help={ __(
 							'Who should see the content inside this block.',
-							'clanspress'
+							'clanbite'
 						) }
 						value={ showTo }
 						options={ SHOW_OPTIONS }
@@ -129,7 +129,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 					{ showTo === 'roles' && (
 						<FormTokenField
-							label={ __( 'Roles (show to)', 'clanspress' ) }
+							label={ __( 'Roles (show to)', 'clanbite' ) }
 							value={ slugsToTokens( showToRoles, cfg?.roles ) }
 							suggestions={ suggestions }
 							onChange={ ( tokens ) =>
@@ -143,10 +143,10 @@ export default function Edit( { attributes, setAttributes } ) {
 						/>
 					) }
 					<SelectControl
-						label={ __( 'Hide from', 'clanspress' ) }
+						label={ __( 'Hide from', 'clanbite' ) }
 						help={ __(
 							'Remove the block for these visitors (applied after “Show to”).',
-							'clanspress'
+							'clanbite'
 						) }
 						value={ hideFrom }
 						options={ HIDE_OPTIONS }
@@ -158,7 +158,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 					{ hideFrom === 'roles' && (
 						<FormTokenField
-							label={ __( 'Roles (hide from)', 'clanspress' ) }
+							label={ __( 'Roles (hide from)', 'clanbite' ) }
 							value={ slugsToTokens( hideFromRoles, cfg?.roles ) }
 							suggestions={ suggestions }
 							onChange={ ( tokens ) =>
@@ -175,7 +175,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						<Notice status="warning" isDismissible={ false }>
 							{ __(
 								'Pick at least one role. Until you do, the block is shown to everyone (same as “Everyone”).',
-								'clanspress'
+								'clanbite'
 							) }
 						</Notice>
 					) }
@@ -183,7 +183,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						<Notice status="info" isDismissible={ false }>
 							{ __(
 								'Role labels load from the site; you can type role slugs (e.g. administrator) in the token fields.',
-								'clanspress'
+								'clanbite'
 							) }
 						</Notice>
 					) }

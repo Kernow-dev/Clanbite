@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/team-name",
+	"name": "clanbite/team-name",
 	"version": "1.0.0",
 	"title": "Team name",
-	"category": "clanspress-teams",
+	"category": "clanbite-teams",
 	"icon": "heading",
 	"description": "Displays the team name (post title) on single team templates.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"postTypes": [ "cp_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"attributes": {
@@ -65,13 +65,13 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-team-name",
+		"root": ".wp-block-clanbite-team-name",
 		"color": {
-			"text": ".wp-block-clanspress-team-name .clanspress-team-name__heading, .wp-block-clanspress-team-name .clanspress-team-name__link",
-			"background": ".wp-block-clanspress-team-name",
-			"link": ".wp-block-clanspress-team-name .clanspress-team-name__link"
+			"text": ".wp-block-clanbite-team-name .clanbite-team-name__heading, .wp-block-clanbite-team-name .clanbite-team-name__link",
+			"background": ".wp-block-clanbite-team-name",
+			"link": ".wp-block-clanbite-team-name .clanbite-team-name__link"
 		},
-		"typography": ".wp-block-clanspress-team-name .clanspress-team-name__heading",
-		"border": ".wp-block-clanspress-team-name"
+		"typography": ".wp-block-clanbite-team-name .clanbite-team-name__heading",
+		"border": ".wp-block-clanbite-team-name"
 	}
 }

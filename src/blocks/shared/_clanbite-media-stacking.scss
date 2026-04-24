@@ -1,0 +1,12 @@
+// Stacking (z-index) for Clanbite front media blocks — keep in sync across player/team cover + avatar.
+//
+// Typical order inside a cover block that uses `isolation: isolate` (low → high):
+// - 0: cover media / placeholder
+// - 2: `.player-cover__content-container` (nested blocks such as avatar)
+// - $clanbite-media-avatar-toolbar-z: avatar inline-edit toolbar (sits on top of avatar box)
+// - $clanbite-media-cover-toolbar-z: cover inline-edit toolbar (must beat nested content for clicks)
+// - $clanbite-media-toast-z: block toasts (position away from the top-right toolbar, or use pointer-events when hidden)
+
+$clanbite-media-avatar-toolbar-z: 5;
+$clanbite-media-cover-toolbar-z: 35;
+$clanbite-media-toast-z: 40;

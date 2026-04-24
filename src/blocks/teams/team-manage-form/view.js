@@ -1,5 +1,5 @@
 /**
- * Tabbed team manage UI (mirrors clanspress-team-create-form behaviour; all tabs are reachable without a wizard).
+ * Tabbed team manage UI (mirrors clanbite-team-create-form behaviour; all tabs are reachable without a wizard).
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 import {
@@ -7,7 +7,7 @@ import {
 	focusActiveTabButton,
 } from '../shared/sync-team-form-tabs.js';
 
-const { state } = store( 'clanspress-team-manage-form', {
+const { state } = store( 'clanbite-team-manage-form', {
 	state: {
 		root: null,
 		step: 1,
@@ -31,7 +31,7 @@ const { state } = store( 'clanspress-team-manage-form', {
 			}
 			state.step += 1;
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-team-manage-form--tabbed' );
+			const root = ref?.closest( '.clanbite-team-manage-form--tabbed' );
 			syncTeamFormTabs( root, state.step, { wizard: false } );
 			focusActiveTabButton( root, state.step );
 		},
@@ -42,7 +42,7 @@ const { state } = store( 'clanspress-team-manage-form', {
 			}
 			state.step -= 1;
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-team-manage-form--tabbed' );
+			const root = ref?.closest( '.clanbite-team-manage-form--tabbed' );
 			syncTeamFormTabs( root, state.step, { wizard: false } );
 			focusActiveTabButton( root, state.step );
 		},
@@ -55,7 +55,7 @@ const { state } = store( 'clanspress-team-manage-form', {
 			}
 			state.step = n;
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-team-manage-form--tabbed' );
+			const root = ref?.closest( '.clanbite-team-manage-form--tabbed' );
 			syncTeamFormTabs( root, state.step, { wizard: false } );
 		},
 		onTabListKeydown( event ) {
@@ -85,7 +85,7 @@ const { state } = store( 'clanspress-team-manage-form', {
 			}
 			state.step = next;
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-team-manage-form--tabbed' );
+			const root = ref?.closest( '.clanbite-team-manage-form--tabbed' );
 			syncTeamFormTabs( root, state.step, { wizard: false } );
 			focusActiveTabButton( root, state.step );
 		},

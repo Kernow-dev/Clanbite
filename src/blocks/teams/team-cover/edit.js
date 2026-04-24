@@ -53,7 +53,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 		<>
 			<BlockControls group="block">
 				<BlockAlignmentMatrixControl
-					label={ __( 'Change content position', 'clanspress' ) }
+					label={ __( 'Change content position', 'clanbite' ) }
 					value={ contentPosition }
 					onChange={ ( nextPosition ) =>
 						setAttributes( {

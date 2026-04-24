@@ -2,10 +2,10 @@
 /**
  * Persistence layer for Team entities (CPT-backed by default).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Teams;
+namespace Kernowdev\Clanbite\Extensions\Teams;
 
 defined( 'ABSPATH' ) || exit;
 

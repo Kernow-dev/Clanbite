@@ -6,14 +6,14 @@
  * extension when it is enabled (`function_exists` guards in `inc/events/`). Top-level extension
  * (`parent_slug` empty).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Events\Event_Rsvp_Schema;
-use Kernowdev\Clanspress\Events\Events as Events_Runtime;
+use Kernowdev\Clanbite\Events\Event_Rsvp_Schema;
+use Kernowdev\Clanbite\Events\Events as Events_Runtime;
 
 /**
  * Official extension that boots the `cp_event` subsystem when installed.
@@ -25,11 +25,11 @@ class Events extends Skeleton {
 	 */
 	public function __construct() {
 		parent::__construct(
-			__( 'Events', 'clanspress' ),
+			__( 'Events', 'clanbite' ),
 			'cp_events',
 			__(
 				'Team and group scheduled events, RSVP storage, REST API, and front-end blocks.',
-				'clanspress'
+				'clanbite'
 			),
 			'',
 			'1.0.0',
@@ -46,7 +46,7 @@ class Events extends Skeleton {
 	 * @param string $parent_slug Parent extension slug, or empty.
 	 * @param string $version              Semantic version.
 	 * @param array  $requires             Required extension slugs.
-	 * @param string $requires_clanspress  Minimum Clanspress core version (`x.y.z`).
+	 * @param string $requires_clanbite  Minimum Clanbite core version (`x.y.z`).
 	 */
 	public function setup_extension(
 		string $name,
@@ -55,7 +55,7 @@ class Events extends Skeleton {
 		string $parent_slug,
 		string $version,
 		array $requires,
-		string $requires_clanspress = ''
+		string $requires_clanbite = ''
 	): void {
 		parent::setup_extension(
 			$name,
@@ -64,11 +64,11 @@ class Events extends Skeleton {
 			$parent_slug,
 			$version,
 			$requires,
-			$requires_clanspress
+			$requires_clanbite
 		);
 
-		remove_filter( 'clanspress_registered_extensions', array( $this, 'register_extension' ) );
-		add_filter( 'clanspress_official_registered_extensions', array( $this, 'register_extension' ) );
+		remove_filter( 'clanbite_registered_extensions', array( $this, 'register_extension' ) );
+		add_filter( 'clanbite_official_registered_extensions', array( $this, 'register_extension' ) );
 	}
 
 	/**

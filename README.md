@@ -1,11 +1,17 @@
-# Clanspress
+# Clanbite
 
-Clanspress is a community management plugin for gaming teams, clans, and competitive communities.
+Clanbite is a community management plugin for gaming teams, clans, and competitive communities.
 
 ## Development Principles
 - Built for extensibility first.
 - Uses modern WordPress APIs and coding standards.
 - Keeps extension lifecycle and data access explicit and testable.
+
+## External services
+
+Some Clanbite surfaces load **remote images** for convenience:
+
+- **Gravatar (Automattic):** When a notification includes an actor without a custom Clanbite player avatar, the UI may resolve a portrait via WordPress’s `get_avatar_url()` data source (Gravatar). That request is initiated by the visitor’s browser when the notification row is rendered (typical `<img src="…">` load). No account passwords are sent. Terms: [https://automattic.com/terms/](https://automattic.com/terms/) · Privacy: [https://automattic.com/privacy/](https://automattic.com/privacy/).
 
 ## Static analysis and compatibility checks
 
@@ -20,14 +26,14 @@ Copy `phpstan.neon.dist` to `phpstan.neon` for local overrides (the latter is gi
 
 **Note:** Full WordPress-Core style sniffs are not part of the default `lint:php` command yet, to avoid large formatting-only churn. You can still run PHPCBF against `WordPress-Core` locally if you want to normalize whitespace.
 
-## WordPress admin (Clanspress menu)
+## WordPress admin (Clanbite menu)
 
-The top-level **Clanspress** menu opens a **React** settings shell (`src/admin/index.js`, built to `assets/dist/clanspress-admin.js`).
+The top-level **Clanbite** menu opens a **React** settings shell (`src/admin/index.js`, built to `assets/dist/clanbite-admin.js`).
 
-- **Tabs:** **General** (core options, `clanspress_general_settings`), **Extensions** (enable/disable; runs uninstallers for removed slugs), then one tab per **root** extension that exposes settings via `Skeleton::get_settings_admin()`.
-- **Deep links:** the active tab is stored in the query string as `?page=clanspress&tab=<id>` (e.g. `general`, `extensions`, `ext-cp_teams`). Invalid `tab` values fall back to the first tab and the URL is corrected. Save notices stay visible above the tab row when switching tabs.
+- **Tabs:** **General** (core options, `clanbite_general_settings`), **Extensions** (enable/disable; runs uninstallers for removed slugs), then one tab per **root** extension that exposes settings via `Skeleton::get_settings_admin()`.
+- **Deep links:** the active tab is stored in the query string as `?page=clanbite&tab=<id>` (e.g. `general`, `extensions`, `ext-cp_teams`). Invalid `tab` values fall back to the first tab and the URL is corrected. Save notices stay visible above the tab row when switching tabs.
 - **Child extensions** (`parent_slug` set): their settings sections appear **inside the parent extension tab** (grouped with an `<h3>` heading), each group saves its own option row via REST.
-- **CPT menus:** Custom post types registered by the plugin should use `'show_in_menu' => 'clanspress'` so list tables appear under this menu (e.g. **Teams** / `cp_team`).
+- **CPT menus:** Custom post types registered by the plugin should use `'show_in_menu' => 'clanbite'` so list tables appear under this menu (e.g. **Teams** / `cp_team`).
 
 Build after changing the admin UI:
 
@@ -42,36 +48,36 @@ Block sources live under `src/blocks/` (matches, players, teams). The match post
 ```bash
 npm ci
 npm run build:production   # admin + blocks + manifests + match editor
-# or: npm run plugin-zip   # production build then clanspress.zip
+# or: npm run plugin-zip   # production build then clanbite.zip
 ```
 
 **REST API** (authenticated, `manage_options`):
 
 | Method | Route | Purpose |
 |--------|--------|---------|
-| `GET` | `/wp-json/clanspress/v1/admin/bootstrap` | Tabs, `optionSchemas`, current `values`, extensions list. |
-| `PUT` | `/wp-json/clanspress/v1/admin/settings/{option_key}` | JSON body: field map; uses each `Abstract_Settings::sanitize()`. |
-| `PUT` | `/wp-json/clanspress/v1/admin/extensions` | JSON `{ "installed": ["cp_players", ...] }`; uninstalls removed slugs then saves the list. |
+| `GET` | `/wp-json/clanbite/v1/admin/bootstrap` | Tabs, `optionSchemas`, current `values`, extensions list. |
+| `PUT` | `/wp-json/clanbite/v1/admin/settings/{option_key}` | JSON body: field map; uses each `Abstract_Settings::sanitize()`. |
+| `PUT` | `/wp-json/clanbite/v1/admin/extensions` | JSON `{ "installed": ["cp_players", ...] }`; uninstalls removed slugs then saves the list. |
 
-To restore a **standalone** PHP submenu for an extension settings class, filter `clanspress_extension_settings_register_submenu` to `true` for that `Abstract_Settings` instance.
+To restore a **standalone** PHP submenu for an extension settings class, filter `clanbite_extension_settings_register_submenu` to `true` for that `Abstract_Settings` instance.
 
 ### Public REST, team challenges, and cross-site match sync
 
-These routes are **unauthenticated** (defense in depth: nonces, rate limits, and/or HMAC as documented). They exist so other Clanspress installs and the **Team challenge** block can interoperate.
+These routes are **unauthenticated** (defense in depth: nonces, rate limits, and/or HMAC as documented). They exist so other Clanbite installs and the **Team challenge** block can interoperate.
 
 | Method | Route | Purpose |
 |--------|--------|---------|
-| `GET` | `/wp-json/clanspress/v1/discovery` | Returns `{ clanspress, name, version }` and, when PHP sodium is available, `match_sync` hints for cross-site match signing. |
-| `GET` | `/wp-json/clanspress/v1/site-sync-public-key` | Returns `{ clanspress, algorithm: ed25519, public_key }` (base64) so peer installs can verify signed `sync-peer-match` requests. |
-| `GET` | `/wp-json/clanspress/v1/public-team` | Query args `slug` or `url` — public metadata for a published `cp_team` (title, permalink, logo, motto, country, short description). |
-| `GET` | `/wp-json/clanspress/v1/challenge-remote-team` | Same-site proxy: `team_id`, `url`, `challenge_nonce` — server fetches discovery + `public-team` on the remote host (avoids browser CORS). |
-| `POST` | `/wp-json/clanspress/v1/team-challenges` | JSON body: `team_id`, `challenge_nonce`, contact fields, optional `opponent_team_url`, `challenger_team_id`, `challenger_team_name`, `challenger_team_logo_id`, `proposed_scheduled_at`, `message`. Creates `cp_team_challenge` and notifies challenged team admins (`team_challenge` + accept/decline handlers). Requires **Matches** + **Teams**. |
-| `POST` | `/wp-json/clanspress/v1/team-challenge-media` | `multipart/form-data`: `team_id`, `challenge_nonce`, `file` — optional logo (image, max 2MB) for manual challengers; returns `{ id, url }` attachment reference for `challenger_team_logo_id`. |
-| `POST` | `/wp-json/clanspress/v1/sync-peer-match` | Signed JSON body (see below). Creates a **mirror** `cp_match` on the **challenger’s** site when the challenged site accepts a remote Clanspress challenge. |
+| `GET` | `/wp-json/clanbite/v1/discovery` | Returns `{ clanbite, name, version }` and, when PHP sodium is available, `match_sync` hints for cross-site match signing. |
+| `GET` | `/wp-json/clanbite/v1/site-sync-public-key` | Returns `{ clanbite, algorithm: ed25519, public_key }` (base64) so peer installs can verify signed `sync-peer-match` requests. |
+| `GET` | `/wp-json/clanbite/v1/public-team` | Query args `slug` or `url` — public metadata for a published `cp_team` (title, permalink, logo, motto, country, short description). |
+| `GET` | `/wp-json/clanbite/v1/challenge-remote-team` | Same-site proxy: `team_id`, `url`, `challenge_nonce` — server fetches discovery + `public-team` on the remote host (avoids browser CORS). |
+| `POST` | `/wp-json/clanbite/v1/team-challenges` | JSON body: `team_id`, `challenge_nonce`, contact fields, optional `opponent_team_url`, `challenger_team_id`, `challenger_team_name`, `challenger_team_logo_id`, `proposed_scheduled_at`, `message`. Creates `cp_team_challenge` and notifies challenged team admins (`team_challenge` + accept/decline handlers). Requires **Matches** + **Teams**. |
+| `POST` | `/wp-json/clanbite/v1/team-challenge-media` | `multipart/form-data`: `team_id`, `challenge_nonce`, `file` — optional logo (image, max 2MB) for manual challengers; returns `{ id, url }` attachment reference for `challenger_team_logo_id`. |
+| `POST` | `/wp-json/clanbite/v1/sync-peer-match` | Signed JSON body (see below). Creates a **mirror** `cp_match` on the **challenger’s** site when the challenged site accepts a remote Clanbite challenge. |
 
-**Cross-site mirror (two-way listings):** Each install generates an **Ed25519** keypair (PHP **sodium** extension required) stored in the `clanspress_match_sync_site_keys` option. When a challenge is accepted, if the snapshot came from another Clanspress site (`source: remote`, with `origin` + `remoteTeamId` from `public-team`), the challenged site POSTs to `{origin}/wp-json/clanspress/v1/sync-peer-match` with `X-Clanspress-Sync: v1:{timestamp}:{base64url_signature}` (detached Ed25519 over `{timestamp}\n{json body}`). The receiving site fetches the sender’s public key from `{source_site}wp-json/clanspress/v1/site-sync-public-key` (HTTPS), verifies the signature, then creates the mirror match. **No shared manual secret** — only Clanspress installs that expose the public-key route and accept verified requests participate. For legacy integrations, the `clanspress_cross_site_sync_key` filter can force the older `timestamp:hmac` header using a shared secret. Without sodium and without that filter, mirror push is skipped (the local match on the challenged site still works).
+**Cross-site mirror (two-way listings):** Each install generates an **Ed25519** keypair (PHP **sodium** extension required) stored in the `clanbite_match_sync_site_keys` option. When a challenge is accepted, if the snapshot came from another Clanbite site (`source: remote`, with `origin` + `remoteTeamId` from `public-team`), the challenged site POSTs to `{origin}/wp-json/clanbite/v1/sync-peer-match` with `X-Clanbite-Sync: v1:{timestamp}:{base64url_signature}` (detached Ed25519 over `{timestamp}\n{json body}`). The receiving site fetches the sender’s public key from `{source_site}wp-json/clanbite/v1/site-sync-public-key` (HTTPS), verifies the signature, then creates the mirror match. **No shared manual secret** — only Clanbite installs that expose the public-key route and accept verified requests participate. For legacy integrations, the `clanbite_cross_site_sync_key` filter can force the older `timestamp:hmac` header using a shared secret. Without sodium and without that filter, mirror push is skipped (the local match on the challenged site still works).
 
-**Filters / actions:** `clanspress_team_challenge_button_visible`, `clanspress_team_challenge_notify_user_ids`, `clanspress_team_challenge_created`, `clanspress_team_challenge_accepted`, `clanspress_cross_site_sync_key`, `clanspress_cross_site_sync_outbound_payload`, `clanspress_cross_site_sync_incoming_payload`, `clanspress_cross_site_sync_verify_source`, `clanspress_cross_site_sync_push_succeeded`, `clanspress_cross_site_sync_push_failed`, `clanspress_cross_site_sync_push_rejected`, `clanspress_cross_site_sync_incoming_created`. See `AGENTS.md` for the hook table.
+**Filters / actions:** `clanbite_team_challenge_button_visible`, `clanbite_team_challenge_notify_user_ids`, `clanbite_team_challenge_created`, `clanbite_team_challenge_accepted`, `clanbite_cross_site_sync_key`, `clanbite_cross_site_sync_outbound_payload`, `clanbite_cross_site_sync_incoming_payload`, `clanbite_cross_site_sync_verify_source`, `clanbite_cross_site_sync_push_succeeded`, `clanbite_cross_site_sync_push_failed`, `clanbite_cross_site_sync_push_rejected`, `clanbite_cross_site_sync_incoming_created`. See `AGENTS.md` for the hook table.
 
 ## Extension System
 Extensions are registered through filter-based discovery and loaded by the extension loader.
@@ -81,28 +87,28 @@ Extensions are registered through filter-based discovery and loaded by the exten
 - Extensions may declare dependencies (`requires`) and parent-child relationships (`parent_slug`).
 - Extensions with unmet requirements must not be enabled.
 - Lifecycle methods are available for installer, updater, runtime boot, and uninstaller flows.
-- **Required** first-party slug (`cp_players` by default) stays enabled; third-party code may adjust the list via the `clanspress_required_extension_slugs` filter (use sparingly). **Notifications** (`cp_notifications`) and **Events** (`cp_events`) are official and enabled once by default via one-time loader migrations when missing; either can be disabled from **Extensions** like Teams/Matches.
-- **Official** extensions are whitelisted in `Loader::get_official_extensions()` and register on `clanspress_official_registered_extensions` with an exact class-name match. Bundled extensions and separate first-party companion plugins both use that path; see **First-party extensions in separate plugins** below (e.g. Social Kit).
-- The admin **Core** badge marks only extensions whose code ships **inside the main Clanspress plugin** (`clanspress_core_bundled_extension_slugs`: `cp_players`, `cp_notifications`, `cp_teams`, `cp_matches`, `cp_events` by default). An extension can be **Official** without being **Core** (external first-party plugin).
-- Community and third-party extensions register on `clanspress_registered_extensions` instead. Adjust the bundled list with `clanspress_core_bundled_extension_slugs` if needed.
+- **Required** first-party slug (`cp_players` by default) stays enabled; third-party code may adjust the list via the `clanbite_required_extension_slugs` filter (use sparingly). **Notifications** (`cp_notifications`) and **Events** (`cp_events`) are official and enabled once by default via one-time loader migrations when missing; either can be disabled from **Extensions** like Teams/Matches.
+- **Official** extensions are whitelisted in `Loader::get_official_extensions()` and register on `clanbite_official_registered_extensions` with an exact class-name match. Bundled extensions and separate first-party companion plugins both use that path; see **First-party extensions in separate plugins** below (e.g. Social Kit).
+- The admin **Core** badge marks only extensions whose code ships **inside the main Clanbite plugin** (`clanbite_core_bundled_extension_slugs`: `cp_players`, `cp_notifications`, `cp_teams`, `cp_matches`, `cp_events` by default). An extension can be **Official** without being **Core** (external first-party plugin).
+- Community and third-party extensions register on `clanbite_registered_extensions` instead. Adjust the bundled list with `clanbite_core_bundled_extension_slugs` if needed.
 
 ### Extension loader bootstrap
 
-`Main::$extensions` is **`null` until `init()`** runs (after `load_plugin_textdomain()`). Theme or plugin code that runs earlier must not call `clanspress()->extensions` without a null check.
+`Main::$extensions` is **`null` until `init()`** runs (after `load_plugin_textdomain()`). Theme or plugin code that runs earlier must not call `clanbite()->extensions` without a null check.
 
-`Skeleton::can_install()` reads installed slugs via `Extension_Loader::read_installed_extensions_from_options()` so dependency checks work while the loader singleton is still constructing (avoiding a circular access on `clanspress()->extensions`).
+`Skeleton::can_install()` reads installed slugs via `Extension_Loader::read_installed_extensions_from_options()` so dependency checks work while the loader singleton is still constructing (avoiding a circular access on `clanbite()->extensions`).
 
 ### Extension Data Stores
 Extensions should persist extension-specific data through a PHP data store abstraction.
 
-- Contract: `Kernowdev\Clanspress\Extensions\Extension_Data_Store`
-- Default implementation: `Kernowdev\Clanspress\Extensions\Data_Store_WP`
+- Contract: `Kernowdev\Clanbite\Extensions\Extension_Data_Store`
+- Default implementation: `Kernowdev\Clanbite\Extensions\Data_Store_WP`
 - Base extension helper methods:
   - `get_data()`
   - `set_data( array $data )`
   - `delete_data()`
 
-Swap implementations with the `clanspress_extension_data_store` filter for custom storage backends.
+Swap implementations with the `clanbite_extension_data_store` filter for custom storage backends.
 
 ### Extension-Owned Block Registration
 Each extension should register its own blocks and keep its block list local to that extension class.
@@ -111,10 +117,10 @@ Block editor categories (registered on `block_categories_all`):
 
 | Slug | Label | Intended blocks |
 |------|--------|-----------------|
-| `clanspress` | Clanspress | Cross-cutting / generic (e.g. player settings, team create form) |
-| `clanspress-players` | Clanspress Players | Players extension (e.g. avatar, cover) |
-| `clanspress-teams` | Clanspress Teams | Teams extension (e.g. team card) |
-| `clanspress-matches` | Clanspress Matches | Matches extension (match list / match card) |
+| `clanbite` | Clanbite | Cross-cutting / generic (e.g. player settings, team create form) |
+| `clanbite-players` | Clanbite Players | Players extension (e.g. avatar, cover) |
+| `clanbite-teams` | Clanbite Teams | Teams extension (e.g. team card) |
+| `clanbite-matches` | Clanbite Matches | Matches extension (match list / match card) |
 
 Set each block’s `category` in `block.json` to one of these slugs.
 
@@ -122,23 +128,23 @@ First-party extensions compile blocks to **`build/{matches|players|teams}/…`**
 
 For ad-hoc or third-party blocks that ship as separate compiled folders, you can still use **`Skeleton::register_extension_blocks( array $block_directories )`** (`register_block_type_from_metadata()` per directory). Filters apply only to that path:
 
-- `clanspress_extension_{slug}_block_directories`
-- `clanspress_extension_block_directories`
+- `clanbite_extension_{slug}_block_directories`
+- `clanbite_extension_block_directories`
 
-### Global Styles (`theme.json`) and Clanspress blocks
+### Global Styles (`theme.json`) and Clanbite blocks
 
 First-party blocks declare `supports` (spacing, color, typography, border, shadow, and link color where relevant) and `selectors` in each block’s `block.json`, so **Appearance → Editor → Styles** can target the right DOM nodes. Dynamic blocks pass the `WP_Block` instance into `get_block_wrapper_attributes( …, $block )` on the front end so those styles apply there too.
 
-To set **defaults for every Clanspress block** from your theme, merge the `styles.blocks` entries into your theme’s `theme.json` under the existing `styles` key (add `styles.blocks` if it is missing). If a block name is already present, merge objects by hand or replace with your overrides.
+To set **defaults for every Clanbite block** from your theme, merge the `styles.blocks` entries into your theme’s `theme.json` under the existing `styles` key (add `styles.blocks` if it is missing). If a block name is already present, merge objects by hand or replace with your overrides.
 
-Nested keys under each block’s `color` object (`text`, `background`, `link`) mirror that block’s `selectors.color` map in its `block.json`—core maps them onto the inner DOM nodes those selectors describe. Where `selectors` includes `typography` or `filter.duotone`, the scaffold shows matching `styles.blocks[…].typography` / `filter` entries (see `clanspress/player-cover` for `filter.duotone`). Blocks that declare `selectors.border`, or that support spacing, shadows, and other features in `block.json`, accept the usual keys under `styles.blocks[ blockName ]` as in the [Styles reference](https://developer.wordpress.org/themes/global-settings-and-styles/styles/styles-reference/).
+Nested keys under each block’s `color` object (`text`, `background`, `link`) mirror that block’s `selectors.color` map in its `block.json`—core maps them onto the inner DOM nodes those selectors describe. Where `selectors` includes `typography` or `filter.duotone`, the scaffold shows matching `styles.blocks[…].typography` / `filter` entries (see `clanbite/player-cover` for `filter.duotone`). Blocks that declare `selectors.border`, or that support spacing, shadows, and other features in `block.json`, accept the usual keys under `styles.blocks[ blockName ]` as in the [Styles reference](https://developer.wordpress.org/themes/global-settings-and-styles/styles/styles-reference/).
 
 The **copy-paste file** below is valid `theme.json`. It adds a small **`cp-scaffold-*`** palette, font-size, and duotone presets under `settings` so every `var:preset|color|…`, `var:preset|font-size|…`, and `var:preset|duotone|…` value resolves. Merge into an existing theme by combining those presets with yours (rename slugs if they collide) and merging `styles.blocks`, or use the file as a new block theme starter and swap tokens for your design.
 
 One-off override example (uses CSS variables instead of `var:preset|…`):
 
 ```json
-"clanspress/team-name": {
+"clanbite/team-name": {
 	"color": { "text": "var(--wp--preset--color--contrast)" },
 	"typography": { "fontSize": "var(--wp--preset--font-size--x-large)" },
 	"spacing": { "margin": { "bottom": "var(--wp--preset--spacing--40)" } }
@@ -157,17 +163,17 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 			"palette": [
 				{
 					"color": "#1e1e1e",
-					"name": "Clanspress scaffold text",
+					"name": "Clanbite scaffold text",
 					"slug": "cp-scaffold-text"
 				},
 				{
 					"color": "#ffffff",
-					"name": "Clanspress scaffold background",
+					"name": "Clanbite scaffold background",
 					"slug": "cp-scaffold-bg"
 				},
 				{
 					"color": "#3858e9",
-					"name": "Clanspress scaffold accent (links)",
+					"name": "Clanbite scaffold accent (links)",
 					"slug": "cp-scaffold-accent"
 				}
 			],
@@ -177,7 +183,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 						"#1e1e1e",
 						"#ffffff"
 					],
-					"name": "Clanspress scaffold grayscale",
+					"name": "Clanbite scaffold grayscale",
 					"slug": "cp-scaffold-grayscale"
 				}
 			]
@@ -185,7 +191,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 		"typography": {
 			"fontSizes": [
 				{
-					"name": "Clanspress scaffold medium",
+					"name": "Clanbite scaffold medium",
 					"slug": "cp-scaffold-m",
 					"size": "1rem"
 				}
@@ -194,7 +200,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 	},
 	"styles": {
 		"blocks": {
-			"clanspress/event-calendar": {
+			"clanbite/event-calendar": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -203,7 +209,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/event-create-form": {
+			"clanbite/event-create-form": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -212,7 +218,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/event-detail": {
+			"clanbite/event-detail": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -221,7 +227,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/event-list": {
+			"clanbite/event-list": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -230,7 +236,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/event-rsvp": {
+			"clanbite/event-rsvp": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -239,7 +245,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/match-card": {
+			"clanbite/match-card": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -249,7 +255,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/match-list": {
+			"clanbite/match-list": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -259,7 +265,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/notification-bell": {
+			"clanbite/notification-bell": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -268,12 +274,12 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-avatar": {
+			"clanbite/player-avatar": {
 				"color": {
 					"background": "var:preset|color|cp-scaffold-bg"
 				}
 			},
-			"clanspress/player-country": {
+			"clanbite/player-country": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -282,7 +288,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-cover": {
+			"clanbite/player-cover": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -294,7 +300,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"duotone": "var:preset|duotone|cp-scaffold-grayscale"
 				}
 			},
-			"clanspress/player-display-name": {
+			"clanbite/player-display-name": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -304,7 +310,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-handle": {
+			"clanbite/player-handle": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -313,7 +319,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-tagline": {
+			"clanbite/player-tagline": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -322,7 +328,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-description": {
+			"clanbite/player-description": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -332,7 +338,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-website": {
+			"clanbite/player-website": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -342,7 +348,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-city": {
+			"clanbite/player-city": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -351,7 +357,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-birthday": {
+			"clanbite/player-birthday": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -360,7 +366,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-profile-nav": {
+			"clanbite/player-profile-nav": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -370,7 +376,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-query": {
+			"clanbite/player-query": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -379,7 +385,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-settings": {
+			"clanbite/player-settings": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -388,7 +394,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-settings-link": {
+			"clanbite/player-settings-link": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -397,7 +403,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/player-template": {
+			"clanbite/player-template": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -407,21 +413,12 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-avatar": {
+			"clanbite/team-avatar": {
 				"color": {
 					"background": "var:preset|color|cp-scaffold-bg"
 				}
 			},
-			"clanspress/team-card": {
-				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
-				},
-				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
-				}
-			},
-			"clanspress/team-challenge-button": {
+			"clanbite/team-card": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -430,7 +427,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-code": {
+			"clanbite/team-challenge-button": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -439,7 +436,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-country": {
+			"clanbite/team-code": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -448,7 +445,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-cover": {
+			"clanbite/team-country": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -457,7 +454,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-create-form": {
+			"clanbite/team-cover": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -466,7 +463,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-description": {
+			"clanbite/team-create-form": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -475,7 +472,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-draws": {
+			"clanbite/team-description": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -484,7 +481,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-losses": {
+			"clanbite/team-draws": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -493,7 +490,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-manage-link": {
+			"clanbite/team-losses": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -502,7 +499,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-members-count": {
+			"clanbite/team-manage-link": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -511,7 +508,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-motto": {
+			"clanbite/team-members-count": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -520,7 +517,16 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-name": {
+			"clanbite/team-motto": {
+				"color": {
+					"text": "var:preset|color|cp-scaffold-text",
+					"background": "var:preset|color|cp-scaffold-bg"
+				},
+				"typography": {
+					"fontSize": "var:preset|font-size|cp-scaffold-m"
+				}
+			},
+			"clanbite/team-name": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -530,7 +536,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-profile-nav": {
+			"clanbite/team-profile-nav": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -540,7 +546,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/team-wins": {
+			"clanbite/team-wins": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg"
@@ -549,7 +555,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 					"fontSize": "var:preset|font-size|cp-scaffold-m"
 				}
 			},
-			"clanspress/user-nav": {
+			"clanbite/user-nav": {
 				"color": {
 					"text": "var:preset|color|cp-scaffold-text",
 					"background": "var:preset|color|cp-scaffold-bg",
@@ -574,43 +580,43 @@ Extensions can and should register their own FSE templates, so template availabi
     - `title` => translated title string
     - `path` => absolute template file path
 - Support template customization through:
-  - `clanspress_extension_{slug}_templates`
-  - `clanspress_extension_templates`
+  - `clanbite_extension_{slug}_templates`
+  - `clanbite_extension_templates`
 
 ### Player settings (front-end): plugin actions
 
-The **Player settings** block (`clanspress/player-settings`) uses the Interactivity API store `clanspress-player-settings`. Core exposes a generic **`actions.runPluginAction`** handler so extensions can add buttons or links inside player settings panels **without** inline scripts: the click runs `fetch()` against your URL, sends the WordPress REST nonce, and shows the block’s existing success/error toast.
+The **Player settings** block (`clanbite/player-settings`) uses the Interactivity API store `clanbite-player-settings`. Core exposes a generic **`actions.runPluginAction`** handler so extensions can add buttons or links inside player settings panels **without** inline scripts: the click runs `fetch()` against your URL, sends the WordPress REST nonce, and shows the block’s existing success/error toast.
 
 **Localized config** is attached as `window.CLANSPRESSPLAYERSETTINGS` when the Players extension enqueues scripts. Default keys:
 
 | Key | Purpose |
 |-----|---------|
 | `ajax_url` | Admin AJAX URL (legacy profile save). |
-| `nonce` | Nonce for `clanspress_profile_settings_save_action`. |
+| `nonce` | Nonce for `clanbite_profile_settings_save_action`. |
 | `rest_url` | Site REST root (for building route URLs in PHP). |
 | `rest_nonce` | Nonce for `wp_rest` (sent as `X-WP-Nonce` on plugin actions). |
 | `settings_url_base` | (Player settings page only.) Trailing-slash base URL, e.g. `https://example.com/players/settings/`. |
 | `settings_initial_nav` | (Player settings page only.) Resolved parent tab slug (`profile`, `account`, `teams`, …). |
 | `settings_initial_panel` | (Player settings page only.) Resolved panel slug (`profile-info`, `social-networks`, `account-info`, …). |
 
-**Profile save AJAX (`clanspress_save_player_settings`).** POST to `ajax_url` with `action` set to `clanspress_save_player_settings`, the nonce in `nonce` (same value as localized `nonce`, verified with `clanspress_profile_settings_save_action`), plus the form fields your UI collects (including optional multipart `profile_avatar` / `profile_cover` when uploading inline). Domain saving is delegated to `clanspress_save_player_settings` and related filters; the handler itself does not persist fields.
+**Profile save AJAX (`clanbite_save_player_settings`).** POST to `ajax_url` with `action` set to `clanbite_save_player_settings`, the nonce in `nonce` (same value as localized `nonce`, verified with `clanbite_profile_settings_save_action`), plus the form fields your UI collects (including optional multipart `profile_avatar` / `profile_cover` when uploading inline). The entry point sanitizes POST fields (and whitelists uploads) before `clanbite_save_player_settings_filtered_data` / `clanbite_save_player_settings`; domain saving is delegated to those hooks and related filters; the handler itself does not persist fields.
 
-**Social profiles** — Under **Profile → Social Networks**, core saves one text field per network as user meta `cp_player_social_{slug}` (e.g. `cp_player_social_facebook`) from POST keys `profile_social_{slug}`. Read values with **`clanspress_players_get_display_social( $slug, $user_id )`**; resolve a shareable URL with **`clanspress_players_get_social_profile_link_url( $slug, $user_id )`** (and **`clanspress_players_normalize_social_profile_link_url( $slug, $raw )`** for raw strings). The **`clanspress/player-social-links`** block prints icon links on profiles and inside **`clanspress/player-template`** loops. Customize the field list with **`clanspress_players_social_profile_field_definitions`**.
+**Social profiles** — Under **Profile → Social Networks**, core saves one text field per network as user meta `cp_player_social_{slug}` (e.g. `cp_player_social_facebook`) from POST keys `profile_social_{slug}`. Read values with **`clanbite_players_get_display_social( $slug, $user_id )`**; resolve a shareable URL with **`clanbite_players_get_social_profile_link_url( $slug, $user_id )`** (and **`clanbite_players_normalize_social_profile_link_url( $slug, $raw )`** for raw strings). The **`clanbite/player-social-links`** block prints icon links on profiles and inside **`clanbite/player-template`** loops. Customize the field list with **`clanbite_players_social_profile_field_definitions`**.
 
 On **success**, the JSON body matches `wp_send_json_success()`: `success` is true and `data` is an object with at least:
 
 | Key | Purpose |
 |-----|---------|
-| `avatarUrl` | Resolved display URL for the logged-in user’s avatar (attachments + defaults, after `clanspress_players_get_display_avatar` filters; REST save uses context `profile_settings_rest`). |
-| `coverUrl` | Resolved display URL for the logged-in user’s cover (`clanspress_players_get_display_cover`). |
+| `avatarUrl` | Resolved display URL for the logged-in user’s avatar (attachments + defaults, after `clanbite_players_get_display_avatar` filters; REST save uses context `profile_settings_rest`). |
+| `coverUrl` | Resolved display URL for the logged-in user’s cover (`clanbite_players_get_display_cover`). |
 
 The player settings screen and related client-side flows can use `avatarUrl` / `coverUrl` after save to refresh previews without a full reload.
 
-On **failure**, `wp_send_json_error()` returns `success: false` and `data` typically includes an `errors` object from `clanspress_save_player_settings_errors`.
+On **failure**, `wp_send_json_error()` returns `success: false` and `data` typically includes an `errors` object from `clanbite_save_player_settings_errors`.
 
 ### Player and team avatars (URLs, presets, and markup)
 
-**Admin (Clanspress → Settings → Players / Teams)** — Each extension has three dropdowns that map semantic presets to a WordPress image size (any registered intermediate size or `full`):
+**Admin (Clanbite → Settings → Players / Teams)** — Each extension has three dropdowns that map semantic presets to a WordPress image size (any registered intermediate size or `full`):
 
 | Preset | Intended use (defaults) |
 |--------|-------------------------|
@@ -618,23 +624,23 @@ On **failure**, `wp_send_json_error()` returns `success: false` and `data` typic
 | **Medium** | Forum topics, social-style feeds, public team cards |
 | **Small** | Comments, replies, notifications, compact nav |
 
-Core registers **Clanspress player** sizes (`clanspress-avatar-large` 512², `clanspress-avatar-medium` 256², `clanspress-avatar-small` 96²) and **Clanspress team** sizes (`clanspress-team-avatar-*` with the same dimensions). Defaults point to those slugs; you can switch a preset to e.g. `thumbnail` or `full`. After changing sizes, run a thumbnail regeneration tool if you need existing uploads resized.
+Core registers **Clanbite player** sizes (`clanbite-avatar-large` 512², `clanbite-avatar-medium` 256², `clanbite-avatar-small` 96²) and **Clanbite team** sizes (`clanbite-team-avatar-*` with the same dimensions). Defaults point to those slugs; you can switch a preset to e.g. `thumbnail` or `full`. After changing sizes, run a thumbnail regeneration tool if you need existing uploads resized.
 
 **Player API**
 
-1. **`clanspress_players_get_display_avatar( $user_id, $suppress_filters, $size, $context, $avatar_preset )`** — Returns the URL. Pass **`$avatar_preset`** as `large`, `medium`, or `small` to use the sizes from Players settings (overrides `$size`). When `$avatar_preset` is empty and `$size` is empty, **large** is used. Pass **`$context`** so filters can branch (`player_avatar_block`, `user_nav`, `notifications`, `profile_settings_rest`, etc.). The filter receives the fifth argument **`$avatar_preset`** (`''` when you passed an explicit `$size` only).
-2. **`clanspress_players_get_player_avatar_img_html( $user_id, $args )`** — Builds the `<img>`; `$args` may include **`preset`** (`large`/`medium`/`small`) or **`size`** when no preset.
-3. **`clanspress_players_apply_player_avatar_display_markup( $inner_html, $user_id, $args )`** — Wrap/augment inner markup (`clanspress_players_player_avatar_display_markup`).
+1. **`clanbite_players_get_display_avatar( $user_id, $suppress_filters, $size, $context, $avatar_preset )`** — Returns the URL. Pass **`$avatar_preset`** as `large`, `medium`, or `small` to use the sizes from Players settings (overrides `$size`). When `$avatar_preset` is empty and `$size` is empty, **large** is used. Pass **`$context`** so filters can branch (`player_avatar_block`, `user_nav`, `notifications`, `profile_settings_rest`, etc.). The filter receives the fifth argument **`$avatar_preset`** (`''` when you passed an explicit `$size` only).
+2. **`clanbite_players_get_player_avatar_img_html( $user_id, $args )`** — Builds the `<img>`; `$args` may include **`preset`** (`large`/`medium`/`small`) or **`size`** when no preset.
+3. **`clanbite_players_apply_player_avatar_display_markup( $inner_html, $user_id, $args )`** — Wrap/augment inner markup (`clanbite_players_player_avatar_display_markup`).
 
-**Team API** — **`clanspress_teams_get_display_team_avatar( $team_id, $suppress_filters, $size, $context, $avatar_preset )`** mirrors the player helper and uses **Teams → Team avatar image sizes**. Filter: **`clanspress_teams_get_display_team_avatar`**.
+**Team API** — **`clanbite_teams_get_display_team_avatar( $team_id, $suppress_filters, $size, $context, $avatar_preset )`** mirrors the player helper and uses **Teams → Team avatar image sizes**. Filter: **`clanbite_teams_get_display_team_avatar`**.
 
 **Blocks** — The **player-avatar** and **team-avatar** blocks expose attribute **`avatarPreset`** (`large` \| `medium` \| `small`, default `large`). Plugin templates set **`large`** on profile headers and **`medium`** on team roster grids; the editor sidebar **Avatar output** panel changes the preset per block.
 
-Third-party code (forums, social feeds, comments) should call these helpers with the appropriate **preset** so site owners control pixels from settings. See **`AGENTS.md`** Hook Reference for related filters (`clanspress_players_resolve_player_avatar_image_size`, `clanspress_teams_resolve_team_avatar_image_size`, etc.).
+Third-party code (forums, social feeds, comments) should call these helpers with the appropriate **preset** so site owners control pixels from settings. See **`AGENTS.md`** Hook Reference for related filters (`clanbite_players_resolve_player_avatar_image_size`, `clanbite_teams_resolve_team_avatar_image_size`, etc.).
 
-Extend or override the object with filter **`clanspress_player_settings_frontend_config`** (same array shape as above).
+Extend or override the object with filter **`clanbite_player_settings_frontend_config`** (same array shape as above).
 
-By default, that script is **only** enqueued on the player settings route, on **logged-in** author/player profile views, and on singular content that contains the player-settings / avatar / cover blocks (to avoid nonce + inline script work on unrelated front pages). Use filter **`clanspress_should_enqueue_player_settings_frontend_assets`** with `(bool $enqueue)` to force or extend that behavior for custom templates.
+By default, that script is **only** enqueued on the player settings route, on **logged-in** author/player profile views, and on singular content that contains the player-settings / avatar / cover blocks (to avoid nonce + inline script work on unrelated front pages). Use filter **`clanbite_should_enqueue_player_settings_frontend_assets`** with `(bool $enqueue)` to force or extend that behavior for custom templates.
 
 **Deep links:** Each tab and sub-page has a canonical URL: `/players/settings/{nav}/{panel}/` (e.g. `/players/settings/account/account-info/`). `/players/settings/{nav}/` redirects to that nav’s first panel. Invalid slugs redirect to a valid default. The block updates the address bar when you switch tabs (history `pushState` / `replaceState`). After adding or changing rewrite rules, save **Settings → Permalinks** once (or flush rewrite rules) so WordPress routes new paths.
 
@@ -654,33 +660,35 @@ Your REST route must validate `X-WP-Nonce`, check capabilities, and return appro
 
 ### First-party extensions in separate plugins
 
-Official extensions that ship outside the main package register on **`clanspress_official_registered_extensions`** and must match the slug → class map in `Loader::get_official_extensions()`. Core validates the class name only; it does not `require` add-on files (the companion plugin must load before Clanspress so the class exists). Those extensions get the **Official** badge but not the **Core** badge unless their slug is also listed in `clanspress_core_bundled_extension_slugs`.
+Official extensions that ship outside the main package register on **`clanbite_official_registered_extensions`** and must match the slug → class map in `Loader::get_official_extensions()`. Core validates the class name only; it does not `require` add-on files (the companion plugin must load before Clanbite so the class exists). Those extensions get the **Official** badge but not the **Core** badge unless their slug is also listed in `clanbite_core_bundled_extension_slugs`.
 
-**Example — Clanspress Social Kit (`cp_social_kit`):** the separate plugin registers the extension and may mirror domain events (matches, RSVPs, team actions) into an activity feed using the same hooks documented for third-party integrations (`clanspress_match_*`, `clanspress_event_rsvp_updated`, team lifecycle actions, etc.). There is no second registration API — only `clanspress_official_registered_extensions` plus the whitelist entry in `Loader::get_official_extensions()`.
+**Example — Clanbite Social Kit (`cp_social_kit`):** the separate plugin registers the extension and may mirror domain events (matches, RSVPs, team actions) into an activity feed using the same hooks documented for third-party integrations (`clanbite_match_*`, `clanbite_event_rsvp_updated`, team lifecycle actions, etc.). There is no second registration API — only `clanbite_official_registered_extensions` plus the whitelist entry in `Loader::get_official_extensions()`.
 
-**Example — Clanspress Points (`cp_points`):** the separate plugin adds configurable point types, per-action earning rules with caps, rank ladders, and a `clanspress-points/points-balance` block. Companion features award points via `clanspress_points_award()` and may register action labels through `clanspress_points_actions`.
+**Example — Clanbite Points (`cp_points`):** the separate plugin adds configurable point types, per-action earning rules with caps, rank ladders, and a `clanspress-points/points-balance` block. Companion features award points via `clanbite_points_award()` and may register action labels through `clanbite_points_actions`.
+
+**Example — Clanbite Ranks (`cp_ranks`):** the separate plugin adds configurable rank ladders (optional Points tie-in), team ranks, and the `clanspress-ranks/rank-progress` block. Use `clanbite_ranks_extension_active()` before relying on rank helpers.
 
 ### Community extensions
 
-Unaffiliated or custom extensions register on **`clanspress_registered_extensions`**, own their blocks and FSE templates, and document their own hooks.
+Unaffiliated or custom extensions register on **`clanbite_registered_extensions`**, own their blocks and FSE templates, and document their own hooks.
 
 ## Admin Extension Manager
-The `Clanspress > Extensions` screen should remain the source of truth for extension state.
+The `Clanbite > Extensions` screen should remain the source of truth for extension state.
 
 - Shows extension metadata (name, description, version, type, requirements).
 - Prevents enabling extensions with unmet dependencies.
 - Supports multisite-aware storage of installed extension records.
-- Offers validation hooks before persistence (`clanspress_validate_installed_extensions`).
+- Offers validation hooks before persistence (`clanbite_validate_installed_extensions`).
 
 ## Teams Modes
-The Teams extension now supports mode-based behavior through admin settings (`Clanspress > Teams`):
+The Teams extension now supports mode-based behavior through admin settings (`Clanbite > Teams`):
 
 - `single_team`: single organization/team setup (for traditional sports style sites).
 - `multiple_teams`: multi-team clan setup under one community.
 - `team_directories`: directory mode where users can create and manage teams.
-  - Includes block-based FSE templates `teams-create` (`/teams/create/`) and `teams-manage` (`/teams/{slug}/manage/`, BuddyPress-style actions). Legacy `/teams/manage/{slug}/` still resolves. Extend actions via `clanspress_team_front_action_rewrite_slugs` and `clanspress_team_action_dispatch`.
-  - **Template files:** Serialized block markup for the Site Editor lives in `templates/**/*.html`. Companion `*.php` files in the same folder call `get_header()` / `get_footer()` and `clanspress_render_block_markup_file()` so classic themes never print raw `<!-- wp:... -->` comments. `Skeleton::register_extension_templates()` reads the `.html` path for `register_block_template()`.
-  - **Edit Site (block themes):** Player/team virtual routes still look like author or generic archives to core’s block-template resolver, so the admin bar’s Site Editor link is aligned to the correct `clanspress//…` template via `$_wp_current_template_id` on the `wp` hook (see Players/Teams `set_plugin_block_template_id_for_site_editor`).
+  - Includes block-based FSE templates `teams-create` (`/teams/create/`) and `teams-manage` (`/teams/{slug}/manage/`, BuddyPress-style actions). Legacy `/teams/manage/{slug}/` still resolves. Extend actions via `clanbite_team_front_action_rewrite_slugs` and `clanbite_team_action_dispatch`.
+  - **Template files:** Serialized block markup for the Site Editor lives in `templates/**/*.html`. Companion `*.php` files in the same folder call `get_header()` / `get_footer()` and `clanbite_render_block_markup_file()` so classic themes never print raw `<!-- wp:... -->` comments. `Skeleton::register_extension_templates()` reads the `.html` path for `register_block_template()`.
+  - **Edit Site (block themes):** Player/team virtual routes still look like author or generic archives to core’s block-template resolver, so the admin bar’s Site Editor link is aligned to the correct `clanbite//…` template via `$_wp_current_template_id` on the `wp` hook (see Players/Teams `set_plugin_block_template_id_for_site_editor`).
 
 Mode helpers available on the teams extension class:
 - `get_team_mode()`
@@ -701,17 +709,17 @@ These options are managed in the block editor sidebar (no metaboxes) and stored 
 
 Team posts (`cp_team`) and their structured meta are persisted through a small CRUD layer, separate from the extension-wide option bucket described in [Extension Data Stores](#extension-data-stores).
 
-- **Contract:** `Kernowdev\Clanspress\Extensions\Teams\Team_Data_Store` (`read` / `create` / `update` / `delete` on `Team` entities).
-- **Default implementation:** `Kernowdev\Clanspress\Extensions\Teams\Team_Data_Store_CPT` (WordPress post + post meta).
-- **Shared meta helpers:** `Kernowdev\Clanspress\Extensions\Data_Stores\WP_Post_Meta_Data_Store` — optional base for CPT-backed stores that need direct meta-table reads/writes in one place.
+- **Contract:** `Kernowdev\Clanbite\Extensions\Teams\Team_Data_Store` (`read` / `create` / `update` / `delete` on `Team` entities).
+- **Default implementation:** `Kernowdev\Clanbite\Extensions\Teams\Team_Data_Store_CPT` (WordPress post + post meta).
+- **Shared meta helpers:** `Kernowdev\Clanbite\Extensions\Data_Stores\WP_Post_Meta_Data_Store` — optional base for CPT-backed stores that need direct meta-table reads/writes in one place.
 
-Swap the implementation with the **`clanspress_team_data_store`** filter. The filter must return a `Team_Data_Store` instance; anything else is ignored and the default CPT store is used.
+Swap the implementation with the **`clanbite_team_data_store`** filter. The filter must return a `Team_Data_Store` instance; anything else is ignored and the default CPT store is used.
 
-**Procedural helper:** `clanspress_get_team( int $id )` loads a `Team` via the active store (or `null` if Teams is inactive or the post is not a team).
+**Procedural helper:** `clanbite_get_team( int $id )` loads a `Team` via the active store (or `null` if Teams is inactive or the post is not a team).
 
 Third parties can customize the JS UI using JavaScript hooks:
-- `clanspress.teams.joinModes`
-- `clanspress.teams.optionControls`
+- `clanbite.teams.joinModes`
+- `clanbite.teams.optionControls`
 
 JS example (add custom option control):
 
@@ -721,7 +729,7 @@ const { createElement: el } = wp.element;
 const { ToggleControl } = wp.components;
 
 addFilter(
-	'clanspress.teams.optionControls',
+	'clanbite.teams.optionControls',
 	'my-plugin/team-options-control',
 	( controls, context ) => {
 		return [
@@ -753,20 +761,20 @@ When adding new features, expose logical hooks around:
 - settings sanitization and persistence
 - admin interface decision points
 
-### Clanspress Points (companion plugin)
+### Clanbite Points (companion plugin)
 
-With the **Clanspress Points** plugin and the `cp_points` extension enabled:
+With the **Clanbite Points** plugin and the `cp_points` extension enabled:
 
-- **`clanspress_points_actions`** — `(array $actions)` keyed by action slug; each value is `array( 'label' => string )`. Merge additional slugs so site owners can attach rules in **Clanspress → Points**.
-- **`clanspress_points_award( int $user_id, string $action_key, array $context = array() )`** — procedural helper; awards according to configured rules and caps.
-- **`clanspress_points_awarded`** — action: `( int $user_id, string $points_type_key, string $action_key, int $amount, int $ledger_id, array $context )` after the ledger row is stored and balance meta is updated.
+- **`clanbite_points_actions`** — `(array $actions)` keyed by action slug; each value is `array( 'label' => string )`. Merge additional slugs so site owners can attach rules in **Clanbite → Points**.
+- **`clanbite_points_award( int $user_id, string $action_key, array $context = array() )`** — procedural helper; awards according to configured rules and caps.
+- **`clanbite_points_awarded`** — action: `( int $user_id, string $points_type_key, string $action_key, int $amount, int $ledger_id, array $context )` after the ledger row is stored and balance meta is updated.
 
-Core **Players** also fires **`clanspress_player_avatar_updated`** and **`clanspress_player_cover_updated`** with `( int $user_id, int $attachment_id )` after a successful profile avatar or cover upload (used by Points built-in actions; available to other integrations).
+Core **Players** also fires **`clanbite_player_avatar_updated`** and **`clanbite_player_cover_updated`** with `( int $user_id, int $attachment_id )` after a successful profile avatar or cover upload (used by Points built-in actions; available to other integrations).
 
 ### Settings Extensibility
 All extension settings can be extended or customized by third parties.
 
-For an extension option key (example: `clanspress_teams_settings`) these hooks are available:
+For an extension option key (example: `clanbite_teams_settings`) these hooks are available:
 - `{option_key}_parent_menu_slug`
 - `{option_key}_defaults`
 - `{option_key}_sections`
@@ -783,12 +791,12 @@ Example: add a custom Teams mode and extra settings fields from a third-party pl
 ```php
 <?php
 /**
- * Plugin Name: Clanspress Teams Pro Modes
+ * Plugin Name: Clanbite Teams Pro Modes
  */
 
 // 1) Add a custom teams mode option.
 add_filter(
-	'clanspress_teams_mode_options',
+	'clanbite_teams_mode_options',
 	function ( array $options ): array {
 		$options['academy_mode'] = __( 'Academy mode (junior squads)', 'my-plugin' );
 
@@ -798,7 +806,7 @@ add_filter(
 
 // 2) Add fields to the Teams "general" section.
 add_filter(
-	'clanspress_teams_settings_section_fields',
+	'clanbite_teams_settings_section_fields',
 	function ( array $fields, string $section_id ): array {
 		if ( 'general' !== $section_id ) {
 			return $fields;
@@ -820,7 +828,7 @@ add_filter(
 
 // 3) Enforce extra save rules for teams settings.
 add_filter(
-	'clanspress_teams_settings_sanitize',
+	'clanbite_teams_settings_sanitize',
 	function ( array $output ): array {
 		if ( isset( $output['academy_max_players'] ) ) {
 			$output['academy_max_players'] = max( 5, absint( $output['academy_max_players'] ) );
@@ -832,8 +840,8 @@ add_filter(
 
 // 4) Run mode-specific logic when your mode is active.
 add_action(
-	'clanspress_teams_mode_academy_mode',
-	function ( \Kernowdev\Clanspress\Extensions\Teams $teams_extension ): void {
+	'clanbite_teams_mode_academy_mode',
+	function ( \Kernowdev\Clanbite\Extensions\Teams $teams_extension ): void {
 		// Boot academy-specific features here.
 	}
 );
@@ -845,14 +853,14 @@ Example: fully custom render a Teams setting field with `{option_key}_render_fie
 <?php
 // Render a custom UI for a specific field and mark it handled.
 add_filter(
-	'clanspress_teams_settings_render_field',
+	'clanbite_teams_settings_render_field',
 	function ( bool $handled, string $field_id, array $field, $value ): bool {
 		if ( 'academy_max_players' !== $field_id ) {
 			return $handled;
 		}
 
 		printf(
-			'<input type="range" min="5" max="60" step="1" name="clanspress_teams_settings[%1$s]" value="%2$d" />',
+			'<input type="range" min="5" max="60" step="1" name="clanbite_teams_settings[%1$s]" value="%2$d" />',
 			esc_attr( $field_id ),
 			absint( $value )
 		);
@@ -873,7 +881,7 @@ Example: register extension-owned FSE templates from a third-party extension:
 ```php
 <?php
 add_filter(
-	'clanspress_extension_cp_teams_templates',
+	'clanbite_extension_cp_teams_templates',
 	function ( array $templates ): array {
 		$templates['team-archive'] = array(
 			'title' => __( 'Team Archive', 'my-plugin' ),
@@ -889,7 +897,7 @@ Create-team form steps are filterable so third-party plugins can add their own s
 
 ```php
 add_filter(
-	'clanspress_team_create_form_steps',
+	'clanbite_team_create_form_steps',
 	function ( array $steps ): array {
 		$steps['custom_rules'] = array(
 			'label' => __( 'Step 4: Custom Rules', 'my-plugin' ),
@@ -900,7 +908,7 @@ add_filter(
 );
 
 add_action(
-	'clanspress_team_create_form_step_custom_rules',
+	'clanbite_team_create_form_step_custom_rules',
 	function (): void {
 		echo '<p><label for="my-team-rules">Rules</label><textarea id="my-team-rules" name="my_team_rules"></textarea></p>';
 	}
@@ -918,7 +926,7 @@ Complete pattern: custom step + save custom data on team creation:
 <?php
 // 1) Add a custom step to the create-team flow.
 add_filter(
-	'clanspress_team_create_form_steps',
+	'clanbite_team_create_form_steps',
 	function ( array $steps ): array {
 		$steps['brand_voice'] = array(
 			'label' => __( 'Step 4: Brand Voice', 'my-plugin' ),
@@ -930,7 +938,7 @@ add_filter(
 
 // 2) Render custom fields for your step.
 add_action(
-	'clanspress_team_create_form_step_brand_voice',
+	'clanbite_team_create_form_step_brand_voice',
 	function (): void {
 		?>
 		<p>
@@ -950,7 +958,7 @@ add_action(
 
 // 3) Persist custom data after core team creation succeeds.
 add_action(
-	'clanspress_team_created',
+	'clanbite_team_created',
 	function ( int $team_id, int $user_id, array $request ): void {
 		$tone    = sanitize_key( wp_unslash( $request['my_team_tone'] ?? '' ) );
 		$tagline = sanitize_text_field( wp_unslash( $request['my_team_tagline'] ?? '' ) );
@@ -969,99 +977,99 @@ add_action(
 ```
 
 ### Documented Hooks
-- `clanspress_registered_extensions`
+- `clanbite_registered_extensions`
   - Filter returning all third-party extension objects keyed by slug.
   - Args: `array $extensions`
-- `clanspress_official_registered_extensions`
+- `clanbite_official_registered_extensions`
   - Filter used by first-party extensions to self-register before whitelist validation.
   - Args: `array $extensions`
-- `clanspress_extension_data_store`
+- `clanbite_extension_data_store`
   - Filter to swap extension data store implementation.
   - Args: `Extension_Data_Store $data_store`, `string $slug`, `Skeleton $extension`
-- `clanspress_extension_{slug}_block_directories`
+- `clanbite_extension_{slug}_block_directories`
   - Dynamic filter for extension-specific block build directories.
   - Args: `array $block_directories`, `Skeleton $extension`
-- `clanspress_extension_block_directories`
+- `clanbite_extension_block_directories`
   - Global filter for extension block build directories.
   - Args: `array $block_directories`, `Skeleton $extension`
-- `clanspress_extension_{slug}_templates`
+- `clanbite_extension_{slug}_templates`
   - Dynamic filter for extension-specific FSE templates.
   - Args: `array $templates`, `Skeleton $extension`
-- `clanspress_extension_templates`
+- `clanbite_extension_templates`
   - Global filter for extension FSE templates.
   - Args: `array $templates`, `Skeleton $extension`
-- `clanspress_can_install_{slug}_extension`
+- `clanbite_can_install_{slug}_extension`
   - Dynamic filter used for extension requirement checks.
   - Args: `bool $can_install`, `Skeleton $extension`
-- `clanspress_extension_installer_{slug}`
+- `clanbite_extension_installer_{slug}`
   - Dynamic action fired by base installer lifecycle.
   - Args: `Skeleton $extension`
-- `clanspress_extension_updater_{slug}`
+- `clanbite_extension_updater_{slug}`
   - Dynamic action fired by base updater lifecycle.
   - Args: `Skeleton $extension`
-- `clanspress_extension_uninstaller_{slug}`
+- `clanbite_extension_uninstaller_{slug}`
   - Dynamic action fired by base uninstaller lifecycle.
   - Args: `Skeleton $extension`
-- `clanspress_extension_run_{slug}`
+- `clanbite_extension_run_{slug}`
   - Dynamic action fired by base runtime boot lifecycle.
   - Args: `Skeleton $extension`
-- `clanspress_validate_installed_extensions`
+- `clanbite_validate_installed_extensions`
   - Filter to enforce install policy before persisting extension state.
   - Args: `array $new_installed`, `array $requested`, `array $available_extensions`
-- `clanspress_teams_mode`
+- `clanbite_teams_mode`
   - Filter resolved teams mode from teams settings.
   - Args: `string $team_mode`, `Teams $extension`
-- `clanspress_teams_mode_options`
+- `clanbite_teams_mode_options`
   - Filter teams mode options used by teams admin settings.
   - Args: `array $options`, `Admin $admin`
-- `clanspress_teams_mode_loaded`
+- `clanbite_teams_mode_loaded`
   - Action fired after teams mode has been resolved.
   - Args: `string $team_mode`, `Teams $extension`
-- `clanspress_teams_mode_{mode}`
+- `clanbite_teams_mode_{mode}`
   - Dynamic action fired for mode-specific boot logic.
   - Args: `Teams $extension`
-- `clanspress_team_join_modes`
+- `clanbite_team_join_modes`
   - Filter available per-team join modes.
   - Args: `array $modes`, `Teams $extension`
-- `clanspress_team_options`
+- `clanbite_team_options`
   - Filter resolved per-team option map.
   - Args: `array $options`, `int $team_id`, `Teams $extension`
-- `clanspress_team_data_store`
+- `clanbite_team_data_store`
   - Filter team entity persistence implementation (must return `Team_Data_Store`; non-instance values fall back to the default CPT store).
   - Args: `Team_Data_Store $store`, `Teams $extension`
-- `clanspress_team_options_updated`
+- `clanbite_team_options_updated`
   - Action fired after team options save.
   - Args: `int $team_id`, `array $options`, `Teams $extension`
-- `clanspress_can_user_join_team`
+- `clanbite_can_user_join_team`
   - Filter whether a user can join a team.
   - Args: `bool $can_join`, `int $team_id`, `int $user_id`, `array $options`, `Teams $extension`
-- `clanspress_team_can_invite_players`
+- `clanbite_team_can_invite_players`
   - Filter team invite capability.
   - Args: `bool $allowed`, `int $team_id`, `array $options`, `Teams $extension`
-- `clanspress_team_can_edit_frontend`
+- `clanbite_team_can_edit_frontend`
   - Filter front-end edit capability.
   - Args: `bool $allowed`, `int $team_id`, `array $options`, `Teams $extension`
-- `clanspress_team_can_ban_players`
+- `clanbite_team_can_ban_players`
   - Filter ban capability.
   - Args: `bool $allowed`, `int $team_id`, `array $options`, `Teams $extension`
 
 ## Notifications System
 
-Clanspress includes a core notifications system that supports both simple notifications and interactive notifications with action buttons. The system uses HTTP long polling for real-time updates with filters to swap in WebSocket transport.
+Clanbite includes a core notifications system that supports both simple notifications and interactive notifications with action buttons. The system uses HTTP long polling for real-time updates with filters to swap in WebSocket transport.
 
-The **Notifications** extension (`cp_notifications`) must be enabled under **Clanspress → Extensions** for REST routes, the bell block, and persistence to run. Third-party code should call `clanspress_notifications_extension_active()` before assuming notifications exist, or treat a `WP_Error` from `clanspress_notify()` with code `notifications_inactive` as “extension off.”
+The **Notifications** extension (`cp_notifications`) must be enabled under **Clanbite → Extensions** for REST routes, the bell block, and persistence to run. Third-party code should call `clanbite_notifications_extension_active()` before assuming notifications exist, or treat a `WP_Error` from `clanbite_notify()` with code `notifications_inactive` as “extension off.”
 
-The **Events** extension (`cp_events`) gates the `cp_event` post type, RSVP database table, event REST endpoints, and event blocks. Use `clanspress_events_extension_active()` (or `function_exists( 'clanspress_events_are_globally_enabled' )` for feature flags that load with the extension) before relying on event behavior. Team virtual URLs under `/teams/{slug}/events/` are registered only when both **Teams** and **Events** are enabled.
+The **Events** extension (`cp_events`) gates the `cp_event` post type, RSVP database table, event REST endpoints, and event blocks. Use `clanbite_events_extension_active()` (or `function_exists( 'clanbite_events_are_globally_enabled' )` for feature flags that load with the extension) before relying on event behavior. Team virtual URLs under `/teams/{slug}/events/` are registered only when both **Teams** and **Events** are enabled.
 
-Player merged calendars (`player_user_id` on `GET clanspress/v1/event-posts`) omit team-scoped events when the **Teams** extension is disabled, and omit group-scoped events when no group product is active (default: `cp_group` is not registered). Override group detection with `clanspress_groups_feature_active`.
+Player merged calendars (`player_user_id` on `GET clanbite/v1/event-posts`) omit team-scoped events when the **Teams** extension is disabled, and omit group-scoped events when no group product is active (default: `cp_group` is not registered). Override group detection with `clanbite_groups_feature_active`.
 
-Event list pagination limits are shared with the REST layer: `clanspress_events_rest_default_per_page_paginated`, `clanspress_events_rest_max_per_page_paginated`, and for calendar range queries `clanspress_events_rest_default_per_page_range`, `clanspress_events_rest_max_per_page_range` (SSR and the event calendar block read the default range size from the same helpers).
+Event list pagination limits are shared with the REST layer: `clanbite_events_rest_default_per_page_paginated`, `clanbite_events_rest_max_per_page_paginated`, and for calendar range queries `clanbite_events_rest_default_per_page_range`, `clanbite_events_rest_max_per_page_range` (SSR and the event calendar block read the default range size from the same helpers).
 
-**Event REST (`POST`/`PUT` `clanspress/v1/event-posts`):** optional JSON field `member_outreach` — `none` (default), `notify` (in-app notification to each roster member), or `rsvp_tentative` (add tentative RSVP rows for members without an existing RSVP, plus notify). Team rosters use the Teams extension membership map (banned users excluded). Group rosters use the `clanspress_group_event_member_user_ids` filter (core supplies an empty list until a groups integration fills it). Adjust recipients with `clanspress_event_member_outreach_user_ids`. After a run, `clanspress_event_member_outreach_completed` fires with counts (`notified`, `rsvp_set`, `skipped`).
+**Event REST (`POST`/`PUT` `clanbite/v1/event-posts`):** optional JSON field `member_outreach` — `none` (default), `notify` (in-app notification to each roster member), or `rsvp_tentative` (add tentative RSVP rows for members without an existing RSVP, plus notify). Team rosters use the Teams extension membership map (banned users excluded). Group rosters use the `clanbite_group_event_member_user_ids` filter (core supplies an empty list until a groups integration fills it). Adjust recipients with `clanbite_event_member_outreach_user_ids`. After a run, `clanbite_event_member_outreach_completed` fires with counts (`notified`, `rsvp_set`, `skipped`).
 
 ### Notification Bell Block
 
-Add the `clanspress/notification-bell` block to display a bell icon with unread count and dropdown. Block attributes:
+Add the `clanbite/notification-bell` block to display a bell icon with unread count and dropdown. Block attributes:
 
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -1072,13 +1080,13 @@ Add the `clanspress/notification-bell` block to display a bell icon with unread 
 
 ```php
 // Simple notification
-clanspress_notify( $user_id, 'mention', 'You were mentioned in a post', [
+clanbite_notify( $user_id, 'mention', 'You were mentioned in a post', [
     'url'      => $post_url,
     'actor_id' => $mentioner_id,
 ] );
 
 // Interactive notification with actions
-clanspress_notify( $user_id, 'team_invite', sprintf( '%s invited you to join %s', $inviter_name, $team_name ), [
+clanbite_notify( $user_id, 'team_invite', sprintf( '%s invited you to join %s', $inviter_name, $team_name ), [
     'actor_id'    => $inviter_id,
     'object_type' => 'team',
     'object_id'   => $team_id,
@@ -1086,19 +1094,19 @@ clanspress_notify( $user_id, 'team_invite', sprintf( '%s invited you to join %s'
     'actions'     => [
         [
             'key'             => 'accept',
-            'label'           => __( 'Accept', 'clanspress' ),
+            'label'           => __( 'Accept', 'clanbite' ),
             'style'           => 'primary',
             'handler'         => 'my_team_invite_accept',
             'status'          => 'accepted',
-            'success_message' => __( 'You have joined the team!', 'clanspress' ),
+            'success_message' => __( 'You have joined the team!', 'clanbite' ),
         ],
         [
             'key'             => 'decline',
-            'label'           => __( 'Decline', 'clanspress' ),
+            'label'           => __( 'Decline', 'clanbite' ),
             'style'           => 'secondary',
             'handler'         => 'my_team_invite_decline',
             'status'          => 'declined',
-            'success_message' => __( 'Invitation declined.', 'clanspress' ),
+            'success_message' => __( 'Invitation declined.', 'clanbite' ),
         ],
     ],
 ] );
@@ -1122,7 +1130,7 @@ Extensions register their own action handlers. For example, the Teams extension 
 
 ```php
 // Handle actions by handler identifier (recommended)
-add_filter( 'clanspress_notification_action_handler', function( $result, $handler, $notification, $action, $user_id ) {
+add_filter( 'clanbite_notification_action_handler', function( $result, $handler, $notification, $action, $user_id ) {
     // Return early if another handler already processed this
     if ( null !== $result ) {
         return $result;
@@ -1145,7 +1153,7 @@ add_filter( 'clanspress_notification_action_handler', function( $result, $handle
 }, 10, 5 );
 
 // Or handle by notification type (fires before generic handler)
-add_filter( 'clanspress_notification_action_group_invite', function( $result, $notification, $action, $user_id ) {
+add_filter( 'clanbite_notification_action_group_invite', function( $result, $notification, $action, $user_id ) {
     if ( 'accept' === $action['key'] ) {
         // Add user to group
         return [
@@ -1163,7 +1171,7 @@ add_filter( 'clanspress_notification_action_group_invite', function( $result, $n
 class My_Extension {
     public function run(): void {
         // Register notification action handlers
-        add_filter( 'clanspress_notification_action_handler', [ $this, 'handle_notification_actions' ], 10, 5 );
+        add_filter( 'clanbite_notification_action_handler', [ $this, 'handle_notification_actions' ], 10, 5 );
     }
 
     public function handle_notification_actions( $result, $handler, $notification, $action, $user_id ) {
@@ -1187,38 +1195,38 @@ class My_Extension {
 
 | Function | Description |
 |----------|-------------|
-| `clanspress_notifications_extension_active()` | Whether `cp_notifications` is enabled (use before UI or optional features) |
-| `clanspress_notify( $user_id, $type, $title, $args )` | Send a notification |
-| `clanspress_get_notifications( $user_id, $page, $per_page, $unread_only )` | Get notifications for a user |
-| `clanspress_get_notification( $id )` | Get a single notification |
-| `clanspress_get_unread_notification_count( $user_id )` | Get unread count |
-| `clanspress_mark_notification_read( $id, $user_id )` | Mark as read |
-| `clanspress_mark_all_notifications_read( $user_id )` | Mark all as read |
-| `clanspress_delete_notification( $id, $user_id )` | Delete a notification |
-| `clanspress_delete_all_notifications( $user_id )` | Delete all for a user |
-| `clanspress_delete_notifications_for_object( $type, $id )` | Delete by object |
-| `clanspress_execute_notification_action( $id, $action_key, $user_id )` | Execute an action |
-| `clanspress_dismiss_notification( $id, $user_id )` | Dismiss a notification |
-| `clanspress_get_notifications_url( $user_id )` | Get notifications page URL |
-| `clanspress_render_notification( $notification, $compact )` | Render notification HTML |
+| `clanbite_notifications_extension_active()` | Whether `cp_notifications` is enabled (use before UI or optional features) |
+| `clanbite_notify( $user_id, $type, $title, $args )` | Send a notification |
+| `clanbite_get_notifications( $user_id, $page, $per_page, $unread_only )` | Get notifications for a user |
+| `clanbite_get_notification( $id )` | Get a single notification |
+| `clanbite_get_unread_notification_count( $user_id )` | Get unread count |
+| `clanbite_mark_notification_read( $id, $user_id )` | Mark as read |
+| `clanbite_mark_all_notifications_read( $user_id )` | Mark all as read |
+| `clanbite_delete_notification( $id, $user_id )` | Delete a notification |
+| `clanbite_delete_all_notifications( $user_id )` | Delete all for a user |
+| `clanbite_delete_notifications_for_object( $type, $id )` | Delete by object |
+| `clanbite_execute_notification_action( $id, $action_key, $user_id )` | Execute an action |
+| `clanbite_dismiss_notification( $id, $user_id )` | Dismiss a notification |
+| `clanbite_get_notifications_url( $user_id )` | Get notifications page URL |
+| `clanbite_render_notification( $notification, $compact )` | Render notification HTML |
 
 ### REST API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/clanspress/v1/notifications` | List notifications |
-| `GET` | `/clanspress/v1/notifications/poll` | Long polling for real-time updates |
-| `GET` | `/clanspress/v1/notifications/count` | Get unread count |
-| `GET` | `/clanspress/v1/notifications/{id}` | Get single notification |
-| `DELETE` | `/clanspress/v1/notifications/{id}` | Delete notification |
-| `POST` | `/clanspress/v1/notifications/{id}/read` | Mark as read |
-| `POST` | `/clanspress/v1/notifications/{id}/action` | Execute action |
-| `POST` | `/clanspress/v1/notifications/read-all` | Mark all as read |
-| `GET` | `/clanspress/v1/notifications/transport` | Get transport config |
+| `GET` | `/clanbite/v1/notifications` | List notifications |
+| `GET` | `/clanbite/v1/notifications/poll` | Long polling for real-time updates |
+| `GET` | `/clanbite/v1/notifications/count` | Get unread count |
+| `GET` | `/clanbite/v1/notifications/{id}` | Get single notification |
+| `DELETE` | `/clanbite/v1/notifications/{id}` | Delete notification |
+| `POST` | `/clanbite/v1/notifications/{id}/read` | Mark as read |
+| `POST` | `/clanbite/v1/notifications/{id}/action` | Execute action |
+| `POST` | `/clanbite/v1/notifications/read-all` | Mark all as read |
+| `GET` | `/clanbite/v1/notifications/transport` | Get transport config |
 
 ### Real-Time Updates (Long Polling)
 
-The notification bell polls `/notifications/poll` on an interval guided by `next_poll` in the response. **Clanspress → Settings → Notifications → Notification bell → Use long-polling** controls whether each poll may block (sleep loop until new items or timeout, default cap **25** seconds via `clanspress_notification_poll_timeout`) or return after a single database read (recommended for busy sites). The filter `clanspress_notification_poll_blocking_wait` can still override the saved setting. The handler does **not** flush the object cache on each iteration (that would clear the entire site cache).
+The notification bell polls `/notifications/poll` on an interval guided by `next_poll` in the response. **Clanbite → Settings → Notifications → Notification bell → Use long-polling** controls whether each poll may block (sleep loop until new items or timeout, default cap **25** seconds via `clanbite_notification_poll_timeout`) or return after a single database read (recommended for busy sites). The filter `clanbite_notification_poll_blocking_wait` can still override the saved setting. The handler does **not** flush the object cache on each iteration (that would clear the entire site cache).
 
 **Polling parameters:**
 - `since` - ISO timestamp to get notifications after
@@ -1238,7 +1246,7 @@ The system is designed for WebSocket upgrade. Use these filters to provide WebSo
 ```js
 // JavaScript: Enable WebSocket transport
 wp.hooks.addFilter(
-    'clanspress.notifications.useWebSocket',
+    'clanbite.notifications.useWebSocket',
     'my-plugin/websocket',
     ( useWs, context ) => {
         // Return true if WebSocket is available
@@ -1248,7 +1256,7 @@ wp.hooks.addFilter(
 
 // Provide WebSocket configuration
 wp.hooks.addFilter(
-    'clanspress.notifications.webSocketConfig',
+    'clanbite.notifications.webSocketConfig',
     'my-plugin/websocket-config',
     ( config, context ) => {
         return {
@@ -1261,7 +1269,7 @@ wp.hooks.addFilter(
 
 ```php
 // PHP: Override polling transport entirely
-add_filter( 'clanspress_notification_poll_transport', function( $response, $user_id, $since, $last_id, $request ) {
+add_filter( 'clanbite_notification_poll_transport', function( $response, $user_id, $since, $last_id, $request ) {
     // Return a WP_REST_Response to bypass polling
     // Useful for WebSocket-only setups
     return new WP_REST_Response( [
@@ -1271,7 +1279,7 @@ add_filter( 'clanspress_notification_poll_transport', function( $response, $user
 }, 10, 5 );
 
 // Customize transport configuration
-add_filter( 'clanspress_notification_transport_config', function( $config, $user_id ) {
+add_filter( 'clanbite_notification_transport_config', function( $config, $user_id ) {
     if ( my_websocket_available() ) {
         $config['type'] = 'websocket';
         $config['websocket_url'] = 'wss://example.com/notifications';
@@ -1284,26 +1292,26 @@ add_filter( 'clanspress_notification_transport_config', function( $config, $user
 
 | Hook | Description |
 |------|-------------|
-| `clanspress.notifications.useWebSocket` | Return true to use WebSocket transport |
-| `clanspress.notifications.webSocketConfig` | Provide WebSocket URL and auth config |
-| `clanspress.notifications.received` | Fired when new notifications arrive |
-| `clanspress.notifications.showToast` | Customize toast notification display |
+| `clanbite.notifications.useWebSocket` | Return true to use WebSocket transport |
+| `clanbite.notifications.webSocketConfig` | Provide WebSocket URL and auth config |
+| `clanbite.notifications.received` | Fired when new notifications arrive |
+| `clanbite.notifications.showToast` | Customize toast notification display |
 
 ### PHP Filters
 
 | Filter | Description |
 |--------|-------------|
-| `clanspress_notification_poll_timeout` | Modify poll timeout |
-| `clanspress_notification_poll_blocking_wait` | Override long-polling: `(bool $blocking, int $user_id)` after the Notifications setting is applied. |
-| `clanspress_notification_poll_interval` | Modify poll check interval |
-| `clanspress_notification_poll_transport` | Override polling with custom transport |
-| `clanspress_notification_next_poll_interval` | Modify next poll interval |
-| `clanspress_notification_transport_config` | Customize transport configuration |
-| `clanspress_notification_action_{type}` | Handle actions for a notification type |
-| `clanspress_notification_action_handler` | Generic action handler |
-| `clanspress_notification_types` | Register custom notification types |
-| `clanspress_render_notification` | Customize notification HTML |
-| `clanspress_format_notification_response` | Customize API response format |
+| `clanbite_notification_poll_timeout` | Modify poll timeout |
+| `clanbite_notification_poll_blocking_wait` | Override long-polling: `(bool $blocking, int $user_id)` after the Notifications setting is applied. |
+| `clanbite_notification_poll_interval` | Modify poll check interval |
+| `clanbite_notification_poll_transport` | Override polling with custom transport |
+| `clanbite_notification_next_poll_interval` | Modify next poll interval |
+| `clanbite_notification_transport_config` | Customize transport configuration |
+| `clanbite_notification_action_{type}` | Handle actions for a notification type |
+| `clanbite_notification_action_handler` | Generic action handler |
+| `clanbite_notification_types` | Register custom notification types |
+| `clanbite_render_notification` | Customize notification HTML |
+| `clanbite_format_notification_response` | Customize API response format |
 
 ### Built-in Notification Types
 
@@ -1319,7 +1327,7 @@ add_filter( 'clanspress_notification_transport_config', function( $config, $user
 | `mention` | Mentioned in content |
 | `system` | System notifications |
 
-Third-party plugins can register additional types via the `clanspress_notification_types` filter.
+Third-party plugins can register additional types via the `clanbite_notification_types` filter.
 
 ## Maintenance Notes
 - Keep this README updated when extension architecture, hooks, or setup requirements change.

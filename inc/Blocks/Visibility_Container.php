@@ -2,15 +2,15 @@
 /**
  * Visibility container block: role / login-state rules (server-side).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Blocks;
+namespace Kernowdev\Clanbite\Blocks;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Server-side visibility evaluation for the `clanspress/visibility-container` block.
+ * Server-side visibility evaluation for the `clanbite/visibility-container` block.
  */
 final class Visibility_Container {
 
@@ -149,6 +149,6 @@ final class Visibility_Container {
 		 * @param array<string, mixed> $attributes Block attributes.
 		 * @param \WP_Block|null       $block      Block instance.
 		 */
-		return (bool) apply_filters( 'clanspress_visibility_container_should_show', $visible, $attributes, $block );
+		return (bool) apply_filters( 'clanbite_visibility_container_should_show', $visible, $attributes, $block );
 	}
 }

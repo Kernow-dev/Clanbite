@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/match-card",
+	"name": "clanbite/match-card",
 	"version": "1.0.0",
 	"title": "Match card",
-	"category": "clanspress-matches",
+	"category": "clanbite-matches",
 	"icon": "calendar-alt",
 	"description": "Display one match (title, teams, time, score).",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"supports": {
 		"spacing": {
 			"margin": true,
@@ -40,13 +40,13 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-match-card",
+		"root": ".wp-block-clanbite-match-card",
 		"color": {
-			"text": ".wp-block-clanspress-match-card .clanspress-match-card, .wp-block-clanspress-match-card .clanspress-match-card a",
-			"background": ".wp-block-clanspress-match-card",
-			"link": ".wp-block-clanspress-match-card .clanspress-match-card a"
+			"text": ".wp-block-clanbite-match-card .clanbite-match-card, .wp-block-clanbite-match-card .clanbite-match-card a",
+			"background": ".wp-block-clanbite-match-card",
+			"link": ".wp-block-clanbite-match-card .clanbite-match-card a"
 		},
-		"typography": ".wp-block-clanspress-match-card .clanspress-match-card",
-		"border": ".wp-block-clanspress-match-card"
+		"typography": ".wp-block-clanbite-match-card .clanbite-match-card",
+		"border": ".wp-block-clanbite-match-card"
 	}
 }

@@ -2,10 +2,10 @@
 /**
  * Notifications database schema.
  *
- * @package Clanspress
+ * @package Clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Notification;
+namespace Kernowdev\Clanbite\Extensions\Notification;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Notification_Schema {
 
-	public const OPTION_DB_VERSION = 'clanspress_notifications_db_version';
+	public const OPTION_DB_VERSION = 'clanbite_notifications_db_version';
 	public const DB_VERSION        = '1.0.0';
 
 	/**
@@ -30,7 +30,7 @@ final class Notification_Schema {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		$charset = $wpdb->get_charset_collate();
-		$table   = $wpdb->prefix . 'clanspress_notifications';
+		$table   = $wpdb->prefix . 'clanbite_notifications';
 
 		$sql = "CREATE TABLE {$table} (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -85,7 +85,7 @@ final class Notification_Schema {
 	 */
 	public static function table_name(): string {
 		global $wpdb;
-		return $wpdb->prefix . 'clanspress_notifications';
+		return $wpdb->prefix . 'clanbite_notifications';
 	}
 
 	/**

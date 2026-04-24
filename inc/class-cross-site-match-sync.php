@@ -1,19 +1,19 @@
 <?php
 /**
- * Peer match sync: when a challenge is accepted on site A, mirror the match onto site B (challenger’s Clanspress install).
+ * Peer match sync: when a challenge is accepted on site A, mirror the match onto site B (challenger’s Clanbite install).
  *
  * Uses per-install Ed25519 keys (libsodium). The sending site signs the payload; the receiving site fetches the sender’s
- * public key from `GET …/wp-json/clanspress/v1/site-sync-public-key` and verifies the signature. No shared manual secret.
- * Optional legacy HMAC remains available via the {@see 'clanspress_cross_site_sync_key'} filter or a stored
+ * public key from `GET …/wp-json/clanbite/v1/site-sync-public-key` and verifies the signature. No shared manual secret.
+ * Optional legacy HMAC remains available via the {@see 'clanbite_cross_site_sync_key'} filter or a stored
  * `cross_site_sync_key` value in general settings (not exposed in the UI).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress;
+namespace Kernowdev\Clanbite;
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Admin\General_Settings;
+use Kernowdev\Clanbite\Admin\General_Settings;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -30,7 +30,7 @@ final class Cross_Site_Match_Sync {
 	/**
 	 * Option holding base64-encoded Ed25519 keypair (auto-generated).
 	 */
-	private const OPTION_SITE_KEYS = 'clanspress_match_sync_site_keys';
+	private const OPTION_SITE_KEYS = 'clanbite_match_sync_site_keys';
 
 	/**
 	 * Maximum clock skew for sync signatures (seconds).
@@ -49,7 +49,7 @@ final class Cross_Site_Match_Sync {
 	 */
 	public static function register_routes(): void {
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/sync-peer-match',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -70,16 +70,16 @@ final class Cross_Site_Match_Sync {
 
 		if ( ! self::sodium_available() ) {
 			return new WP_Error(
-				'clanspress_sync_no_crypto',
-				__( 'Match sync signing is not available (PHP sodium extension missing).', 'clanspress' ),
+				'clanbite_sync_no_crypto',
+				__( 'Match sync signing is not available (PHP sodium extension missing).', 'clanbite' ),
 				array( 'status' => 503 )
 			);
 		}
 
 		if ( ! self::ensure_site_signing_keys() ) {
 			return new WP_Error(
-				'clanspress_sync_keys',
-				__( 'Could not initialize match sync keys.', 'clanspress' ),
+				'clanbite_sync_keys',
+				__( 'Could not initialize match sync keys.', 'clanbite' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -87,8 +87,8 @@ final class Cross_Site_Match_Sync {
 		$pk = self::get_site_public_key_binary();
 		if ( '' === $pk ) {
 			return new WP_Error(
-				'clanspress_sync_keys',
-				__( 'Could not read match sync public key.', 'clanspress' ),
+				'clanbite_sync_keys',
+				__( 'Could not read match sync public key.', 'clanbite' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -98,7 +98,7 @@ final class Cross_Site_Match_Sync {
 				'v'           => 1,
 				'algorithm'   => 'ed25519',
 				'public_key'  => base64_encode( $pk ),
-				'clanspress'  => true,
+				'clanbite'  => true,
 			),
 			200
 		);
@@ -136,7 +136,7 @@ final class Cross_Site_Match_Sync {
 		 *
 		 * @param string $key Legacy shared secret; empty uses automatic per-site keys.
 		 */
-		return (string) apply_filters( 'clanspress_cross_site_sync_key', $key );
+		return (string) apply_filters( 'clanbite_cross_site_sync_key', $key );
 	}
 
 	/**
@@ -213,13 +213,13 @@ final class Cross_Site_Match_Sync {
 			return '';
 		}
 
-		$cache_key = 'clanspress_sync_pk_v1_' . md5( $source_site );
+		$cache_key = 'clanbite_sync_pk_v1_' . md5( $source_site );
 		$cached    = get_transient( $cache_key );
 		if ( is_string( $cached ) && SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES === strlen( $cached ) ) {
 			return $cached;
 		}
 
-		$url = $source_site . 'wp-json/clanspress/v1/site-sync-public-key';
+		$url = $source_site . 'wp-json/clanbite/v1/site-sync-public-key';
 		$res = wp_remote_get(
 			$url,
 			array(
@@ -242,7 +242,7 @@ final class Cross_Site_Match_Sync {
 		}
 
 		$json = json_decode( (string) wp_remote_retrieve_body( $res ), true );
-		if ( ! is_array( $json ) || empty( $json['public_key'] ) || empty( $json['clanspress'] ) ) {
+		if ( ! is_array( $json ) || empty( $json['public_key'] ) || empty( $json['clanbite'] ) ) {
 			return '';
 		}
 
@@ -280,7 +280,7 @@ final class Cross_Site_Match_Sync {
 	}
 
 	/**
-	 * After a challenge is accepted on the challenged site, create the same match on the challenger’s Clanspress site when the snapshot came from a remote install.
+	 * After a challenge is accepted on the challenged site, create the same match on the challenger’s Clanbite site when the snapshot came from a remote install.
 	 *
 	 * @param int    $challenge_id       `cp_team_challenge` post ID.
 	 * @param int    $match_id           New `cp_match` ID on this site.
@@ -305,11 +305,11 @@ final class Cross_Site_Match_Sync {
 			return;
 		}
 
-		if ( ! function_exists( 'clanspress_matches' ) || ! clanspress_matches() ) {
+		if ( ! function_exists( 'clanbite_matches' ) || ! clanbite_matches() ) {
 			return;
 		}
 
-		$matches = clanspress_matches();
+		$matches = clanbite_matches();
 
 		$home_team_post = get_post( $challenged_team_id );
 		if ( ! ( $home_team_post instanceof \WP_Post ) || 'cp_team' !== $home_team_post->post_type ) {
@@ -318,8 +318,8 @@ final class Cross_Site_Match_Sync {
 
 		$opponent_label = get_the_title( $challenged_team_id );
 		$opponent_url   = get_permalink( $challenged_team_id ) ?: home_url( '/' );
-		$opponent_logo = function_exists( 'clanspress_teams_get_display_team_avatar' )
-			? clanspress_teams_get_display_team_avatar( $challenged_team_id, false, '', 'cross_site_match_sync', 'medium' )
+		$opponent_logo = function_exists( 'clanbite_teams_get_display_team_avatar' )
+			? clanbite_teams_get_display_team_avatar( $challenged_team_id, false, '', 'cross_site_match_sync', 'medium' )
 			: '';
 		if ( '' === $opponent_logo && has_post_thumbnail( $challenged_team_id ) ) {
 			$opponent_logo = (string) get_the_post_thumbnail_url( $challenged_team_id, 'medium' );
@@ -351,7 +351,7 @@ final class Cross_Site_Match_Sync {
 		 * @param int   $challenged_team_id Challenged team ID on this site.
 		 * @param array $snapshot           Remote snapshot from the challenge form.
 		 */
-		$body = (array) apply_filters( 'clanspress_cross_site_sync_outbound_payload', $body, $challenge_id, $match_id, $challenged_team_id, $snapshot );
+		$body = (array) apply_filters( 'clanbite_cross_site_sync_outbound_payload', $body, $challenge_id, $match_id, $challenged_team_id, $snapshot );
 
 		$canonical = wp_json_encode( $body );
 		if ( ! is_string( $canonical ) ) {
@@ -376,15 +376,15 @@ final class Cross_Site_Match_Sync {
 			$header = 'v1:' . (string) $ts . ':' . self::base64url_encode( $sig );
 		}
 
-		$url      = trailingslashit( $origin ) . 'wp-json/clanspress/v1/sync-peer-match';
+		$url      = trailingslashit( $origin ) . 'wp-json/clanbite/v1/sync-peer-match';
 		$response = wp_remote_post(
 			$url,
 			array(
 				'timeout' => 20,
 				'headers' => array(
 					'Content-Type'      => 'application/json',
-					'X-Clanspress-Sync' => $header,
-					'User-Agent'        => 'Clanspress/' . Main::VERSION . '; ' . home_url( '/' ),
+					'X-Clanbite-Sync' => $header,
+					'User-Agent'        => 'Clanbite/' . Main::VERSION . '; ' . home_url( '/' ),
 				),
 				'body'    => $canonical,
 			)
@@ -398,7 +398,7 @@ final class Cross_Site_Match_Sync {
 			 * @param string    $url      Remote REST URL.
 			 * @param array     $body     Payload that was sent.
 			 */
-			do_action( 'clanspress_cross_site_sync_push_failed', $response, $url, $body );
+			do_action( 'clanbite_cross_site_sync_push_failed', $response, $url, $body );
 			return;
 		}
 
@@ -413,7 +413,7 @@ final class Cross_Site_Match_Sync {
 			 * @param string $url  Remote REST URL.
 			 * @param array  $body Outbound payload.
 			 */
-			do_action( 'clanspress_cross_site_sync_push_rejected', $code, is_array( $data ) ? $data : array(), $url, $body );
+			do_action( 'clanbite_cross_site_sync_push_rejected', $code, is_array( $data ) ? $data : array(), $url, $body );
 			return;
 		}
 
@@ -432,7 +432,7 @@ final class Cross_Site_Match_Sync {
 		 * @param string $peer_origin    Peer site origin URL.
 		 * @param array  $body           Outbound payload.
 		 */
-		do_action( 'clanspress_cross_site_sync_push_succeeded', $challenge_id, $match_id, $peer_match_id, $origin, $body );
+		do_action( 'clanbite_cross_site_sync_push_succeeded', $challenge_id, $match_id, $peer_match_id, $origin, $body );
 	}
 
 	/**
@@ -446,17 +446,17 @@ final class Cross_Site_Match_Sync {
 		$body = json_decode( $raw, true );
 		if ( ! is_array( $body ) ) {
 			return new WP_Error(
-				'clanspress_sync_bad_json',
-				__( 'Invalid JSON body.', 'clanspress' ),
+				'clanbite_sync_bad_json',
+				__( 'Invalid JSON body.', 'clanbite' ),
 				array( 'status' => 400 )
 			);
 		}
 
-		$header = $request->get_header( 'x-clanspress-sync' );
+		$header = $request->get_header( 'x-clanbite-sync' );
 		if ( ! is_string( $header ) || '' === trim( $header ) ) {
 			return new WP_Error(
-				'clanspress_sync_bad_header',
-				__( 'Missing sync signature header.', 'clanspress' ),
+				'clanbite_sync_bad_header',
+				__( 'Missing sync signature header.', 'clanbite' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -464,8 +464,8 @@ final class Cross_Site_Match_Sync {
 		$canonical = wp_json_encode( $body );
 		if ( ! is_string( $canonical ) ) {
 			return new WP_Error(
-				'clanspress_sync_encode',
-				__( 'Could not canonicalize payload.', 'clanspress' ),
+				'clanbite_sync_encode',
+				__( 'Could not canonicalize payload.', 'clanbite' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -476,8 +476,8 @@ final class Cross_Site_Match_Sync {
 		if ( $v1_header ) {
 			if ( ! self::sodium_available() ) {
 				return new WP_Error(
-					'clanspress_sync_no_crypto',
-					__( 'Match sync signing is not available (PHP sodium extension missing).', 'clanspress' ),
+					'clanbite_sync_no_crypto',
+					__( 'Match sync signing is not available (PHP sodium extension missing).', 'clanbite' ),
 					array( 'status' => 503 )
 				);
 			}
@@ -485,8 +485,8 @@ final class Cross_Site_Match_Sync {
 			$parts = explode( ':', trim( $header ), 3 );
 			if ( 3 !== count( $parts ) || 'v1' !== $parts[0] ) {
 				return new WP_Error(
-					'clanspress_sync_bad_header',
-					__( 'Invalid sync signature header.', 'clanspress' ),
+					'clanbite_sync_bad_header',
+					__( 'Invalid sync signature header.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -495,24 +495,24 @@ final class Cross_Site_Match_Sync {
 			$sig_in = self::base64url_decode( $parts[2] );
 			if ( $ts < 1 || '' === $sig_in ) {
 				return new WP_Error(
-					'clanspress_sync_ts',
-					__( 'Invalid sync timestamp.', 'clanspress' ),
+					'clanbite_sync_ts',
+					__( 'Invalid sync timestamp.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
 
 			if ( ! isset( $body['ts'] ) || (int) $body['ts'] !== $ts ) {
 				return new WP_Error(
-					'clanspress_sync_ts',
-					__( 'Invalid sync timestamp.', 'clanspress' ),
+					'clanbite_sync_ts',
+					__( 'Invalid sync timestamp.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
 
 			if ( abs( time() - $ts ) > self::SIGNATURE_MAX_AGE ) {
 				return new WP_Error(
-					'clanspress_sync_expired',
-					__( 'Sync signature expired.', 'clanspress' ),
+					'clanbite_sync_expired',
+					__( 'Sync signature expired.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -521,8 +521,8 @@ final class Cross_Site_Match_Sync {
 			$peer_pk         = self::fetch_peer_public_key( $source_site_pre );
 			if ( '' === $peer_pk ) {
 				return new WP_Error(
-					'clanspress_sync_peer_key',
-					__( 'Could not retrieve the sending site’s public key. Ensure the other site runs Clanspress and exposes the sync public key endpoint.', 'clanspress' ),
+					'clanbite_sync_peer_key',
+					__( 'Could not retrieve the sending site’s public key. Ensure the other site runs Clanbite and exposes the sync public key endpoint.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -531,16 +531,16 @@ final class Cross_Site_Match_Sync {
 			$verified = sodium_crypto_sign_verify_detached( $sig_in, $message, $peer_pk );
 			if ( ! $verified ) {
 				return new WP_Error(
-					'clanspress_sync_sig',
-					__( 'Invalid sync signature.', 'clanspress' ),
+					'clanbite_sync_sig',
+					__( 'Invalid sync signature.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
 		} else {
 			if ( ! $legacy_hmac ) {
 				return new WP_Error(
-					'clanspress_sync_bad_header',
-					__( 'Unsupported sync signature format. Expected a v1 Ed25519 signature from Clanspress.', 'clanspress' ),
+					'clanbite_sync_bad_header',
+					__( 'Unsupported sync signature format. Expected a v1 Ed25519 signature from Clanbite.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -548,16 +548,16 @@ final class Cross_Site_Match_Sync {
 			$key = self::get_legacy_hmac_key();
 			if ( '' === $key ) {
 				return new WP_Error(
-					'clanspress_sync_disabled',
-					__( 'Cross-site match sync is not configured on this site.', 'clanspress' ),
+					'clanbite_sync_disabled',
+					__( 'Cross-site match sync is not configured on this site.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
 
 			if ( ! str_contains( $header, ':' ) ) {
 				return new WP_Error(
-					'clanspress_sync_bad_header',
-					__( 'Missing sync signature header.', 'clanspress' ),
+					'clanbite_sync_bad_header',
+					__( 'Missing sync signature header.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -566,16 +566,16 @@ final class Cross_Site_Match_Sync {
 			$ts = (int) $ts_raw;
 			if ( $ts < 1 || ! isset( $body['ts'] ) || (int) $body['ts'] !== $ts ) {
 				return new WP_Error(
-					'clanspress_sync_ts',
-					__( 'Invalid sync timestamp.', 'clanspress' ),
+					'clanbite_sync_ts',
+					__( 'Invalid sync timestamp.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
 
 			if ( abs( time() - $ts ) > self::SIGNATURE_MAX_AGE ) {
 				return new WP_Error(
-					'clanspress_sync_expired',
-					__( 'Sync signature expired.', 'clanspress' ),
+					'clanbite_sync_expired',
+					__( 'Sync signature expired.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -584,8 +584,8 @@ final class Cross_Site_Match_Sync {
 			$expected = hash_hmac( 'sha256', $message, $key );
 			if ( ! hash_equals( $expected, $sig_in ) ) {
 				return new WP_Error(
-					'clanspress_sync_sig',
-					__( 'Invalid sync signature.', 'clanspress' ),
+					'clanbite_sync_sig',
+					__( 'Invalid sync signature.', 'clanbite' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -601,7 +601,7 @@ final class Cross_Site_Match_Sync {
 		 * @param array  $body         Decoded JSON body.
 		 * @param string $source_host Normalized host from `source_site` (may be empty before you fix `source_site`).
 		 */
-		$body = (array) apply_filters( 'clanspress_cross_site_sync_incoming_payload', $body, $source_host_for_filter );
+		$body = (array) apply_filters( 'clanbite_cross_site_sync_incoming_payload', $body, $source_host_for_filter );
 
 		$source_site     = isset( $body['source_site'] ) ? esc_url_raw( (string) $body['source_site'] ) : '';
 		$source_match_id = isset( $body['source_match_id'] ) ? (int) $body['source_match_id'] : 0;
@@ -617,38 +617,38 @@ final class Cross_Site_Match_Sync {
 		 * @param string $source_host Normalized host from `source_site`.
 		 * @param array  $body        Full decoded body.
 		 */
-		$allowed = (bool) apply_filters( 'clanspress_cross_site_sync_verify_source', true, $source_host, $body );
+		$allowed = (bool) apply_filters( 'clanbite_cross_site_sync_verify_source', true, $source_host, $body );
 		if ( ! $allowed ) {
 			return new WP_Error(
-				'clanspress_sync_source',
-				__( 'This source is not allowed to sync matches.', 'clanspress' ),
+				'clanbite_sync_source',
+				__( 'This source is not allowed to sync matches.', 'clanbite' ),
 				array( 'status' => 403 )
 			);
 		}
 
 		if ( $source_site === '' || $source_match_id < 1 || $home_team_id < 1 ) {
 			return new WP_Error(
-				'clanspress_sync_fields',
-				__( 'Missing required sync fields.', 'clanspress' ),
+				'clanbite_sync_fields',
+				__( 'Missing required sync fields.', 'clanbite' ),
 				array( 'status' => 400 )
 			);
 		}
 
-		if ( ! function_exists( 'clanspress_matches' ) || ! clanspress_matches() ) {
+		if ( ! function_exists( 'clanbite_matches' ) || ! clanbite_matches() ) {
 			return new WP_Error(
-				'clanspress_sync_no_matches',
-				__( 'Matches are not available.', 'clanspress' ),
+				'clanbite_sync_no_matches',
+				__( 'Matches are not available.', 'clanbite' ),
 				array( 'status' => 503 )
 			);
 		}
 
-		$matches = clanspress_matches();
+		$matches = clanbite_matches();
 
 		$team_post = get_post( $home_team_id );
 		if ( ! ( $team_post instanceof \WP_Post ) || 'cp_team' !== $team_post->post_type || 'publish' !== $team_post->post_status ) {
 			return new WP_Error(
-				'clanspress_sync_team',
-				__( 'Home team not found.', 'clanspress' ),
+				'clanbite_sync_team',
+				__( 'Home team not found.', 'clanbite' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -687,7 +687,7 @@ final class Cross_Site_Match_Sync {
 			);
 		}
 
-		$label = isset( $body['away_external_label'] ) ? sanitize_text_field( (string) $body['away_external_label'] ) : __( 'Opponent', 'clanspress' );
+		$label = isset( $body['away_external_label'] ) ? sanitize_text_field( (string) $body['away_external_label'] ) : __( 'Opponent', 'clanbite' );
 		$logo  = isset( $body['away_external_logo_url'] ) ? esc_url_raw( (string) $body['away_external_logo_url'] ) : '';
 		$prof  = isset( $body['away_external_profile_url'] ) ? esc_url_raw( (string) $body['away_external_profile_url'] ) : '';
 		$sched = isset( $body['scheduled_at'] ) ? sanitize_text_field( (string) $body['scheduled_at'] ) : '';
@@ -749,7 +749,7 @@ final class Cross_Site_Match_Sync {
 		 * @param array $body         Request body.
 		 * @param int   $home_team_id Local home team ID.
 		 */
-		do_action( 'clanspress_cross_site_sync_incoming_created', $match_id, $body, $home_team_id );
+		do_action( 'clanbite_cross_site_sync_incoming_created', $match_id, $body, $home_team_id );
 
 		return new WP_REST_Response(
 			array(

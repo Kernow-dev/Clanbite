@@ -1,26 +1,26 @@
 <?php
 /**
- * Core plugin settings (General tab in Clanspress admin).
+ * Core plugin settings (General tab in Clanbite admin).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Admin;
+namespace Kernowdev\Clanbite\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
 
 /**
- * General Clanspress options stored in {@see General_Settings::OPTION_KEY}.
+ * General Clanbite options stored in {@see General_Settings::OPTION_KEY}.
  */
 class General_Settings extends Abstract_Settings {
-	public const OPTION_KEY = 'clanspress_general_settings';
+	public const OPTION_KEY = 'clanbite_general_settings';
 
 	protected string $option_key     = self::OPTION_KEY;
-	protected string $settings_group = 'clanspress_general';
-	protected string $page_slug      = 'clanspress-general';
+	protected string $settings_group = 'clanbite_general';
+	protected string $page_slug      = 'clanbite-general';
 
 	/**
 	 * Unified React admin: do not add a separate submenu.
@@ -68,15 +68,15 @@ class General_Settings extends Abstract_Settings {
 	}
 
 	protected function get_page_title(): string {
-		return __( 'Clanspress', 'clanspress' );
+		return __( 'Clanbite', 'clanbite' );
 	}
 
 	protected function get_menu_title(): string {
-		return __( 'General', 'clanspress' );
+		return __( 'General', 'clanbite' );
 	}
 
 	protected function get_defaults(): array {
-		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanspress_general_settings_defaults`.
+		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanbite_general_settings_defaults`.
 		return array(
 			'admin_notes'                      => '',
 			'events_enabled'                   => true,
@@ -87,45 +87,45 @@ class General_Settings extends Abstract_Settings {
 	}
 
 	protected function get_sections(): array {
-		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanspress_general_settings_sections`.
+		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanbite_general_settings_sections`.
 		return array(
 			'overview' => array(
-				'title'  => __( 'Overview', 'clanspress' ),
+				'title'  => __( 'Overview', 'clanbite' ),
 				'fields' => array(
 					'admin_notes'    => array(
-						'label'       => __( 'Internal notes', 'clanspress' ),
+						'label'       => __( 'Internal notes', 'clanbite' ),
 						'type'        => 'textarea',
-						'description' => __( 'Optional notes for other site administrators (not shown on the front end).', 'clanspress' ),
+						'description' => __( 'Optional notes for other site administrators (not shown on the front end).', 'clanbite' ),
 						'default'     => '',
 						'sanitize'    => 'sanitize_textarea_field',
 					),
 					'events_enabled' => array(
-						'label'       => __( 'Enable scheduled events', 'clanspress' ),
+						'label'       => __( 'Enable scheduled events', 'clanbite' ),
 						'type'        => 'checkbox',
-						'description' => __( 'When off, team and group events, REST endpoints, and front-end event routes are disabled site-wide. Individual teams and groups can still turn events off when this is on.', 'clanspress' ),
+						'description' => __( 'When off, team and group events, REST endpoints, and front-end event routes are disabled site-wide. Individual teams and groups can still turn events off when this is on.', 'clanbite' ),
 						'default'     => true,
 					),
 					'hide_wp_admin_bar_for_non_admins' => array(
-						'label'       => __( 'Hide WordPress toolbar on the front end for non-administrators', 'clanspress' ),
+						'label'       => __( 'Hide WordPress toolbar on the front end for non-administrators', 'clanbite' ),
 						'type'        => 'checkbox',
-						'description' => __( 'When on, only users who can manage options (and super admins on multisite) see the admin bar while viewing the site. The dashboard and block editor are unchanged.', 'clanspress' ),
+						'description' => __( 'When on, only users who can manage options (and super admins on multisite) see the admin bar while viewing the site. The dashboard and block editor are unchanged.', 'clanbite' ),
 						'default'     => false,
 					),
 				),
 			),
 			'moderation' => array(
-				'title'  => __( 'Moderation', 'clanspress' ),
+				'title'  => __( 'Moderation', 'clanbite' ),
 				'fields' => array(
 					'wordban_enabled'     => array(
-						'label'       => __( 'Enable word filter', 'clanspress' ),
+						'label'       => __( 'Enable word filter', 'clanbite' ),
 						'type'        => 'checkbox',
-						'description' => __( 'When on, blocked words cannot be used in team names, group names, usernames, and similar short fields. The same list is masked in longer user-written content (for example social posts, comments, and forums): the first character stays visible and the rest is replaced with asterisks. A built-in list applies; you can add more below.', 'clanspress' ),
+						'description' => __( 'When on, blocked words cannot be used in team names, group names, usernames, and similar short fields. The same list is masked in longer user-written content (for example social posts, comments, and forums): the first character stays visible and the rest is replaced with asterisks. A built-in list applies; you can add more below.', 'clanbite' ),
 						'default'     => false,
 					),
 					'wordban_custom_list' => array(
-						'label'       => __( 'Additional banned words', 'clanspress' ),
+						'label'       => __( 'Additional banned words', 'clanbite' ),
 						'type'        => 'textarea',
-						'description' => __( 'Comma- or line-separated. Multi-word phrases use each word only when it appears as a whole word. Common number or symbol substitutions (such as 1 for i or 3 for e) are treated like letters for matching.', 'clanspress' ),
+						'description' => __( 'Comma- or line-separated. Multi-word phrases use each word only when it appears as a whole word. Common number or symbol substitutions (such as 1 for i or 3 for e) are treated like letters for matching.', 'clanbite' ),
 						'default'     => '',
 						'sanitize'    => 'sanitize_textarea_field',
 						'depends_on'  => array(
@@ -139,6 +139,6 @@ class General_Settings extends Abstract_Settings {
 	}
 
 	public function render_page(): void {
-		$this->render_settings_page( __( 'Clanspress', 'clanspress' ) );
+		$this->render_settings_page( __( 'Clanbite', 'clanbite' ) );
 	}
 }

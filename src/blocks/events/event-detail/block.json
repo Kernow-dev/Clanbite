@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/event-detail",
+	"name": "clanbite/event-detail",
 	"version": "1.0.0",
 	"title": "Event detail",
-	"category": "clanspress",
+	"category": "clanbite",
 	"icon": "info",
 	"description": "Show a single scheduled event (title, schedule, venue or link, RSVP).",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"attributes": {
 		"eventId": {
 			"type": "number",
@@ -37,9 +37,9 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-event-detail",
-		"color": ".wp-block-clanspress-event-detail",
-		"typography": ".wp-block-clanspress-event-detail",
-		"border": ".wp-block-clanspress-event-detail"
+		"root": ".wp-block-clanbite-event-detail",
+		"color": ".wp-block-clanbite-event-detail",
+		"typography": ".wp-block-clanbite-event-detail",
+		"border": ".wp-block-clanbite-event-detail"
 	}
 }

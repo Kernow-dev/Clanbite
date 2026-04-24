@@ -2,23 +2,23 @@
 /**
  * Option-backed settings for the Matches extension (unified React admin tab).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Matches;
+namespace Kernowdev\Clanbite\Extensions\Matches;
 
 defined( 'ABSPATH' ) || exit;
 
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
 
 /**
- * Persists display-related options under `clanspress_matches_settings`.
+ * Persists display-related options under `clanbite_matches_settings`.
  */
 class Admin extends Abstract_Settings {
-	protected string $option_key     = 'clanspress_matches_settings';
-	protected string $settings_group = 'clanspress_matches';
-	protected string $page_slug      = 'clanspress-matches';
+	protected string $option_key     = 'clanbite_matches_settings';
+	protected string $settings_group = 'clanbite_matches';
+	protected string $page_slug      = 'clanbite-matches';
 
 	/**
 	 * Browser title for the legacy standalone settings page (if enabled).
@@ -26,7 +26,7 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	protected function get_page_title(): string {
-		return __( 'Matches', 'clanspress' );
+		return __( 'Matches', 'clanbite' );
 	}
 
 	/**
@@ -35,7 +35,7 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	protected function get_menu_title(): string {
-		return __( 'Matches', 'clanspress' );
+		return __( 'Matches', 'clanbite' );
 	}
 
 	/**
@@ -50,7 +50,7 @@ class Admin extends Abstract_Settings {
 		 * @param array<string, mixed> $defaults Keyed by option field id.
 		 */
 		return apply_filters(
-			'clanspress_matches_defaults',
+			'clanbite_matches_defaults',
 			array(
 				'list_per_page'      => 10,
 				'datetime_format'    => 'M j, Y g:i a',
@@ -73,48 +73,48 @@ class Admin extends Abstract_Settings {
 		 * @param array<string, array<string, mixed>> $sections Section id => config with `title` and `fields`.
 		 */
 		return apply_filters(
-			'clanspress_matches_sections',
+			'clanbite_matches_sections',
 			array(
 				'profile_subpages' => array(
-					'title'  => __( 'Profile subpages', 'clanspress' ),
+					'title'  => __( 'Profile subpages', 'clanbite' ),
 					'fields' => array(
 						'subpage_team' => array(
-							'label'       => __( 'Team profile: Matches tab', 'clanspress' ),
+							'label'       => __( 'Team profile: Matches tab', 'clanbite' ),
 							'type'        => 'checkbox',
-							'description' => __( 'When off, the team matches list URL is omitted and redirects to the public team profile. Flush permalinks after changing this if URLs do not update immediately.', 'clanspress' ),
+							'description' => __( 'When off, the team matches list URL is omitted and redirects to the public team profile. Flush permalinks after changing this if URLs do not update immediately.', 'clanbite' ),
 							'default'     => true,
 							'sanitize'    => 'rest_sanitize_boolean',
 						),
 					),
 				),
 				'display'          => array(
-					'title'  => __( 'Display', 'clanspress' ),
+					'title'  => __( 'Display', 'clanbite' ),
 					'fields' => array(
 						'list_per_page'        => array(
-							'label'       => __( 'REST / admin list size', 'clanspress' ),
+							'label'       => __( 'REST / admin list size', 'clanbite' ),
 							'type'        => 'text',
-							'description' => __( 'Maximum matches returned per page in the REST API and admin helpers.', 'clanspress' ),
+							'description' => __( 'Maximum matches returned per page in the REST API and admin helpers.', 'clanbite' ),
 							'default'     => 10,
 							'sanitize'    => 'absint',
 						),
 						'default_list_limit'   => array(
-							'label'       => __( 'Default block list limit', 'clanspress' ),
+							'label'       => __( 'Default block list limit', 'clanbite' ),
 							'type'        => 'text',
-							'description' => __( 'Default number of matches for the Match list block when the block attribute is unset.', 'clanspress' ),
+							'description' => __( 'Default number of matches for the Match list block when the block attribute is unset.', 'clanbite' ),
 							'default'     => 10,
 							'sanitize'    => 'absint',
 						),
 						'datetime_format'      => array(
-							'label'       => __( 'Date/time format', 'clanspress' ),
+							'label'       => __( 'Date/time format', 'clanbite' ),
 							'type'        => 'text',
-							'description' => __( 'PHP date format used on the front end (see wp_date).', 'clanspress' ),
+							'description' => __( 'PHP date format used on the front end (see wp_date).', 'clanbite' ),
 							'default'     => 'M j, Y g:i a',
 							'sanitize'    => 'sanitize_text_field',
 						),
 						'show_scores'          => array(
-							'label'       => __( 'Show scores in blocks', 'clanspress' ),
+							'label'       => __( 'Show scores in blocks', 'clanbite' ),
 							'type'        => 'checkbox',
-							'description' => __( 'When unchecked, blocks hide scores until you turn this back on.', 'clanspress' ),
+							'description' => __( 'When unchecked, blocks hide scores until you turn this back on.', 'clanbite' ),
 							'default'     => true,
 							'sanitize'    => 'rest_sanitize_boolean',
 						),
@@ -130,6 +130,6 @@ class Admin extends Abstract_Settings {
 	 * @return void
 	 */
 	public function render_page(): void {
-		$this->render_settings_page( __( 'Matches', 'clanspress' ) );
+		$this->render_settings_page( __( 'Matches', 'clanbite' ) );
 	}
 }

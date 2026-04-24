@@ -15,19 +15,19 @@ defined( 'ABSPATH' ) || exit;
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  */
 
-$user_id = function_exists( 'clanspress_player_blocks_resolve_subject_user_id' )
-	? (int) clanspress_player_blocks_resolve_subject_user_id( $block )
+$user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
+	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
 	: 0;
 
 if ( ! $user_id ) {
 	return '';
 }
 
-$cover_image = clanspress_players_get_display_cover( $user_id );
+$cover_image = clanbite_players_get_display_cover( $user_id );
 $has_cover   = (bool) $cover_image;
 
-$background_position_x = round( clanspress_players_get_display_cover_position_x( $user_id ) * 100 ) . '%';
-$background_position_y = round( clanspress_players_get_display_cover_position_y( $user_id ) * 100 ) . '%';
+$background_position_x = round( clanbite_players_get_display_cover_position_x( $user_id ) * 100 ) . '%';
+$background_position_y = round( clanbite_players_get_display_cover_position_y( $user_id ) * 100 ) . '%';
 
 $object_position = $background_position_x . ' ' . $background_position_y;
 
@@ -45,14 +45,14 @@ if ( isset( $attributes['minHeight'] ) && (int) $attributes['minHeight'] > 0 ) {
 
 $cover_alt = sprintf(
 	/* translators: %s: Player display name. */
-	__( '%s\'s player cover', 'clanspress' ),
-	clanspress_players_get_display_name( $user_id )
+	__( '%s\'s player cover', 'clanbite' ),
+	clanbite_players_get_display_name( $user_id )
 );
 
 if ( ! $has_cover ) {
 	$wrapper_attributes = get_block_wrapper_attributes(
 		array(
-			'class' => $position_class . ' clanspress-player-cover-block clanspress-player-cover--placeholder',
+			'class' => $position_class . ' clanbite-player-cover-block clanbite-player-cover--placeholder',
 			'style' => sprintf( 'min-height:%s;', $min_h ),
 		),
 		$block
@@ -62,9 +62,9 @@ if ( ! $has_cover ) {
 <div
 	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
 >
-	<div class="clanspress-player-cover__media-clip">
+	<div class="clanbite-player-cover__media-clip">
 		<img
-			class="clanspress-player-cover__media clanspress-player-cover__media--empty"
+			class="clanbite-player-cover__media clanbite-player-cover__media--empty"
 			src="<?php echo esc_url( $cover_placeholder ); ?>"
 			alt="<?php echo esc_attr( $cover_alt ); ?>"
 			loading="lazy"
@@ -81,7 +81,7 @@ if ( ! $has_cover ) {
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class' => $position_class . ' clanspress-player-cover-block',
+		'class' => $position_class . ' clanbite-player-cover-block',
 	),
 	$block
 );
@@ -90,9 +90,9 @@ $wrapper_attributes = get_block_wrapper_attributes(
 <div
 	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
 >
-	<div class="clanspress-player-cover__media-clip">
+	<div class="clanbite-player-cover__media-clip">
 		<img
-			class="clanspress-player-cover__media"
+			class="clanbite-player-cover__media"
 			style="object-position: <?php echo esc_attr( $object_position ); ?>;"
 			src="<?php echo esc_url( $cover_image ); ?>"
 			alt="<?php echo esc_attr( $cover_alt ); ?>"

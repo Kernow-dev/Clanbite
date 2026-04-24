@@ -51,8 +51,8 @@ function GridLayoutIcon() {
 }
 
 const INNER_TEMPLATE = [
-	[ 'clanspress/player-avatar', { avatarPreset: 'medium' } ],
-	[ 'clanspress/player-display-name' ],
+	[ 'clanbite/player-avatar', { avatarPreset: 'medium' } ],
+	[ 'clanbite/player-display-name' ],
 ];
 
 export default function PlayerTemplateEdit( {
@@ -73,7 +73,7 @@ export default function PlayerTemplateEdit( {
 		const base =
 			context && typeof context === 'object' ? { ...context } : {};
 		if ( previewUserId > 0 ) {
-			base[ 'clanspress/playerId' ] = previewUserId;
+			base[ 'clanbite/playerId' ] = previewUserId;
 		}
 		return base;
 	}, [ context, previewUserId ] );
@@ -87,7 +87,7 @@ export default function PlayerTemplateEdit( {
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{
-			className: 'clanspress-player-template__preview-inner',
+			className: 'clanbite-player-template__preview-inner',
 		},
 		{
 			template: INNER_TEMPLATE,
@@ -103,12 +103,12 @@ export default function PlayerTemplateEdit( {
 	const listLabel = _x(
 		'List view',
 		'Player template block display setting',
-		'clanspress'
+		'clanbite'
 	);
 	const gridLabel = _x(
 		'Grid view',
 		'Player template block display setting',
-		'clanspress'
+		'clanbite'
 	);
 	const listActive =
 		layoutType === 'default' ||

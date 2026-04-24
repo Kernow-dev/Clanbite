@@ -5,33 +5,33 @@ import './editor.scss';
 export default function Edit( { attributes, setAttributes } ) {
 	const { prefix, postfix } = attributes;
 	const blockProps = useBlockProps( {
-		className: 'clanspress-team-stat-edit clanspress-team-stat-edit--draws',
+		className: 'clanbite-team-stat-edit clanbite-team-stat-edit--draws',
 	} );
 
 	return (
 		<div { ...blockProps }>
 			<RichText
-				key="clanspress-team-draws-prefix"
+				key="clanbite-team-draws-prefix"
 				tagName="span"
-				className="clanspress-team-stat__prefix"
+				className="clanbite-team-stat__prefix"
 				value={ prefix }
 				onChange={ ( v ) => setAttributes( { prefix: v ?? '' } ) }
-				placeholder={ __( 'Draws', 'clanspress' ) }
+				placeholder={ __( 'Draws', 'clanbite' ) }
 				allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 			/>
 			<span
-				className="clanspress-team-stat__value clanspress-team-stat__value--editor-placeholder"
+				className="clanbite-team-stat__value clanbite-team-stat__value--editor-placeholder"
 				aria-hidden="true"
 			>
 				0
 			</span>
 			<RichText
-				key="clanspress-team-draws-postfix"
+				key="clanbite-team-draws-postfix"
 				tagName="span"
-				className="clanspress-team-stat__postfix"
+				className="clanbite-team-stat__postfix"
 				value={ postfix }
 				onChange={ ( v ) => setAttributes( { postfix: v ?? '' } ) }
-				placeholder={ __( 'Postfix…', 'clanspress' ) }
+				placeholder={ __( 'Postfix…', 'clanbite' ) }
 				allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 			/>
 		</div>

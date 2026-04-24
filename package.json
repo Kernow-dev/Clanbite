@@ -1,5 +1,5 @@
 {
-	"name": "clanspress",
+	"name": "clanbite",
 	"version": "1.0.0",
 	"description": "Community management system for gamers and sports teams plugin for Wordpress.",
 	"keywords": [
@@ -11,20 +11,20 @@
 		"team",
 		"management"
 	],
-	"homepage": "https://github.com/Kernow-dev/Clanspress#readme",
+	"homepage": "https://github.com/Kernow-dev/Clanbite#readme",
 	"bugs": {
-		"url": "https://github.com/Kernow-dev/Clanspress/issues"
+		"url": "https://github.com/Kernow-dev/Clanbite/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Kernow-dev/Clanspress.git"
+		"url": "git+https://github.com/Kernow-dev/Clanbite.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Kernow.dev",
 	"type": "Wordpress Plugin",
-	"main": "clanspress.php",
+	"main": "clanbite.php",
 	"files": [
-		"clanspress.php",
+		"clanbite.php",
 		"shortcut-function.php",
 		"composer.json",
 		"license.txt",

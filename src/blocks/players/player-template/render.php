@@ -5,42 +5,42 @@ defined( 'ABSPATH' ) || exit;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
- * Server-side render: repeat inner blocks for each roster user with `clanspress/playerId` context.
+ * Server-side render: repeat inner blocks for each roster user with `clanbite/playerId` context.
  *
  * @var array    $attributes Block attributes.
  * @var string   $content    Saved inner HTML (unused).
  * @var WP_Block $block      Block instance.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-$inherit = isset( $block->context['clanspress/inheritTeamContext'] )
-	? (bool) $block->context['clanspress/inheritTeamContext']
+$inherit = isset( $block->context['clanbite/inheritTeamContext'] )
+	? (bool) $block->context['clanbite/inheritTeamContext']
 	: true;
 
-$attr_team_id = (int) ( $block->context['clanspress/teamId'] ?? 0 );
+$attr_team_id = (int) ( $block->context['clanbite/teamId'] ?? 0 );
 
-$exclude_banned = ! isset( $block->context['clanspress/excludeBannedMembers'] )
-	|| (bool) $block->context['clanspress/excludeBannedMembers'];
+$exclude_banned = ! isset( $block->context['clanbite/excludeBannedMembers'] )
+	|| (bool) $block->context['clanbite/excludeBannedMembers'];
 
 $team_id = $attr_team_id;
-if ( $team_id < 1 && $inherit && function_exists( 'clanspress_team_block_resolve_team_id' ) ) {
-	$team_id = (int) clanspress_team_block_resolve_team_id(
+if ( $team_id < 1 && $inherit && function_exists( 'clanbite_team_block_resolve_team_id' ) ) {
+	$team_id = (int) clanbite_team_block_resolve_team_id(
 		isset( $block->context ) && is_array( $block->context ) ? $block->context : array()
 	);
 }
 
-if ( $team_id < 1 || ! function_exists( 'clanspress_player_query_resolve_member_user_ids' ) ) {
+if ( $team_id < 1 || ! function_exists( 'clanbite_player_query_resolve_member_user_ids' ) ) {
 	return '';
 }
 
-$query_options = function_exists( 'clanspress_player_query_options_from_block_context' )
-	? clanspress_player_query_options_from_block_context(
+$query_options = function_exists( 'clanbite_player_query_options_from_block_context' )
+	? clanbite_player_query_options_from_block_context(
 		isset( $block->context ) && is_array( $block->context ) ? $block->context : array()
 	)
 	: array();
 
-$user_ids = clanspress_player_query_resolve_member_user_ids( $team_id, $exclude_banned, $query_options, $block );
+$user_ids = clanbite_player_query_resolve_member_user_ids( $team_id, $exclude_banned, $query_options, $block );
 if ( array() === $user_ids ) {
 	return '';
 }
@@ -56,7 +56,7 @@ foreach ( $user_ids as $member_id ) {
 
 	$merged_context = array_merge(
 		$base_context,
-		array( 'clanspress/playerId' => $member_id )
+		array( 'clanbite/playerId' => $member_id )
 	);
 
 	$row_html = '';
@@ -65,7 +65,7 @@ foreach ( $user_ids as $member_id ) {
 		$row_html .= $inner->render();
 	}
 
-	$items_html .= '<li class="clanspress-player-template__item">' . $row_html . '</li>';
+	$items_html .= '<li class="clanbite-player-template__item">' . $row_html . '</li>';
 }
 
 if ( '' === $items_html ) {
@@ -74,7 +74,7 @@ if ( '' === $items_html ) {
 
 $wrapper = get_block_wrapper_attributes(
 	array(
-		'class' => 'clanspress-player-template__entries',
+		'class' => 'clanbite-player-template__entries',
 	),
 	$block
 );

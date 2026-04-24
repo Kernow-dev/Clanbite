@@ -7,18 +7,18 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Render callback: team losses count.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-$team_id = clanspress_team_single_block_team_id( $block );
+$team_id = clanbite_team_single_block_team_id( $block );
 if ( $team_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes(
 		array(
-			'class' => 'clanspress-team-stat clanspress-team-stat--losses clanspress-team-stat--placeholder',
+			'class' => 'clanbite-team-stat clanbite-team-stat--losses clanbite-team-stat--placeholder',
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><span>' . esc_html__( 'Losses', 'clanspress' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo '<div ' . $wrapper . '><span>' . esc_html__( 'Losses', 'clanbite' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
 	return;
 }
 
@@ -32,18 +32,18 @@ $postfix_plain = trim( wp_strip_all_tags( $postfix_raw ) );
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class' => 'clanspress-team-stat clanspress-team-stat--losses',
+		'class' => 'clanbite-team-stat clanbite-team-stat--losses',
 	),
 	$block
 );
 
 $parts = array();
 if ( '' !== $prefix_plain ) {
-	$parts[] = '<span class="clanspress-team-stat__prefix">' . wp_kses_post( $prefix_raw ) . '</span>';
+	$parts[] = '<span class="clanbite-team-stat__prefix">' . wp_kses_post( $prefix_raw ) . '</span>';
 }
-$parts[] = '<span class="clanspress-team-stat__value">' . esc_html( (string) $val ) . '</span>';
+$parts[] = '<span class="clanbite-team-stat__value">' . esc_html( (string) $val ) . '</span>';
 if ( '' !== $postfix_plain ) {
-	$parts[] = '<span class="clanspress-team-stat__postfix">' . wp_kses_post( $postfix_raw ) . '</span>';
+	$parts[] = '<span class="clanbite-team-stat__postfix">' . wp_kses_post( $postfix_raw ) . '</span>';
 }
 
 echo '<div ' . $wrapper_attributes . '>' . implode( '', $parts ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.

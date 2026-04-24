@@ -6,29 +6,29 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Renders the player city when set.
  *
- * @package clanspress
+ * @package clanbite
  *
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
 
-$user_id = function_exists( 'clanspress_player_blocks_resolve_subject_user_id' )
-	? (int) clanspress_player_blocks_resolve_subject_user_id( $block )
+$user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
+	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
 	: 0;
 
 if ( $user_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes(
 		array(
-			'class' => 'clanspress-player-city clanspress-player-city--placeholder',
+			'class' => 'clanbite-player-city clanbite-player-city--placeholder',
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><p class="clanspress-player-city__text">' . esc_html__( 'Player city', 'clanspress' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo '<div ' . $wrapper . '><p class="clanbite-player-city__text">' . esc_html__( 'Player city', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
 	return;
 }
 
-$city = function_exists( 'clanspress_players_get_display_city' )
-	? trim( (string) clanspress_players_get_display_city( $user_id ) )
+$city = function_exists( 'clanbite_players_get_display_city' )
+	? trim( (string) clanbite_players_get_display_city( $user_id ) )
 	: '';
 
 if ( '' === $city ) {
@@ -36,7 +36,7 @@ if ( '' === $city ) {
 }
 
 $align = isset( $attributes['textAlign'] ) ? sanitize_key( (string) $attributes['textAlign'] ) : '';
-$class = array( 'clanspress-player-city__text' );
+$class = array( 'clanbite-player-city__text' );
 if ( $align && in_array( $align, array( 'left', 'center', 'right', 'justify' ), true ) ) {
 	$class[] = 'has-text-align-' . $align;
 }

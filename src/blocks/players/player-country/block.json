@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-country",
+	"name": "clanbite/player-country",
 	"version": "1.0.0",
 	"title": "Player country",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "admin-site-alt3",
 	"description": "Displays the player country on player profile and roster templates.",
-	"textdomain": "clanspress",
-	"usesContext": [ "postId", "postType", "clanspress/playerId" ],
+	"textdomain": "clanbite",
+	"usesContext": [ "postId", "postType", "clanbite/playerId" ],
 	"attributes": {
 		"showCode": {
 			"type": "boolean",
@@ -47,12 +47,12 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-country",
+		"root": ".wp-block-clanbite-player-country",
 		"color": {
-			"text": ".wp-block-clanspress-player-country .clanspress-country-display__label, .wp-block-clanspress-player-country .clanspress-country-display__flag",
-			"background": ".wp-block-clanspress-player-country"
+			"text": ".wp-block-clanbite-player-country .clanbite-country-display__label, .wp-block-clanbite-player-country .clanbite-country-display__flag",
+			"background": ".wp-block-clanbite-player-country"
 		},
-		"typography": ".wp-block-clanspress-player-country .clanspress-country-display__label",
-		"border": ".wp-block-clanspress-player-country"
+		"typography": ".wp-block-clanbite-player-country .clanbite-country-display__label",
+		"border": ".wp-block-clanbite-player-country"
 	}
 }

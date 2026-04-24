@@ -6,15 +6,15 @@ import './editor.scss';
 
 const AVATAR_PRESET_OPTIONS = [
 	{
-		label: __( 'Large — team profiles', 'clanspress' ),
+		label: __( 'Large — team profiles', 'clanbite' ),
 		value: 'large',
 	},
 	{
-		label: __( 'Medium — feeds & lists', 'clanspress' ),
+		label: __( 'Medium — feeds & lists', 'clanbite' ),
 		value: 'medium',
 	},
 	{
-		label: __( 'Small — compact UI', 'clanspress' ),
+		label: __( 'Small — compact UI', 'clanbite' ),
 		value: 'small',
 	},
 ];
@@ -25,12 +25,12 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Avatar output', 'clanspress' ) }>
+				<PanelBody title={ __( 'Avatar output', 'clanbite' ) }>
 					<SelectControl
-						label={ __( 'Image size preset', 'clanspress' ) }
+						label={ __( 'Image size preset', 'clanbite' ) }
 						help={ __(
-							'Uses the matching size from Clanspress → Teams → Team avatar image sizes.',
-							'clanspress'
+							'Uses the matching size from Clanbite → Teams → Team avatar image sizes.',
+							'clanbite'
 						) }
 						value={ avatarPreset || 'large' }
 						options={ AVATAR_PRESET_OPTIONS }
@@ -47,11 +47,11 @@ export default function Edit( { attributes, setAttributes } ) {
 			<EntityLinkInspector
 				attributes={ attributes }
 				setAttributes={ setAttributes }
-				toggleLabel={ __( 'Link image to team profile', 'clanspress' ) }
+				toggleLabel={ __( 'Link image to team profile', 'clanbite' ) }
 			/>
 			<div { ...useBlockProps() }>
-				<p className="clanspress-team-block-placeholder">
-					{ __( 'Team avatar (single team template)', 'clanspress' ) }
+				<p className="clanbite-team-block-placeholder">
+					{ __( 'Team avatar (single team template)', 'clanbite' ) }
 				</p>
 			</div>
 		</>

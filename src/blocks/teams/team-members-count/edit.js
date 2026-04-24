@@ -10,7 +10,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	const blockProps = useBlockProps( {
 		className:
-			'clanspress-team-stat-edit clanspress-team-stat-edit--members-count',
+			'clanbite-team-stat-edit clanbite-team-stat-edit--members-count',
 	} );
 
 	const onPrefixChange = ( v ) => {
@@ -24,27 +24,27 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<div { ...blockProps }>
 			<RichText
-				key="clanspress-team-members-prefix"
+				key="clanbite-team-members-prefix"
 				tagName="span"
-				className="clanspress-team-members-count__prefix"
+				className="clanbite-team-members-count__prefix"
 				value={ prefixValue }
 				onChange={ onPrefixChange }
-				placeholder={ __( 'Members', 'clanspress' ) }
+				placeholder={ __( 'Members', 'clanbite' ) }
 				allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 			/>
 			<span
-				className="clanspress-team-members-count__value clanspress-team-members-count__value--editor-placeholder"
+				className="clanbite-team-members-count__value clanbite-team-members-count__value--editor-placeholder"
 				aria-hidden="true"
 			>
 				0
 			</span>
 			<RichText
-				key="clanspress-team-members-postfix"
+				key="clanbite-team-members-postfix"
 				tagName="span"
-				className="clanspress-team-members-count__postfix"
+				className="clanbite-team-members-count__postfix"
 				value={ postfixValue }
 				onChange={ ( v ) => setAttributes( { postfix: v ?? '' } ) }
-				placeholder={ __( 'Postfix…', 'clanspress' ) }
+				placeholder={ __( 'Postfix…', 'clanbite' ) }
 				allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
 			/>
 		</div>

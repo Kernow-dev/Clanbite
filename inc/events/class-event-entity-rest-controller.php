@@ -2,10 +2,10 @@
 /**
  * REST API for `cp_event` posts (create/list/update from the front-end).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Events;
+namespace Kernowdev\Clanbite\Events;
 defined( 'ABSPATH' ) || exit;
 
 use WP_Error;
@@ -24,7 +24,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'clanspress/v1';
+	protected $namespace = 'clanbite/v1';
 
 	/**
 	 * Base.
@@ -123,19 +123,19 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 				'sanitize_callback' => 'sanitize_key',
 			),
 			'player_user_id' => array(
-				'description'       => __( 'Merged calendar for this user’s team/group memberships (viewer must be that user, or a user editor).', 'clanspress' ),
+				'description'       => __( 'Merged calendar for this user’s team/group memberships (viewer must be that user, or a user editor).', 'clanbite' ),
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
 			),
 			'starts_after'   => array(
-				'description'       => __( 'Only events starting at or after this instant (ISO 8601 UTC).', 'clanspress' ),
+				'description'       => __( 'Only events starting at or after this instant (ISO 8601 UTC).', 'clanbite' ),
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
 			'starts_before'  => array(
-				'description'       => __( 'Only events starting at or before this instant (ISO 8601 UTC).', 'clanspress' ),
+				'description'       => __( 'Only events starting at or before this instant (ISO 8601 UTC).', 'clanbite' ),
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
@@ -158,8 +158,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		if ( $player_user_id > 0 && ( $team_id > 0 || $group_id > 0 ) ) {
 			return new WP_Error(
-				'clanspress_event_invalid_query',
-				__( 'Use either player_user_id or team_id/group_id, not both.', 'clanspress' ),
+				'clanbite_event_invalid_query',
+				__( 'Use either player_user_id or team_id/group_id, not both.', 'clanbite' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -225,8 +225,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	private function get_items_for_profile_owner( WP_REST_Request $request, int $player_user_id ) {
 		if ( ! is_user_logged_in() ) {
 			return new WP_Error(
-				'clanspress_not_logged_in',
-				__( 'You must be logged in.', 'clanspress' ),
+				'clanbite_not_logged_in',
+				__( 'You must be logged in.', 'clanbite' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -234,32 +234,32 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$viewer = (int) get_current_user_id();
 		if ( $player_user_id !== $viewer && ! current_user_can( 'edit_users' ) ) {
 			return new WP_Error(
-				'clanspress_event_forbidden',
-				__( 'You can only load your own event calendar.', 'clanspress' ),
+				'clanbite_event_forbidden',
+				__( 'You can only load your own event calendar.', 'clanbite' ),
 				array( 'status' => 403 )
 			);
 		}
 
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
 			return new WP_Error(
-				'clanspress_events_disabled',
-				__( 'Events are disabled on this site.', 'clanspress' ),
+				'clanbite_events_disabled',
+				__( 'Events are disabled on this site.', 'clanbite' ),
 				array( 'status' => 403 )
 			);
 		}
 
-		$team_ids  = function_exists( 'clanspress_events_get_user_team_ids_for_calendar' )
-			? clanspress_events_get_user_team_ids_for_calendar( $player_user_id )
+		$team_ids  = function_exists( 'clanbite_events_get_user_team_ids_for_calendar' )
+			? clanbite_events_get_user_team_ids_for_calendar( $player_user_id )
 			: array();
-		$group_ids = function_exists( 'clanspress_events_get_user_group_ids_for_calendar' )
-			? clanspress_events_get_user_group_ids_for_calendar( $player_user_id )
+		$group_ids = function_exists( 'clanbite_events_get_user_group_ids_for_calendar' )
+			? clanbite_events_get_user_group_ids_for_calendar( $player_user_id )
 			: array();
 
 		$meta_or = array( 'relation' => 'OR' );
 
 		foreach ( $team_ids as $tid ) {
 			$tid = (int) $tid;
-			if ( $tid < 1 || ! function_exists( 'clanspress_events_are_enabled_for_team' ) || ! clanspress_events_are_enabled_for_team( $tid ) ) {
+			if ( $tid < 1 || ! function_exists( 'clanbite_events_are_enabled_for_team' ) || ! clanbite_events_are_enabled_for_team( $tid ) ) {
 				continue;
 			}
 			$meta_or[] = array(
@@ -277,7 +277,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		foreach ( $group_ids as $gid ) {
 			$gid = (int) $gid;
-			if ( $gid < 1 || ! function_exists( 'clanspress_events_are_enabled_for_group' ) || ! clanspress_events_are_enabled_for_group( $gid ) ) {
+			if ( $gid < 1 || ! function_exists( 'clanbite_events_are_enabled_for_group' ) || ! clanbite_events_are_enabled_for_group( $gid ) ) {
 				continue;
 			}
 			$meta_or[] = array(
@@ -364,7 +364,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			 * intersect the window (starts_at <= end AND ends_at >= start), or point events when
 			 * starts_at falls inside the window and there is no usable end date.
 			 */
-			$meta_query['clanspress_range_overlap'] = array(
+			$meta_query['clanbite_range_overlap'] = array(
 				'relation' => 'OR',
 				'span'     => array(
 					'relation' => 'AND',
@@ -449,20 +449,20 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		$per_page_req = (int) $request->get_param( 'per_page' );
 		if ( $has_range ) {
-			$default_range = function_exists( 'clanspress_events_rest_default_per_page_for_range_query' )
-				? clanspress_events_rest_default_per_page_for_range_query()
+			$default_range = function_exists( 'clanbite_events_rest_default_per_page_for_range_query' )
+				? clanbite_events_rest_default_per_page_for_range_query()
 				: 200;
-			$max_range     = function_exists( 'clanspress_events_rest_max_per_page_for_range_query' )
-				? clanspress_events_rest_max_per_page_for_range_query()
+			$max_range     = function_exists( 'clanbite_events_rest_max_per_page_for_range_query' )
+				? clanbite_events_rest_max_per_page_for_range_query()
 				: 500;
 			$per_page      = max( 1, min( $max_range, $per_page_req > 0 ? $per_page_req : $default_range ) );
 			$page          = 1;
 		} else {
-			$default_page = function_exists( 'clanspress_events_rest_default_per_page_paginated' )
-				? clanspress_events_rest_default_per_page_paginated()
+			$default_page = function_exists( 'clanbite_events_rest_default_per_page_paginated' )
+				? clanbite_events_rest_default_per_page_paginated()
 				: 20;
-			$max_page     = function_exists( 'clanspress_events_rest_max_per_page_paginated' )
-				? clanspress_events_rest_max_per_page_paginated()
+			$max_page     = function_exists( 'clanbite_events_rest_max_per_page_paginated' )
+				? clanbite_events_rest_max_per_page_paginated()
 				: 50;
 			$per_page     = max( 1, min( $max_page, $per_page_req > 0 ? $per_page_req : $default_page ) );
 			$page         = max( 1, (int) $request->get_param( 'page' ) );
@@ -528,7 +528,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$id   = (int) $request['id'];
 		$post = get_post( $id );
 		if ( ! ( $post instanceof \WP_Post ) || Event_Post_Type::POST_TYPE !== $post->post_type ) {
-			return new WP_Error( 'clanspress_event_not_found', __( 'Event not found.', 'clanspress' ), array( 'status' => 404 ) );
+			return new WP_Error( 'clanbite_event_not_found', __( 'Event not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
 		$scope_err = $this->assert_events_allowed_for_event_post( $post );
@@ -538,7 +538,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		$viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
 		if ( ! Event_Permissions::viewer_can_see( $post, $viewer_id ) ) {
-			return new WP_Error( 'clanspress_event_forbidden', __( 'You cannot view this event.', 'clanspress' ), array( 'status' => 403 ) );
+			return new WP_Error( 'clanbite_event_forbidden', __( 'You cannot view this event.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		return new WP_REST_Response( $this->post_to_response( $post ), 200 );
@@ -559,16 +559,16 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$group_id = (int) $request->get_param( 'group_id' );
 
 		if ( Event_Post_Type::SCOPE_TEAM === $scope ) {
-			if ( $team_id <= 0 || ! function_exists( 'clanspress_teams_user_can_manage' ) || ! clanspress_teams_user_can_manage( $team_id, $user_id ) ) {
-				return new WP_Error( 'clanspress_event_forbidden', __( 'You cannot create events for this team.', 'clanspress' ), array( 'status' => 403 ) );
+			if ( $team_id <= 0 || ! function_exists( 'clanbite_teams_user_can_manage' ) || ! clanbite_teams_user_can_manage( $team_id, $user_id ) ) {
+				return new WP_Error( 'clanbite_event_forbidden', __( 'You cannot create events for this team.', 'clanbite' ), array( 'status' => 403 ) );
 			}
 		} elseif ( Event_Post_Type::SCOPE_GROUP === $scope ) {
-			if ( $group_id <= 0 || ! function_exists( 'clanspress_groups_user_can_manage' )
-				|| ! clanspress_groups_user_can_manage( $group_id, $user_id ) ) {
-				return new WP_Error( 'clanspress_event_forbidden', __( 'You cannot create events for this group.', 'clanspress' ), array( 'status' => 403 ) );
+			if ( $group_id <= 0 || ! function_exists( 'clanbite_groups_user_can_manage' )
+				|| ! clanbite_groups_user_can_manage( $group_id, $user_id ) ) {
+				return new WP_Error( 'clanbite_event_forbidden', __( 'You cannot create events for this group.', 'clanbite' ), array( 'status' => 403 ) );
 			}
 		} else {
-			return new WP_Error( 'clanspress_event_invalid_scope', __( 'Invalid scope.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_event_invalid_scope', __( 'Invalid scope.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		if ( Event_Post_Type::SCOPE_TEAM === $scope ) {
@@ -585,14 +585,14 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		$title   = sanitize_text_field( (string) $request->get_param( 'title' ) );
 		$content = isset( $request['content'] ) ? wp_kses_post( (string) $request->get_param( 'content' ) ) : '';
-		if ( function_exists( 'clanspress_wordban_validate_strict_text' ) ) {
-			$wb = clanspress_wordban_validate_strict_text( $title );
+		if ( function_exists( 'clanbite_wordban_validate_strict_text' ) ) {
+			$wb = clanbite_wordban_validate_strict_text( $title );
 			if ( $wb instanceof WP_Error ) {
 				return $wb;
 			}
 		}
-		if ( function_exists( 'clanspress_wordban_mask_html_content' ) ) {
-			$content = clanspress_wordban_mask_html_content( $content );
+		if ( function_exists( 'clanbite_wordban_mask_html_content' ) ) {
+			$content = clanbite_wordban_mask_html_content( $content );
 		}
 		$status  = sanitize_key( (string) $request->get_param( 'status' ) );
 		if ( ! in_array( $status, array( 'draft', 'publish' ), true ) ) {
@@ -603,7 +603,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			array(
 				'post_type'    => Event_Post_Type::POST_TYPE,
 				'post_status'  => $status,
-				'post_title'   => $title ? $title : __( 'Event', 'clanspress' ),
+				'post_title'   => $title ? $title : __( 'Event', 'clanbite' ),
 				'post_content' => $content,
 				'post_author'  => $user_id,
 			)
@@ -627,7 +627,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		$post = get_post( $post_id );
 		if ( ! ( $post instanceof \WP_Post ) ) {
-			return new WP_Error( 'clanspress_event_create_failed', __( 'Could not create event.', 'clanspress' ), array( 'status' => 500 ) );
+			return new WP_Error( 'clanbite_event_create_failed', __( 'Could not create event.', 'clanbite' ), array( 'status' => 500 ) );
 		}
 
 		$response_data = $this->post_to_response( $post );
@@ -651,12 +651,12 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$id   = (int) $request['id'];
 		$post = get_post( $id );
 		if ( ! ( $post instanceof \WP_Post ) || Event_Post_Type::POST_TYPE !== $post->post_type ) {
-			return new WP_Error( 'clanspress_event_not_found', __( 'Event not found.', 'clanspress' ), array( 'status' => 404 ) );
+			return new WP_Error( 'clanbite_event_not_found', __( 'Event not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
 		$user_id = (int) get_current_user_id();
 		if ( ! Event_Permissions::user_can_manage_event( $id, $user_id ) ) {
-			return new WP_Error( 'clanspress_event_forbidden', __( 'You cannot edit this event.', 'clanspress' ), array( 'status' => 403 ) );
+			return new WP_Error( 'clanbite_event_forbidden', __( 'You cannot edit this event.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		$scope_err = $this->assert_events_allowed_for_event_post( $post );
@@ -667,8 +667,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$update = array( 'ID' => $id );
 		if ( null !== $request->get_param( 'title' ) ) {
 			$new_title = sanitize_text_field( (string) $request->get_param( 'title' ) );
-			if ( function_exists( 'clanspress_wordban_validate_strict_text' ) ) {
-				$wb = clanspress_wordban_validate_strict_text( $new_title );
+			if ( function_exists( 'clanbite_wordban_validate_strict_text' ) ) {
+				$wb = clanbite_wordban_validate_strict_text( $new_title );
 				if ( $wb instanceof WP_Error ) {
 					return $wb;
 				}
@@ -677,8 +677,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		}
 		if ( null !== $request->get_param( 'content' ) ) {
 			$new_content = wp_kses_post( (string) $request->get_param( 'content' ) );
-			if ( function_exists( 'clanspress_wordban_mask_html_content' ) ) {
-				$new_content = clanspress_wordban_mask_html_content( $new_content );
+			if ( function_exists( 'clanbite_wordban_mask_html_content' ) ) {
+				$new_content = clanbite_wordban_mask_html_content( $new_content );
 			}
 			$update['post_content'] = $new_content;
 		}
@@ -723,12 +723,12 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$id   = (int) $request['id'];
 		$post = get_post( $id );
 		if ( ! ( $post instanceof \WP_Post ) || Event_Post_Type::POST_TYPE !== $post->post_type ) {
-			return new WP_Error( 'clanspress_event_not_found', __( 'Event not found.', 'clanspress' ), array( 'status' => 404 ) );
+			return new WP_Error( 'clanbite_event_not_found', __( 'Event not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
 		$user_id = (int) get_current_user_id();
 		if ( ! Event_Permissions::user_can_manage_event( $id, $user_id ) ) {
-			return new WP_Error( 'clanspress_event_forbidden', __( 'You cannot delete this event.', 'clanspress' ), array( 'status' => 403 ) );
+			return new WP_Error( 'clanbite_event_forbidden', __( 'You cannot delete this event.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		$scope_err = $this->assert_events_allowed_for_event_post( $post );
@@ -738,7 +738,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		$result = wp_trash_post( $id );
 		if ( ! $result ) {
-			return new WP_Error( 'clanspress_event_delete_failed', __( 'Could not delete this event.', 'clanspress' ), array( 'status' => 500 ) );
+			return new WP_Error( 'clanbite_event_delete_failed', __( 'Could not delete this event.', 'clanbite' ), array( 'status' => 500 ) );
 		}
 
 		return new WP_REST_Response(
@@ -755,7 +755,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 */
 	public function create_permissions_check() {
 		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'clanspress_not_logged_in', __( 'You must be logged in.', 'clanspress' ), array( 'status' => 401 ) );
+			return new WP_Error( 'clanbite_not_logged_in', __( 'You must be logged in.', 'clanbite' ), array( 'status' => 401 ) );
 		}
 		return true;
 	}
@@ -765,7 +765,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 */
 	public function update_permissions_check() {
 		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'clanspress_not_logged_in', __( 'You must be logged in.', 'clanspress' ), array( 'status' => 401 ) );
+			return new WP_Error( 'clanbite_not_logged_in', __( 'You must be logged in.', 'clanbite' ), array( 'status' => 401 ) );
 		}
 		return true;
 	}
@@ -775,7 +775,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 */
 	public function delete_permissions_check() {
 		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'clanspress_not_logged_in', __( 'You must be logged in.', 'clanspress' ), array( 'status' => 401 ) );
+			return new WP_Error( 'clanbite_not_logged_in', __( 'You must be logged in.', 'clanbite' ), array( 'status' => 401 ) );
 		}
 		return true;
 	}
@@ -962,13 +962,13 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 */
 	private function assert_team_events_allowed( int $team_id ): ?WP_Error {
 		if ( $team_id < 1 ) {
-			return new WP_Error( 'clanspress_events_disabled', __( 'Events are not available for this record.', 'clanspress' ), array( 'status' => 403 ) );
+			return new WP_Error( 'clanbite_events_disabled', __( 'Events are not available for this record.', 'clanbite' ), array( 'status' => 403 ) );
 		}
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
-			return new WP_Error( 'clanspress_events_disabled', __( 'Events are disabled on this site.', 'clanspress' ), array( 'status' => 403 ) );
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
+			return new WP_Error( 'clanbite_events_disabled', __( 'Events are disabled on this site.', 'clanbite' ), array( 'status' => 403 ) );
 		}
-		if ( ! function_exists( 'clanspress_events_are_enabled_for_team' ) || ! clanspress_events_are_enabled_for_team( $team_id ) ) {
-			return new WP_Error( 'clanspress_events_disabled', __( 'Events are disabled for this team.', 'clanspress' ), array( 'status' => 403 ) );
+		if ( ! function_exists( 'clanbite_events_are_enabled_for_team' ) || ! clanbite_events_are_enabled_for_team( $team_id ) ) {
+			return new WP_Error( 'clanbite_events_disabled', __( 'Events are disabled for this team.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		return null;
@@ -982,13 +982,13 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 */
 	private function assert_group_events_allowed( int $group_id ): ?WP_Error {
 		if ( $group_id < 1 ) {
-			return new WP_Error( 'clanspress_events_disabled', __( 'Events are not available for this record.', 'clanspress' ), array( 'status' => 403 ) );
+			return new WP_Error( 'clanbite_events_disabled', __( 'Events are not available for this record.', 'clanbite' ), array( 'status' => 403 ) );
 		}
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
-			return new WP_Error( 'clanspress_events_disabled', __( 'Events are disabled on this site.', 'clanspress' ), array( 'status' => 403 ) );
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
+			return new WP_Error( 'clanbite_events_disabled', __( 'Events are disabled on this site.', 'clanbite' ), array( 'status' => 403 ) );
 		}
-		if ( ! function_exists( 'clanspress_events_are_enabled_for_group' ) || ! clanspress_events_are_enabled_for_group( $group_id ) ) {
-			return new WP_Error( 'clanspress_events_disabled', __( 'Events are disabled for this group.', 'clanspress' ), array( 'status' => 403 ) );
+		if ( ! function_exists( 'clanbite_events_are_enabled_for_group' ) || ! clanbite_events_are_enabled_for_group( $group_id ) ) {
+			return new WP_Error( 'clanbite_events_disabled', __( 'Events are disabled for this group.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		return null;

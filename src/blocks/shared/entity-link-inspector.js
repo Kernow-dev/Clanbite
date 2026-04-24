@@ -26,7 +26,7 @@ export function EntityLinkInspector( {
 	return (
 		<InspectorControls>
 			<ToolsPanel
-				label={ __( 'Link', 'clanspress' ) }
+				label={ __( 'Link', 'clanbite' ) }
 				resetAll={ () =>
 					setAttributes( {
 						isLink: false,
@@ -57,7 +57,7 @@ export function EntityLinkInspector( {
 				{ isLink ? (
 					<>
 						<ToolsPanelItem
-							label={ __( 'Open in new tab', 'clanspress' ) }
+							label={ __( 'Open in new tab', 'clanbite' ) }
 							isShownByDefault
 							hasValue={ () => linkTarget === '_blank' }
 							onDeselect={ () =>
@@ -65,7 +65,7 @@ export function EntityLinkInspector( {
 							}
 						>
 							<ToggleControl
-								label={ __( 'Open in new tab', 'clanspress' ) }
+								label={ __( 'Open in new tab', 'clanbite' ) }
 								checked={ linkTarget === '_blank' }
 								onChange={ ( v ) =>
 									setAttributes( {
@@ -76,20 +76,20 @@ export function EntityLinkInspector( {
 							/>
 						</ToolsPanelItem>
 						<ToolsPanelItem
-							label={ __( 'Link rel', 'clanspress' ) }
+							label={ __( 'Link rel', 'clanbite' ) }
 							isShownByDefault
 							hasValue={ () => !! rel }
 							onDeselect={ () => setAttributes( { rel: '' } ) }
 						>
 							<TextControl
-								label={ __( 'Link rel', 'clanspress' ) }
+								label={ __( 'Link rel', 'clanbite' ) }
 								value={ rel || '' }
 								onChange={ ( v ) =>
 									setAttributes( { rel: v ?? '' } )
 								}
 								help={ __(
 									'Optional rel value. noopener and noreferrer are added automatically for new tabs.',
-									'clanspress'
+									'clanbite'
 								) }
 								__next40pxDefaultSize
 								__nextHasNoMarginBottom

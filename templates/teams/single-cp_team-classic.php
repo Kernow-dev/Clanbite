@@ -5,7 +5,7 @@
  * Renders the same block markup as the FSE template (`single-cp_team.html`) via {@see do_blocks()}
  * so team blocks resolve the current post in the loop.
  *
- * @package clanspress
+ * @package clanbite
  */
 
 defined( 'ABSPATH' ) || exit;

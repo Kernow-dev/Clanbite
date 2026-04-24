@@ -5,17 +5,17 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Procedural helpers for scheduled events (feature flags, team/group scope).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-use Kernowdev\Clanspress\Admin\General_Settings;
+use Kernowdev\Clanbite\Admin\General_Settings;
 
 /**
- * Whether events are enabled site-wide (Clanspress → Settings → General).
+ * Whether events are enabled site-wide (Clanbite → Settings → General).
  *
  * @return bool
  */
-function clanspress_events_are_globally_enabled(): bool {
+function clanbite_events_are_globally_enabled(): bool {
 	$defaults = array( 'events_enabled' => true );
 	$stored   = get_option( General_Settings::OPTION_KEY, array() );
 	if ( ! is_array( $stored ) ) {
@@ -29,11 +29,11 @@ function clanspress_events_are_globally_enabled(): bool {
 /**
  * Default `per_page` for `event-posts` list requests that use `starts_after` / `starts_before` (calendar windows).
  *
- * Kept in sync with {@see \Kernowdev\Clanspress\Events\Event_Entity_Rest_Controller} and event block clients via localized config.
+ * Kept in sync with {@see \Kernowdev\Clanbite\Events\Event_Entity_Rest_Controller} and event block clients via localized config.
  *
  * @return int Positive integer (default 200).
  */
-function clanspress_events_rest_default_per_page_for_range_query(): int {
+function clanbite_events_rest_default_per_page_for_range_query(): int {
 	$default = 200;
 
 	/**
@@ -41,7 +41,7 @@ function clanspress_events_rest_default_per_page_for_range_query(): int {
 	 *
 	 * @param int $default Default per_page before request clamping.
 	 */
-	return (int) max( 1, (int) apply_filters( 'clanspress_events_rest_default_per_page_range', $default ) );
+	return (int) max( 1, (int) apply_filters( 'clanbite_events_rest_default_per_page_range', $default ) );
 }
 
 /**
@@ -49,7 +49,7 @@ function clanspress_events_rest_default_per_page_for_range_query(): int {
  *
  * @return int Positive integer (default 500).
  */
-function clanspress_events_rest_max_per_page_for_range_query(): int {
+function clanbite_events_rest_max_per_page_for_range_query(): int {
 	$max = 500;
 
 	/**
@@ -57,7 +57,7 @@ function clanspress_events_rest_max_per_page_for_range_query(): int {
 	 *
 	 * @param int $max Upper bound for `per_page` when a start/end window is set.
 	 */
-	return (int) max( 1, (int) apply_filters( 'clanspress_events_rest_max_per_page_range', $max ) );
+	return (int) max( 1, (int) apply_filters( 'clanbite_events_rest_max_per_page_range', $max ) );
 }
 
 /**
@@ -65,7 +65,7 @@ function clanspress_events_rest_max_per_page_for_range_query(): int {
  *
  * @return int Positive integer (default 20).
  */
-function clanspress_events_rest_default_per_page_paginated(): int {
+function clanbite_events_rest_default_per_page_paginated(): int {
 	$default = 20;
 
 	/**
@@ -73,7 +73,7 @@ function clanspress_events_rest_default_per_page_paginated(): int {
 	 *
 	 * @param int $default Default per_page before clamping to the paginated max.
 	 */
-	return (int) max( 1, (int) apply_filters( 'clanspress_events_rest_default_per_page_paginated', $default ) );
+	return (int) max( 1, (int) apply_filters( 'clanbite_events_rest_default_per_page_paginated', $default ) );
 }
 
 /**
@@ -81,7 +81,7 @@ function clanspress_events_rest_default_per_page_paginated(): int {
  *
  * @return int Positive integer (default 50).
  */
-function clanspress_events_rest_max_per_page_paginated(): int {
+function clanbite_events_rest_max_per_page_paginated(): int {
 	$max = 50;
 
 	/**
@@ -89,7 +89,7 @@ function clanspress_events_rest_max_per_page_paginated(): int {
 	 *
 	 * @param int $max Upper bound for `per_page` when no start/end window is set.
 	 */
-	return (int) max( 1, (int) apply_filters( 'clanspress_events_rest_max_per_page_paginated', $max ) );
+	return (int) max( 1, (int) apply_filters( 'clanbite_events_rest_max_per_page_paginated', $max ) );
 }
 
 /**
@@ -100,7 +100,7 @@ function clanspress_events_rest_max_per_page_paginated(): int {
  * @param int $player_id Profile user ID.
  * @return bool
  */
-function clanspress_player_profile_events_subpage_visible_for_viewer( int $player_id ): bool {
+function clanbite_player_profile_events_subpage_visible_for_viewer( int $player_id ): bool {
 	if ( $player_id < 1 ) {
 		return false;
 	}
@@ -117,7 +117,7 @@ function clanspress_player_profile_events_subpage_visible_for_viewer( int $playe
  * @param mixed $raw Raw meta value.
  * @return bool True when the entity allows events (subject to global).
  */
-function clanspress_events_parse_entity_enabled_meta( $raw ): bool {
+function clanbite_events_parse_entity_enabled_meta( $raw ): bool {
 	if ( '' === $raw || null === $raw ) {
 		return true;
 	}
@@ -140,17 +140,17 @@ function clanspress_events_parse_entity_enabled_meta( $raw ): bool {
  * @param int $team_id Team post ID (`cp_team`).
  * @return bool
  */
-function clanspress_events_are_enabled_for_team( int $team_id ): bool {
+function clanbite_events_are_enabled_for_team( int $team_id ): bool {
 	if ( $team_id < 1 ) {
 		return false;
 	}
-	if ( ! clanspress_events_are_globally_enabled() ) {
+	if ( ! clanbite_events_are_globally_enabled() ) {
 		return false;
 	}
 
 	$raw = get_post_meta( $team_id, 'cp_team_events_enabled', true );
 
-	return clanspress_events_parse_entity_enabled_meta( $raw );
+	return clanbite_events_parse_entity_enabled_meta( $raw );
 }
 
 /**
@@ -159,34 +159,34 @@ function clanspress_events_are_enabled_for_team( int $team_id ): bool {
  * @param int $group_id Group post ID (`cp_group`).
  * @return bool
  */
-function clanspress_events_are_enabled_for_group( int $group_id ): bool {
+function clanbite_events_are_enabled_for_group( int $group_id ): bool {
 	if ( $group_id < 1 ) {
 		return false;
 	}
-	if ( ! clanspress_events_are_globally_enabled() ) {
+	if ( ! clanbite_events_are_globally_enabled() ) {
 		return false;
 	}
 
 	$raw = get_post_meta( $group_id, 'cp_group_events_enabled', true );
 
-	return clanspress_events_parse_entity_enabled_meta( $raw );
+	return clanbite_events_parse_entity_enabled_meta( $raw );
 }
 
 /**
  * Team post IDs used when building a player’s merged “my events” calendar.
  *
  * Defaults to `cp_team_membership_ids` user meta. Extensions may add IDs via
- * {@see clanspress_events_player_calendar_team_ids}.
+ * {@see clanbite_events_player_calendar_team_ids}.
  *
  * @param int $user_id WordPress user ID.
  * @return int[] Unique team IDs.
  */
-function clanspress_events_get_user_team_ids_for_calendar( int $user_id ): array {
+function clanbite_events_get_user_team_ids_for_calendar( int $user_id ): array {
 	if ( $user_id < 1 ) {
 		return array();
 	}
 
-	if ( ! function_exists( 'clanspress_teams' ) || null === clanspress_teams() ) {
+	if ( ! function_exists( 'clanbite_teams' ) || null === clanbite_teams() ) {
 		return array();
 	}
 
@@ -211,7 +211,7 @@ function clanspress_events_get_user_team_ids_for_calendar( int $user_id ): array
 	 * @param int[] $team_ids Team post IDs.
 	 * @param int   $user_id  Profile owner user ID.
 	 */
-	$filtered = apply_filters( 'clanspress_events_player_calendar_team_ids', $ids, $user_id );
+	$filtered = apply_filters( 'clanbite_events_player_calendar_team_ids', $ids, $user_id );
 
 	return array_values(
 		array_unique(
@@ -229,12 +229,12 @@ function clanspress_events_get_user_team_ids_for_calendar( int $user_id ): array
  * Group post IDs used when building a player’s merged calendar (extensions add IDs via filter).
  *
  * Core returns an empty list; extensions should populate via
- * {@see clanspress_events_player_calendar_group_ids}.
+ * {@see clanbite_events_player_calendar_group_ids}.
  *
  * @param int $user_id WordPress user ID.
  * @return int[] Unique group IDs.
  */
-function clanspress_events_get_user_group_ids_for_calendar( int $user_id ): array {
+function clanbite_events_get_user_group_ids_for_calendar( int $user_id ): array {
 	if ( $user_id < 1 ) {
 		return array();
 	}
@@ -249,7 +249,7 @@ function clanspress_events_get_user_group_ids_for_calendar( int $user_id ): arra
 	 * @param bool $active   Whether group events are included.
 	 * @param int  $user_id Profile owner user ID.
 	 */
-	$groups_feature_active = (bool) apply_filters( 'clanspress_groups_feature_active', $groups_feature_active, $user_id );
+	$groups_feature_active = (bool) apply_filters( 'clanbite_groups_feature_active', $groups_feature_active, $user_id );
 
 	if ( ! $groups_feature_active ) {
 		return array();
@@ -261,7 +261,7 @@ function clanspress_events_get_user_group_ids_for_calendar( int $user_id ): arra
 	 * @param int[] $group_ids Group post IDs (empty by default).
 	 * @param int   $user_id   Profile owner user ID.
 	 */
-	$filtered = apply_filters( 'clanspress_events_player_calendar_group_ids', array(), $user_id );
+	$filtered = apply_filters( 'clanbite_events_player_calendar_group_ids', array(), $user_id );
 
 	return array_values(
 		array_unique(
@@ -283,7 +283,7 @@ function clanspress_events_get_user_group_ids_for_calendar( int $user_id ): arra
  * @param string $today_ymd      Site-local today as `Y-m-d` (e.g. from `wp_date( 'Y-m-d' )`).
  * @return string Safe HTML fragment (no outer wrapper).
  */
-function clanspress_event_calendar_month_grid_markup( string $anchor_ymd, array $weekday_labels, string $today_ymd ): string {
+function clanbite_event_calendar_month_grid_markup( string $anchor_ymd, array $weekday_labels, string $today_ymd ): string {
 	$tz = wp_timezone();
 
 	try {
@@ -296,13 +296,13 @@ function clanspress_event_calendar_month_grid_markup( string $anchor_ymd, array 
 	$dow            = (int) $first_of_month->format( 'w' );
 	$start          = $first_of_month->modify( '-' . $dow . ' days' );
 
-	$html  = '<div class="clanspress-event-calendar__month">';
-	$html .= '<div class="clanspress-event-calendar__dow">';
+	$html  = '<div class="clanbite-event-calendar__month">';
+	$html .= '<div class="clanbite-event-calendar__dow">';
 	for ( $i = 0; $i < 7; $i++ ) {
 		$lab = isset( $weekday_labels[ $i ] ) ? (string) $weekday_labels[ $i ] : '';
-		$html .= '<div class="clanspress-event-calendar__dow-cell">' . esc_html( $lab ) . '</div>';
+		$html .= '<div class="clanbite-event-calendar__dow-cell">' . esc_html( $lab ) . '</div>';
 	}
-	$html .= '</div><div class="clanspress-event-calendar__grid">';
+	$html .= '</div><div class="clanbite-event-calendar__grid">';
 
 	$cursor = clone $start;
 	for ( $w = 0; $w < 6; $w++ ) {
@@ -311,7 +311,7 @@ function clanspress_event_calendar_month_grid_markup( string $anchor_ymd, array 
 			$in_month = (int) $cursor->format( 'n' ) === (int) $anchor->format( 'n' );
 			$is_today = ( $ymd === $today_ymd );
 
-			$cell_cls = 'clanspress-event-calendar__cell';
+			$cell_cls = 'clanbite-event-calendar__cell';
 			if ( ! $in_month ) {
 				$cell_cls .= ' is-muted';
 			}
@@ -320,7 +320,7 @@ function clanspress_event_calendar_month_grid_markup( string $anchor_ymd, array 
 			}
 
 			$day_num = (int) $cursor->format( 'j' );
-			$html   .= '<div class="' . esc_attr( $cell_cls ) . '"><div class="clanspress-event-calendar__cell-num">' . esc_html( (string) $day_num ) . '</div><ul class="clanspress-event-calendar__cell-events"></ul></div>';
+			$html   .= '<div class="' . esc_attr( $cell_cls ) . '"><div class="clanbite-event-calendar__cell-num">' . esc_html( (string) $day_num ) . '</div><ul class="clanbite-event-calendar__cell-events"></ul></div>';
 			$cursor  = $cursor->modify( '+1 day' );
 		}
 	}

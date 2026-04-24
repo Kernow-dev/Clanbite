@@ -14,17 +14,17 @@ registerBlockType( metadata.name, {
 	edit: function Edit( { attributes, setAttributes } ) {
 		const { showDropdown, dropdownCount } = attributes;
 		const blockProps = useBlockProps( {
-			className: 'clanspress-notification-bell',
+			className: 'clanbite-notification-bell',
 		} );
 
 		return (
 			<>
 				<InspectorControls>
-					<PanelBody title={ __( 'Settings', 'clanspress' ) }>
+					<PanelBody title={ __( 'Settings', 'clanbite' ) }>
 						<ToggleControl
 							label={ __(
 								'Show dropdown on click',
-								'clanspress'
+								'clanbite'
 							) }
 							checked={ showDropdown }
 							onChange={ ( value ) =>
@@ -36,7 +36,7 @@ registerBlockType( metadata.name, {
 							<RangeControl
 								label={ __(
 									'Notifications in dropdown',
-									'clanspress'
+									'clanbite'
 								) }
 								value={ dropdownCount }
 								onChange={ ( value ) =>
@@ -51,8 +51,8 @@ registerBlockType( metadata.name, {
 				<div { ...blockProps }>
 					<button
 						type="button"
-						className="clanspress-notification-bell__trigger"
-						aria-label={ __( 'Notifications', 'clanspress' ) }
+						className="clanbite-notification-bell__trigger"
+						aria-label={ __( 'Notifications', 'clanbite' ) }
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +63,7 @@ registerBlockType( metadata.name, {
 						>
 							<path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z" />
 						</svg>
-						<span className="clanspress-notification-bell__badge">
+						<span className="clanbite-notification-bell__badge">
 							3
 						</span>
 					</button>

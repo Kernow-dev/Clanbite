@@ -2,10 +2,10 @@
 /**
  * Maintenance class for handling database updates and other maintenance tasks.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress;
+namespace Kernowdev\Clanbite;
 
 defined( 'ABSPATH' ) || exit;
 

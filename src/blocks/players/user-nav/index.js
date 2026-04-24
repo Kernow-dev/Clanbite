@@ -14,15 +14,15 @@ registerBlockType( metadata.name, {
 	edit: function Edit( { attributes, setAttributes } ) {
 		const { avatarSize, showUsername } = attributes;
 		const blockProps = useBlockProps( {
-			className: 'clanspress-user-nav is-editor-preview',
+			className: 'clanbite-user-nav is-editor-preview',
 		} );
 
 		return (
 			<>
 				<InspectorControls>
-					<PanelBody title={ __( 'Settings', 'clanspress' ) }>
+					<PanelBody title={ __( 'Settings', 'clanbite' ) }>
 						<RangeControl
-							label={ __( 'Avatar Size', 'clanspress' ) }
+							label={ __( 'Avatar Size', 'clanbite' ) }
 							value={ avatarSize }
 							onChange={ ( value ) =>
 								setAttributes( { avatarSize: value } )
@@ -32,10 +32,10 @@ registerBlockType( metadata.name, {
 							step={ 2 }
 						/>
 						<ToggleControl
-							label={ __( 'Show Username', 'clanspress' ) }
+							label={ __( 'Show Username', 'clanbite' ) }
 							help={ __(
 								'Display the username next to the avatar.',
-								'clanspress'
+								'clanbite'
 							) }
 							checked={ showUsername }
 							onChange={ ( value ) =>
@@ -46,17 +46,17 @@ registerBlockType( metadata.name, {
 					</PanelBody>
 				</InspectorControls>
 				<div { ...blockProps }>
-					<div className="clanspress-user-nav__trigger">
+					<div className="clanbite-user-nav__trigger">
 						<span
-							className="clanspress-user-nav__avatar clanspress-user-nav__avatar--placeholder"
+							className="clanbite-user-nav__avatar clanbite-user-nav__avatar--placeholder"
 							style={ {
 								width: avatarSize,
 								height: avatarSize,
 							} }
 						></span>
 						{ showUsername && (
-							<span className="clanspress-user-nav__username">
-								{ __( 'Username', 'clanspress' ) }
+							<span className="clanbite-user-nav__username">
+								{ __( 'Username', 'clanbite' ) }
 							</span>
 						) }
 						<svg
@@ -65,7 +65,7 @@ registerBlockType( metadata.name, {
 							width="16"
 							height="16"
 							fill="currentColor"
-							className="clanspress-user-nav__caret"
+							className="clanbite-user-nav__caret"
 						>
 							<path d="M7 10l5 5 5-5z" />
 						</svg>

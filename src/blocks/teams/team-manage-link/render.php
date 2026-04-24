@@ -7,28 +7,28 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Render callback: “Manage team” link (only when the viewer may manage the team).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-$team_id = clanspress_team_single_block_team_id( $block );
+$team_id = clanbite_team_single_block_team_id( $block );
 
-if ( $team_id < 1 || ! function_exists( 'clanspress_teams_user_can_manage' ) || ! clanspress_teams_user_can_manage( $team_id ) ) {
+if ( $team_id < 1 || ! function_exists( 'clanbite_teams_user_can_manage' ) || ! clanbite_teams_user_can_manage( $team_id ) ) {
 	return;
 }
 
-$url = function_exists( 'clanspress_teams_get_team_manage_url' ) ? clanspress_teams_get_team_manage_url( $team_id ) : '';
+$url = function_exists( 'clanbite_teams_get_team_manage_url' ) ? clanbite_teams_get_team_manage_url( $team_id ) : '';
 if ( '' === $url ) {
 	return;
 }
 
 $label = isset( $attributes['label'] ) ? trim( (string) $attributes['label'] ) : '';
 if ( '' === $label ) {
-	$label = __( 'Manage team', 'clanspress' );
+	$label = __( 'Manage team', 'clanbite' );
 }
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class' => 'clanspress-team-manage-link',
+		'class' => 'clanbite-team-manage-link',
 	),
 	$block
 );

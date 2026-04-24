@@ -2,10 +2,10 @@
 /**
  * REST API controller for notifications.
  *
- * @package Clanspress
+ * @package Clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Notification;
+namespace Kernowdev\Clanbite\Extensions\Notification;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,7 +27,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'clanspress/v1';
+	protected $namespace = 'clanbite/v1';
 
 	/**
 	 * Resource type.
@@ -241,7 +241,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 	 */
 	public function check_logged_in() {
 		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'rest_forbidden', __( 'You must be logged in.', 'clanspress' ), array( 'status' => 401 ) );
+			return new WP_Error( 'rest_forbidden', __( 'You must be logged in.', 'clanbite' ), array( 'status' => 401 ) );
 		}
 		return true;
 	}
@@ -289,7 +289,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		 * @param int $timeout Timeout in seconds.
 		 * @param int $user_id User ID.
 		 */
-		$timeout = (int) apply_filters( 'clanspress_notification_poll_timeout', $timeout, $user_id );
+		$timeout = (int) apply_filters( 'clanbite_notification_poll_timeout', $timeout, $user_id );
 
 		/**
 		 * Filter to use alternative transport (e.g., WebSockets).
@@ -302,7 +302,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		 * @param int                   $last_id   Last notification ID.
 		 * @param WP_REST_Request       $request   Original request.
 		 */
-		$alt_response = apply_filters( 'clanspress_notification_poll_transport', null, $user_id, $since, $last_id, $request );
+		$alt_response = apply_filters( 'clanbite_notification_poll_transport', null, $user_id, $since, $last_id, $request );
 		if ( $alt_response instanceof WP_REST_Response ) {
 			return $alt_response;
 		}
@@ -317,7 +317,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		 * @param int $interval Interval in seconds.
 		 * @param int $user_id  User ID.
 		 */
-		$interval = (int) apply_filters( 'clanspress_notification_poll_interval', $interval, $user_id );
+		$interval = (int) apply_filters( 'clanbite_notification_poll_interval', $interval, $user_id );
 
 		$new_notifications = array();
 		$unread_count      = 0;
@@ -325,16 +325,16 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		/**
 		 * Whether the poll endpoint may block with a sleep loop until `timeout` or new notifications.
 		 *
-		 * Default comes from Notifications settings (Clanspress → Settings → Notifications → “Use long-polling”).
+		 * Default comes from Notifications settings (Clanbite → Settings → Notifications → “Use long-polling”).
 		 * When false, performs a single DB read and returns immediately. When true, preserves long-poll behaviour.
 		 * The client still respects `next_poll` between requests.
 		 *
-		 * @param bool $blocking Default from {@see clanspress_notifications_poll_long_polling_enabled()}.
+		 * @param bool $blocking Default from {@see clanbite_notifications_poll_long_polling_enabled()}.
 		 * @param int  $user_id  User ID.
 		 */
-		$default_blocking = function_exists( 'clanspress_notifications_poll_long_polling_enabled' )
-			&& clanspress_notifications_poll_long_polling_enabled();
-		$blocking_wait    = (bool) apply_filters( 'clanspress_notification_poll_blocking_wait', $default_blocking, $user_id );
+		$default_blocking = function_exists( 'clanbite_notifications_poll_long_polling_enabled' )
+			&& clanbite_notifications_poll_long_polling_enabled();
+		$blocking_wait    = (bool) apply_filters( 'clanbite_notification_poll_blocking_wait', $default_blocking, $user_id );
 
 		if ( ! $blocking_wait ) {
 			$new_notifications = $this->get_new_notifications( $user_id, $since, $last_id );
@@ -358,7 +358,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				 * @param string $since   Since timestamp.
 				 * @param int    $last_id Last notification ID.
 				 */
-				do_action( 'clanspress_notification_poll_tick', $user_id, $since, $last_id );
+				do_action( 'clanbite_notification_poll_tick', $user_id, $since, $last_id );
 
 				// Sleep before next check.
 				sleep( $interval );
@@ -374,7 +374,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		 * @param array $new_notifications New notifications found.
 		 * @param int   $user_id           User ID.
 		 */
-		$next_poll = (int) apply_filters( 'clanspress_notification_next_poll_interval', $next_poll, $new_notifications, $user_id );
+		$next_poll = (int) apply_filters( 'clanbite_notification_next_poll_interval', $next_poll, $new_notifications, $user_id );
 
 		return new WP_REST_Response(
 			array(
@@ -440,8 +440,8 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 						$row->actor = (object) array(
 							'id'         => $actor->ID,
 							'name'       => $actor->display_name,
-							'avatar_url' => function_exists( 'clanspress_players_get_display_avatar' )
-								? clanspress_players_get_display_avatar( (int) $actor->ID, false, '', 'notifications', 'small' )
+							'avatar_url' => function_exists( 'clanbite_players_get_display_avatar' )
+								? clanbite_players_get_display_avatar( (int) $actor->ID, false, '', 'notifications', 'small' )
 								: get_avatar_url( $actor->ID, array( 'size' => 48 ) ),
 						);
 					}
@@ -482,11 +482,11 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		$notification    = Notification_Data_Access::get( $notification_id );
 
 		if ( ! $notification ) {
-			return new WP_Error( 'not_found', __( 'Notification not found.', 'clanspress' ), array( 'status' => 404 ) );
+			return new WP_Error( 'not_found', __( 'Notification not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
 		if ( (int) $notification->user_id !== get_current_user_id() ) {
-			return new WP_Error( 'forbidden', __( 'You cannot view this notification.', 'clanspress' ), array( 'status' => 403 ) );
+			return new WP_Error( 'forbidden', __( 'You cannot view this notification.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		return new WP_REST_Response( $this->format_notification( $notification ) );
@@ -505,7 +505,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		$result = Notification_Data_Access::delete( $notification_id, $user_id );
 
 		if ( ! $result ) {
-			return new WP_Error( 'delete_failed', __( 'Could not delete notification.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'delete_failed', __( 'Could not delete notification.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		return new WP_REST_Response( array( 'deleted' => true ) );
@@ -524,7 +524,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		$result = Notification_Data_Access::mark_read( $notification_id, $user_id );
 
 		if ( ! $result ) {
-			return new WP_Error( 'mark_read_failed', __( 'Could not mark notification as read.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'mark_read_failed', __( 'Could not mark notification as read.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		return new WP_REST_Response(
@@ -603,7 +603,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		 * @param array $config  Transport configuration.
 		 * @param int   $user_id Current user ID.
 		 */
-		$config = (array) apply_filters( 'clanspress_notification_transport_config', $config, get_current_user_id() );
+		$config = (array) apply_filters( 'clanbite_notification_transport_config', $config, get_current_user_id() );
 
 		return new WP_REST_Response( $config );
 	}
@@ -641,7 +641,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		 * @param array  $formatted    Formatted notification.
 		 * @param object $notification Original notification object.
 		 */
-		return (array) apply_filters( 'clanspress_format_notification_response', $formatted, $notification );
+		return (array) apply_filters( 'clanbite_format_notification_response', $formatted, $notification );
 	}
 }
 

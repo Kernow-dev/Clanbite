@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<ruleset name="Clanspress">
+<ruleset name="Clanbite">
 	<description>
 		PHPCS: PHP 8.2 / WordPress runtime compatibility. Full WPCS style rules are not enforced yet
 		(to avoid large no-op formatting churn); run PHPCBF with WordPress-Core locally if desired.
 	</description>
 
-	<file>clanspress.php</file>
+	<file>clanbite.php</file>
 	<file>shortcut-function.php</file>
 	<file>inc</file>
 

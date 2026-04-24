@@ -1,14 +1,14 @@
 <?php
 /**
- * Loads installed Clanspress extensions and runs their lifecycle hooks.
+ * Loads installed Clanbite extensions and runs their lifecycle hooks.
  *
- * Third-party extensions register on `clanspress_registered_extensions`. Official extensions
- * use `clanspress_official_registered_extensions` and a whitelist in `get_official_extensions()`.
+ * Third-party extensions register on `clanbite_registered_extensions`. Official extensions
+ * use `clanbite_official_registered_extensions` and a whitelist in `get_official_extensions()`.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,7 +24,7 @@ class Loader {
 	private const REQUIRED_EXTENSION_SLUGS = array( 'cp_players' );
 
 	/**
-	 * Extension slugs whose code ships inside the main Clanspress plugin package.
+	 * Extension slugs whose code ships inside the main Clanbite plugin package.
 	 *
 	 * Add-ons distributed as separate plugins are not listed here.
 	 *
@@ -88,23 +88,23 @@ class Loader {
 		 *
 		 * @param list<string> $slugs Required slugs (e.g. `cp_players`).
 		 */
-		$slugs = (array) apply_filters( 'clanspress_required_extension_slugs', self::REQUIRED_EXTENSION_SLUGS );
+		$slugs = (array) apply_filters( 'clanbite_required_extension_slugs', self::REQUIRED_EXTENSION_SLUGS );
 
 		return array_values( array_unique( array_map( 'sanitize_key', $slugs ) ) );
 	}
 
 	/**
-	 * Slugs for extensions bundled in the main Clanspress plugin (admin UI "Core" badge, etc.).
+	 * Slugs for extensions bundled in the main Clanbite plugin (admin UI "Core" badge, etc.).
 	 *
 	 * @return list<string>
 	 */
 	public static function get_core_bundled_extension_slugs(): array {
 		/**
-		 * Filter slugs treated as shipped with the core Clanspress plugin (not separate first-party add-ons).
+		 * Filter slugs treated as shipped with the core Clanbite plugin (not separate first-party add-ons).
 		 *
 		 * @param list<string> $slugs Default: `cp_players`, `cp_notifications`, `cp_teams`, `cp_matches`, `cp_events`.
 		 */
-		$slugs = (array) apply_filters( 'clanspress_core_bundled_extension_slugs', self::CORE_BUNDLED_EXTENSION_SLUGS );
+		$slugs = (array) apply_filters( 'clanbite_core_bundled_extension_slugs', self::CORE_BUNDLED_EXTENSION_SLUGS );
 
 		return array_values( array_unique( array_map( 'sanitize_key', $slugs ) ) );
 	}
@@ -139,9 +139,9 @@ class Loader {
 		}
 
 		if ( is_multisite() && is_network_admin() ) {
-			update_site_option( 'clanspress_installed_extensions', $installed );
+			update_site_option( 'clanbite_installed_extensions', $installed );
 		} else {
-			update_option( 'clanspress_installed_extensions', $installed );
+			update_option( 'clanbite_installed_extensions', $installed );
 		}
 	}
 
@@ -168,7 +168,7 @@ class Loader {
 			return;
 		}
 
-		update_option( 'clanspress_installed_extensions', $installed );
+		update_option( 'clanbite_installed_extensions', $installed );
 	}
 
 	/**
@@ -188,7 +188,7 @@ class Loader {
 		 *
 		 * @param bool $enable Default true.
 		 */
-		if ( ! (bool) apply_filters( 'clanspress_install_notifications_extension_by_default', true ) ) {
+		if ( ! (bool) apply_filters( 'clanbite_install_notifications_extension_by_default', true ) ) {
 			self::mark_notifications_default_migration_done();
 			return;
 		}
@@ -211,9 +211,9 @@ class Loader {
 		);
 
 		if ( is_multisite() && is_network_admin() ) {
-			update_site_option( 'clanspress_installed_extensions', $installed );
+			update_site_option( 'clanbite_installed_extensions', $installed );
 		} else {
-			update_option( 'clanspress_installed_extensions', $installed );
+			update_option( 'clanbite_installed_extensions', $installed );
 		}
 
 		self::mark_notifications_default_migration_done();
@@ -226,10 +226,10 @@ class Loader {
 	 */
 	private static function is_notifications_default_migration_done(): bool {
 		if ( is_multisite() && is_network_admin() ) {
-			return get_site_option( 'clanspress_notifications_extension_install_default_done', '' ) === '1';
+			return get_site_option( 'clanbite_notifications_extension_install_default_done', '' ) === '1';
 		}
 
-		return get_option( 'clanspress_notifications_extension_install_default_done', '' ) === '1';
+		return get_option( 'clanbite_notifications_extension_install_default_done', '' ) === '1';
 	}
 
 	/**
@@ -239,11 +239,11 @@ class Loader {
 	 */
 	private static function mark_notifications_default_migration_done(): void {
 		if ( is_multisite() && is_network_admin() ) {
-			update_site_option( 'clanspress_notifications_extension_install_default_done', '1' );
+			update_site_option( 'clanbite_notifications_extension_install_default_done', '1' );
 			return;
 		}
 
-		update_option( 'clanspress_notifications_extension_install_default_done', '1' );
+		update_option( 'clanbite_notifications_extension_install_default_done', '1' );
 	}
 
 	/**
@@ -263,7 +263,7 @@ class Loader {
 		 *
 		 * @param bool $enable Default true.
 		 */
-		if ( ! (bool) apply_filters( 'clanspress_install_events_extension_by_default', true ) ) {
+		if ( ! (bool) apply_filters( 'clanbite_install_events_extension_by_default', true ) ) {
 			self::mark_events_default_migration_done();
 			return;
 		}
@@ -286,9 +286,9 @@ class Loader {
 		);
 
 		if ( is_multisite() && is_network_admin() ) {
-			update_site_option( 'clanspress_installed_extensions', $installed );
+			update_site_option( 'clanbite_installed_extensions', $installed );
 		} else {
-			update_option( 'clanspress_installed_extensions', $installed );
+			update_option( 'clanbite_installed_extensions', $installed );
 		}
 
 		self::mark_events_default_migration_done();
@@ -301,10 +301,10 @@ class Loader {
 	 */
 	private static function is_events_default_migration_done(): bool {
 		if ( is_multisite() && is_network_admin() ) {
-			return get_site_option( 'clanspress_events_extension_install_default_done', '' ) === '1';
+			return get_site_option( 'clanbite_events_extension_install_default_done', '' ) === '1';
 		}
 
-		return get_option( 'clanspress_events_extension_install_default_done', '' ) === '1';
+		return get_option( 'clanbite_events_extension_install_default_done', '' ) === '1';
 	}
 
 	/**
@@ -314,11 +314,11 @@ class Loader {
 	 */
 	private static function mark_events_default_migration_done(): void {
 		if ( is_multisite() && is_network_admin() ) {
-			update_site_option( 'clanspress_events_extension_install_default_done', '1' );
+			update_site_option( 'clanbite_events_extension_install_default_done', '1' );
 			return;
 		}
 
-		update_option( 'clanspress_events_extension_install_default_done', '1' );
+		update_option( 'clanbite_events_extension_install_default_done', '1' );
 	}
 
 	/**
@@ -335,7 +335,7 @@ class Loader {
 		 *
 		 * @param array<string, Skeleton> $extensions Registered extension objects keyed by slug.
 		 */
-		$extensions = (array) apply_filters( 'clanspress_registered_extensions', array() );
+		$extensions = (array) apply_filters( 'clanbite_registered_extensions', array() );
 
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- _doing_it_wrong() expects a raw diagnostic string (core pattern); notices escape when rendered.
 		foreach ( $extensions as $slug => $extension ) {
@@ -345,7 +345,7 @@ class Loader {
 					__METHOD__,
 					sprintf(
 						/* translators: %s: Extension slug. */
-						__( 'Clanspress: Extension "%s" attempted to use a prohibited slug.', 'clanspress' ),
+						__( 'Clanbite: Extension "%s" attempted to use a prohibited slug.', 'clanbite' ),
 						$slug
 					),
 					'1.0.0'
@@ -360,7 +360,7 @@ class Loader {
 					__METHOD__,
 					sprintf(
 						/* translators: 1: Extension slug, 2: PHP type of the registered value. */
-						__( 'Clanspress: Extension "%1$s" must register an extension object, got "%2$s".', 'clanspress' ),
+						__( 'Clanbite: Extension "%1$s" must register an extension object, got "%2$s".', 'clanbite' ),
 						$slug,
 						gettype( $extension )
 					),
@@ -377,7 +377,7 @@ class Loader {
 					__METHOD__,
 					sprintf(
 						/* translators: 1: Extension slug, 2: Registered class name, 3: Required base class name. */
-						__( 'Clanspress: Extension "%1$s" class "%2$s" must extend %3$s.', 'clanspress' ),
+						__( 'Clanbite: Extension "%1$s" class "%2$s" must extend %3$s.', 'clanbite' ),
 						$slug,
 						get_class( $extension ),
 						Skeleton::class
@@ -395,7 +395,7 @@ class Loader {
 					__METHOD__,
 					sprintf(
 						/* translators: 1: Registry array key (slug), 2: Slug declared on the extension object. */
-						__( 'Clanspress: Extension registry key "%1$s" does not match extension slug "%2$s".', 'clanspress' ),
+						__( 'Clanbite: Extension registry key "%1$s" does not match extension slug "%2$s".', 'clanbite' ),
 						$slug,
 						$extension->slug
 					),
@@ -414,24 +414,26 @@ class Loader {
 	/**
 	 * Returns verified first-party extensions (whitelist + matching class names).
 	 *
-	 * Third-party code must not use this path; use `clanspress_registered_extensions` instead.
+	 * Third-party code must not use this path; use `clanbite_registered_extensions` instead.
 	 *
 	 * @return array<string, Skeleton>
 	 */
 	public function get_official_extensions(): array {
 		// All known official extensions.
 		$whitelist_extensions = array(
-			'cp_players'       => 'Kernowdev\Clanspress\Extensions\Players',
-			'cp_notifications' => 'Kernowdev\Clanspress\Extensions\Notifications',
-			'cp_teams'         => 'Kernowdev\Clanspress\Extensions\Teams',
-			'cp_matches'       => 'Kernowdev\Clanspress\Extensions\Matches',
-			'cp_events'        => 'Kernowdev\Clanspress\Extensions\Events',
-			// Official first-party extension shipped in the separate Clanspress Social Kit plugin (not core-bundled).
-			'cp_social_kit'    => 'Kernowdev\ClanspressSocialKit\Extension\Social_Kit',
-			// Official first-party extension shipped in the separate Clanspress Forums plugin (not core-bundled).
-			'cp_forums'        => 'Kernowdev\ClanspressForums\Extension\Forums',
-			// Official first-party extension shipped in the separate Clanspress Points plugin (not core-bundled).
-			'cp_points'        => 'Kernowdev\ClanspressPoints\Extension\Points',
+			'cp_players'       => 'Kernowdev\Clanbite\Extensions\Players',
+			'cp_notifications' => 'Kernowdev\Clanbite\Extensions\Notifications',
+			'cp_teams'         => 'Kernowdev\Clanbite\Extensions\Teams',
+			'cp_matches'       => 'Kernowdev\Clanbite\Extensions\Matches',
+			'cp_events'        => 'Kernowdev\Clanbite\Extensions\Events',
+			// Official first-party extension shipped in the separate Clanbite Social Kit plugin (not core-bundled).
+			'cp_social_kit'    => 'Kernowdev\ClanbiteSocialKit\Extension\Social_Kit',
+			// Official first-party extension shipped in the separate Clanbite Forums plugin (not core-bundled).
+			'cp_forums'        => 'Kernowdev\ClanbiteForums\Extension\Forums',
+			// Official first-party extension shipped in the separate Clanbite Points plugin (not core-bundled).
+			'cp_points'        => 'Kernowdev\ClanbitePoints\Extension\Points',
+			// Official first-party extension shipped in the separate Clanbite Ranks plugin (not core-bundled).
+			'cp_ranks'         => 'Kernowdev\ClanbiteRanks\Extension\Ranks',
 		);
 
 		/**
@@ -441,7 +443,7 @@ class Loader {
 		 */
 		$registered_extensions
 			= (array) apply_filters(
-				'clanspress_official_registered_extensions',
+				'clanbite_official_registered_extensions',
 				array()
 			);
 
@@ -463,7 +465,7 @@ class Loader {
 					__METHOD__,
 					sprintf(
 						/* translators: 1: Extension slug, 2: Expected PHP class name, 3: Registered class name. */
-						__( 'Clanspress: Official extension "%1$s" registered an unexpected class. Expected "%2$s", got "%3$s".', 'clanspress' ),
+						__( 'Clanbite: Official extension "%1$s" registered an unexpected class. Expected "%2$s", got "%3$s".', 'clanbite' ),
 						$slug,
 						$expected_class,
 						$registered_class
@@ -480,7 +482,7 @@ class Loader {
 					__METHOD__,
 					sprintf(
 						/* translators: 1: Extension slug, 2: PHP class name. */
-						__( 'Clanspress: Official extension "%1$s" attempted to register class "%2$s", but the class does not exist.', 'clanspress' ),
+						__( 'Clanbite: Official extension "%1$s" attempted to register class "%2$s", but the class does not exist.', 'clanbite' ),
 						$slug,
 						$registered_class
 					),
@@ -574,10 +576,10 @@ class Loader {
 	 */
 	public static function read_installed_extensions_from_options(): array {
 		if ( is_multisite() && is_network_admin() ) {
-			return (array) get_site_option( 'clanspress_installed_extensions', array() );
+			return (array) get_site_option( 'clanbite_installed_extensions', array() );
 		}
 
-		return (array) get_option( 'clanspress_installed_extensions', array() );
+		return (array) get_option( 'clanbite_installed_extensions', array() );
 	}
 
 	/**
@@ -617,9 +619,9 @@ class Loader {
 		unset( $installed_extensions[ $slug ] );
 
 		if ( is_multisite() && is_network_admin() ) {
-			update_site_option( 'clanspress_installed_extensions', $installed_extensions );
+			update_site_option( 'clanbite_installed_extensions', $installed_extensions );
 		} else {
-			update_option( 'clanspress_installed_extensions', $installed_extensions );
+			update_option( 'clanbite_installed_extensions', $installed_extensions );
 		}
 
 		return true;

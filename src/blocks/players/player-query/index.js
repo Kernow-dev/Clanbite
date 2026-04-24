@@ -20,66 +20,66 @@ import metadata from './block.json';
 
 const TEMPLATE = [
 	[
-		'clanspress/player-template',
+		'clanbite/player-template',
 		{},
 		[
-			[ 'clanspress/player-avatar', { avatarPreset: 'medium' } ],
-			[ 'clanspress/player-display-name' ],
+			[ 'clanbite/player-avatar', { avatarPreset: 'medium' } ],
+			[ 'clanbite/player-display-name' ],
 		],
 	],
 ];
 
 const ORDERBY_OPTIONS = [
 	{
-		label: __( 'Default (sorted user ID)', 'clanspress' ),
+		label: __( 'Default (sorted user ID)', 'clanbite' ),
 		value: 'default',
 	},
 	{
-		label: __( 'Roster order (member map)', 'clanspress' ),
+		label: __( 'Roster order (member map)', 'clanbite' ),
 		value: 'roster',
 	},
 	{
-		label: __( 'User ID', 'clanspress' ),
+		label: __( 'User ID', 'clanbite' ),
 		value: 'id',
 	},
 	{
-		label: __( 'Display name', 'clanspress' ),
+		label: __( 'Display name', 'clanbite' ),
 		value: 'display_name',
 	},
 	{
-		label: __( 'Username (login)', 'clanspress' ),
+		label: __( 'Username (login)', 'clanbite' ),
 		value: 'login',
 	},
 	{
-		label: __( 'Nicename', 'clanspress' ),
+		label: __( 'Nicename', 'clanbite' ),
 		value: 'nicename',
 	},
 	{
-		label: __( 'Email', 'clanspress' ),
+		label: __( 'Email', 'clanbite' ),
 		value: 'email',
 	},
 	{
-		label: __( 'URL', 'clanspress' ),
+		label: __( 'URL', 'clanbite' ),
 		value: 'url',
 	},
 	{
-		label: __( 'Registered', 'clanspress' ),
+		label: __( 'Registered', 'clanbite' ),
 		value: 'registered',
 	},
 	{
-		label: __( 'Post count', 'clanspress' ),
+		label: __( 'Post count', 'clanbite' ),
 		value: 'post_count',
 	},
 	{
-		label: __( 'Random', 'clanspress' ),
+		label: __( 'Random', 'clanbite' ),
 		value: 'rand',
 	},
 	{
-		label: __( 'User meta value', 'clanspress' ),
+		label: __( 'User meta value', 'clanbite' ),
 		value: 'meta_value',
 	},
 	{
-		label: __( 'User meta value (numeric)', 'clanspress' ),
+		label: __( 'User meta value (numeric)', 'clanbite' ),
 		value: 'meta_value_num',
 	},
 ];
@@ -103,7 +103,7 @@ registerBlockType( metadata.name, {
 		} = attributes;
 
 		const blockProps = useBlockProps( {
-			className: 'clanspress-player-query',
+			className: 'clanbite-player-query',
 		} );
 
 		const needsMetaKey =
@@ -112,11 +112,11 @@ registerBlockType( metadata.name, {
 		return (
 			<>
 				<InspectorControls>
-					<PanelBody title={ __( 'Team roster', 'clanspress' ) }>
+					<PanelBody title={ __( 'Team roster', 'clanbite' ) }>
 						<ToggleControl
 							label={ __(
 								'Inherit team from template',
-								'clanspress'
+								'clanbite'
 							) }
 							checked={ inheritTeamContext }
 							onChange={ ( v ) =>
@@ -124,13 +124,13 @@ registerBlockType( metadata.name, {
 							}
 							help={ __(
 								'Uses the current team on singular team pages, or each team when this block appears inside a Query Loop.',
-								'clanspress'
+								'clanbite'
 							) }
 							__nextHasNoMarginBottom
 						/>
 						{ ! inheritTeamContext && (
 							<TextControl
-								label={ __( 'Team post ID', 'clanspress' ) }
+								label={ __( 'Team post ID', 'clanbite' ) }
 								value={ teamId ? String( teamId ) : '' }
 								onChange={ ( v ) =>
 									setAttributes( {
@@ -146,7 +146,7 @@ registerBlockType( metadata.name, {
 						<ToggleControl
 							label={ __(
 								'Exclude banned members',
-								'clanspress'
+								'clanbite'
 							) }
 							checked={ excludeBannedMembers }
 							onChange={ ( v ) =>
@@ -156,11 +156,11 @@ registerBlockType( metadata.name, {
 						/>
 					</PanelBody>
 					<PanelBody
-						title={ __( 'Query', 'clanspress' ) }
+						title={ __( 'Query', 'clanbite' ) }
 						initialOpen={ false }
 					>
 						<SelectControl
-							label={ __( 'Order by', 'clanspress' ) }
+							label={ __( 'Order by', 'clanbite' ) }
 							value={ queryOrderby || 'default' }
 							options={ ORDERBY_OPTIONS }
 							onChange={ ( v ) =>
@@ -172,15 +172,15 @@ registerBlockType( metadata.name, {
 							__nextHasNoMarginBottom
 						/>
 						<SelectControl
-							label={ __( 'Order', 'clanspress' ) }
+							label={ __( 'Order', 'clanbite' ) }
 							value={ queryOrder === 'DESC' ? 'DESC' : 'ASC' }
 							options={ [
 								{
-									label: __( 'Ascending', 'clanspress' ),
+									label: __( 'Ascending', 'clanbite' ),
 									value: 'ASC',
 								},
 								{
-									label: __( 'Descending', 'clanspress' ),
+									label: __( 'Descending', 'clanbite' ),
 									value: 'DESC',
 								},
 							] }
@@ -194,7 +194,7 @@ registerBlockType( metadata.name, {
 							<TextControl
 								label={ __(
 									'Meta key (for sort)',
-									'clanspress'
+									'clanbite'
 								) }
 								value={ queryMetaKey || '' }
 								onChange={ ( v ) =>
@@ -202,7 +202,7 @@ registerBlockType( metadata.name, {
 								}
 								help={ __(
 									'Required when ordering by user meta.',
-									'clanspress'
+									'clanbite'
 								) }
 								__next40pxDefaultSize
 								__nextHasNoMarginBottom
@@ -211,7 +211,7 @@ registerBlockType( metadata.name, {
 						<TextControl
 							label={ __(
 								'Max members (0 = all)',
-								'clanspress'
+								'clanbite'
 							) }
 							type="number"
 							min={ 0 }
@@ -225,7 +225,7 @@ registerBlockType( metadata.name, {
 							__nextHasNoMarginBottom
 						/>
 						<TextControl
-							label={ __( 'Offset', 'clanspress' ) }
+							label={ __( 'Offset', 'clanbite' ) }
 							type="number"
 							min={ 0 }
 							value={ queryOffset ? String( queryOffset ) : '' }
@@ -236,7 +236,7 @@ registerBlockType( metadata.name, {
 							}
 							help={ __(
 								'Skip this many members after filters (ordering applies first when using Order by).',
-								'clanspress'
+								'clanbite'
 							) }
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
@@ -244,7 +244,7 @@ registerBlockType( metadata.name, {
 						<TextareaControl
 							label={ __(
 								'Filter by meta (JSON)',
-								'clanspress'
+								'clanbite'
 							) }
 							value={ queryMetaQueryJson || '' }
 							onChange={ ( v ) =>
@@ -252,25 +252,25 @@ registerBlockType( metadata.name, {
 							}
 							help={ __(
 								'Optional. Same shape as a WordPress meta_query: keep only roster members who match (e.g. [{"key":"country","value":"UK","compare":"="}]).',
-								'clanspress'
+								'clanbite'
 							) }
 							rows={ 4 }
 							__nextHasNoMarginBottom
 						/>
 					</PanelBody>
 					<PanelBody
-						title={ __( 'Exclusions (advanced)', 'clanspress' ) }
+						title={ __( 'Exclusions (advanced)', 'clanbite' ) }
 						initialOpen={ false }
 					>
 						<TextControl
-							label={ __( 'Exclude user IDs', 'clanspress' ) }
+							label={ __( 'Exclude user IDs', 'clanbite' ) }
 							value={ queryExcludeUsers || '' }
 							onChange={ ( v ) =>
 								setAttributes( { queryExcludeUsers: v ?? '' } )
 							}
 							help={ __(
 								'Comma- or space-separated WordPress user IDs (like excluding posts in Query Loop).',
-								'clanspress'
+								'clanbite'
 							) }
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
@@ -278,7 +278,7 @@ registerBlockType( metadata.name, {
 						<ToggleControl
 							label={ __(
 								'Exclude the current user',
-								'clanspress'
+								'clanbite'
 							) }
 							checked={ !! queryExcludeCurrentUser }
 							onChange={ ( v ) =>
@@ -288,19 +288,19 @@ registerBlockType( metadata.name, {
 							}
 							help={ __(
 								'When someone is logged in, they are omitted from the list.',
-								'clanspress'
+								'clanbite'
 							) }
 							__nextHasNoMarginBottom
 						/>
 						<TextControl
-							label={ __( 'Exclude team roles', 'clanspress' ) }
+							label={ __( 'Exclude team roles', 'clanbite' ) }
 							value={ queryExcludeRoles || '' }
 							onChange={ ( v ) =>
 								setAttributes( { queryExcludeRoles: v ?? '' } )
 							}
 							help={ __(
 								'Comma-separated roster role slugs (e.g. admin, editor, member). Separate from “Exclude banned members”.',
-								'clanspress'
+								'clanbite'
 							) }
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
@@ -308,7 +308,7 @@ registerBlockType( metadata.name, {
 						<TextareaControl
 							label={ __(
 								'Exclude by meta (JSON)',
-								'clanspress'
+								'clanbite'
 							) }
 							value={ queryExcludeMetaQueryJson || '' }
 							onChange={ ( v ) =>
@@ -318,7 +318,7 @@ registerBlockType( metadata.name, {
 							}
 							help={ __(
 								'Members who match this meta_query are removed from the roster list (opposite of “Filter by meta”).',
-								'clanspress'
+								'clanbite'
 							) }
 							rows={ 4 }
 							__nextHasNoMarginBottom
@@ -327,7 +327,7 @@ registerBlockType( metadata.name, {
 				</InspectorControls>
 				<div { ...blockProps }>
 					<p
-						className="clanspress-player-query__hint"
+						className="clanbite-player-query__hint"
 						style={ {
 							margin: '0 0 0.5rem',
 							fontSize: '12px',
@@ -336,11 +336,11 @@ registerBlockType( metadata.name, {
 					>
 						{ __(
 							'Player query — add or edit the Player template below.',
-							'clanspress'
+							'clanbite'
 						) }
 					</p>
 					<InnerBlocks
-						allowedBlocks={ [ 'clanspress/player-template' ] }
+						allowedBlocks={ [ 'clanbite/player-template' ] }
 						template={ TEMPLATE }
 						templateLock={ false }
 					/>
@@ -350,7 +350,7 @@ registerBlockType( metadata.name, {
 	},
 	save: () => {
 		const blockProps = useBlockProps.save( {
-			className: 'wp-block-clanspress-player-query',
+			className: 'wp-block-clanbite-player-query',
 		} );
 		return (
 			<div { ...blockProps }>

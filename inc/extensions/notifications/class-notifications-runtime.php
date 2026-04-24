@@ -2,10 +2,10 @@
 /**
  * Notifications subsystem bootstrap (hooks, blocks, REST registration).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Notification;
+namespace Kernowdev\Clanbite\Extensions\Notification;
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -54,7 +54,7 @@ final class Notifications_Runtime {
 		add_action( 'template_redirect', array( $this, 'maybe_redirect_guest_from_notifications_subpage' ), 5 );
 
 		add_action( 'delete_user', array( $this, 'on_user_deleted' ) );
-		add_action( 'clanspress_team_deleted', array( $this, 'on_team_deleted' ) );
+		add_action( 'clanbite_team_deleted', array( $this, 'on_team_deleted' ) );
 	}
 
 	/**
@@ -63,36 +63,36 @@ final class Notifications_Runtime {
 	 * @return void
 	 */
 	public function register_cp_players_template_filter(): void {
-		add_filter( 'clanspress_extension_cp_players_templates', array( $this, 'filter_cp_players_templates' ), 10, 2 );
+		add_filter( 'clanbite_extension_cp_players_templates', array( $this, 'filter_cp_players_templates' ), 10, 2 );
 	}
 
 	/**
 	 * Add `player-notifications` to the Players extension FSE templates.
 	 *
 	 * @param array<string, array<string, string>> $templates Template definitions keyed by slug.
-	 * @param \Kernowdev\Clanspress\Extensions\Skeleton $extension Calling extension (Players).
+	 * @param \Kernowdev\Clanbite\Extensions\Skeleton $extension Calling extension (Players).
 	 * @return array<string, array<string, string>>
 	 */
 	public function filter_cp_players_templates( array $templates, $extension ): array {
-		if ( ! $extension instanceof \Kernowdev\Clanspress\Extensions\Skeleton ) {
+		if ( ! $extension instanceof \Kernowdev\Clanbite\Extensions\Skeleton ) {
 			return $templates;
 		}
 
-		if ( ! function_exists( 'clanspress_notifications_extension_active' ) || ! clanspress_notifications_extension_active() ) {
+		if ( ! function_exists( 'clanbite_notifications_extension_active' ) || ! clanbite_notifications_extension_active() ) {
 			return $templates;
 		}
 
-		if ( ! function_exists( '\clanspress_notifications_subpage_player_enabled' ) || ! \clanspress_notifications_subpage_player_enabled() ) {
+		if ( ! function_exists( '\clanbite_notifications_subpage_player_enabled' ) || ! \clanbite_notifications_subpage_player_enabled() ) {
 			return $templates;
 		}
 
-		$path = \clanspress()->path . 'templates/players/player-notifications.html';
+		$path = \clanbite()->path . 'templates/players/player-notifications.html';
 		if ( ! is_readable( $path ) ) {
 			return $templates;
 		}
 
 		$templates['player-notifications'] = array(
-			'title' => __( 'Player notifications', 'clanspress' ),
+			'title' => __( 'Player notifications', 'clanbite' ),
 			'path'  => $path,
 		);
 
@@ -105,8 +105,8 @@ final class Notifications_Runtime {
 	 * @return void
 	 */
 	public function register_notifications_shortcode(): void {
-		if ( function_exists( 'clanspress_player_notifications_shortcode' ) ) {
-			add_shortcode( 'clanspress_player_notifications', 'clanspress_player_notifications_shortcode' );
+		if ( function_exists( 'clanbite_player_notifications_shortcode' ) ) {
+			add_shortcode( 'clanbite_player_notifications', 'clanbite_player_notifications_shortcode' );
 		}
 	}
 
@@ -116,7 +116,7 @@ final class Notifications_Runtime {
 	 * @return void
 	 */
 	public function maybe_redirect_guest_from_notifications_subpage(): void {
-		if ( ! function_exists( 'clanspress_notifications_extension_active' ) || ! clanspress_notifications_extension_active() ) {
+		if ( ! function_exists( 'clanbite_notifications_extension_active' ) || ! clanbite_notifications_extension_active() ) {
 			return;
 		}
 
@@ -136,7 +136,7 @@ final class Notifications_Runtime {
 			return;
 		}
 
-		$req_uri = clanspress_sanitize_request_uri( '' );
+		$req_uri = clanbite_sanitize_request_uri( '' );
 		$path    = wp_parse_url( $req_uri, PHP_URL_PATH );
 		$path    = is_string( $path ) ? $path : '';
 		$redirect_to = '' !== $path ? home_url( $path ) : home_url( '/' );
@@ -170,7 +170,7 @@ final class Notifications_Runtime {
 	 * @return void
 	 */
 	public function register_blocks(): void {
-		$block_path = \clanspress()->path . 'build/notifications/notification-bell';
+		$block_path = \clanbite()->path . 'build/notifications/notification-bell';
 		if ( is_dir( $block_path ) ) {
 			register_block_type( $block_path );
 		}
@@ -182,18 +182,18 @@ final class Notifications_Runtime {
 	 * @return void
 	 */
 	public function register_notifications_subpage(): void {
-		if ( ! function_exists( 'clanspress_register_player_subpage' ) ) {
+		if ( ! function_exists( 'clanbite_register_player_subpage' ) ) {
 			return;
 		}
 
-		if ( ! function_exists( '\clanspress_notifications_subpage_player_enabled' ) || ! \clanspress_notifications_subpage_player_enabled() ) {
+		if ( ! function_exists( '\clanbite_notifications_subpage_player_enabled' ) || ! \clanbite_notifications_subpage_player_enabled() ) {
 			return;
 		}
 
-		clanspress_register_player_subpage(
+		clanbite_register_player_subpage(
 			'notifications',
 			array(
-				'label'    => __( 'Notifications', 'clanspress' ),
+				'label'    => __( 'Notifications', 'clanbite' ),
 				'position' => 80,
 			)
 		);

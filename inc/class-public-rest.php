@@ -2,10 +2,10 @@
 /**
  * Unauthenticated REST endpoints for cross-site discovery and public team metadata.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress;
+namespace Kernowdev\Clanbite;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -16,7 +16,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Registers read-only routes under `clanspress/v1` that do not require a logged-in user.
+ * Registers read-only routes under `clanbite/v1` that do not require a logged-in user.
  */
 final class Public_Rest {
 
@@ -27,7 +27,7 @@ final class Public_Rest {
 	 */
 	public static function register_routes(): void {
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/discovery',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -37,7 +37,7 @@ final class Public_Rest {
 		);
 
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/site-sync-public-key',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -47,7 +47,7 @@ final class Public_Rest {
 		);
 
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/public-team',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -55,13 +55,13 @@ final class Public_Rest {
 				'permission_callback' => '__return_true',
 				'args'                => array(
 					'slug' => array(
-						'description'       => __( 'Team post slug (`cp_team` post_name).', 'clanspress' ),
+						'description'       => __( 'Team post slug (`cp_team` post_name).', 'clanbite' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_title',
 					),
 					'url'  => array(
-						'description'       => __( 'Full URL to a team profile page on a Clanspress site.', 'clanspress' ),
+						'description'       => __( 'Full URL to a team profile page on a Clanbite site.', 'clanbite' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'esc_url_raw',
@@ -72,7 +72,7 @@ final class Public_Rest {
 	}
 
 	/**
-	 * Discovery payload so remote sites can detect Clanspress and a compatible API version.
+	 * Discovery payload so remote sites can detect Clanbite and a compatible API version.
 	 *
 	 * @param WP_REST_Request $request Request (unused).
 	 * @return WP_REST_Response
@@ -84,21 +84,21 @@ final class Public_Rest {
 	}
 
 	/**
-	 * Build the Clanspress discovery payload (also used by the Abilities API).
+	 * Build the Clanbite discovery payload (also used by the Abilities API).
 	 *
 	 * @return array<string, mixed>
 	 */
 	public static function build_discovery_payload(): array {
 		$discovery = array(
-			'clanspress' => true,
-			'name'       => 'Clanspress',
+			'clanbite' => true,
+			'name'       => 'Clanbite',
 			'version'    => Main::VERSION,
 		);
 
 		if ( function_exists( 'sodium_crypto_sign_keypair' ) ) {
 			$discovery['match_sync'] = array(
 				'ed25519'          => true,
-				'public_key_route' => 'clanspress/v1/site-sync-public-key',
+				'public_key_route' => 'clanbite/v1/site-sync-public-key',
 			);
 		}
 
@@ -133,7 +133,7 @@ final class Public_Rest {
 	 */
 	public static function get_public_team_data_by_slug_or_url( string $slug, string $url ) {
 		if ( '' === $slug && '' !== $url ) {
-			$parsed = function_exists( 'clanspress_parse_team_profile_url' ) ? clanspress_parse_team_profile_url( $url ) : null;
+			$parsed = function_exists( 'clanbite_parse_team_profile_url' ) ? clanbite_parse_team_profile_url( $url ) : null;
 			if ( is_array( $parsed ) && ! empty( $parsed['slug'] ) ) {
 				$slug = (string) $parsed['slug'];
 			}
@@ -142,8 +142,8 @@ final class Public_Rest {
 		$slug = sanitize_title( $slug );
 		if ( '' === $slug ) {
 			return new WP_Error(
-				'clanspress_public_team_missing_slug',
-				__( 'A team slug or profile URL is required.', 'clanspress' ),
+				'clanbite_public_team_missing_slug',
+				__( 'A team slug or profile URL is required.', 'clanbite' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -163,25 +163,25 @@ final class Public_Rest {
 		$post = isset( $posts[0] ) && $posts[0] instanceof \WP_Post ? $posts[0] : null;
 		if ( ! $post ) {
 			return new WP_Error(
-				'clanspress_public_team_not_found',
-				__( 'Team not found.', 'clanspress' ),
+				'clanbite_public_team_not_found',
+				__( 'Team not found.', 'clanbite' ),
 				array( 'status' => 404 )
 			);
 		}
 
 		$team_id  = (int) $post->ID;
-		$logo_url = function_exists( 'clanspress_teams_get_display_team_avatar' )
-			? clanspress_teams_get_display_team_avatar( $team_id, false, '', 'public_rest', 'medium' )
+		$logo_url = function_exists( 'clanbite_teams_get_display_team_avatar' )
+			? clanbite_teams_get_display_team_avatar( $team_id, false, '', 'public_rest', 'medium' )
 			: '';
 		if ( '' === $logo_url && has_post_thumbnail( $team_id ) ) {
 			$logo_url = (string) get_the_post_thumbnail_url( $team_id, 'medium' );
 		}
-		if ( '' === $logo_url && function_exists( 'clanspress_teams_get_default_avatar_url' ) ) {
-			$logo_url = clanspress_teams_get_default_avatar_url( $team_id );
+		if ( '' === $logo_url && function_exists( 'clanbite_teams_get_default_avatar_url' ) ) {
+			$logo_url = clanbite_teams_get_default_avatar_url( $team_id );
 		}
 
 		$motto   = '';
-		$team_en = function_exists( 'clanspress_get_team' ) ? clanspress_get_team( $team_id ) : null;
+		$team_en = function_exists( 'clanbite_get_team' ) ? clanbite_get_team( $team_id ) : null;
 		if ( $team_en && method_exists( $team_en, 'get_motto' ) ) {
 			$motto = (string) $team_en->get_motto();
 		}
@@ -205,11 +205,11 @@ final class Public_Rest {
 		);
 
 		/**
-		 * Filter the public team payload exposed to other Clanspress sites.
+		 * Filter the public team payload exposed to other Clanbite sites.
 		 *
 		 * @param array   $data Response data.
 		 * @param WP_Post $post Team post.
 		 */
-		return (array) apply_filters( 'clanspress_public_team_response', $data, $post );
+		return (array) apply_filters( 'clanbite_public_team_response', $data, $post );
 	}
 }

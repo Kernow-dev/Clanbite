@@ -1,10 +1,10 @@
-.wp-block-clanspress-event-create-form {
+.wp-block-clanbite-event-create-form {
 	border: 1px solid #dcdcde;
 	border-radius: 6px;
 	padding: 1rem;
 }
 
-.clanspress-event-create-form__tabs {
+.clanbite-event-create-form__tabs {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
@@ -13,7 +13,7 @@
 	border-bottom: 1px solid #dcdcde;
 }
 
-.clanspress-event-create-form__tab {
+.clanbite-event-create-form__tab {
 	flex: 1 1 140px;
 	min-width: 0;
 	display: flex;
@@ -60,7 +60,7 @@
 	}
 }
 
-.clanspress-event-create-form__tab-index {
+.clanbite-event-create-form__tab-index {
 	flex-shrink: 0;
 	display: inline-flex;
 	align-items: center;
@@ -74,36 +74,36 @@
 	color: #1d2327;
 }
 
-.clanspress-event-create-form__tab.is-active .clanspress-event-create-form__tab-index {
+.clanbite-event-create-form__tab.is-active .clanbite-event-create-form__tab-index {
 	background: #2271b1;
 	color: #fff;
 }
 
-.clanspress-event-create-form__tab.is-complete:not(.is-active) .clanspress-event-create-form__tab-index {
+.clanbite-event-create-form__tab.is-complete:not(.is-active) .clanbite-event-create-form__tab-index {
 	background: #00a32a;
 	color: #fff;
 }
 
-.clanspress-event-create-form__tab-text {
+.clanbite-event-create-form__tab-text {
 	display: flex;
 	flex-direction: column;
 	gap: 0.15rem;
 	min-width: 0;
 }
 
-.clanspress-event-create-form__tab-title {
+.clanbite-event-create-form__tab-title {
 	font-weight: 600;
 	font-size: 0.875rem;
 	line-height: 1.3;
 }
 
-.clanspress-event-create-form__tab-description {
+.clanbite-event-create-form__tab-description {
 	font-size: 0.75rem;
 	line-height: 1.35;
 	color: #646970;
 }
 
-.clanspress-event-create-form__form {
+.clanbite-event-create-form__form {
 	display: grid;
 	gap: 1rem;
 
@@ -127,39 +127,39 @@
 	}
 }
 
-.clanspress-event-create-form__grid {
+.clanbite-event-create-form__grid {
 	display: grid;
 	grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
 	gap: 0.75rem;
 }
 
 @media ( max-width: 600px ) {
-	.clanspress-event-create-form__grid {
+	.clanbite-event-create-form__grid {
 		grid-template-columns: 1fr;
 	}
 }
 
-.clanspress-event-create-form__actions {
+.clanbite-event-create-form__actions {
 	display: flex;
 	gap: 0.5rem;
 	align-items: center;
 }
 
-.clanspress-event-create-form__actions--split {
+.clanbite-event-create-form__actions--split {
 	justify-content: space-between;
 	flex-wrap: wrap;
 	width: 100%;
 	max-width: 32rem;
 }
 
-.clanspress-event-create-form__actions-end {
+.clanbite-event-create-form__actions-end {
 	display: flex;
 	gap: 0.5rem;
 	align-items: center;
 	margin-left: auto;
 }
 
-.clanspress-event-create-form__button {
+.clanbite-event-create-form__button {
 	appearance: none;
 	margin: 0;
 	padding: 0.5rem 0.75rem;
@@ -181,7 +181,7 @@
 	}
 }
 
-.clanspress-event-create-form__button--primary {
+.clanbite-event-create-form__button--primary {
 	background: #2271b1;
 	border-color: #2271b1;
 	color: #fff;
@@ -192,24 +192,24 @@
 	}
 }
 
-.clanspress-event-create-form__msg {
+.clanbite-event-create-form__msg {
 	padding: 0.75rem;
 	border-radius: 4px;
 	background: color-mix(in srgb, currentColor 6%, transparent);
 }
 
-.clanspress-event-create-form--locked {
+.clanbite-event-create-form--locked {
 	padding: 0.75rem;
 	border-radius: 4px;
 	background: color-mix(in srgb, currentColor 6%, transparent);
 }
 
-.clanspress-event-create-form__back {
+.clanbite-event-create-form__back {
 	margin: 0 0 1rem;
 	font-size: 0.95rem;
 }
 
-.clanspress-event-create-form__success {
+.clanbite-event-create-form__success {
 	margin-top: 1rem;
 	padding: 1rem 1.25rem;
 	border-radius: 6px;
@@ -222,17 +222,17 @@
 	}
 }
 
-.clanspress-event-create-form__success-title {
+.clanbite-event-create-form__success-title {
 	margin: 0 0 0.75rem;
 	font-size: 1.05rem;
 	font-weight: 600;
 }
 
-.clanspress-event-create-form__success-link {
+.clanbite-event-create-form__success-link {
 	font-weight: 500;
 }
 
-.clanspress-event-create-form__member-outreach {
+.clanbite-event-create-form__member-outreach {
 	margin: 1rem 0 0;
 	padding: 0.75rem 1rem;
 	border: 1px solid #dcdcde;
@@ -240,12 +240,12 @@
 	background: #fcfcfc;
 }
 
-.clanspress-event-create-form__member-outreach-legend {
+.clanbite-event-create-form__member-outreach-legend {
 	padding: 0 0.35rem;
 	font-weight: 600;
 }
 
-.clanspress-event-create-form__member-outreach-help {
+.clanbite-event-create-form__member-outreach-help {
 	margin: 0 0 0.5rem;
 	font-size: 0.9rem;
 	color: #50575e;

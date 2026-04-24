@@ -7,34 +7,34 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Renders the player display name for profile routes.
  *
- * @package clanspress
+ * @package clanbite
  *
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
 
-$user_id = function_exists( 'clanspress_player_blocks_resolve_subject_user_id' )
-	? (int) clanspress_player_blocks_resolve_subject_user_id( $block )
+$user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
+	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
 	: 0;
 
 if ( $user_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes(
 		array(
-			'class' => 'clanspress-player-display-name clanspress-player-display-name--placeholder',
+			'class' => 'clanbite-player-display-name clanbite-player-display-name--placeholder',
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><p class="clanspress-player-display-name__text">' . esc_html__( 'Player name', 'clanspress' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo '<div ' . $wrapper . '><p class="clanbite-player-display-name__text">' . esc_html__( 'Player name', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
 	return;
 }
 
-$title = function_exists( 'clanspress_players_get_display_name' )
-	? (string) clanspress_players_get_display_name( $user_id )
+$title = function_exists( 'clanbite_players_get_display_name' )
+	? (string) clanbite_players_get_display_name( $user_id )
 	: '';
 
 if ( '' === $title ) {
 	$u = get_userdata( $user_id );
-	$title = ( $u instanceof WP_User ) ? $u->display_name : __( 'Player', 'clanspress' );
+	$title = ( $u instanceof WP_User ) ? $u->display_name : __( 'Player', 'clanbite' );
 }
 
 $align = '';
@@ -43,25 +43,25 @@ if ( isset( $attributes['style']['typography']['textAlign'] ) ) {
 } elseif ( isset( $attributes['textAlign'] ) ) {
 	$align = sanitize_key( (string) $attributes['textAlign'] );
 }
-$class = array( 'clanspress-player-display-name__text' );
+$class = array( 'clanbite-player-display-name__text' );
 if ( $align && in_array( $align, array( 'left', 'center', 'right', 'justify' ), true ) ) {
 	$class[] = 'has-text-align-' . $align;
 }
 
 $inner = esc_html( $title );
 
-if ( ! empty( $attributes['isLink'] ) && function_exists( 'clanspress_block_player_profile_url' ) ) {
-	$href = clanspress_block_entity_link_url(
-		clanspress_block_player_profile_url( $user_id ),
-		'clanspress/player-display-name',
+if ( ! empty( $attributes['isLink'] ) && function_exists( 'clanbite_block_player_profile_url' ) ) {
+	$href = clanbite_block_entity_link_url(
+		clanbite_block_player_profile_url( $user_id ),
+		'clanbite/player-display-name',
 		$user_id,
 		$block
 	);
 	if ( '' !== $href ) {
 		$target = ( isset( $attributes['linkTarget'] ) && '_blank' === $attributes['linkTarget'] ) ? ' target="_blank"' : '';
-		$rel    = function_exists( 'clanspress_block_entity_link_rel' ) ? clanspress_block_entity_link_rel( $attributes ) : '';
+		$rel    = function_exists( 'clanbite_block_entity_link_rel' ) ? clanbite_block_entity_link_rel( $attributes ) : '';
 		$rel_at = '' !== $rel ? ' rel="' . esc_attr( $rel ) . '"' : '';
-		$inner  = '<a class="clanspress-player-display-name__link" href="' . esc_url( $href ) . '"' . $target . $rel_at . '>' . $inner . '</a>';
+		$inner  = '<a class="clanbite-player-display-name__link" href="' . esc_url( $href ) . '"' . $target . $rel_at . '>' . $inner . '</a>';
 	}
 }
 

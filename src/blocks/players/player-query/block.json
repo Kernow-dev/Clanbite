@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-query",
+	"name": "clanbite/player-query",
 	"version": "1.0.0",
 	"title": "Player query",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "groups",
 	"description": "Loops members of a team. Add a Player template inside, then place player blocks (avatar, display name, …) within the template.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"attributes": {
 		"teamId": {
 			"type": "number",
@@ -63,19 +63,19 @@
 		}
 	},
 	"providesContext": {
-		"clanspress/teamId": "teamId",
-		"clanspress/inheritTeamContext": "inheritTeamContext",
-		"clanspress/excludeBannedMembers": "excludeBannedMembers",
-		"clanspress/queryOrderby": "queryOrderby",
-		"clanspress/queryOrder": "queryOrder",
-		"clanspress/queryMetaKey": "queryMetaKey",
-		"clanspress/queryPerPage": "queryPerPage",
-		"clanspress/queryOffset": "queryOffset",
-		"clanspress/queryMetaQueryJson": "queryMetaQueryJson",
-		"clanspress/queryExcludeUsers": "queryExcludeUsers",
-		"clanspress/queryExcludeCurrentUser": "queryExcludeCurrentUser",
-		"clanspress/queryExcludeRoles": "queryExcludeRoles",
-		"clanspress/queryExcludeMetaQueryJson": "queryExcludeMetaQueryJson"
+		"clanbite/teamId": "teamId",
+		"clanbite/inheritTeamContext": "inheritTeamContext",
+		"clanbite/excludeBannedMembers": "excludeBannedMembers",
+		"clanbite/queryOrderby": "queryOrderby",
+		"clanbite/queryOrder": "queryOrder",
+		"clanbite/queryMetaKey": "queryMetaKey",
+		"clanbite/queryPerPage": "queryPerPage",
+		"clanbite/queryOffset": "queryOffset",
+		"clanbite/queryMetaQueryJson": "queryMetaQueryJson",
+		"clanbite/queryExcludeUsers": "queryExcludeUsers",
+		"clanbite/queryExcludeCurrentUser": "queryExcludeCurrentUser",
+		"clanbite/queryExcludeRoles": "queryExcludeRoles",
+		"clanbite/queryExcludeMetaQueryJson": "queryExcludeMetaQueryJson"
 	},
 	"supports": {
 		"spacing": {
@@ -99,9 +99,9 @@
 	},
 	"editorScript": "file:./index.js",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-query",
-		"color": ".wp-block-clanspress-player-query",
-		"typography": ".wp-block-clanspress-player-query",
-		"border": ".wp-block-clanspress-player-query"
+		"root": ".wp-block-clanbite-player-query",
+		"color": ".wp-block-clanbite-player-query",
+		"typography": ".wp-block-clanbite-player-query",
+		"border": ".wp-block-clanbite-player-query"
 	}
 }

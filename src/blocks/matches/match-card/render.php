@@ -2,7 +2,7 @@
 /**
  * Server render for the Match card block.
  *
- * @package clanspress
+ * @package clanbite
  *
  * @var array    $attributes Block attributes.
  * @var string   $content    Unused.
@@ -15,9 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
-$extension = function_exists( 'clanspress_matches' ) ? clanspress_matches() : null;
+$extension = function_exists( 'clanbite_matches' ) ? clanbite_matches() : null;
 
-if ( ! $extension instanceof \Kernowdev\Clanspress\Extensions\Matches ) {
+if ( ! $extension instanceof \Kernowdev\Clanbite\Extensions\Matches ) {
 	echo '';
 	return;
 }

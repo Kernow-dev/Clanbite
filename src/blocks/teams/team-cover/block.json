@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/team-cover",
+	"name": "clanbite/team-cover",
 	"version": "1.0.0",
 	"title": "Team cover",
-	"category": "clanspress-teams",
+	"category": "clanbite-teams",
 	"icon": "format-image",
 	"description": "Displays the team cover image on single team templates.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"postTypes": [ "cp_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"attributes": {
@@ -89,12 +89,12 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-team-cover",
+		"root": ".wp-block-clanbite-team-cover",
 		"color": {
-			"text": ".wp-block-clanspress-team-cover .team-cover__content-container",
-			"background": ".wp-block-clanspress-team-cover"
+			"text": ".wp-block-clanbite-team-cover .team-cover__content-container",
+			"background": ".wp-block-clanbite-team-cover"
 		},
-		"typography": ".wp-block-clanspress-team-cover .team-cover__content-container",
-		"border": ".wp-block-clanspress-team-cover"
+		"typography": ".wp-block-clanbite-team-cover .team-cover__content-container",
+		"border": ".wp-block-clanbite-team-cover"
 	}
 }

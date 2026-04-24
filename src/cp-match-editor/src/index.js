@@ -10,10 +10,10 @@ import { PanelRow, TextControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const STATUS_OPTIONS = [
-	{ label: __( 'Scheduled', 'clanspress' ), value: 'scheduled' },
-	{ label: __( 'Live', 'clanspress' ), value: 'live' },
-	{ label: __( 'Finished', 'clanspress' ), value: 'finished' },
-	{ label: __( 'Cancelled', 'clanspress' ), value: 'cancelled' },
+	{ label: __( 'Scheduled', 'clanbite' ), value: 'scheduled' },
+	{ label: __( 'Live', 'clanbite' ), value: 'live' },
+	{ label: __( 'Finished', 'clanbite' ), value: 'finished' },
+	{ label: __( 'Cancelled', 'clanbite' ), value: 'cancelled' },
 ];
 
 function MatchMetaFields() {
@@ -35,8 +35,8 @@ function MatchMetaFields() {
 		<>
 			<PanelRow>
 				<TextControl
-					label={ __( 'Home team (post ID)', 'clanspress' ) }
-					help={ __( 'Published `cp_team` post ID.', 'clanspress' ) }
+					label={ __( 'Home team (post ID)', 'clanbite' ) }
+					help={ __( 'Published `cp_team` post ID.', 'clanbite' ) }
 					type="number"
 					value={ home || '' }
 					onChange={ ( v ) =>
@@ -48,8 +48,8 @@ function MatchMetaFields() {
 			</PanelRow>
 			<PanelRow>
 				<TextControl
-					label={ __( 'Away team (post ID)', 'clanspress' ) }
-					help={ __( 'Published `cp_team` post ID.', 'clanspress' ) }
+					label={ __( 'Away team (post ID)', 'clanbite' ) }
+					help={ __( 'Published `cp_team` post ID.', 'clanbite' ) }
 					type="number"
 					value={ away || '' }
 					onChange={ ( v ) =>
@@ -61,10 +61,10 @@ function MatchMetaFields() {
 			</PanelRow>
 			<PanelRow>
 				<TextControl
-					label={ __( 'Scheduled at (GMT)', 'clanspress' ) }
+					label={ __( 'Scheduled at (GMT)', 'clanbite' ) }
 					help={ __(
 						'Format: YYYY-MM-DD HH:MM:SS in GMT. Saved via REST and sanitized server-side.',
-						'clanspress'
+						'clanbite'
 					) }
 					value={ scheduled }
 					onChange={ ( v ) => patch( 'cp_match_scheduled_at', v ) }
@@ -74,7 +74,7 @@ function MatchMetaFields() {
 			</PanelRow>
 			<PanelRow>
 				<SelectControl
-					label={ __( 'Match status', 'clanspress' ) }
+					label={ __( 'Match status', 'clanbite' ) }
 					value={ status }
 					options={ STATUS_OPTIONS }
 					onChange={ ( v ) => patch( 'cp_match_status', v ) }
@@ -82,7 +82,7 @@ function MatchMetaFields() {
 			</PanelRow>
 			<PanelRow>
 				<TextControl
-					label={ __( 'Home score', 'clanspress' ) }
+					label={ __( 'Home score', 'clanbite' ) }
 					type="number"
 					value={ homeScore || '' }
 					onChange={ ( v ) =>
@@ -94,7 +94,7 @@ function MatchMetaFields() {
 			</PanelRow>
 			<PanelRow>
 				<TextControl
-					label={ __( 'Away score', 'clanspress' ) }
+					label={ __( 'Away score', 'clanbite' ) }
 					type="number"
 					value={ awayScore || '' }
 					onChange={ ( v ) =>
@@ -106,7 +106,7 @@ function MatchMetaFields() {
 			</PanelRow>
 			<PanelRow>
 				<TextControl
-					label={ __( 'Venue', 'clanspress' ) }
+					label={ __( 'Venue', 'clanbite' ) }
 					value={ venue }
 					onChange={ ( v ) => patch( 'cp_match_venue', v ) }
 					__next40pxDefaultSize
@@ -129,15 +129,15 @@ function MatchDocumentPanel() {
 
 	return (
 		<PluginDocumentSettingPanel
-			name="clanspress-match-details"
-			title={ __( 'Match details', 'clanspress' ) }
-			className="clanspress-match-document-panel"
+			name="clanbite-match-details"
+			title={ __( 'Match details', 'clanbite' ) }
+			className="clanbite-match-document-panel"
 		>
 			<MatchMetaFields />
 		</PluginDocumentSettingPanel>
 	);
 }
 
-registerPlugin( 'clanspress-cp-match-sidebar', {
+registerPlugin( 'clanbite-cp-match-sidebar', {
 	render: MatchDocumentPanel,
 } );

@@ -5,18 +5,18 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Procedural helpers for the Matches extension (themes and integrations).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-use Kernowdev\Clanspress\Extensions\Matches;
+use Kernowdev\Clanbite\Extensions\Matches;
 
 /**
  * Resolve the running Matches extension from the loader.
  *
  * @return Matches|null Null when the extension is not installed or not booted.
  */
-function clanspress_matches(): ?Matches {
-	$loader = clanspress()->extensions;
+function clanbite_matches(): ?Matches {
+	$loader = clanbite()->extensions;
 	if ( null === $loader ) {
 		return null;
 	}
@@ -31,15 +31,15 @@ function clanspress_matches(): ?Matches {
  *
  * @return bool
  */
-function clanspress_matches_subpage_team_enabled(): bool {
-	if ( ! clanspress_matches() ) {
+function clanbite_matches_subpage_team_enabled(): bool {
+	if ( ! clanbite_matches() ) {
 		return false;
 	}
 
 	$defaults = array(
 		'subpage_team' => true,
 	);
-	$stored   = get_option( 'clanspress_matches_settings', array() );
+	$stored   = get_option( 'clanbite_matches_settings', array() );
 	if ( ! is_array( $stored ) ) {
 		$stored = array();
 	}
@@ -54,7 +54,7 @@ function clanspress_matches_subpage_team_enabled(): bool {
  * @param int $team_id Team post ID (`cp_team`).
  * @return string Empty string when the post is missing or not a team.
  */
-function clanspress_matches_team_title( int $team_id ): string {
+function clanbite_matches_team_title( int $team_id ): string {
 	if ( $team_id <= 0 ) {
 		return '';
 	}
@@ -72,10 +72,10 @@ function clanspress_matches_team_title( int $team_id ): string {
  * @param int $match_id Match post ID.
  * @return string
  */
-function clanspress_matches_resolve_away_team_title( int $match_id ): string {
+function clanbite_matches_resolve_away_team_title( int $match_id ): string {
 	$away = (int) get_post_meta( $match_id, 'cp_match_away_team_id', true );
 	if ( $away > 0 ) {
-		return clanspress_matches_team_title( $away );
+		return clanbite_matches_team_title( $away );
 	}
 
 	return sanitize_text_field( (string) get_post_meta( $match_id, 'cp_match_away_external_label', true ) );
@@ -88,7 +88,7 @@ function clanspress_matches_resolve_away_team_title( int $match_id ): string {
  * @param string $format    PHP date format passed to `wp_date()`.
  * @return string Empty string when the value cannot be parsed.
  */
-function clanspress_matches_format_datetime_local( string $mysql_gmt, string $format ): string {
+function clanbite_matches_format_datetime_local( string $mysql_gmt, string $format ): string {
 	if ( '' === trim( $mysql_gmt ) ) {
 		return '';
 	}
@@ -105,11 +105,11 @@ function clanspress_matches_format_datetime_local( string $mysql_gmt, string $fo
  *
  * @return array<string, string> Status slug => translated label.
  */
-function clanspress_matches_status_labels(): array {
+function clanbite_matches_status_labels(): array {
 	return array(
-		'scheduled' => __( 'Scheduled', 'clanspress' ),
-		'live'      => __( 'Live', 'clanspress' ),
-		'finished'  => __( 'Finished', 'clanspress' ),
-		'cancelled' => __( 'Cancelled', 'clanspress' ),
+		'scheduled' => __( 'Scheduled', 'clanbite' ),
+		'live'      => __( 'Live', 'clanbite' ),
+		'finished'  => __( 'Finished', 'clanbite' ),
+		'cancelled' => __( 'Cancelled', 'clanbite' ),
 	);
 }

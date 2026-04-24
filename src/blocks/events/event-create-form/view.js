@@ -15,13 +15,13 @@ function syncWizardUi( root, step, stepCount ) {
 	if ( ! root ) {
 		return;
 	}
-	const form = root.querySelector( '.clanspress-event-create-form__form' );
+	const form = root.querySelector( '.clanbite-event-create-form__form' );
 	if ( form ) {
 		form.dataset.activeStep = String( step );
 	}
 
 	const tabs = root.querySelectorAll(
-		'.clanspress-event-create-form__tab[data-event-tab]'
+		'.clanbite-event-create-form__tab[data-event-tab]'
 	);
 	tabs.forEach( ( tab ) => {
 		const n = Number( tab.getAttribute( 'data-event-tab' ) );
@@ -72,10 +72,10 @@ function syncModeUi( root, mode ) {
 		return;
 	}
 	const virtualFields = root.querySelectorAll(
-		'.clanspress-event-create-form__field--virtual'
+		'.clanbite-event-create-form__field--virtual'
 	);
 	const addressFields = root.querySelectorAll(
-		'.clanspress-event-create-form__field--address'
+		'.clanbite-event-create-form__field--address'
 	);
 
 	virtualFields.forEach( ( el ) => {
@@ -86,7 +86,7 @@ function syncModeUi( root, mode ) {
 	} );
 
 	const vurl = root.querySelector(
-		'.clanspress-event-create-form__input-vurl'
+		'.clanbite-event-create-form__input-vurl'
 	);
 	if ( vurl ) {
 		if ( mode === 'virtual' ) {
@@ -97,11 +97,11 @@ function syncModeUi( root, mode ) {
 	}
 }
 
-const { state, actions } = store( 'clanspress-event-create-form', {
+const { state, actions } = store( 'clanbite-event-create-form', {
 	callbacks: {
 		init() {
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-event-create-form' );
+			const root = ref?.closest( '.clanbite-event-create-form' );
 			if ( ! root ) {
 				return;
 			}
@@ -111,7 +111,7 @@ const { state, actions } = store( 'clanspress-event-create-form', {
 			state.stepCount = Number( context.stepCount ) || 4;
 
 			const modeSelect = root.querySelector(
-				'.clanspress-event-create-form__input-mode'
+				'.clanbite-event-create-form__input-mode'
 			);
 			state.mode = modeSelect?.value || 'in_person';
 			syncModeUi( root, state.mode );
@@ -238,13 +238,13 @@ const { state, actions } = store( 'clanspress-event-create-form', {
 			state.successEventUrl = '';
 			state.step = 1;
 			const form = root.querySelector(
-				'.clanspress-event-create-form__form'
+				'.clanbite-event-create-form__form'
 			);
 			if ( form && typeof form.reset === 'function' ) {
 				form.reset();
 			}
 			const modeSelect = root.querySelector(
-				'.clanspress-event-create-form__input-mode'
+				'.clanbite-event-create-form__input-mode'
 			);
 			state.mode = modeSelect?.value || 'in_person';
 			syncModeUi( root, state.mode );
@@ -267,16 +267,16 @@ const { state, actions } = store( 'clanspress-event-create-form', {
 			const title =
 				root
 					.querySelector(
-						'.clanspress-event-create-form__input-title'
+						'.clanbite-event-create-form__input-title'
 					)
 					?.value?.trim() || '';
 			const content =
 				root.querySelector(
-					'.clanspress-event-create-form__input-content'
+					'.clanbite-event-create-form__input-content'
 				)?.value || '';
 			const mode =
 				root.querySelector(
-					'.clanspress-event-create-form__input-mode'
+					'.clanbite-event-create-form__input-mode'
 				)?.value || 'in_person';
 
 			if ( ! title ) {
@@ -293,55 +293,55 @@ const { state, actions } = store( 'clanspress-event-create-form', {
 				mode,
 				virtual_url:
 					root.querySelector(
-						'.clanspress-event-create-form__input-vurl'
+						'.clanbite-event-create-form__input-vurl'
 					)?.value || '',
 				address_line1:
 					root.querySelector(
-						'.clanspress-event-create-form__input-line1'
+						'.clanbite-event-create-form__input-line1'
 					)?.value || '',
 				address_line2:
 					root.querySelector(
-						'.clanspress-event-create-form__input-line2'
+						'.clanbite-event-create-form__input-line2'
 					)?.value || '',
 				locality:
 					root.querySelector(
-						'.clanspress-event-create-form__input-locality'
+						'.clanbite-event-create-form__input-locality'
 					)?.value || '',
 				region:
 					root.querySelector(
-						'.clanspress-event-create-form__input-region'
+						'.clanbite-event-create-form__input-region'
 					)?.value || '',
 				postcode:
 					root.querySelector(
-						'.clanspress-event-create-form__input-postcode'
+						'.clanbite-event-create-form__input-postcode'
 					)?.value || '',
 				country:
 					root.querySelector(
-						'.clanspress-event-create-form__input-country'
+						'.clanbite-event-create-form__input-country'
 					)?.value || '',
 				starts_at: toMysqlUtc(
 					root.querySelector(
-						'.clanspress-event-create-form__input-starts'
+						'.clanbite-event-create-form__input-starts'
 					)?.value
 				),
 				ends_at: toMysqlUtc(
 					root.querySelector(
-						'.clanspress-event-create-form__input-ends'
+						'.clanbite-event-create-form__input-ends'
 					)?.value
 				),
 				visibility:
 					root.querySelector(
-						'.clanspress-event-create-form__input-vis'
+						'.clanbite-event-create-form__input-vis'
 					)?.value || 'public',
 				attendees_visibility:
 					root.querySelector(
-						'.clanspress-event-create-form__input-attvis'
+						'.clanbite-event-create-form__input-attvis'
 					)?.value || 'hidden',
 			};
 
 			const memberOutreach =
 				root.querySelector(
-					'.clanspress-event-create-form__input-member-outreach'
+					'.clanbite-event-create-form__input-member-outreach'
 				)?.value || 'none';
 
 			let payload;
@@ -411,7 +411,7 @@ const { state, actions } = store( 'clanspress-event-create-form', {
 					state.successScreen = true;
 					state.successEventUrl = '';
 					const successEl = root.querySelector(
-						'.clanspress-event-create-form__success'
+						'.clanbite-event-create-form__success'
 					);
 					if ( successEl && typeof successEl.focus === 'function' ) {
 						successEl.focus();

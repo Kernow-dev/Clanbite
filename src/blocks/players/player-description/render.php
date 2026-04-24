@@ -6,29 +6,29 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Renders the player profile description (bio HTML) when set.
  *
- * @package clanspress
+ * @package clanbite
  *
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
 
-$user_id = function_exists( 'clanspress_player_blocks_resolve_subject_user_id' )
-	? (int) clanspress_player_blocks_resolve_subject_user_id( $block )
+$user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
+	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
 	: 0;
 
 if ( $user_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes(
 		array(
-			'class' => 'clanspress-player-description clanspress-player-description--placeholder',
+			'class' => 'clanbite-player-description clanbite-player-description--placeholder',
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><div class="clanspress-player-description__content">' . esc_html__( 'Player description', 'clanspress' ) . '</div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo '<div ' . $wrapper . '><div class="clanbite-player-description__content">' . esc_html__( 'Player description', 'clanbite' ) . '</div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
 	return;
 }
 
-$bio = function_exists( 'clanspress_players_get_display_bio' )
-	? (string) clanspress_players_get_display_bio( $user_id )
+$bio = function_exists( 'clanbite_players_get_display_bio' )
+	? (string) clanbite_players_get_display_bio( $user_id )
 	: '';
 
 if ( '' === trim( wp_strip_all_tags( $bio ) ) ) {
@@ -36,7 +36,7 @@ if ( '' === trim( wp_strip_all_tags( $bio ) ) ) {
 }
 
 $align = isset( $attributes['textAlign'] ) ? sanitize_key( (string) $attributes['textAlign'] ) : '';
-$class = array( 'clanspress-player-description__content' );
+$class = array( 'clanbite-player-description__content' );
 if ( $align && in_array( $align, array( 'left', 'center', 'right', 'justify' ), true ) ) {
 	$class[] = 'has-text-align-' . $align;
 }

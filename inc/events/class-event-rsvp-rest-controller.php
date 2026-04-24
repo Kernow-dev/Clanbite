@@ -2,10 +2,10 @@
 /**
  * REST API controller for event RSVPs.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Events;
+namespace Kernowdev\Clanbite\Events;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -25,7 +25,7 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'clanspress/v1';
+	protected $namespace = 'clanbite/v1';
 
 	/**
 	 * REST base.
@@ -103,8 +103,8 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 	public function check_logged_in_and_visible( WP_REST_Request $request ) {
 		if ( ! is_user_logged_in() ) {
 			return new WP_Error(
-				'clanspress_not_logged_in',
-				__( 'You must be logged in.', 'clanspress' ),
+				'clanbite_not_logged_in',
+				__( 'You must be logged in.', 'clanbite' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -125,16 +125,16 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 
 		if ( '' === $event_type || $event_id < 1 ) {
 			return new WP_Error(
-				'clanspress_invalid_event',
-				__( 'Invalid event.', 'clanspress' ),
+				'clanbite_invalid_event',
+				__( 'Invalid event.', 'clanbite' ),
 				array( 'status' => 400 )
 			);
 		}
 
 		if ( ! Events::viewer_can_see_event( $event_type, $event_id, $viewer_id ) ) {
 			return new WP_Error(
-				'clanspress_event_forbidden',
-				__( 'You do not have access to this event.', 'clanspress' ),
+				'clanbite_event_forbidden',
+				__( 'You do not have access to this event.', 'clanbite' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -224,7 +224,7 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 		 * @param int    $viewer_id          Viewer user ID (0 for anon).
 		 */
 		$can_view_attendees = (bool) apply_filters(
-			'clanspress_event_can_view_attendees',
+			'clanbite_event_can_view_attendees',
 			$can_view_attendees,
 			$event_type,
 			$event_id,
@@ -233,8 +233,8 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 
 		if ( ! $can_view_attendees ) {
 			return new WP_Error(
-				'clanspress_attendees_hidden',
-				__( 'Attendee list is hidden.', 'clanspress' ),
+				'clanbite_attendees_hidden',
+				__( 'Attendee list is hidden.', 'clanbite' ),
 				array( 'status' => 403 )
 			);
 		}

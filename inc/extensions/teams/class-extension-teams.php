@@ -1,15 +1,15 @@
 <?php
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Main;
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
-use Kernowdev\Clanspress\Extensions\Teams\Admin;
-use Kernowdev\Clanspress\Extensions\Teams\Team;
-use Kernowdev\Clanspress\Extensions\Teams\Team_Challenges;
-use Kernowdev\Clanspress\Extensions\Teams\Team_Data_Store;
-use Kernowdev\Clanspress\Extensions\Teams\Team_Data_Store_CPT;
+use Kernowdev\Clanbite\Main;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Teams\Admin;
+use Kernowdev\Clanbite\Extensions\Teams\Team;
+use Kernowdev\Clanbite\Extensions\Teams\Team_Challenges;
+use Kernowdev\Clanbite\Extensions\Teams\Team_Data_Store;
+use Kernowdev\Clanbite\Extensions\Teams\Team_Data_Store_CPT;
 
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/../data-stores/class-wp-post-meta-data-store.php';
@@ -19,7 +19,7 @@ require_once __DIR__ . '/class-team-challenges.php';
 /**
  * Extension skeleton.
  *
- * This skeleton outlines the requirements for an extension for the Clanspress plugin.
+ * This skeleton outlines the requirements for an extension for the Clanbite plugin.
  * All extensions will need to extend this class.
  */
 class Teams extends Skeleton {
@@ -31,7 +31,7 @@ class Teams extends Skeleton {
 	/**
 	 * Slug for the virtual `wp_template_part` resolved from `templates/teams/parts/team-profile-header.html`.
 	 */
-	public const TEAM_PROFILE_HEADER_TEMPLATE_PART_SLUG = 'clanspress-team-profile-header';
+	public const TEAM_PROFILE_HEADER_TEMPLATE_PART_SLUG = 'clanbite-team-profile-header';
 
 	/**
 	 * Cached {@see \WP_Block_Template} for {@see Teams::TEAM_PROFILE_HEADER_TEMPLATE_PART_SLUG} (per request).
@@ -48,7 +48,7 @@ class Teams extends Skeleton {
 	protected Admin $admin;
 
 	/**
-	 * Team entity persistence (filtered via `clanspress_team_data_store`).
+	 * Team entity persistence (filtered via `clanbite_team_data_store`).
 	 *
 	 * @var Team_Data_Store|null
 	 */
@@ -77,7 +77,7 @@ class Teams extends Skeleton {
 	 * @param string $parent_slug The slug of the parent extension.
 	 * @param string $version              The extension version.
 	 * @param array  $requires             An array of required extensions.
-	 * @param string $requires_clanspress  Minimum Clanspress core version (`x.y.z`).
+	 * @param string $requires_clanbite  Minimum Clanbite core version (`x.y.z`).
 	 */
 	public function setup_extension(
 		string $name,
@@ -86,7 +86,7 @@ class Teams extends Skeleton {
 		string $parent_slug,
 		string $version,
 		array $requires,
-		string $requires_clanspress = ''
+		string $requires_clanbite = ''
 	): void {
 		parent::setup_extension(
 			$name,
@@ -95,12 +95,12 @@ class Teams extends Skeleton {
 			$parent_slug,
 			$version,
 			$requires,
-			$requires_clanspress
+			$requires_clanbite
 		);
 
 		// Built-in extensions register as official, not third-party.
-		remove_filter( 'clanspress_registered_extensions', array( $this, 'register_extension' ) );
-		add_filter( 'clanspress_official_registered_extensions', array( $this, 'register_extension' ) );
+		remove_filter( 'clanbite_registered_extensions', array( $this, 'register_extension' ) );
+		add_filter( 'clanbite_official_registered_extensions', array( $this, 'register_extension' ) );
 	}
 
 	public function run_installer(): void {}
@@ -123,14 +123,14 @@ class Teams extends Skeleton {
 		 * @param string $team_mode Team mode slug.
 		 * @param Teams  $extension Teams extension instance.
 		 */
-		do_action( 'clanspress_teams_mode_loaded', $team_mode, $this );
+		do_action( 'clanbite_teams_mode_loaded', $team_mode, $this );
 
 		/**
 		 * Dynamic teams mode hook for mode-specific boot behavior.
 		 *
 		 * @param Teams $extension Teams extension instance.
 		 */
-		do_action( "clanspress_teams_mode_{$team_mode}", $this );
+		do_action( "clanbite_teams_mode_{$team_mode}", $this );
 
 		// After `cp_team` rewrites register (init:10) so `teams/create` wins over `teams/([^/]+)`.
 		add_filter( 'pre_get_block_file_template', array( $this, 'filter_pre_get_block_file_template_team_profile_header' ), 10, 3 );
@@ -141,18 +141,18 @@ class Teams extends Skeleton {
 		add_action( 'init', array( $this, 'register_team_blocks' ), 10 );
 		add_action( 'init', array( $this, 'register_team_templates' ), 10 );
 		add_action( 'after_setup_theme', array( $this, 'register_team_image_sizes' ) );
-		add_action( 'admin_post_clanspress_create_team', array( $this, 'handle_create_team' ) );
-		add_action( 'admin_post_nopriv_clanspress_create_team', array( $this, 'handle_create_team' ) );
-		add_action( 'admin_post_clanspress_save_team_manage', array( $this, 'handle_save_team_manage' ) );
-		add_action( 'admin_post_nopriv_clanspress_save_team_manage', array( $this, 'handle_save_team_manage_nopriv' ) );
-		add_action( 'admin_post_clanspress_delete_team', array( $this, 'handle_delete_team' ) );
-		add_action( 'admin_post_nopriv_clanspress_delete_team', array( $this, 'handle_delete_team_nopriv' ) );
+		add_action( 'admin_post_clanbite_create_team', array( $this, 'handle_create_team' ) );
+		add_action( 'admin_post_nopriv_clanbite_create_team', array( $this, 'handle_create_team' ) );
+		add_action( 'admin_post_clanbite_save_team_manage', array( $this, 'handle_save_team_manage' ) );
+		add_action( 'admin_post_nopriv_clanbite_save_team_manage', array( $this, 'handle_save_team_manage_nopriv' ) );
+		add_action( 'admin_post_clanbite_delete_team', array( $this, 'handle_delete_team' ) );
+		add_action( 'admin_post_nopriv_clanbite_delete_team', array( $this, 'handle_delete_team_nopriv' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_team_editor_assets' ) );
-		add_action( 'wp_ajax_clanspress_team_invite_search', array( $this, 'ajax_team_invite_search' ) );
-		add_action( 'wp_ajax_clanspress_save_team_media', array( $this, 'ajax_save_team_media' ) );
+		add_action( 'wp_ajax_clanbite_team_invite_search', array( $this, 'ajax_team_invite_search' ) );
+		add_action( 'wp_ajax_clanbite_save_team_media', array( $this, 'ajax_save_team_media' ) );
 
 		// Register notification action handlers for team invites.
-		add_filter( 'clanspress_notification_action_handler', array( $this, 'handle_notification_actions' ), 10, 5 );
+		add_filter( 'clanbite_notification_action_handler', array( $this, 'handle_notification_actions' ), 10, 5 );
 		add_action( 'init', array( $this, 'integrate_team_preferences' ), 5 );
 		add_filter( 'query_vars', array( $this, 'register_team_query_vars' ) );
 		add_filter( 'request', array( $this, 'filter_request_for_team_virtual_pages' ), 99 );
@@ -220,11 +220,11 @@ class Teams extends Skeleton {
 		 * @param bool $run     Default true.
 		 * @param int  $user_id User ID.
 		 */
-		if ( ! (bool) apply_filters( 'clanspress_teams_should_auto_roster_sync_user', true, $user_id ) ) {
+		if ( ! (bool) apply_filters( 'clanbite_teams_should_auto_roster_sync_user', true, $user_id ) ) {
 			return;
 		}
 
-		$team_ids = clanspress_teams_global_auto_join_team_ids();
+		$team_ids = clanbite_teams_global_auto_join_team_ids();
 		if ( $team_ids === array() ) {
 			return;
 		}
@@ -254,7 +254,7 @@ class Teams extends Skeleton {
 		 *
 		 * @param int $user_id User ID.
 		 */
-		do_action( 'clanspress_teams_auto_roster_synced', $user_id );
+		do_action( 'clanbite_teams_auto_roster_synced', $user_id );
 	}
 
 	/**
@@ -271,7 +271,7 @@ class Teams extends Skeleton {
 			 * @param Team_Data_Store $store     Default CPT-backed store.
 			 * @param Teams           $extension Teams extension instance.
 			 */
-			$store                 = apply_filters( 'clanspress_team_data_store', $default, $this );
+			$store                 = apply_filters( 'clanbite_team_data_store', $default, $this );
 			$this->team_data_store = $store instanceof Team_Data_Store ? $store : $default;
 		}
 
@@ -369,7 +369,7 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$loader = clanspress()->extensions;
+		$loader = clanbite()->extensions;
 		if ( null === $loader ) {
 			return;
 		}
@@ -383,10 +383,10 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		add_filter( 'clanspress_players_settings_nav_items', array( $this, 'register_teams_player_settings_nav' ), 20 );
-		add_filter( 'clanspress_players_settings_nav_teams_sub_items', array( $this, 'register_teams_player_settings_sub_nav' ) );
-		add_action( 'clanspress_player_settings_panel_teams-preferences', array( $this, 'render_player_team_preferences_panel' ) );
-		add_action( 'clanspress_save_player_settings', array( $this, 'save_player_team_preferences' ), 15, 4 );
+		add_filter( 'clanbite_players_settings_nav_items', array( $this, 'register_teams_player_settings_nav' ), 20 );
+		add_filter( 'clanbite_players_settings_nav_teams_sub_items', array( $this, 'register_teams_player_settings_sub_nav' ) );
+		add_action( 'clanbite_player_settings_panel_teams-preferences', array( $this, 'render_player_team_preferences_panel' ) );
+		add_action( 'clanbite_save_player_settings', array( $this, 'save_player_team_preferences' ), 15, 4 );
 	}
 
 	/**
@@ -395,8 +395,8 @@ class Teams extends Skeleton {
 	 */
 	public function register_teams_player_settings_nav( array $items ): array {
 		$items['teams'] = array(
-			'label'       => __( 'Teams', 'clanspress' ),
-			'description' => __( 'Invites and team visibility', 'clanspress' ),
+			'label'       => __( 'Teams', 'clanbite' ),
+			'description' => __( 'Invites and team visibility', 'clanbite' ),
 		);
 
 		return $items;
@@ -408,7 +408,7 @@ class Teams extends Skeleton {
 	 */
 	public function register_teams_player_settings_sub_nav( array $items ): array {
 		$items['teams-preferences'] = array(
-			'label' => __( 'Preferences', 'clanspress' ),
+			'label' => __( 'Preferences', 'clanbite' ),
 		);
 
 		return $items;
@@ -428,22 +428,22 @@ class Teams extends Skeleton {
 		$open = $this->user_accepts_team_invites( $user_id );
 		?>
 		<div class="settings-section">
-			<h2 class="settings-section-title"><?php esc_html_e( 'Team invites', 'clanspress' ); ?></h2>
+			<h2 class="settings-section-title"><?php esc_html_e( 'Team invites', 'clanbite' ); ?></h2>
 			<div class="settings-section-row">
 				<div class="form-item">
 					<div class="form-input">
-						<label for="clanspress-open-to-team-invites">
+						<label for="clanbite-open-to-team-invites">
 							<input
 								type="checkbox"
-								id="clanspress-open-to-team-invites"
+								id="clanbite-open-to-team-invites"
 								name="open_to_team_invites"
 								value="1"
 								<?php checked( $open ); ?>
 							/>
-							<?php esc_html_e( 'Allow team invites', 'clanspress' ); ?>
+							<?php esc_html_e( 'Allow team invites', 'clanbite' ); ?>
 						</label>
 						<p class="description">
-							<?php esc_html_e( 'If you turn this off, you will not appear in team invite search when captains add players to a new team.', 'clanspress' ); ?>
+							<?php esc_html_e( 'If you turn this off, you will not appear in team invite search when captains add players to a new team.', 'clanbite' ); ?>
 						</p>
 					</div>
 				</div>
@@ -455,9 +455,9 @@ class Teams extends Skeleton {
 	/**
 	 * Persist team invite preference from player settings save.
 	 *
-	 * @param array $filtered_data Sanitized-oriented POST data.
-	 * @param array $data          Raw POST.
-	 * @param array $files         Uploaded files.
+	 * @param array $filtered_data Sanitized POST data (see {@see clanbite_sanitize_player_settings_post_array()}).
+	 * @param array $data          Sanitized POST snapshot (same shape as the first argument).
+	 * @param array $files         Whitelisted uploads (`profile_avatar`, `profile_cover`).
 	 * @param int   $user_id       User ID.
 	 * @return void
 	 */
@@ -511,7 +511,7 @@ class Teams extends Skeleton {
 		 * @param int   $user_id User ID.
 		 * @param Teams $extension Teams extension.
 		 */
-		return (int) apply_filters( 'clanspress_user_team_membership_count', $count, $user_id, $this );
+		return (int) apply_filters( 'clanbite_user_team_membership_count', $count, $user_id, $this );
 	}
 
 	/**
@@ -535,7 +535,7 @@ class Teams extends Skeleton {
 		 * @param int   $user_id User ID.
 		 * @param Teams $extension Teams extension.
 		 */
-		return (bool) apply_filters( 'clanspress_user_accepts_team_invites', $accepts, $user_id, $this );
+		return (bool) apply_filters( 'clanbite_user_accepts_team_invites', $accepts, $user_id, $this );
 	}
 
 	/**
@@ -569,7 +569,7 @@ class Teams extends Skeleton {
 		 * @param int   $user_id User ID.
 		 * @param Teams $extension Teams extension.
 		 */
-		return (bool) apply_filters( 'clanspress_user_can_appear_in_team_invite_search', $can, $user_id, $this );
+		return (bool) apply_filters( 'clanbite_user_can_appear_in_team_invite_search', $can, $user_id, $this );
 	}
 
 	/**
@@ -592,7 +592,7 @@ class Teams extends Skeleton {
 	 * @return bool
 	 */
 	protected function events_extension_is_active(): bool {
-		return function_exists( 'clanspress_events_extension_active' ) && clanspress_events_extension_active();
+		return function_exists( 'clanbite_events_extension_active' ) && clanbite_events_extension_active();
 	}
 
 	/**
@@ -604,7 +604,7 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function register_team_front_routes(): void {
-		add_rewrite_rule( '^teams/create/?$', 'index.php?clanspress_team_create=1', 'top' );
+		add_rewrite_rule( '^teams/create/?$', 'index.php?clanbite_team_create=1', 'top' );
 
 		$actions = $this->get_team_front_action_slugs_for_rewrites();
 		foreach ( $actions as $action_slug ) {
@@ -614,7 +614,7 @@ class Teams extends Skeleton {
 			}
 			add_rewrite_rule(
 				'^teams/([^/]+)/' . preg_quote( $action_slug, '/' ) . '/?$',
-				'index.php?clanspress_team_slug=$matches[1]&clanspress_team_action=' . $action_slug,
+				'index.php?clanbite_team_slug=$matches[1]&clanbite_team_action=' . $action_slug,
 				'top'
 			);
 		}
@@ -623,14 +623,14 @@ class Teams extends Skeleton {
 			// teams/{slug}/events/create/ — add event (before numeric event ID rule).
 			add_rewrite_rule(
 				'^teams/([^/]+)/events/create/?$',
-				'index.php?clanspress_team_slug=$matches[1]&clanspress_team_action=events&clanspress_team_events_sub=create',
+				'index.php?clanbite_team_slug=$matches[1]&clanbite_team_action=events&clanbite_team_events_sub=create',
 				'top'
 			);
 
 			// teams/{slug}/events/{id}/ — single scheduled event (must be registered after the generic …/events/ rule).
 			add_rewrite_rule(
 				'^teams/([^/]+)/events/([0-9]+)/?$',
-				'index.php?clanspress_team_slug=$matches[1]&clanspress_team_action=events&clanspress_team_event_id=$matches[2]',
+				'index.php?clanbite_team_slug=$matches[1]&clanbite_team_action=events&clanbite_team_event_id=$matches[2]',
 				'top'
 			);
 		}
@@ -638,7 +638,7 @@ class Teams extends Skeleton {
 		// Back-compat: /teams/manage/{slug}/ resolves like /teams/{slug}/manage/.
 		add_rewrite_rule(
 			'^teams/manage/([^/]+)/?$',
-			'index.php?clanspress_team_slug=$matches[1]&clanspress_team_action=manage',
+			'index.php?clanbite_team_slug=$matches[1]&clanbite_team_action=manage',
 			'top'
 		);
 	}
@@ -650,20 +650,20 @@ class Teams extends Skeleton {
 	 */
 	public function get_team_front_action_rewrite_slugs(): array {
 		$actions = array(
-			'manage' => __( 'Manage', 'clanspress' ),
-			'events' => __( 'Events', 'clanspress' ),
+			'manage' => __( 'Manage', 'clanbite' ),
+			'events' => __( 'Events', 'clanbite' ),
 		);
 
 		/**
 		 * Register additional team front actions (BuddyPress-style URLs).
 		 *
 		 * Each key becomes a rewrite segment: teams/{team_slug}/{key}/
-		 * Handle routing in `clanspress_team_action_dispatch` or template_include.
+		 * Handle routing in `clanbite_team_action_dispatch` or template_include.
 		 *
 		 * @param array $actions Slug => label.
 		 * @param Teams $extension Teams extension.
 		 */
-		return (array) apply_filters( 'clanspress_team_front_action_rewrite_slugs', $actions, $this );
+		return (array) apply_filters( 'clanbite_team_front_action_rewrite_slugs', $actions, $this );
 	}
 
 	/**
@@ -671,14 +671,14 @@ class Teams extends Skeleton {
 	 * @return array<int|string, string>
 	 */
 	public function register_team_query_vars( array $vars ): array {
-		$vars[] = 'clanspress_team_create';
-		$vars[] = 'clanspress_team_action';
-		$vars[] = 'clanspress_team_slug';
-		$vars[] = 'clanspress_manage_team_id';
-		$vars[] = 'clanspress_team_event_id';
-		$vars[] = 'clanspress_team_events_sub';
-		$vars[] = 'clanspress_events_team_id';
-		$vars[] = 'clanspress_matches_team_id';
+		$vars[] = 'clanbite_team_create';
+		$vars[] = 'clanbite_team_action';
+		$vars[] = 'clanbite_team_slug';
+		$vars[] = 'clanbite_manage_team_id';
+		$vars[] = 'clanbite_team_event_id';
+		$vars[] = 'clanbite_team_events_sub';
+		$vars[] = 'clanbite_events_team_id';
+		$vars[] = 'clanbite_matches_team_id';
 		$vars[] = 'cp_team_subpage';
 		return $vars;
 	}
@@ -689,7 +689,7 @@ class Teams extends Skeleton {
 	 * @return string
 	 */
 	protected function get_canonical_request_path(): string {
-		return clanspress_get_canonical_request_path();
+		return clanbite_get_canonical_request_path();
 	}
 
 	/**
@@ -719,7 +719,7 @@ class Teams extends Skeleton {
 			return $query_vars;
 		}
 
-		if ( ! empty( $query_vars['clanspress_team_action'] ) || ! empty( $query_vars['clanspress_team_create'] ) ) {
+		if ( ! empty( $query_vars['clanbite_team_action'] ) || ! empty( $query_vars['clanbite_team_create'] ) ) {
 			return $query_vars;
 		}
 
@@ -729,31 +729,31 @@ class Teams extends Skeleton {
 		}
 
 		if ( 'teams/create' === $path || str_starts_with( $path, 'teams/create/' ) ) {
-			$query_vars['clanspress_team_create'] = '1';
+			$query_vars['clanbite_team_create'] = '1';
 
 			return $this->strip_conflicting_query_vars_for_team_virtual_routes( $query_vars );
 		}
 
 		if ( preg_match( '#^teams/manage/([^/]+)/?$#', $path, $m ) ) {
-			$query_vars['clanspress_team_slug']   = $m[1];
-			$query_vars['clanspress_team_action'] = 'manage';
+			$query_vars['clanbite_team_slug']   = $m[1];
+			$query_vars['clanbite_team_action'] = 'manage';
 
 			return $this->strip_conflicting_query_vars_for_team_virtual_routes( $query_vars );
 		}
 
 		if ( $this->events_extension_is_active() ) {
 			if ( preg_match( '#^teams/([^/]+)/events/create/?$#', $path, $m ) ) {
-				$query_vars['clanspress_team_slug']       = $m[1];
-				$query_vars['clanspress_team_action']     = 'events';
-				$query_vars['clanspress_team_events_sub'] = 'create';
+				$query_vars['clanbite_team_slug']       = $m[1];
+				$query_vars['clanbite_team_action']     = 'events';
+				$query_vars['clanbite_team_events_sub'] = 'create';
 
 				return $this->strip_conflicting_query_vars_for_team_virtual_routes( $query_vars );
 			}
 
 			if ( preg_match( '#^teams/([^/]+)/events/([0-9]+)/?$#', $path, $m ) ) {
-				$query_vars['clanspress_team_slug']     = $m[1];
-				$query_vars['clanspress_team_action']   = 'events';
-				$query_vars['clanspress_team_event_id'] = $m[2];
+				$query_vars['clanbite_team_slug']     = $m[1];
+				$query_vars['clanbite_team_action']   = 'events';
+				$query_vars['clanbite_team_event_id'] = $m[2];
 
 				return $this->strip_conflicting_query_vars_for_team_virtual_routes( $query_vars );
 			}
@@ -767,8 +767,8 @@ class Teams extends Skeleton {
 			}
 			$quoted = preg_quote( $action_slug, '#' );
 			if ( preg_match( '#^teams/([^/]+)/' . $quoted . '/?$#', $path, $m ) ) {
-				$query_vars['clanspress_team_slug']   = $m[1];
-				$query_vars['clanspress_team_action'] = $action_slug;
+				$query_vars['clanbite_team_slug']   = $m[1];
+				$query_vars['clanbite_team_action'] = $action_slug;
 
 				return $this->strip_conflicting_query_vars_for_team_virtual_routes( $query_vars );
 			}
@@ -815,7 +815,7 @@ class Teams extends Skeleton {
 		$wp_query->max_num_pages       = 0;
 		$wp_query->posts               = array();
 
-		set_query_var( 'clanspress_team_create', '1' );
+		set_query_var( 'clanbite_team_create', '1' );
 	}
 
 	/**
@@ -868,13 +868,13 @@ class Teams extends Skeleton {
 		$wp_query->max_num_pages       = 0;
 		$wp_query->posts               = array();
 
-		set_query_var( 'clanspress_team_slug', $slug );
-		set_query_var( 'clanspress_team_action', 'events' );
+		set_query_var( 'clanbite_team_slug', $slug );
+		set_query_var( 'clanbite_team_action', 'events' );
 		if ( $event_id > 0 ) {
-			set_query_var( 'clanspress_team_event_id', $event_id );
+			set_query_var( 'clanbite_team_event_id', $event_id );
 		}
 		if ( '' !== $events_sub ) {
-			set_query_var( 'clanspress_team_events_sub', $events_sub );
+			set_query_var( 'clanbite_team_events_sub', $events_sub );
 		}
 	}
 
@@ -884,14 +884,14 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function maybe_redirect_disallowed_team_virtual_actions(): void {
-		$action = sanitize_key( (string) get_query_var( 'clanspress_team_action' ) );
+		$action = sanitize_key( (string) get_query_var( 'clanbite_team_action' ) );
 		if ( '' === $action ) {
 			return;
 		}
 
 		if ( 'events' === $action ) {
-			$allowed = function_exists( 'clanspress_events_extension_active' ) && clanspress_events_extension_active()
-				&& function_exists( 'clanspress_events_subpage_team_enabled' ) && clanspress_events_subpage_team_enabled();
+			$allowed = function_exists( 'clanbite_events_extension_active' ) && clanbite_events_extension_active()
+				&& function_exists( 'clanbite_events_subpage_team_enabled' ) && clanbite_events_subpage_team_enabled();
 			if ( $allowed ) {
 				return;
 			}
@@ -900,8 +900,8 @@ class Teams extends Skeleton {
 		}
 
 		if ( 'matches' === $action ) {
-			$allowed = function_exists( 'clanspress_matches' ) && clanspress_matches()
-				&& function_exists( 'clanspress_matches_subpage_team_enabled' ) && clanspress_matches_subpage_team_enabled();
+			$allowed = function_exists( 'clanbite_matches' ) && clanbite_matches()
+				&& function_exists( 'clanbite_matches_subpage_team_enabled' ) && clanbite_matches_subpage_team_enabled();
 			if ( $allowed ) {
 				return;
 			}
@@ -910,7 +910,7 @@ class Teams extends Skeleton {
 	}
 
 	/**
-	 * 301 from the current `clanspress_team_slug` request to the canonical team profile URL.
+	 * 301 from the current `clanbite_team_slug` request to the canonical team profile URL.
 	 *
 	 * Uses `get_permalink()` when a matching `cp_team` exists so the target stays aligned with
 	 * the post type’s rewrite slug and any core permalink filters.
@@ -918,7 +918,7 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	private function redirect_team_directory_slug_to_profile(): void {
-		$slug = sanitize_title( (string) get_query_var( 'clanspress_team_slug' ) );
+		$slug = sanitize_title( (string) get_query_var( 'clanbite_team_slug' ) );
 		if ( '' === $slug ) {
 			return;
 		}
@@ -963,7 +963,7 @@ class Teams extends Skeleton {
 		 * @param string $slug    Sanitized `post_name`.
 		 * @param Teams  $extension Teams extension instance.
 		 */
-		return (string) apply_filters( 'clanspress_team_profile_url_for_slug', $url, $slug, $this );
+		return (string) apply_filters( 'clanbite_team_profile_url_for_slug', $url, $slug, $this );
 	}
 
 	/**
@@ -977,8 +977,8 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		$action = $query->get( 'clanspress_team_action' );
-		$create = $query->get( 'clanspress_team_create' );
+		$action = $query->get( 'clanbite_team_action' );
+		$create = $query->get( 'clanbite_team_create' );
 
 		if ( '' === (string) $action && ! $create ) {
 			return;
@@ -1011,8 +1011,8 @@ class Teams extends Skeleton {
 			return $posts;
 		}
 
-		$action = $query->get( 'clanspress_team_action' );
-		$create = $query->get( 'clanspress_team_create' );
+		$action = $query->get( 'clanbite_team_action' );
+		$create = $query->get( 'clanbite_team_create' );
 
 		if ( '' !== (string) $action || $create ) {
 			$query->found_posts   = 0;
@@ -1024,7 +1024,7 @@ class Teams extends Skeleton {
 	}
 
 	/**
-	 * Point the Site Editor admin-bar link at Clanspress team templates instead of the theme fallback.
+	 * Point the Site Editor admin-bar link at Clanbite team templates instead of the theme fallback.
 	 *
 	 * Virtual team URLs use PHP loaders while core may have resolved a generic theme template first.
 	 *
@@ -1039,27 +1039,27 @@ class Teams extends Skeleton {
 		global $_wp_current_template_id;
 
 		if ( is_singular( 'cp_team' ) ) {
-			$_wp_current_template_id = 'clanspress//single-cp_team';
+			$_wp_current_template_id = 'clanbite//single-cp_team';
 		} elseif ( $this->is_team_directories_mode() ) {
-			if ( (int) get_query_var( 'clanspress_team_create' ) ) {
-				$_wp_current_template_id = 'clanspress//teams-create';
+			if ( (int) get_query_var( 'clanbite_team_create' ) ) {
+				$_wp_current_template_id = 'clanbite//teams-create';
 			} else {
-				$action = sanitize_key( (string) get_query_var( 'clanspress_team_action' ) );
+				$action = sanitize_key( (string) get_query_var( 'clanbite_team_action' ) );
 				if ( 'manage' === $action ) {
-					$_wp_current_template_id = 'clanspress//teams-manage';
+					$_wp_current_template_id = 'clanbite//teams-manage';
 				} elseif ( 'events' === $action && $this->events_extension_is_active() ) {
-					$events_sub = sanitize_key( (string) get_query_var( 'clanspress_team_events_sub' ) );
+					$events_sub = sanitize_key( (string) get_query_var( 'clanbite_team_events_sub' ) );
 					if ( 'create' === $events_sub ) {
-						$_wp_current_template_id = 'clanspress//teams-events-create';
+						$_wp_current_template_id = 'clanbite//teams-events-create';
 					} else {
-						$_wp_current_template_id = ( (int) get_query_var( 'clanspress_team_event_id' ) > 0 )
-							? 'clanspress//teams-events-single'
-							: 'clanspress//teams-events';
+						$_wp_current_template_id = ( (int) get_query_var( 'clanbite_team_event_id' ) > 0 )
+							? 'clanbite//teams-events-single'
+							: 'clanbite//teams-events';
 					}
 				} elseif ( 'matches' === $action
-					&& function_exists( 'clanspress_matches' ) && clanspress_matches()
-					&& function_exists( 'clanspress_matches_subpage_team_enabled' ) && clanspress_matches_subpage_team_enabled() ) {
-					$_wp_current_template_id = 'clanspress//teams-matches';
+					&& function_exists( 'clanbite_matches' ) && clanbite_matches()
+					&& function_exists( 'clanbite_matches_subpage_team_enabled' ) && clanbite_matches_subpage_team_enabled() ) {
+					$_wp_current_template_id = 'clanbite//teams-matches';
 				}
 			}
 		}
@@ -1074,7 +1074,7 @@ class Teams extends Skeleton {
 	 * @return string
 	 */
 	public function maybe_load_team_virtual_templates( string $template ): string {
-		if ( (int) get_query_var( 'clanspress_team_create' ) ) {
+		if ( (int) get_query_var( 'clanbite_team_create' ) ) {
 			if ( ! is_user_logged_in() ) {
 				wp_safe_redirect( wp_login_url( $this->get_team_create_url() ) );
 				exit;
@@ -1083,7 +1083,7 @@ class Teams extends Skeleton {
 			$hierarchy = array( 'teams-create.php', 'index.php' );
 			$located   = locate_template( array( 'teams-create.php' ) );
 			if ( ! $located ) {
-				$located = clanspress()->path . 'templates/teams/teams-create.php';
+				$located = clanbite()->path . 'templates/teams/teams-create.php';
 			}
 
 			$resolved = function_exists( 'locate_block_template' )
@@ -1094,19 +1094,19 @@ class Teams extends Skeleton {
 			}
 
 			return (string) apply_filters(
-				'clanspress_load_team_create_template',
+				'clanbite_load_team_create_template',
 				$resolved ? $resolved : $template
 			);
 		}
 
-		$team_action = sanitize_key( (string) get_query_var( 'clanspress_team_action' ) );
+		$team_action = sanitize_key( (string) get_query_var( 'clanbite_team_action' ) );
 		if ( '' !== $team_action ) {
 			if ( 'events' !== $team_action && 'matches' !== $team_action && ! is_user_logged_in() ) {
 				wp_safe_redirect( wp_login_url( $this->get_current_url() ) );
 				exit;
 			}
 
-			$slug = sanitize_title( (string) get_query_var( 'clanspress_team_slug' ) );
+			$slug = sanitize_title( (string) get_query_var( 'clanbite_team_slug' ) );
 			if ( '' === $slug ) {
 				return $template;
 			}
@@ -1134,14 +1134,14 @@ class Teams extends Skeleton {
 			 * Fires when a team front action URL is resolved (BuddyPress-style dispatch).
 			 *
 			 * Use to authorize, redirect, or enqueue for custom actions from
-			 * `clanspress_team_front_action_rewrite_slugs`. Return a template path
-			 * from a callback on `clanspress_load_team_action_template` if needed.
+			 * `clanbite_team_front_action_rewrite_slugs`. Return a template path
+			 * from a callback on `clanbite_load_team_action_template` if needed.
 			 *
 			 * @param string $team_action Action slug (e.g. manage).
 			 * @param int    $team_id     Team post ID.
 			 * @param Teams  $extension   Teams extension.
 			 */
-			do_action( 'clanspress_team_action_dispatch', $team_action, $team_id, $this );
+			do_action( 'clanbite_team_action_dispatch', $team_action, $team_id, $this );
 
 			if ( 'events' === $team_action ) {
 				if ( ! $this->events_extension_is_active() ) {
@@ -1150,16 +1150,16 @@ class Teams extends Skeleton {
 					$not_found = get_404_template();
 					return $not_found ? $not_found : $template;
 				}
-				if ( function_exists( 'clanspress_events_are_enabled_for_team' ) && ! clanspress_events_are_enabled_for_team( $team_id ) ) {
+				if ( function_exists( 'clanbite_events_are_enabled_for_team' ) && ! clanbite_events_are_enabled_for_team( $team_id ) ) {
 					status_header( 404 );
 					nocache_headers();
 					$not_found = get_404_template();
 					return $not_found ? $not_found : $template;
 				}
 
-				set_query_var( 'clanspress_events_team_id', $team_id );
+				set_query_var( 'clanbite_events_team_id', $team_id );
 
-				$events_sub = sanitize_key( (string) get_query_var( 'clanspress_team_events_sub' ) );
+				$events_sub = sanitize_key( (string) get_query_var( 'clanbite_team_events_sub' ) );
 				if ( 'create' === $events_sub ) {
 					if ( ! is_user_logged_in() ) {
 						wp_safe_redirect( wp_login_url( $this->get_current_url() ) );
@@ -1174,11 +1174,11 @@ class Teams extends Skeleton {
 					$hierarchy = array( 'teams-events-create.php', 'index.php' );
 					$located   = locate_template( array( 'teams-events-create.php' ) );
 					if ( ! $located ) {
-						$located = clanspress()->path . 'templates/teams/teams-events-create.php';
+						$located = clanbite()->path . 'templates/teams/teams-events-create.php';
 					}
 
 					return (string) apply_filters(
-						'clanspress_load_team_action_template',
+						'clanbite_load_team_action_template',
 						function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-events-create', $hierarchy ) : $located,
 						$team_action,
 						$team_id,
@@ -1186,16 +1186,16 @@ class Teams extends Skeleton {
 					);
 				}
 
-				$event_id = (int) get_query_var( 'clanspress_team_event_id' );
+				$event_id = (int) get_query_var( 'clanbite_team_event_id' );
 				if ( $event_id > 0 ) {
 					$hierarchy = array( 'teams-events-single.php', 'index.php' );
 					$located   = locate_template( array( 'teams-events-single.php' ) );
 					if ( ! $located ) {
-						$located = clanspress()->path . 'templates/teams/teams-events-single.php';
+						$located = clanbite()->path . 'templates/teams/teams-events-single.php';
 					}
 
 					return (string) apply_filters(
-						'clanspress_load_team_action_template',
+						'clanbite_load_team_action_template',
 						function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-events-single', $hierarchy ) : $located,
 						$team_action,
 						$team_id,
@@ -1206,11 +1206,11 @@ class Teams extends Skeleton {
 				$hierarchy = array( 'teams-events.php', 'index.php' );
 				$located   = locate_template( array( 'teams-events.php' ) );
 				if ( ! $located ) {
-					$located = clanspress()->path . 'templates/teams/teams-events.php';
+					$located = clanbite()->path . 'templates/teams/teams-events.php';
 				}
 
 				return (string) apply_filters(
-					'clanspress_load_team_action_template',
+					'clanbite_load_team_action_template',
 					function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-events', $hierarchy ) : $located,
 					$team_action,
 					$team_id,
@@ -1219,29 +1219,29 @@ class Teams extends Skeleton {
 			}
 
 			if ( 'matches' === $team_action ) {
-				if ( ! function_exists( 'clanspress_matches' ) || ! clanspress_matches() ) {
+				if ( ! function_exists( 'clanbite_matches' ) || ! clanbite_matches() ) {
 					status_header( 404 );
 					nocache_headers();
 					$not_found = get_404_template();
 					return $not_found ? $not_found : $template;
 				}
-				if ( ! function_exists( 'clanspress_matches_subpage_team_enabled' ) || ! clanspress_matches_subpage_team_enabled() ) {
+				if ( ! function_exists( 'clanbite_matches_subpage_team_enabled' ) || ! clanbite_matches_subpage_team_enabled() ) {
 					status_header( 404 );
 					nocache_headers();
 					$not_found = get_404_template();
 					return $not_found ? $not_found : $template;
 				}
 
-				set_query_var( 'clanspress_matches_team_id', $team_id );
+				set_query_var( 'clanbite_matches_team_id', $team_id );
 
 				$hierarchy = array( 'teams-matches.php', 'index.php' );
 				$located   = locate_template( array( 'teams-matches.php' ) );
 				if ( ! $located ) {
-					$located = clanspress()->path . 'templates/teams/teams-matches.php';
+					$located = clanbite()->path . 'templates/teams/teams-matches.php';
 				}
 
 				return (string) apply_filters(
-					'clanspress_load_team_action_template',
+					'clanbite_load_team_action_template',
 					function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-matches', $hierarchy ) : $located,
 					$team_action,
 					$team_id,
@@ -1255,24 +1255,24 @@ class Teams extends Skeleton {
 					exit;
 				}
 
-				set_query_var( 'clanspress_manage_team_id', $team_id );
+				set_query_var( 'clanbite_manage_team_id', $team_id );
 
 				// Hierarchy slug must match register_block_template id segment (teams-manage), not team-manage.
 				$templates = array( 'teams-manage.php', 'index.php' );
 				$located   = locate_template( $templates );
 				if ( ! $located ) {
-					$located = clanspress()->path . 'templates/teams/teams-manage.php';
+					$located = clanbite()->path . 'templates/teams/teams-manage.php';
 				}
 
 				$loaded = apply_filters(
-					'clanspress_load_team_manage_template',
+					'clanbite_load_team_manage_template',
 					locate_block_template( $located, 'teams-manage', $templates ),
 					$team_id,
 					$this
 				);
 
 				return (string) apply_filters(
-					'clanspress_load_team_action_template',
+					'clanbite_load_team_action_template',
 					$loaded,
 					$team_action,
 					$team_id,
@@ -1289,7 +1289,7 @@ class Teams extends Skeleton {
 			 * @param Teams  $extension   Teams extension.
 			 */
 			return (string) apply_filters(
-				'clanspress_load_team_action_template',
+				'clanbite_load_team_action_template',
 				$template,
 				$team_action,
 				$team_id,
@@ -1330,7 +1330,7 @@ class Teams extends Skeleton {
 
 		wp_safe_redirect(
 			add_query_arg(
-				'clanspress_team_access',
+				'clanbite_team_access',
 				'banned',
 				home_url( '/' )
 			)
@@ -1346,7 +1346,7 @@ class Teams extends Skeleton {
 	public function get_team_create_url(): string {
 		$url = home_url( '/teams/create/' );
 
-		return (string) apply_filters( 'clanspress_team_create_url', $url, $this );
+		return (string) apply_filters( 'clanbite_team_create_url', $url, $this );
 	}
 
 	/**
@@ -1378,7 +1378,7 @@ class Teams extends Skeleton {
 		 * @param string $action   Action slug.
 		 * @param Teams  $extension Teams extension.
 		 */
-		return (string) apply_filters( 'clanspress_team_action_url', $url, $team_id, $action, $this );
+		return (string) apply_filters( 'clanbite_team_action_url', $url, $team_id, $action, $this );
 	}
 
 	/**
@@ -1390,7 +1390,7 @@ class Teams extends Skeleton {
 	public function get_team_manage_url( int $team_id ): string {
 		$url = $this->get_team_action_url( $team_id, 'manage' );
 
-		return (string) apply_filters( 'clanspress_team_manage_url', $url, $team_id, $this );
+		return (string) apply_filters( 'clanbite_team_manage_url', $url, $team_id, $this );
 	}
 
 	/**
@@ -1405,7 +1405,7 @@ class Teams extends Skeleton {
 
 		$scheme = is_ssl() ? 'https' : 'http';
 		$host   = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) );
-		$uri    = clanspress_sanitize_request_uri( '/' );
+		$uri    = clanbite_sanitize_request_uri( '/' );
 
 		return esc_url_raw( $scheme . '://' . $host . $uri );
 	}
@@ -1461,7 +1461,7 @@ class Teams extends Skeleton {
 		 * @param int   $team_id Team post ID.
 		 * @param Teams $extension Teams extension.
 		 */
-		return (array) apply_filters( 'clanspress_team_member_roles_map', $out, $team_id, $this );
+		return (array) apply_filters( 'clanbite_team_member_roles_map', $out, $team_id, $this );
 	}
 
 	/**
@@ -1485,7 +1485,7 @@ class Teams extends Skeleton {
 			++$n;
 		}
 
-		return (int) apply_filters( 'clanspress_team_member_count', $n, $team_id, $exclude_banned, $this );
+		return (int) apply_filters( 'clanbite_team_member_count', $n, $team_id, $exclude_banned, $this );
 	}
 
 	/**
@@ -1526,7 +1526,7 @@ class Teams extends Skeleton {
 		 * @param string $cap     Capability name. Default `manage_options`.
 		 * @param int    $user_id User ID.
 		 */
-		$cap = (string) apply_filters( 'clanspress_teams_site_admin_capability', 'manage_options', $user_id );
+		$cap = (string) apply_filters( 'clanbite_teams_site_admin_capability', 'manage_options', $user_id );
 
 		return user_can( $user_id, $cap );
 	}
@@ -1610,7 +1610,7 @@ class Teams extends Skeleton {
 		 * @param int   $user_id User ID.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		$ids = (array) apply_filters( 'clanspress_user_managed_team_ids', $ids, $user_id, $this );
+		$ids = (array) apply_filters( 'clanbite_user_managed_team_ids', $ids, $user_id, $this );
 
 		return array_values( array_unique( array_filter( array_map( 'intval', $ids ) ) ) );
 	}
@@ -1672,7 +1672,7 @@ class Teams extends Skeleton {
 		 * @param int  $user_id User ID.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		return (bool) apply_filters( 'clanspress_user_can_delete_team_on_frontend', $can, $team_id, $user_id, $this );
+		return (bool) apply_filters( 'clanbite_user_can_delete_team_on_frontend', $can, $team_id, $user_id, $this );
 	}
 
 	/**
@@ -1734,7 +1734,7 @@ class Teams extends Skeleton {
 			}
 		}
 
-		do_action( 'clanspress_team_roster_updated', $team_id, $clean, $this );
+		do_action( 'clanbite_team_roster_updated', $team_id, $clean, $this );
 
 		return true;
 	}
@@ -1850,26 +1850,26 @@ class Teams extends Skeleton {
 	 * @return int|\WP_Error Notification ID or error.
 	 */
 	public function send_team_invite( int $team_id, int $user_id, int $inviter_id ) {
-		if ( ! function_exists( 'clanspress_notify' ) ) {
-			return new \WP_Error( 'notifications_unavailable', __( 'Notifications system not available.', 'clanspress' ) );
+		if ( ! function_exists( 'clanbite_notify' ) ) {
+			return new \WP_Error( 'notifications_unavailable', __( 'Notifications system not available.', 'clanbite' ) );
 		}
 
-		if ( function_exists( 'clanspress_notifications_extension_active' ) && ! clanspress_notifications_extension_active() ) {
+		if ( function_exists( 'clanbite_notifications_extension_active' ) && ! clanbite_notifications_extension_active() ) {
 			return new \WP_Error(
 				'notifications_unavailable',
-				__( 'Notifications are not available. Enable the Notifications extension under Clanspress → Extensions.', 'clanspress' )
+				__( 'Notifications are not available. Enable the Notifications extension under Clanbite → Extensions.', 'clanbite' )
 			);
 		}
 
 		$team      = get_post( $team_id );
 		$inviter   = get_userdata( $inviter_id );
-		$team_name = $team ? $team->post_title : __( 'a team', 'clanspress' );
+		$team_name = $team ? $team->post_title : __( 'a team', 'clanbite' );
 		$team_url  = $team ? get_permalink( $team ) : '';
 
 		$title = sprintf(
 			/* translators: 1: inviter name, 2: team name */
-			__( '%1$s invited you to join %2$s', 'clanspress' ),
-			$inviter ? $inviter->display_name : __( 'Someone', 'clanspress' ),
+			__( '%1$s invited you to join %2$s', 'clanbite' ),
+			$inviter ? $inviter->display_name : __( 'Someone', 'clanbite' ),
 			$team_name
 		);
 
@@ -1880,9 +1880,9 @@ class Teams extends Skeleton {
 		 * @param int $user_id    User being invited.
 		 * @param int $inviter_id User sending the invite.
 		 */
-		do_action( 'clanspress_before_team_invite', $team_id, $user_id, $inviter_id );
+		do_action( 'clanbite_before_team_invite', $team_id, $user_id, $inviter_id );
 
-		$result = clanspress_notify(
+		$result = clanbite_notify(
 			$user_id,
 			'team_invite',
 			$title,
@@ -1894,19 +1894,19 @@ class Teams extends Skeleton {
 				'actions'     => array(
 					array(
 						'key'             => 'accept',
-						'label'           => __( 'Accept', 'clanspress' ),
+						'label'           => __( 'Accept', 'clanbite' ),
 						'style'           => 'primary',
 						'handler'         => 'team_invite_accept',
 						'status'          => 'accepted',
-						'success_message' => __( 'You have joined the team!', 'clanspress' ),
+						'success_message' => __( 'You have joined the team!', 'clanbite' ),
 					),
 					array(
 						'key'             => 'decline',
-						'label'           => __( 'Decline', 'clanspress' ),
+						'label'           => __( 'Decline', 'clanbite' ),
 						'style'           => 'secondary',
 						'handler'         => 'team_invite_decline',
 						'status'          => 'declined',
-						'success_message' => __( 'Invitation declined.', 'clanspress' ),
+						'success_message' => __( 'Invitation declined.', 'clanbite' ),
 					),
 				),
 			)
@@ -1921,7 +1921,7 @@ class Teams extends Skeleton {
 			 * @param int $user_id         User being invited.
 			 * @param int $inviter_id      User sending the invite.
 			 */
-			do_action( 'clanspress_team_invite_sent', $result, $team_id, $user_id, $inviter_id );
+			do_action( 'clanbite_team_invite_sent', $result, $team_id, $user_id, $inviter_id );
 		}
 
 		return $result;
@@ -1974,7 +1974,7 @@ class Teams extends Skeleton {
 		if ( $team_id <= 0 ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Invalid team.', 'clanspress' ),
+				'message' => __( 'Invalid team.', 'clanbite' ),
 			);
 		}
 
@@ -1982,7 +1982,7 @@ class Teams extends Skeleton {
 		if ( ! $team || self::POST_TYPE !== $team->post_type ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Team not found.', 'clanspress' ),
+				'message' => __( 'Team not found.', 'clanbite' ),
 			);
 		}
 
@@ -1991,7 +1991,7 @@ class Teams extends Skeleton {
 		if ( isset( $roles_map[ $user_id ] ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'You are already a member of this team.', 'clanspress' ),
+				'message' => __( 'You are already a member of this team.', 'clanbite' ),
 			);
 		}
 
@@ -2006,13 +2006,13 @@ class Teams extends Skeleton {
 		 * @param int    $user_id User who accepted.
 		 * @param object $notification The notification object.
 		 */
-		do_action( 'clanspress_team_invite_accepted', $team_id, $user_id, $notification );
+		do_action( 'clanbite_team_invite_accepted', $team_id, $user_id, $notification );
 
 		$team_url = get_permalink( $team_id );
 
 		return array(
 			'success'  => true,
-			'message'  => __( 'You have joined the team!', 'clanspress' ),
+			'message'  => __( 'You have joined the team!', 'clanbite' ),
 			'redirect' => $team_url ?: null,
 		);
 	}
@@ -2034,11 +2034,11 @@ class Teams extends Skeleton {
 		 * @param int    $user_id User who declined.
 		 * @param object $notification The notification object.
 		 */
-		do_action( 'clanspress_team_invite_declined', $team_id, $user_id, $notification );
+		do_action( 'clanbite_team_invite_declined', $team_id, $user_id, $notification );
 
 		return array(
 			'success' => true,
-			'message' => __( 'Invitation declined.', 'clanspress' ),
+			'message' => __( 'Invitation declined.', 'clanbite' ),
 		);
 	}
 
@@ -2050,22 +2050,22 @@ class Teams extends Skeleton {
 	protected function get_default_team_manage_form_sections(): array {
 		return array(
 			'profile'      => array(
-				'title'    => __( 'Team profile', 'clanspress' ),
+				'title'    => __( 'Team profile', 'clanbite' ),
 				'priority' => 10,
 				'callback' => array( $this, 'render_team_manage_section_profile' ),
 			),
 			'media'        => array(
-				'title'    => __( 'Team images', 'clanspress' ),
+				'title'    => __( 'Team images', 'clanbite' ),
 				'priority' => 15,
 				'callback' => array( $this, 'render_team_manage_section_media' ),
 			),
 			'team_options' => array(
-				'title'    => __( 'Membership & options', 'clanspress' ),
+				'title'    => __( 'Membership & options', 'clanbite' ),
 				'priority' => 20,
 				'callback' => array( $this, 'render_team_manage_section_team_options' ),
 			),
 			'roster'       => array(
-				'title'    => __( 'Members & roles', 'clanspress' ),
+				'title'    => __( 'Members & roles', 'clanbite' ),
 				'priority' => 40,
 				'callback' => array( $this, 'render_team_manage_section_roster' ),
 			),
@@ -2092,7 +2092,7 @@ class Teams extends Skeleton {
 		 * @param int                                                                      $team_id  Team post ID.
 		 * @param Teams                                                                    $extension Teams extension instance.
 		 */
-		$sections = (array) apply_filters( 'clanspress_team_manage_form_sections', $sections, $team_id, $this );
+		$sections = (array) apply_filters( 'clanbite_team_manage_form_sections', $sections, $team_id, $this );
 
 		uasort(
 			$sections,
@@ -2122,30 +2122,30 @@ class Teams extends Skeleton {
 		$team_profile = $this->get_team( $team_id );
 		$country_val  = $team_profile ? $team_profile->get_country() : '';
 		?>
-		<div class="clanspress-team-manage-form__fields-inner">
+		<div class="clanbite-team-manage-form__fields-inner">
 			<p>
-				<label for="clanspress-manage-team-name"><?php esc_html_e( 'Team name', 'clanspress' ); ?></label><br />
-				<input type="text" id="clanspress-manage-team-name" name="team_name" class="widefat" required value="<?php echo esc_attr( get_the_title( $team_id ) ); ?>" />
+				<label for="clanbite-manage-team-name"><?php esc_html_e( 'Team name', 'clanbite' ); ?></label><br />
+				<input type="text" id="clanbite-manage-team-name" name="team_name" class="widefat" required value="<?php echo esc_attr( get_the_title( $team_id ) ); ?>" />
 			</p>
 			<p>
-				<label for="clanspress-manage-team-code"><?php esc_html_e( 'Team code', 'clanspress' ); ?></label><br />
-				<input type="text" id="clanspress-manage-team-code" name="team_code" class="widefat" value="<?php echo esc_attr( (string) get_post_meta( $team_id, 'cp_team_code', true ) ); ?>" />
+				<label for="clanbite-manage-team-code"><?php esc_html_e( 'Team code', 'clanbite' ); ?></label><br />
+				<input type="text" id="clanbite-manage-team-code" name="team_code" class="widefat" value="<?php echo esc_attr( (string) get_post_meta( $team_id, 'cp_team_code', true ) ); ?>" />
 			</p>
 			<p>
-				<label for="clanspress-manage-team-motto"><?php esc_html_e( 'Team motto', 'clanspress' ); ?></label><br />
-				<input type="text" id="clanspress-manage-team-motto" name="team_motto" class="widefat" value="<?php echo esc_attr( (string) get_post_meta( $team_id, 'cp_team_motto', true ) ); ?>" />
+				<label for="clanbite-manage-team-motto"><?php esc_html_e( 'Team motto', 'clanbite' ); ?></label><br />
+				<input type="text" id="clanbite-manage-team-motto" name="team_motto" class="widefat" value="<?php echo esc_attr( (string) get_post_meta( $team_id, 'cp_team_motto', true ) ); ?>" />
 			</p>
 			<p>
-				<label for="clanspress-manage-team-description"><?php esc_html_e( 'Description', 'clanspress' ); ?></label><br />
-				<textarea id="clanspress-manage-team-description" name="team_description" class="widefat" rows="6"><?php echo esc_textarea( (string) $post->post_content ); ?></textarea>
+				<label for="clanbite-manage-team-description"><?php esc_html_e( 'Description', 'clanbite' ); ?></label><br />
+				<textarea id="clanbite-manage-team-description" name="team_description" class="widefat" rows="6"><?php echo esc_textarea( (string) $post->post_content ); ?></textarea>
 			</p>
 			<p>
-				<label for="clanspress-manage-team-country"><?php esc_html_e( 'Country', 'clanspress' ); ?></label><br />
-				<select id="clanspress-manage-team-country" name="team_country" class="widefat">
-					<option value=""><?php esc_html_e( '— Select —', 'clanspress' ); ?></option>
+				<label for="clanbite-manage-team-country"><?php esc_html_e( 'Country', 'clanbite' ); ?></label><br />
+				<select id="clanbite-manage-team-country" name="team_country" class="widefat">
+					<option value=""><?php esc_html_e( '— Select —', 'clanbite' ); ?></option>
 					<?php
-					if ( function_exists( 'clanspress_players_get_countries' ) ) :
-						foreach ( clanspress_players_get_countries() as $cc => $cname ) :
+					if ( function_exists( 'clanbite_players_get_countries' ) ) :
+						foreach ( clanbite_players_get_countries() as $cc => $cname ) :
 							?>
 							<option value="<?php echo esc_attr( $cc ); ?>" <?php selected( $country_val, $cc ); ?>><?php echo esc_html( $cname ); ?></option>
 							<?php
@@ -2154,13 +2154,13 @@ class Teams extends Skeleton {
 					?>
 				</select>
 			</p>
-			<p class="clanspress-team-manage-form__record">
-				<label for="clanspress-manage-team-wins"><?php esc_html_e( 'Record (wins / losses / draws)', 'clanspress' ); ?></label><br />
-				<input type="number" min="0" step="1" id="clanspress-manage-team-wins" name="team_wins" class="small-text" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_wins() : 0 ) ); ?>" />
+			<p class="clanbite-team-manage-form__record">
+				<label for="clanbite-manage-team-wins"><?php esc_html_e( 'Record (wins / losses / draws)', 'clanbite' ); ?></label><br />
+				<input type="number" min="0" step="1" id="clanbite-manage-team-wins" name="team_wins" class="small-text" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_wins() : 0 ) ); ?>" />
 				<span class="description" aria-hidden="true"> / </span>
-				<input type="number" min="0" step="1" id="clanspress-manage-team-losses" name="team_losses" class="small-text" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_losses() : 0 ) ); ?>" />
+				<input type="number" min="0" step="1" id="clanbite-manage-team-losses" name="team_losses" class="small-text" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_losses() : 0 ) ); ?>" />
 				<span class="description" aria-hidden="true"> / </span>
-				<input type="number" min="0" step="1" id="clanspress-manage-team-draws" name="team_draws" class="small-text" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_draws() : 0 ) ); ?>" />
+				<input type="number" min="0" step="1" id="clanbite-manage-team-draws" name="team_draws" class="small-text" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_draws() : 0 ) ); ?>" />
 			</p>
 		</div>
 		<?php
@@ -2184,88 +2184,88 @@ class Teams extends Skeleton {
 		$avatar_id = (int) $team->get_avatar_id();
 		$cover_id  = (int) $team->get_cover_id();
 		?>
-		<div class="clanspress-team-manage-form__media-inner">
-			<div class="clanspress-team-manage-form__media-field">
+		<div class="clanbite-team-manage-form__media-inner">
+			<div class="clanbite-team-manage-form__media-field">
 				<p>
-					<strong><?php esc_html_e( 'Avatar', 'clanspress' ); ?></strong>
+					<strong><?php esc_html_e( 'Avatar', 'clanbite' ); ?></strong>
 				</p>
 				<?php if ( $avatar_id > 0 ) : ?>
-					<p class="clanspress-team-manage-form__media-preview">
+					<p class="clanbite-team-manage-form__media-preview">
 						<?php
 						echo wp_get_attachment_image(
 							$avatar_id,
 							'thumbnail',
 							false,
 							array(
-								'class' => 'clanspress-team-manage-form__media-thumb',
+								'class' => 'clanbite-team-manage-form__media-thumb',
 								'alt'   => '',
 							)
 						);
 						?>
 					</p>
 					<p>
-						<label for="clanspress-manage-team-avatar-remove">
+						<label for="clanbite-manage-team-avatar-remove">
 							<input
 								type="checkbox"
-								id="clanspress-manage-team-avatar-remove"
+								id="clanbite-manage-team-avatar-remove"
 								name="team_avatar_remove"
 								value="1"
 							/>
-							<?php esc_html_e( 'Remove current avatar', 'clanspress' ); ?>
+							<?php esc_html_e( 'Remove current avatar', 'clanbite' ); ?>
 						</label>
 					</p>
 				<?php endif; ?>
 				<p>
-					<label for="clanspress-manage-team-avatar"><?php esc_html_e( 'Upload new avatar', 'clanspress' ); ?></label><br />
+					<label for="clanbite-manage-team-avatar"><?php esc_html_e( 'Upload new avatar', 'clanbite' ); ?></label><br />
 					<input
 						type="file"
-						id="clanspress-manage-team-avatar"
+						id="clanbite-manage-team-avatar"
 						name="team_avatar"
 						accept="image/png,image/jpeg"
 					/>
 				</p>
-				<p class="description"><?php esc_html_e( 'PNG or JPEG images only. Uploading replaces the current image.', 'clanspress' ); ?></p>
+				<p class="description"><?php esc_html_e( 'PNG or JPEG images only. Uploading replaces the current image.', 'clanbite' ); ?></p>
 			</div>
-			<div class="clanspress-team-manage-form__media-field">
+			<div class="clanbite-team-manage-form__media-field">
 				<p>
-					<strong><?php esc_html_e( 'Cover image', 'clanspress' ); ?></strong>
+					<strong><?php esc_html_e( 'Cover image', 'clanbite' ); ?></strong>
 				</p>
 				<?php if ( $cover_id > 0 ) : ?>
-					<p class="clanspress-team-manage-form__media-preview">
+					<p class="clanbite-team-manage-form__media-preview">
 						<?php
 						echo wp_get_attachment_image(
 							$cover_id,
 							'medium',
 							false,
 							array(
-								'class' => 'clanspress-team-manage-form__media-cover-preview',
+								'class' => 'clanbite-team-manage-form__media-cover-preview',
 								'alt'   => '',
 							)
 						);
 						?>
 					</p>
 					<p>
-						<label for="clanspress-manage-team-cover-remove">
+						<label for="clanbite-manage-team-cover-remove">
 							<input
 								type="checkbox"
-								id="clanspress-manage-team-cover-remove"
+								id="clanbite-manage-team-cover-remove"
 								name="team_cover_remove"
 								value="1"
 							/>
-							<?php esc_html_e( 'Remove current cover image', 'clanspress' ); ?>
+							<?php esc_html_e( 'Remove current cover image', 'clanbite' ); ?>
 						</label>
 					</p>
 				<?php endif; ?>
 				<p>
-					<label for="clanspress-manage-team-cover"><?php esc_html_e( 'Upload new cover image', 'clanspress' ); ?></label><br />
+					<label for="clanbite-manage-team-cover"><?php esc_html_e( 'Upload new cover image', 'clanbite' ); ?></label><br />
 					<input
 						type="file"
-						id="clanspress-manage-team-cover"
+						id="clanbite-manage-team-cover"
 						name="team_cover"
 						accept="image/png,image/jpeg"
 					/>
 				</p>
-				<p class="description"><?php esc_html_e( 'PNG or JPEG images only. Uploading replaces the current image.', 'clanspress' ); ?></p>
+				<p class="description"><?php esc_html_e( 'PNG or JPEG images only. Uploading replaces the current image.', 'clanbite' ); ?></p>
 			</div>
 		</div>
 		<?php
@@ -2289,73 +2289,73 @@ class Teams extends Skeleton {
 		$join_modes = $this->get_team_join_modes();
 		$join_value = $this->sanitize_team_join_mode( $team->get_join_mode() );
 		?>
-		<div class="clanspress-team-manage-form__team-options-inner">
+		<div class="clanbite-team-manage-form__team-options-inner">
 			<p>
-				<label for="clanspress-manage-team-join-mode"><?php esc_html_e( 'Join mode', 'clanspress' ); ?></label><br />
-				<select id="clanspress-manage-team-join-mode" name="team_join_mode" class="widefat">
+				<label for="clanbite-manage-team-join-mode"><?php esc_html_e( 'Join mode', 'clanbite' ); ?></label><br />
+				<select id="clanbite-manage-team-join-mode" name="team_join_mode" class="widefat">
 					<?php foreach ( $join_modes as $mode => $label ) : ?>
 						<option value="<?php echo esc_attr( $mode ); ?>" <?php selected( $join_value, $mode ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</p>
-			<p class="description"><?php esc_html_e( 'Controls how new members can join this team.', 'clanspress' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Controls how new members can join this team.', 'clanbite' ); ?></p>
 
 			<p>
 				<input type="hidden" name="team_allow_invites" value="0" />
-				<label for="clanspress-manage-team-allow-invites">
+				<label for="clanbite-manage-team-allow-invites">
 					<input
 						type="checkbox"
-						id="clanspress-manage-team-allow-invites"
+						id="clanbite-manage-team-allow-invites"
 						name="team_allow_invites"
 						value="1"
 						<?php checked( $team->get_allow_invites() ); ?>
 					/>
-					<?php esc_html_e( 'Allow member invitations', 'clanspress' ); ?>
+					<?php esc_html_e( 'Allow member invitations', 'clanbite' ); ?>
 				</label>
 			</p>
 
 			<p>
 				<input type="hidden" name="team_allow_frontend_edit" value="0" />
-				<label for="clanspress-manage-team-allow-frontend-edit">
+				<label for="clanbite-manage-team-allow-frontend-edit">
 					<input
 						type="checkbox"
-						id="clanspress-manage-team-allow-frontend-edit"
+						id="clanbite-manage-team-allow-frontend-edit"
 						name="team_allow_frontend_edit"
 						value="1"
 						<?php checked( $team->get_allow_frontend_edit() ); ?>
 					/>
-					<?php esc_html_e( 'Allow editing this team from the front end', 'clanspress' ); ?>
+					<?php esc_html_e( 'Allow editing this team from the front end', 'clanbite' ); ?>
 				</label>
 			</p>
 
 			<p>
 				<input type="hidden" name="team_allow_ban_players" value="0" />
-				<label for="clanspress-manage-team-allow-ban-players">
+				<label for="clanbite-manage-team-allow-ban-players">
 					<input
 						type="checkbox"
-						id="clanspress-manage-team-allow-ban-players"
+						id="clanbite-manage-team-allow-ban-players"
 						name="team_allow_ban_players"
 						value="1"
 						<?php checked( $team->get_allow_ban_players() ); ?>
 					/>
-					<?php esc_html_e( 'Allow banning players from the roster', 'clanspress' ); ?>
+					<?php esc_html_e( 'Allow banning players from the roster', 'clanbite' ); ?>
 				</label>
 			</p>
 
 			<p>
 				<input type="hidden" name="team_accept_challenges" value="0" />
-				<label for="clanspress-manage-team-accept-challenges">
+				<label for="clanbite-manage-team-accept-challenges">
 					<input
 						type="checkbox"
-						id="clanspress-manage-team-accept-challenges"
+						id="clanbite-manage-team-accept-challenges"
 						name="team_accept_challenges"
 						value="1"
 						<?php checked( $team->get_accept_challenges() ); ?>
 					/>
-					<?php esc_html_e( 'Allow other teams to challenge this team', 'clanspress' ); ?>
+					<?php esc_html_e( 'Allow other teams to challenge this team', 'clanbite' ); ?>
 				</label>
 			</p>
-			<p class="description"><?php esc_html_e( 'When disabled, other teams should not be able to schedule matches against you (requires the Matches extension).', 'clanspress' ); ?></p>
+			<p class="description"><?php esc_html_e( 'When disabled, other teams should not be able to schedule matches against you (requires the Matches extension).', 'clanbite' ); ?></p>
 		</div>
 		<?php
 	}
@@ -2376,18 +2376,18 @@ class Teams extends Skeleton {
 
 		$map   = $this->get_team_member_roles_map( $team_id );
 		$roles = array(
-			self::TEAM_ROLE_ADMIN  => __( 'Admin', 'clanspress' ),
-			self::TEAM_ROLE_EDITOR => __( 'Editor', 'clanspress' ),
-			self::TEAM_ROLE_MEMBER => __( 'Member', 'clanspress' ),
-			self::TEAM_ROLE_BANNED => __( 'Banned', 'clanspress' ),
+			self::TEAM_ROLE_ADMIN  => __( 'Admin', 'clanbite' ),
+			self::TEAM_ROLE_EDITOR => __( 'Editor', 'clanbite' ),
+			self::TEAM_ROLE_MEMBER => __( 'Member', 'clanbite' ),
+			self::TEAM_ROLE_BANNED => __( 'Banned', 'clanbite' ),
 		);
 		?>
-		<div class="clanspress-team-manage-form__roster-inner">
-			<table class="clanspress-team-manage-roster">
+		<div class="clanbite-team-manage-form__roster-inner">
+			<table class="clanbite-team-manage-roster">
 				<thead>
 					<tr>
-						<th><?php esc_html_e( 'Player', 'clanspress' ); ?></th>
-						<th><?php esc_html_e( 'Role', 'clanspress' ); ?></th>
+						<th><?php esc_html_e( 'Player', 'clanbite' ); ?></th>
+						<th><?php esc_html_e( 'Role', 'clanbite' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -2411,7 +2411,7 @@ class Teams extends Skeleton {
 					<?php endforeach; ?>
 				</tbody>
 			</table>
-			<p class="description"><?php esc_html_e( 'Banned members cannot view this team. At least one admin is required.', 'clanspress' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Banned members cannot view this team. At least one admin is required.', 'clanbite' ); ?></p>
 		</div>
 		<?php
 	}
@@ -2422,35 +2422,35 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function maybe_enqueue_team_manage_form_assets(): void {
-		if ( (int) get_query_var( 'clanspress_manage_team_id' ) < 1 ) {
+		if ( (int) get_query_var( 'clanbite_manage_team_id' ) < 1 ) {
 			return;
 		}
 
-		$create_form_style_path = clanspress()->path . 'build/teams/team-create-form/style-index.css';
-		$create_form_style_url  = clanspress()->url . 'build/teams/team-create-form/style-index.css';
+		$create_form_style_path = clanbite()->path . 'build/teams/team-create-form/style-index.css';
+		$create_form_style_url  = clanbite()->url . 'build/teams/team-create-form/style-index.css';
 
 		wp_enqueue_style(
-			'clanspress-team-create-form-style',
+			'clanbite-team-create-form-style',
 			$create_form_style_url,
 			array(),
 			Main::VERSION
 		);
 
 		if ( is_readable( $create_form_style_path ) ) {
-			wp_style_add_data( 'clanspress-team-create-form-style', 'path', $create_form_style_path );
+			wp_style_add_data( 'clanbite-team-create-form-style', 'path', $create_form_style_path );
 
 			$rtl_path = str_replace( '.css', '-rtl.css', $create_form_style_path );
 			if ( is_readable( $rtl_path ) ) {
-				wp_style_add_data( 'clanspress-team-create-form-style', 'rtl', 'replace' );
+				wp_style_add_data( 'clanbite-team-create-form-style', 'rtl', 'replace' );
 				if ( is_rtl() ) {
-					wp_style_add_data( 'clanspress-team-create-form-style', 'path', $rtl_path );
+					wp_style_add_data( 'clanbite-team-create-form-style', 'path', $rtl_path );
 				}
 			}
 		}
 
 		wp_enqueue_script_module(
-			'clanspress-team-manage-form-view',
-			clanspress()->url . 'build/teams/team-manage-form/view.js',
+			'clanbite-team-manage-form-view',
+			clanbite()->url . 'build/teams/team-manage-form/view.js',
 			array( '@wordpress/interactivity' ),
 			Main::VERSION
 		);
@@ -2463,10 +2463,10 @@ class Teams extends Skeleton {
 	 */
 	protected function get_team_manage_tab_descriptions(): array {
 		return array(
-			'profile'      => __( 'Name, description, record', 'clanspress' ),
-			'media'        => __( 'Avatar and cover images', 'clanspress' ),
-			'team_options' => __( 'Join mode and permissions', 'clanspress' ),
-			'roster'       => __( 'Member roles', 'clanspress' ),
+			'profile'      => __( 'Name, description, record', 'clanbite' ),
+			'media'        => __( 'Avatar and cover images', 'clanbite' ),
+			'team_options' => __( 'Join mode and permissions', 'clanbite' ),
+			'roster'       => __( 'Member roles', 'clanbite' ),
 		);
 	}
 
@@ -2492,8 +2492,8 @@ class Teams extends Skeleton {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Display-only status query arg after save redirect; value is `sanitize_key()`-ed.
-		$manage_status = isset( $_GET['clanspress_team_manage_status'] )
-			? sanitize_key( wp_unslash( $_GET['clanspress_team_manage_status'] ) )
+		$manage_status = isset( $_GET['clanbite_team_manage_status'] )
+			? sanitize_key( wp_unslash( $_GET['clanbite_team_manage_status'] ) )
 			: '';
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
@@ -2508,7 +2508,7 @@ class Teams extends Skeleton {
 				continue;
 			}
 
-			if ( ! apply_filters( 'clanspress_team_manage_should_render_section', true, (string) $section_id, $team_id, $this ) ) {
+			if ( ! apply_filters( 'clanbite_team_manage_should_render_section', true, (string) $section_id, $team_id, $this ) ) {
 				continue;
 			}
 
@@ -2534,7 +2534,7 @@ class Teams extends Skeleton {
 		 * @param int   $team_id
 		 * @param Teams $extension
 		 */
-		$tabs = (array) apply_filters( 'clanspress_team_manage_form_tabs', $tabs, $team_id, $this );
+		$tabs = (array) apply_filters( 'clanbite_team_manage_form_tabs', $tabs, $team_id, $this );
 
 		$valid_tabs = array();
 		foreach ( $tabs as $tab ) {
@@ -2559,35 +2559,35 @@ class Teams extends Skeleton {
 		 * @param int   $team_id Team post ID.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		do_action( 'clanspress_team_manage_form_before', $team_id, $this );
+		do_action( 'clanbite_team_manage_form_before', $team_id, $this );
 		?>
 		<?php if ( 'saved' === $manage_status ) : ?>
-			<p id="clanspress-team-manage-notice" class="clanspress-team-manage-form__notice is-success" role="status" tabindex="-1"><?php esc_html_e( 'Changes saved.', 'clanspress' ); ?></p>
+			<p id="clanbite-team-manage-notice" class="clanbite-team-manage-form__notice is-success" role="status" tabindex="-1"><?php esc_html_e( 'Changes saved.', 'clanbite' ); ?></p>
 		<?php elseif ( 'missing_name' === $manage_status ) : ?>
-			<p id="clanspress-team-manage-notice" class="clanspress-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'Team name is required.', 'clanspress' ); ?></p>
+			<p id="clanbite-team-manage-notice" class="clanbite-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'Team name is required.', 'clanbite' ); ?></p>
 		<?php elseif ( 'wordban' === $manage_status ) : ?>
-			<p id="clanspress-team-manage-notice" class="clanspress-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'That text is not allowed.', 'clanspress' ); ?></p>
+			<p id="clanbite-team-manage-notice" class="clanbite-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'That text is not allowed.', 'clanbite' ); ?></p>
 		<?php elseif ( 'roster_invalid' === $manage_status ) : ?>
-			<p id="clanspress-team-manage-notice" class="clanspress-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'Roster must include at least one admin.', 'clanspress' ); ?></p>
+			<p id="clanbite-team-manage-notice" class="clanbite-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'Roster must include at least one admin.', 'clanbite' ); ?></p>
 		<?php elseif ( 'delete_failed' === $manage_status ) : ?>
-			<p id="clanspress-team-manage-notice" class="clanspress-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'Could not delete the team. Please try again.', 'clanspress' ); ?></p>
+			<p id="clanbite-team-manage-notice" class="clanbite-team-manage-form__notice is-error" role="alert" tabindex="-1"><?php esc_html_e( 'Could not delete the team. Please try again.', 'clanbite' ); ?></p>
 		<?php endif; ?>
 
 		<div
-			class="wp-block-clanspress-team-create-form clanspress-team-create-form clanspress-team-manage-form--tabbed"
-			data-wp-interactive="clanspress-team-manage-form"
+			class="wp-block-clanbite-team-create-form clanbite-team-create-form clanbite-team-manage-form--tabbed"
+			data-wp-interactive="clanbite-team-manage-form"
 			data-wp-context="<?php echo esc_attr( $context ); ?>"
 			data-wp-init="callbacks.init"
 		>
-		<form class="clanspress-team-create-form__form clanspress-team-manage-form__form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( $action_url ); ?>" data-active-step="1">
-			<?php wp_nonce_field( 'clanspress_team_manage_' . $team_id, '_clanspress_team_manage_nonce' ); ?>
-			<input type="hidden" name="action" value="clanspress_save_team_manage" />
-			<input type="hidden" name="clanspress_team_id" value="<?php echo esc_attr( (string) $team_id ); ?>" />
+		<form class="clanbite-team-create-form__form clanbite-team-manage-form__form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( $action_url ); ?>" data-active-step="1">
+			<?php wp_nonce_field( 'clanbite_team_manage_' . $team_id, '_clanbite_team_manage_nonce' ); ?>
+			<input type="hidden" name="action" value="clanbite_save_team_manage" />
+			<input type="hidden" name="clanbite_team_id" value="<?php echo esc_attr( (string) $team_id ); ?>" />
 
 			<div
-				class="clanspress-team-create-form__tabs"
+				class="clanbite-team-create-form__tabs"
 				role="tablist"
-				aria-label="<?php esc_attr_e( 'Edit team sections', 'clanspress' ); ?>"
+				aria-label="<?php esc_attr_e( 'Edit team sections', 'clanbite' ); ?>"
 				aria-orientation="horizontal"
 				data-wp-on--keydown="actions.onTabListKeydown"
 			>
@@ -2599,30 +2599,30 @@ class Teams extends Skeleton {
 						? (string) $tab['title']
 						: sprintf(
 							/* translators: %d: tab index */
-							__( 'Step %d', 'clanspress' ),
+							__( 'Step %d', 'clanbite' ),
 							$tab_index
 						);
 					$tab_desc    = isset( $tab['description'] ) ? (string) $tab['description'] : '';
 					$is_first    = 1 === $tab_index;
-					$tab_class   = 'clanspress-team-create-form__tab' . ( $is_first ? ' is-active' : ' is-upcoming' );
+					$tab_class   = 'clanbite-team-create-form__tab' . ( $is_first ? ' is-active' : ' is-upcoming' );
 					?>
 					<button
 						type="button"
 						class="<?php echo esc_attr( $tab_class ); ?>"
 						role="tab"
-						id="clanspress-team-manage-form-tab-<?php echo esc_attr( (string) $tab_index ); ?>"
+						id="clanbite-team-manage-form-tab-<?php echo esc_attr( (string) $tab_index ); ?>"
 						data-team-tab="<?php echo esc_attr( (string) $tab_index ); ?>"
 						data-wp-on--click="actions.goToStepTab"
-						aria-controls="clanspress-team-manage-form-panel-<?php echo esc_attr( (string) $tab_index ); ?>"
+						aria-controls="clanbite-team-manage-form-panel-<?php echo esc_attr( (string) $tab_index ); ?>"
 						aria-selected="<?php echo $is_first ? 'true' : 'false'; ?>"
 						tabindex="<?php echo $is_first ? '0' : '-1'; ?>"
 						data-team-section="<?php echo esc_attr( $tab_id ); ?>"
 					>
-						<span class="clanspress-team-create-form__tab-index" aria-hidden="true"><?php echo esc_html( (string) $tab_index ); ?></span>
-						<span class="clanspress-team-create-form__tab-text">
-							<span class="clanspress-team-create-form__tab-title"><?php echo esc_html( $tab_title ); ?></span>
+						<span class="clanbite-team-create-form__tab-index" aria-hidden="true"><?php echo esc_html( (string) $tab_index ); ?></span>
+						<span class="clanbite-team-create-form__tab-text">
+							<span class="clanbite-team-create-form__tab-title"><?php echo esc_html( $tab_title ); ?></span>
 							<?php if ( $tab_desc !== '' ) : ?>
-								<span class="clanspress-team-create-form__tab-description"><?php echo esc_html( $tab_desc ); ?></span>
+								<span class="clanbite-team-create-form__tab-description"><?php echo esc_html( $tab_desc ); ?></span>
 							<?php endif; ?>
 						</span>
 					</button>
@@ -2638,30 +2638,30 @@ class Teams extends Skeleton {
 				$section_id = isset( $tab['id'] ) ? sanitize_key( (string) $tab['id'] ) : '';
 
 				$section_classes = array(
-					'clanspress-team-create-form__step',
-					'clanspress-team-manage-form__section',
-					'clanspress-team-manage-form__section--' . sanitize_html_class( $section_id ),
+					'clanbite-team-create-form__step',
+					'clanbite-team-manage-form__section',
+					'clanbite-team-manage-form__section--' . sanitize_html_class( $section_id ),
 				);
 				if ( 'profile' === $section_id ) {
-					$section_classes[] = 'clanspress-team-manage-form__fields';
+					$section_classes[] = 'clanbite-team-manage-form__fields';
 				}
 				if ( 'roster' === $section_id ) {
-					$section_classes[] = 'clanspress-team-manage-form__roster';
+					$section_classes[] = 'clanbite-team-manage-form__roster';
 				}
 				if ( 'team_options' === $section_id ) {
-					$section_classes[] = 'clanspress-team-manage-form__matches';
+					$section_classes[] = 'clanbite-team-manage-form__matches';
 				}
 				if ( 'media' === $section_id ) {
-					$section_classes[] = 'clanspress-team-manage-form__media';
+					$section_classes[] = 'clanbite-team-manage-form__media';
 				}
 				?>
 				<div
 					class="<?php echo esc_attr( implode( ' ', $section_classes ) ); ?>"
 					role="tabpanel"
-					id="clanspress-team-manage-form-panel-<?php echo esc_attr( (string) $step_number ); ?>"
-					aria-labelledby="clanspress-team-manage-form-tab-<?php echo esc_attr( (string) $step_number ); ?>"
+					id="clanbite-team-manage-form-panel-<?php echo esc_attr( (string) $step_number ); ?>"
+					aria-labelledby="clanbite-team-manage-form-tab-<?php echo esc_attr( (string) $step_number ); ?>"
 					data-team-step="<?php echo esc_attr( (string) $step_number ); ?>"
-					data-clanspress-section="<?php echo esc_attr( $section_id ); ?>"
+					data-clanbite-section="<?php echo esc_attr( $section_id ); ?>"
 					<?php echo $step_number > 1 ? ' hidden' : ''; ?>
 				>
 					<?php
@@ -2673,7 +2673,7 @@ class Teams extends Skeleton {
 					 * @param int    $team_id    Team post ID.
 					 * @param Teams  $extension  Teams extension instance.
 					 */
-					do_action( 'clanspress_team_manage_after_section', $section_id, $team_id, $this );
+					do_action( 'clanbite_team_manage_after_section', $section_id, $team_id, $this );
 					?>
 				</div>
 				<?php
@@ -2688,22 +2688,22 @@ class Teams extends Skeleton {
 			 * @param int   $team_id Team post ID.
 			 * @param Teams $extension Teams extension instance.
 			 */
-			do_action( 'clanspress_team_manage_form_after_sections', $team_id, $this );
+			do_action( 'clanbite_team_manage_form_after_sections', $team_id, $this );
 			?>
 
-			<div class="clanspress-team-create-form__actions clanspress-team-create-form__actions--split clanspress-team-manage-form__step-actions" role="navigation" aria-label="<?php esc_attr_e( 'Step navigation', 'clanspress' ); ?>">
-				<button type="button" class="button clanspress-team-create-form__nav-btn" data-wp-on--click="actions.previousStep" data-wp-bind--hidden="!state.canGoBack()"><?php esc_html_e( 'Back', 'clanspress' ); ?></button>
-				<div class="clanspress-team-create-form__actions-end">
-					<button type="button" class="button clanspress-team-create-form__nav-btn" data-wp-on--click="actions.nextStep" data-wp-bind--hidden="!state.canGoNext()"><?php esc_html_e( 'Next', 'clanspress' ); ?></button>
-					<button type="submit" class="button button-primary clanspress-team-create-form__nav-btn clanspress-team-create-form__nav-btn--primary"><?php esc_html_e( 'Save changes', 'clanspress' ); ?></button>
-					<a class="button clanspress-team-create-form__nav-btn" href="<?php echo esc_url( get_permalink( $team_id ) ); ?>"><?php esc_html_e( 'View team', 'clanspress' ); ?></a>
+			<div class="clanbite-team-create-form__actions clanbite-team-create-form__actions--split clanbite-team-manage-form__step-actions" role="navigation" aria-label="<?php esc_attr_e( 'Step navigation', 'clanbite' ); ?>">
+				<button type="button" class="button clanbite-team-create-form__nav-btn" data-wp-on--click="actions.previousStep" data-wp-bind--hidden="!state.canGoBack()"><?php esc_html_e( 'Back', 'clanbite' ); ?></button>
+				<div class="clanbite-team-create-form__actions-end">
+					<button type="button" class="button clanbite-team-create-form__nav-btn" data-wp-on--click="actions.nextStep" data-wp-bind--hidden="!state.canGoNext()"><?php esc_html_e( 'Next', 'clanbite' ); ?></button>
+					<button type="submit" class="button button-primary clanbite-team-create-form__nav-btn clanbite-team-create-form__nav-btn--primary"><?php esc_html_e( 'Save changes', 'clanbite' ); ?></button>
+					<a class="button clanbite-team-create-form__nav-btn" href="<?php echo esc_url( get_permalink( $team_id ) ); ?>"><?php esc_html_e( 'View team', 'clanbite' ); ?></a>
 				</div>
 			</div>
 		</form>
 		</div>
 		<?php
 		$show_delete = (bool) apply_filters(
-			'clanspress_team_manage_should_render_delete_form',
+			'clanbite_team_manage_should_render_delete_form',
 			$this->user_can_delete_team_on_frontend( $team_id ),
 			$team_id,
 			$this
@@ -2718,7 +2718,7 @@ class Teams extends Skeleton {
 		 * @param int   $team_id Team post ID.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		do_action( 'clanspress_team_manage_form_after', $team_id, $this );
+		do_action( 'clanbite_team_manage_form_after', $team_id, $this );
 	}
 
 	/**
@@ -2730,30 +2730,30 @@ class Teams extends Skeleton {
 	protected function render_team_manage_delete_form( int $team_id ): void {
 		$delete_action_url = admin_url( 'admin-post.php' );
 		?>
-		<div class="clanspress-team-manage-form__section clanspress-team-manage-form__section--delete_team clanspress-team-manage-form__danger-zone">
-			<h3><?php esc_html_e( 'Delete team', 'clanspress' ); ?></h3>
+		<div class="clanbite-team-manage-form__section clanbite-team-manage-form__section--delete_team clanbite-team-manage-form__danger-zone">
+			<h3><?php esc_html_e( 'Delete team', 'clanbite' ); ?></h3>
 			<p class="description">
-				<?php esc_html_e( 'Permanently delete this team and its settings. This cannot be undone.', 'clanspress' ); ?>
+				<?php esc_html_e( 'Permanently delete this team and its settings. This cannot be undone.', 'clanbite' ); ?>
 			</p>
-			<form class="clanspress-team-manage-form clanspress-team-manage-form--delete" method="post" action="<?php echo esc_url( $delete_action_url ); ?>">
-				<?php wp_nonce_field( 'clanspress_delete_team_' . $team_id, '_clanspress_delete_team_nonce' ); ?>
-				<input type="hidden" name="action" value="clanspress_delete_team" />
-				<input type="hidden" name="clanspress_team_id" value="<?php echo esc_attr( (string) $team_id ); ?>" />
+			<form class="clanbite-team-manage-form clanbite-team-manage-form--delete" method="post" action="<?php echo esc_url( $delete_action_url ); ?>">
+				<?php wp_nonce_field( 'clanbite_delete_team_' . $team_id, '_clanbite_delete_team_nonce' ); ?>
+				<input type="hidden" name="action" value="clanbite_delete_team" />
+				<input type="hidden" name="clanbite_team_id" value="<?php echo esc_attr( (string) $team_id ); ?>" />
 				<p>
-					<label for="clanspress-delete-team-confirm">
+					<label for="clanbite-delete-team-confirm">
 						<input
 							type="checkbox"
-							id="clanspress-delete-team-confirm"
-							name="clanspress_delete_team_confirm"
+							id="clanbite-delete-team-confirm"
+							name="clanbite_delete_team_confirm"
 							value="1"
 							required
 						/>
-						<?php esc_html_e( 'I understand this team will be permanently deleted.', 'clanspress' ); ?>
+						<?php esc_html_e( 'I understand this team will be permanently deleted.', 'clanbite' ); ?>
 					</label>
 				</p>
 				<p>
-					<button type="submit" class="button button-secondary clanspress-team-manage-form__delete-submit">
-						<?php esc_html_e( 'Delete team permanently', 'clanspress' ); ?>
+					<button type="submit" class="button button-secondary clanbite-team-manage-form__delete-submit">
+						<?php esc_html_e( 'Delete team permanently', 'clanbite' ); ?>
 					</button>
 				</p>
 			</form>
@@ -2782,32 +2782,32 @@ class Teams extends Skeleton {
 			exit;
 		}
 
-		$team_id = clanspress_request_post_absint( 'clanspress_team_id', 0 );
+		$team_id = clanbite_request_post_absint( 'clanbite_team_id', 0 );
 		if ( $team_id < 1 ) {
-			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
+			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
 
-		check_admin_referer( 'clanspress_team_manage_' . $team_id, '_clanspress_team_manage_nonce' );
+		check_admin_referer( 'clanbite_team_manage_' . $team_id, '_clanbite_team_manage_nonce' );
 
 		$user_id = get_current_user_id();
 		if ( ! $this->user_can_manage_team_on_frontend( $team_id, $user_id ) ) {
-			wp_die( esc_html__( 'You cannot edit this team.', 'clanspress' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You cannot edit this team.', 'clanbite' ), '', array( 'response' => 403 ) );
 		}
 
 		$post = get_post( $team_id );
 		if ( ! $post || 'cp_team' !== $post->post_type ) {
-			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
+			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
 
-		$team_name        = clanspress_request_post_text( 'team_name' );
-		$team_code        = clanspress_request_post_text( 'team_code' );
-		$team_motto       = clanspress_request_post_text( 'team_motto' );
-		$team_description = clanspress_request_post_html( 'team_description' );
+		$team_name        = clanbite_request_post_text( 'team_name' );
+		$team_code        = clanbite_request_post_text( 'team_code' );
+		$team_motto       = clanbite_request_post_text( 'team_motto' );
+		$team_description = clanbite_request_post_html( 'team_description' );
 
 		if ( '' === $team_name ) {
 			wp_safe_redirect(
 				add_query_arg(
-					'clanspress_team_manage_status',
+					'clanbite_team_manage_status',
 					'missing_name',
 					$this->get_team_manage_url( $team_id )
 				)
@@ -2815,12 +2815,12 @@ class Teams extends Skeleton {
 			exit;
 		}
 
-		if ( function_exists( 'clanspress_wordban_validate_strict_text' ) ) {
-			$wb = clanspress_wordban_validate_strict_text( $team_name );
+		if ( function_exists( 'clanbite_wordban_validate_strict_text' ) ) {
+			$wb = clanbite_wordban_validate_strict_text( $team_name );
 			if ( $wb instanceof \WP_Error ) {
 				wp_safe_redirect(
 					add_query_arg(
-						'clanspress_team_manage_status',
+						'clanbite_team_manage_status',
 						'wordban',
 						$this->get_team_manage_url( $team_id )
 					)
@@ -2828,11 +2828,11 @@ class Teams extends Skeleton {
 				exit;
 			}
 			if ( '' !== $team_code ) {
-				$wb = clanspress_wordban_validate_strict_text( $team_code );
+				$wb = clanbite_wordban_validate_strict_text( $team_code );
 				if ( $wb instanceof \WP_Error ) {
 					wp_safe_redirect(
 						add_query_arg(
-							'clanspress_team_manage_status',
+							'clanbite_team_manage_status',
 							'wordban',
 							$this->get_team_manage_url( $team_id )
 						)
@@ -2841,32 +2841,32 @@ class Teams extends Skeleton {
 				}
 			}
 		}
-		if ( function_exists( 'clanspress_wordban_mask_plain_text' ) ) {
-			$team_motto = clanspress_wordban_mask_plain_text( $team_motto );
+		if ( function_exists( 'clanbite_wordban_mask_plain_text' ) ) {
+			$team_motto = clanbite_wordban_mask_plain_text( $team_motto );
 		}
-		if ( function_exists( 'clanspress_wordban_mask_html_content' ) ) {
-			$team_description = clanspress_wordban_mask_html_content( $team_description );
+		if ( function_exists( 'clanbite_wordban_mask_html_content' ) ) {
+			$team_description = clanbite_wordban_mask_html_content( $team_description );
 		}
 
 		$team_entity = $this->get_team( $team_id );
 		if ( ! $team_entity ) {
-			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
+			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
 
 		$team_entity->set_name( $team_name );
 		$team_entity->set_description( $team_description );
 		$team_entity->set_code( $team_code );
 		$team_entity->set_motto( $team_motto );
-		$team_entity->set_country( $this->sanitize_team_country_input( clanspress_request_post_text( 'team_country' ) ) );
-		$team_entity->set_wins( clanspress_request_post_absint( 'team_wins', 0 ) );
-		$team_entity->set_losses( clanspress_request_post_absint( 'team_losses', 0 ) );
-		$team_entity->set_draws( clanspress_request_post_absint( 'team_draws', 0 ) );
+		$team_entity->set_country( $this->sanitize_team_country_input( clanbite_request_post_text( 'team_country' ) ) );
+		$team_entity->set_wins( clanbite_request_post_absint( 'team_wins', 0 ) );
+		$team_entity->set_losses( clanbite_request_post_absint( 'team_losses', 0 ) );
+		$team_entity->set_draws( clanbite_request_post_absint( 'team_draws', 0 ) );
 
-		$team_entity->set_join_mode( $this->sanitize_team_join_mode( clanspress_request_post_text( 'team_join_mode', 'open_join' ) ) );
-		$team_entity->set_allow_invites( clanspress_request_post_flag( 'team_allow_invites' ) );
-		$team_entity->set_allow_frontend_edit( clanspress_request_post_flag( 'team_allow_frontend_edit' ) );
-		$team_entity->set_allow_ban_players( clanspress_request_post_flag( 'team_allow_ban_players' ) );
-		$team_entity->set_accept_challenges( clanspress_request_post_flag( 'team_accept_challenges' ) );
+		$team_entity->set_join_mode( $this->sanitize_team_join_mode( clanbite_request_post_text( 'team_join_mode', 'open_join' ) ) );
+		$team_entity->set_allow_invites( clanbite_request_post_flag( 'team_allow_invites' ) );
+		$team_entity->set_allow_frontend_edit( clanbite_request_post_flag( 'team_allow_frontend_edit' ) );
+		$team_entity->set_allow_ban_players( clanbite_request_post_flag( 'team_allow_ban_players' ) );
+		$team_entity->set_accept_challenges( clanbite_request_post_flag( 'team_accept_challenges' ) );
 
 		/**
 		 * Fires after the manage form has populated the team entity and before it is saved.
@@ -2875,17 +2875,17 @@ class Teams extends Skeleton {
 		 * @param Team  $team_entity Mutable team entity.
 		 * @param Teams $extension   Teams extension instance.
 		 */
-		do_action( 'clanspress_team_manage_before_save', $team_id, $team_entity, $this );
+		do_action( 'clanbite_team_manage_before_save', $team_id, $team_entity, $this );
 
 		$this->get_team_data_store()->update( $team_entity );
 
 		$has_avatar_upload = $this->team_manage_form_has_image_upload( 'team_avatar' );
 		$has_cover_upload    = $this->team_manage_form_has_image_upload( 'team_cover' );
 
-		if ( ! $has_avatar_upload && clanspress_request_post_flag( 'team_avatar_remove' ) ) {
+		if ( ! $has_avatar_upload && clanbite_request_post_flag( 'team_avatar_remove' ) ) {
 			$this->maybe_remove_team_manage_image( $team_id, 'cp_team_avatar_id' );
 		}
-		if ( ! $has_cover_upload && clanspress_request_post_flag( 'team_cover_remove' ) ) {
+		if ( ! $has_cover_upload && clanbite_request_post_flag( 'team_cover_remove' ) ) {
 			$this->maybe_remove_team_manage_image( $team_id, 'cp_team_cover_id' );
 		}
 
@@ -2904,7 +2904,7 @@ class Teams extends Skeleton {
 			if ( ! $this->persist_team_roles_map( $team_id, $new_map ) ) {
 				wp_safe_redirect(
 					add_query_arg(
-						'clanspress_team_manage_status',
+						'clanbite_team_manage_status',
 						'roster_invalid',
 						$this->get_team_manage_url( $team_id )
 					)
@@ -2915,7 +2915,7 @@ class Teams extends Skeleton {
 
 		wp_safe_redirect(
 			add_query_arg(
-				'clanspress_team_manage_status',
+				'clanbite_team_manage_status',
 				'saved',
 				$this->get_team_manage_url( $team_id )
 			)
@@ -2944,22 +2944,22 @@ class Teams extends Skeleton {
 			exit;
 		}
 
-		$team_id = clanspress_request_post_absint( 'clanspress_team_id', 0 );
+		$team_id = clanbite_request_post_absint( 'clanbite_team_id', 0 );
 		if ( $team_id < 1 ) {
-			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
+			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
 
-		check_admin_referer( 'clanspress_delete_team_' . $team_id, '_clanspress_delete_team_nonce' );
+		check_admin_referer( 'clanbite_delete_team_' . $team_id, '_clanbite_delete_team_nonce' );
 
 		$user_id = get_current_user_id();
 		if ( ! $this->user_can_delete_team_on_frontend( $team_id, $user_id ) ) {
-			wp_die( esc_html__( 'You cannot delete this team.', 'clanspress' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You cannot delete this team.', 'clanbite' ), '', array( 'response' => 403 ) );
 		}
 
-		if ( empty( $_POST['clanspress_delete_team_confirm'] ) ) {
+		if ( empty( $_POST['clanbite_delete_team_confirm'] ) ) {
 			wp_safe_redirect(
 				add_query_arg(
-					'clanspress_team_manage_status',
+					'clanbite_team_manage_status',
 					'delete_confirm',
 					$this->get_team_manage_url( $team_id )
 				)
@@ -2969,12 +2969,12 @@ class Teams extends Skeleton {
 
 		$post = get_post( $team_id );
 		if ( ! $post instanceof \WP_Post || 'cp_team' !== $post->post_type ) {
-			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
+			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
 
 		$team = $this->get_team( $team_id );
 		if ( ! $team ) {
-			wp_die( esc_html__( 'Invalid team.', 'clanspress' ), '', array( 'response' => 400 ) );
+			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
 
 		$membership_cleanup_user_ids = $this->get_user_ids_for_team_membership_cleanup( $team_id );
@@ -2985,14 +2985,14 @@ class Teams extends Skeleton {
 		 * @param int   $team_id Team post ID.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		do_action( 'clanspress_team_before_delete', $team_id, $this );
+		do_action( 'clanbite_team_before_delete', $team_id, $this );
 
 		$deleted = $this->get_team_data_store()->delete( $team, true );
 
 		if ( ! $deleted ) {
 			wp_safe_redirect(
 				add_query_arg(
-					'clanspress_team_manage_status',
+					'clanbite_team_manage_status',
 					'delete_failed',
 					$this->get_team_manage_url( $team_id )
 				)
@@ -3009,7 +3009,7 @@ class Teams extends Skeleton {
 		 * @param int   $user_id User who performed the deletion.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		do_action( 'clanspress_team_deleted', $team_id, $user_id, $this );
+		do_action( 'clanbite_team_deleted', $team_id, $user_id, $this );
 
 		$archive = get_post_type_archive_link( 'cp_team' );
 		$target  = is_string( $archive ) && '' !== $archive ? $archive : home_url( '/' );
@@ -3021,7 +3021,7 @@ class Teams extends Skeleton {
 		 * @param int    $team_id Deleted team post ID.
 		 * @param Teams  $extension Teams extension instance.
 		 */
-		$redirect = (string) apply_filters( 'clanspress_team_manage_after_delete_redirect', $target, $team_id, $this );
+		$redirect = (string) apply_filters( 'clanbite_team_manage_after_delete_redirect', $target, $team_id, $this );
 
 		wp_safe_redirect( $redirect );
 		exit;
@@ -3034,41 +3034,41 @@ class Teams extends Skeleton {
 	 */
 	protected function get_team_post_type_labels(): array {
 		return array(
-			'name'                     => _x( 'Teams', 'post type general name', 'clanspress' ),
-			'singular_name'            => _x( 'Team', 'post type singular name', 'clanspress' ),
-			'menu_name'                => _x( 'Teams', 'admin menu', 'clanspress' ),
-			'name_admin_bar'           => _x( 'Team', 'add new on admin bar', 'clanspress' ),
-			'add_new'                  => _x( 'Add New', 'team', 'clanspress' ),
-			'add_new_item'             => __( 'Add New Team', 'clanspress' ),
-			'new_item'                 => __( 'New Team', 'clanspress' ),
-			'edit_item'                => __( 'Edit Team', 'clanspress' ),
-			'view_item'                => __( 'View Team', 'clanspress' ),
-			'view_items'               => __( 'View Teams', 'clanspress' ),
-			'all_items'                => __( 'All Teams', 'clanspress' ),
-			'search_items'             => __( 'Search Teams', 'clanspress' ),
-			'not_found'                => __( 'No teams found.', 'clanspress' ),
-			'not_found_in_trash'       => __( 'No teams found in Trash.', 'clanspress' ),
-			'parent_item_colon'        => __( 'Parent Team:', 'clanspress' ),
-			'archives'                 => __( 'Team Archives', 'clanspress' ),
-			'attributes'               => __( 'Team Attributes', 'clanspress' ),
-			'insert_into_item'         => __( 'Insert into team', 'clanspress' ),
-			'uploaded_to_this_item'    => __( 'Uploaded to this team', 'clanspress' ),
-			'featured_image'           => __( 'Team image', 'clanspress' ),
-			'set_featured_image'       => __( 'Set team image', 'clanspress' ),
-			'remove_featured_image'    => __( 'Remove team image', 'clanspress' ),
-			'use_featured_image'       => __( 'Use as team image', 'clanspress' ),
-			'filter_items_list'        => __( 'Filter teams list', 'clanspress' ),
-			'filter_by_date'           => __( 'Filter teams by date', 'clanspress' ),
-			'items_list_navigation'    => __( 'Teams list navigation', 'clanspress' ),
-			'items_list'               => __( 'Teams list', 'clanspress' ),
-			'item_published'           => __( 'Team published.', 'clanspress' ),
-			'item_published_privately' => __( 'Team published privately.', 'clanspress' ),
-			'item_reverted_to_draft'   => __( 'Team reverted to draft.', 'clanspress' ),
-			'item_trashed'             => __( 'Team trashed.', 'clanspress' ),
-			'item_scheduled'           => __( 'Team scheduled.', 'clanspress' ),
-			'item_updated'             => __( 'Team updated.', 'clanspress' ),
-			'item_link'                => __( 'Team Link', 'clanspress' ),
-			'item_link_description'    => __( 'A link to a team.', 'clanspress' ),
+			'name'                     => _x( 'Teams', 'post type general name', 'clanbite' ),
+			'singular_name'            => _x( 'Team', 'post type singular name', 'clanbite' ),
+			'menu_name'                => _x( 'Teams', 'admin menu', 'clanbite' ),
+			'name_admin_bar'           => _x( 'Team', 'add new on admin bar', 'clanbite' ),
+			'add_new'                  => _x( 'Add New', 'team', 'clanbite' ),
+			'add_new_item'             => __( 'Add New Team', 'clanbite' ),
+			'new_item'                 => __( 'New Team', 'clanbite' ),
+			'edit_item'                => __( 'Edit Team', 'clanbite' ),
+			'view_item'                => __( 'View Team', 'clanbite' ),
+			'view_items'               => __( 'View Teams', 'clanbite' ),
+			'all_items'                => __( 'All Teams', 'clanbite' ),
+			'search_items'             => __( 'Search Teams', 'clanbite' ),
+			'not_found'                => __( 'No teams found.', 'clanbite' ),
+			'not_found_in_trash'       => __( 'No teams found in Trash.', 'clanbite' ),
+			'parent_item_colon'        => __( 'Parent Team:', 'clanbite' ),
+			'archives'                 => __( 'Team Archives', 'clanbite' ),
+			'attributes'               => __( 'Team Attributes', 'clanbite' ),
+			'insert_into_item'         => __( 'Insert into team', 'clanbite' ),
+			'uploaded_to_this_item'    => __( 'Uploaded to this team', 'clanbite' ),
+			'featured_image'           => __( 'Team image', 'clanbite' ),
+			'set_featured_image'       => __( 'Set team image', 'clanbite' ),
+			'remove_featured_image'    => __( 'Remove team image', 'clanbite' ),
+			'use_featured_image'       => __( 'Use as team image', 'clanbite' ),
+			'filter_items_list'        => __( 'Filter teams list', 'clanbite' ),
+			'filter_by_date'           => __( 'Filter teams by date', 'clanbite' ),
+			'items_list_navigation'    => __( 'Teams list navigation', 'clanbite' ),
+			'items_list'               => __( 'Teams list', 'clanbite' ),
+			'item_published'           => __( 'Team published.', 'clanbite' ),
+			'item_published_privately' => __( 'Team published privately.', 'clanbite' ),
+			'item_reverted_to_draft'   => __( 'Team reverted to draft.', 'clanbite' ),
+			'item_trashed'             => __( 'Team trashed.', 'clanbite' ),
+			'item_scheduled'           => __( 'Team scheduled.', 'clanbite' ),
+			'item_updated'             => __( 'Team updated.', 'clanbite' ),
+			'item_link'                => __( 'Team Link', 'clanbite' ),
+			'item_link_description'    => __( 'A link to a team.', 'clanbite' ),
 		);
 	}
 
@@ -3085,10 +3085,10 @@ class Teams extends Skeleton {
 			array(
 				'label'           => $labels['name'],
 				'labels'          => $labels,
-				'description'     => __( 'Gaming or sports teams managed by Clanspress.', 'clanspress' ),
+				'description'     => __( 'Gaming or sports teams managed by Clanbite.', 'clanbite' ),
 				'public'          => true,
 				'show_in_rest'    => true,
-				'show_in_menu'    => 'clanspress',
+				'show_in_menu'    => 'clanbite',
 				'has_archive'     => true,
 				'rewrite'         => array(
 					'slug' => 'teams',
@@ -3277,16 +3277,16 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function add_team_events_meta_box(): void {
-		if ( ! function_exists( 'clanspress_events_extension_active' ) || ! clanspress_events_extension_active() ) {
+		if ( ! function_exists( 'clanbite_events_extension_active' ) || ! clanbite_events_extension_active() ) {
 			return;
 		}
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
 			return;
 		}
 
 		add_meta_box(
-			'clanspress_team_events',
-			__( 'Events', 'clanspress' ),
+			'clanbite_team_events',
+			__( 'Events', 'clanbite' ),
 			array( $this, 'render_team_events_meta_box' ),
 			'cp_team',
 			'side',
@@ -3301,7 +3301,7 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function render_team_events_meta_box( \WP_Post $post ): void {
-		wp_nonce_field( 'clanspress_team_events_meta', 'clanspress_team_events_meta_nonce' );
+		wp_nonce_field( 'clanbite_team_events_meta', 'clanbite_team_events_meta_nonce' );
 		$raw = get_post_meta( $post->ID, 'cp_team_events_enabled', true );
 		// Empty meta: enabled; explicit off stored as false/0.
 		$checked = ! ( false === $raw || 0 === $raw || '0' === $raw );
@@ -3309,11 +3309,11 @@ class Teams extends Skeleton {
 		<p>
 			<label>
 				<input type="checkbox" name="cp_team_events_enabled" value="1" <?php checked( $checked ); ?> />
-				<?php esc_html_e( 'Enable scheduled events for this team', 'clanspress' ); ?>
+				<?php esc_html_e( 'Enable scheduled events for this team', 'clanbite' ); ?>
 			</label>
 		</p>
 		<p class="description">
-			<?php esc_html_e( 'Uncheck to hide team event routes, listings, and creation for this team.', 'clanspress' ); ?>
+			<?php esc_html_e( 'Uncheck to hide team event routes, listings, and creation for this team.', 'clanbite' ); ?>
 		</p>
 		<?php
 	}
@@ -3326,7 +3326,7 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function save_team_events_meta_box( int $post_id, \WP_Post $post ): void {
-		if ( ! isset( $_POST['clanspress_team_events_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['clanspress_team_events_meta_nonce'] ) ), 'clanspress_team_events_meta' ) ) {
+		if ( ! isset( $_POST['clanbite_team_events_meta_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['clanbite_team_events_meta_nonce'] ) ), 'clanbite_team_events_meta' ) ) {
 			return;
 		}
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
@@ -3339,7 +3339,7 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		$enabled = clanspress_request_post_flag( 'cp_team_events_enabled' );
+		$enabled = clanbite_request_post_flag( 'cp_team_events_enabled' );
 		update_post_meta( $post_id, 'cp_team_events_enabled', $enabled );
 	}
 
@@ -3496,8 +3496,8 @@ class Teams extends Skeleton {
 		}
 
 		wp_enqueue_script(
-			'clanspress-team-options-editor',
-			clanspress()->url . 'assets/js/admin/team-options-editor.js',
+			'clanbite-team-options-editor',
+			clanbite()->url . 'assets/js/admin/team-options-editor.js',
 			array(
 				'wp-plugins',
 				'wp-edit-post',
@@ -3509,18 +3509,18 @@ class Teams extends Skeleton {
 				'wp-i18n',
 				'wp-hooks',
 			),
-			clanspress()->get_version(),
+			clanbite()->get_version(),
 			true
 		);
 
 		$country_options = array(
 			array(
 				'value' => '',
-				'label' => __( '— Select —', 'clanspress' ),
+				'label' => __( '— Select —', 'clanbite' ),
 			),
 		);
-		if ( function_exists( 'clanspress_players_get_countries' ) ) {
-			foreach ( clanspress_players_get_countries() as $code => $name ) {
+		if ( function_exists( 'clanbite_players_get_countries' ) ) {
+			foreach ( clanbite_players_get_countries() as $code => $name ) {
 				$country_options[] = array(
 					'value' => (string) $code,
 					'label' => (string) $name,
@@ -3532,16 +3532,16 @@ class Teams extends Skeleton {
 			'avatarUrl' => '',
 			'coverUrl'  => '',
 		);
-		if ( function_exists( 'clanspress_teams_get_default_avatar_url' ) ) {
-			$defaults['avatarUrl'] = clanspress_teams_get_default_avatar_url( 0 );
+		if ( function_exists( 'clanbite_teams_get_default_avatar_url' ) ) {
+			$defaults['avatarUrl'] = clanbite_teams_get_default_avatar_url( 0 );
 		}
-		if ( function_exists( 'clanspress_teams_get_default_cover_url' ) ) {
-			$defaults['coverUrl'] = clanspress_teams_get_default_cover_url( 0 );
+		if ( function_exists( 'clanbite_teams_get_default_cover_url' ) ) {
+			$defaults['coverUrl'] = clanbite_teams_get_default_cover_url( 0 );
 		}
 
 		wp_localize_script(
-			'clanspress-team-options-editor',
-			'clanspressTeamEditor',
+			'clanbite-team-options-editor',
+			'clanbiteTeamEditor',
 			array(
 				'countries' => $country_options,
 				'defaults'  => $defaults,
@@ -3561,11 +3561,11 @@ class Teams extends Skeleton {
 			return '';
 		}
 
-		if ( ! function_exists( 'clanspress_players_get_countries' ) ) {
+		if ( ! function_exists( 'clanbite_players_get_countries' ) ) {
 			return '';
 		}
 
-		$countries = clanspress_players_get_countries();
+		$countries = clanbite_players_get_countries();
 
 		return isset( $countries[ $raw ] ) ? $raw : '';
 	}
@@ -3577,9 +3577,9 @@ class Teams extends Skeleton {
 	 */
 	public function get_team_join_modes(): array {
 		$modes = array(
-			'open_join'            => __( 'Open join', 'clanspress' ),
-			'join_with_permission' => __( 'Join with permission', 'clanspress' ),
-			'invite_only'          => __( 'Invite only', 'clanspress' ),
+			'open_join'            => __( 'Open join', 'clanbite' ),
+			'join_with_permission' => __( 'Join with permission', 'clanbite' ),
+			'invite_only'          => __( 'Invite only', 'clanbite' ),
 		);
 
 		/**
@@ -3588,7 +3588,7 @@ class Teams extends Skeleton {
 		 * @param array $modes Team join modes.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		return (array) apply_filters( 'clanspress_team_join_modes', $modes, $this );
+		return (array) apply_filters( 'clanbite_team_join_modes', $modes, $this );
 	}
 
 	/**
@@ -3639,7 +3639,7 @@ class Teams extends Skeleton {
 		 * @param int   $team_id Team post ID.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		return (array) apply_filters( 'clanspress_team_options', $options, $team_id, $this );
+		return (array) apply_filters( 'clanbite_team_options', $options, $team_id, $this );
 	}
 
 	/**
@@ -3675,7 +3675,7 @@ class Teams extends Skeleton {
 		 * @param array $sanitized Sanitized options map.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		do_action( 'clanspress_team_options_updated', $team_id, $sanitized, $this );
+		do_action( 'clanbite_team_options_updated', $team_id, $sanitized, $this );
 	}
 
 	/**
@@ -3698,7 +3698,7 @@ class Teams extends Skeleton {
 		 * @param array $options Team options.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		return (bool) apply_filters( 'clanspress_can_user_join_team', $can_join, $team_id, $user_id, $options, $this );
+		return (bool) apply_filters( 'clanbite_can_user_join_team', $can_join, $team_id, $user_id, $options, $this );
 	}
 
 	/**
@@ -3711,7 +3711,7 @@ class Teams extends Skeleton {
 		$options = $this->get_team_options( $team_id );
 		$allowed = (bool) $options['allow_invites'];
 
-		return (bool) apply_filters( 'clanspress_team_can_invite_players', $allowed, $team_id, $options, $this );
+		return (bool) apply_filters( 'clanbite_team_can_invite_players', $allowed, $team_id, $options, $this );
 	}
 
 	/**
@@ -3724,7 +3724,7 @@ class Teams extends Skeleton {
 		$options = $this->get_team_options( $team_id );
 		$allowed = (bool) $options['allow_frontend_edit'];
 
-		return (bool) apply_filters( 'clanspress_team_can_edit_frontend', $allowed, $team_id, $options, $this );
+		return (bool) apply_filters( 'clanbite_team_can_edit_frontend', $allowed, $team_id, $options, $this );
 	}
 
 	/**
@@ -3737,7 +3737,7 @@ class Teams extends Skeleton {
 		$options = $this->get_team_options( $team_id );
 		$allowed = (bool) $options['allow_ban_players'];
 
-		return (bool) apply_filters( 'clanspress_team_can_ban_players', $allowed, $team_id, $options, $this );
+		return (bool) apply_filters( 'clanbite_team_can_ban_players', $allowed, $team_id, $options, $this );
 	}
 
 	/**
@@ -3751,43 +3751,43 @@ class Teams extends Skeleton {
 			exit;
 		}
 
-		check_admin_referer( 'clanspress_create_team_action', '_clanspress_create_team_nonce' );
+		check_admin_referer( 'clanbite_create_team_action', '_clanbite_create_team_nonce' );
 
 		$user_id          = get_current_user_id();
-		$team_name        = clanspress_request_post_text( 'team_name' );
-		$team_code        = clanspress_request_post_text( 'team_code' );
-		$team_motto       = clanspress_request_post_text( 'team_motto' );
-		$team_description = clanspress_request_post_html( 'team_description' );
-		$team_invites_raw = clanspress_request_post_text( 'team_invites' );
-		$team_country     = $this->sanitize_team_country_input( clanspress_request_post_text( 'team_country' ) );
+		$team_name        = clanbite_request_post_text( 'team_name' );
+		$team_code        = clanbite_request_post_text( 'team_code' );
+		$team_motto       = clanbite_request_post_text( 'team_motto' );
+		$team_description = clanbite_request_post_html( 'team_description' );
+		$team_invites_raw = clanbite_request_post_text( 'team_invites' );
+		$team_country     = $this->sanitize_team_country_input( clanbite_request_post_text( 'team_country' ) );
 
 		if ( '' === $team_name ) {
 			$this->redirect_after_team_create( false, 'missing_name' );
 		}
 
-		if ( function_exists( 'clanspress_wordban_validate_strict_text' ) ) {
-			$wb = clanspress_wordban_validate_strict_text( $team_name );
+		if ( function_exists( 'clanbite_wordban_validate_strict_text' ) ) {
+			$wb = clanbite_wordban_validate_strict_text( $team_name );
 			if ( $wb instanceof \WP_Error ) {
 				$this->redirect_after_team_create( false, 'wordban' );
 			}
 			if ( '' !== $team_code ) {
-				$wb = clanspress_wordban_validate_strict_text( $team_code );
+				$wb = clanbite_wordban_validate_strict_text( $team_code );
 				if ( $wb instanceof \WP_Error ) {
 					$this->redirect_after_team_create( false, 'wordban' );
 				}
 			}
 		}
-		if ( function_exists( 'clanspress_wordban_mask_plain_text' ) ) {
-			$team_motto = clanspress_wordban_mask_plain_text( $team_motto );
+		if ( function_exists( 'clanbite_wordban_mask_plain_text' ) ) {
+			$team_motto = clanbite_wordban_mask_plain_text( $team_motto );
 		}
-		if ( function_exists( 'clanspress_wordban_mask_html_content' ) ) {
-			$team_description = clanspress_wordban_mask_html_content( $team_description );
+		if ( function_exists( 'clanbite_wordban_mask_html_content' ) ) {
+			$team_description = clanbite_wordban_mask_html_content( $team_description );
 		}
 
 		$team_slug = sanitize_title( $team_name );
-		$team_slug = (string) apply_filters( 'clanspress_pre_insert_team_slug', $team_slug, $team_name, $user_id );
+		$team_slug = (string) apply_filters( 'clanbite_pre_insert_team_slug', $team_slug, $team_name, $user_id );
 
-		$post_status = (string) apply_filters( 'clanspress_create_team_post_status', 'publish', $user_id );
+		$post_status = (string) apply_filters( 'clanbite_create_team_post_status', 'publish', $user_id );
 
 		$team = new Team();
 		$team->set_name( $team_name );
@@ -3802,9 +3802,9 @@ class Teams extends Skeleton {
 		$team->set_losses( 0 );
 		$team->set_draws( 0 );
 
-		if ( function_exists( 'clanspress_matches' ) && clanspress_matches() ) {
-			if ( clanspress_request_post_has_key( 'team_accept_challenges' ) ) {
-				$team->set_accept_challenges( clanspress_request_post_flag( 'team_accept_challenges' ) );
+		if ( function_exists( 'clanbite_matches' ) && clanbite_matches() ) {
+			if ( clanbite_request_post_has_key( 'team_accept_challenges' ) ) {
+				$team->set_accept_challenges( clanbite_request_post_flag( 'team_accept_challenges' ) );
 			} else {
 				$team->set_accept_challenges( true );
 			}
@@ -3839,7 +3839,7 @@ class Teams extends Skeleton {
 			 * @param int   $new_team_id Team post ID.
 			 * @param int   $user_id Creator ID.
 			 */
-			$invite_tokens = (array) apply_filters( 'clanspress_team_create_invite_tokens', $invite_tokens, (int) $new_team_id, $user_id );
+			$invite_tokens = (array) apply_filters( 'clanbite_team_create_invite_tokens', $invite_tokens, (int) $new_team_id, $user_id );
 
 			$invite_tokens = array_values(
 				array_filter(
@@ -3863,14 +3863,16 @@ class Teams extends Skeleton {
 			)
 		);
 
+		$team_create_request = clanbite_sanitize_team_create_post_array();
+
 		/**
 		 * Fires after a team is created via the block-based create team form.
 		 *
 		 * @param int   $new_team_id Team post ID.
 		 * @param int   $user_id     Creator user ID.
-		 * @param array $request     Raw request payload.
+		 * @param array $request     Sanitized POST-shaped map (see {@see clanbite_sanitize_team_create_post_array()}), including custom form fields.
 		 */
-		do_action( 'clanspress_team_created', (int) $new_team_id, $user_id, $_POST );
+		do_action( 'clanbite_team_created', (int) $new_team_id, $user_id, $team_create_request );
 
 		$this->redirect_after_team_create( true, 'created', (int) $new_team_id );
 	}
@@ -3881,7 +3883,7 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function ajax_team_invite_search(): void {
-		check_ajax_referer( 'clanspress_team_invite_search', 'nonce' );
+		check_ajax_referer( 'clanbite_team_invite_search', 'nonce' );
 
 		if ( ! is_user_logged_in() ) {
 			wp_send_json_error( array(), 403 );
@@ -3939,33 +3941,33 @@ class Teams extends Skeleton {
 	/**
 	 * Ajax: save team avatar and/or cover from front-end blocks (multipart POST).
 	 *
-	 * Expects `clanspress_team_id`, `_clanspress_team_media_nonce`, and optional `team_avatar` / `team_cover` files.
+	 * Expects `clanbite_team_id`, `_clanbite_team_media_nonce`, and optional `team_avatar` / `team_cover` files.
 	 *
 	 * @return void
 	 */
 	public function ajax_save_team_media(): void {
 		if ( ! is_user_logged_in() ) {
 			wp_send_json_error(
-				array( 'message' => __( 'You must be logged in.', 'clanspress' ) ),
+				array( 'message' => __( 'You must be logged in.', 'clanbite' ) ),
 				403
 			);
 		}
 
 		// Team id from POST; file fields stay on `$_FILES` and are validated in `team_manage_form_has_image_upload()` / `maybe_handle_team_media_upload()`.
-		$team_id = clanspress_request_post_absint( 'clanspress_team_id' );
+		$team_id = clanbite_request_post_absint( 'clanbite_team_id' );
 		if ( $team_id < 1 ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Invalid team.', 'clanspress' ) ),
+				array( 'message' => __( 'Invalid team.', 'clanbite' ) ),
 				400
 			);
 		}
 
-		check_ajax_referer( 'clanspress_team_media_' . $team_id, '_clanspress_team_media_nonce' );
+		check_ajax_referer( 'clanbite_team_media_' . $team_id, '_clanbite_team_media_nonce' );
 
 		$user_id = get_current_user_id();
 		if ( ! $this->user_can_manage_team_on_frontend( $team_id, $user_id ) ) {
 			wp_send_json_error(
-				array( 'message' => __( 'You cannot edit this team.', 'clanspress' ) ),
+				array( 'message' => __( 'You cannot edit this team.', 'clanbite' ) ),
 				403
 			);
 		}
@@ -3973,7 +3975,7 @@ class Teams extends Skeleton {
 		$post = get_post( $team_id );
 		if ( ! $post instanceof \WP_Post || 'cp_team' !== $post->post_type ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Invalid team.', 'clanspress' ) ),
+				array( 'message' => __( 'Invalid team.', 'clanbite' ) ),
 				400
 			);
 		}
@@ -3983,7 +3985,7 @@ class Teams extends Skeleton {
 
 		if ( ! $had_avatar && ! $had_cover ) {
 			wp_send_json_error(
-				array( 'message' => __( 'No image was uploaded.', 'clanspress' ) ),
+				array( 'message' => __( 'No image was uploaded.', 'clanbite' ) ),
 				400
 			);
 		}
@@ -4001,17 +4003,17 @@ class Teams extends Skeleton {
 		 * @param int   $team_id   Team post ID.
 		 * @param Teams $extension Teams extension instance.
 		 */
-		do_action( 'clanspress_team_media_ajax_saved', $team_id, $this );
+		do_action( 'clanbite_team_media_ajax_saved', $team_id, $this );
 
 		$cover_id = (int) get_post_meta( $team_id, 'cp_team_cover_id', true );
 
-		$avatar_url = function_exists( 'clanspress_teams_get_display_team_avatar' )
-			? clanspress_teams_get_display_team_avatar( $team_id, false, '', 'team_media_ajax', 'large' )
+		$avatar_url = function_exists( 'clanbite_teams_get_display_team_avatar' )
+			? clanbite_teams_get_display_team_avatar( $team_id, false, '', 'team_media_ajax', 'large' )
 			: '';
 
 		$cover_url = $cover_id ? (string) wp_get_attachment_image_url( $cover_id, 'full' ) : '';
-		if ( '' === $cover_url && function_exists( 'clanspress_teams_get_default_cover_url' ) ) {
-			$cover_url = clanspress_teams_get_default_cover_url( $team_id );
+		if ( '' === $cover_url && function_exists( 'clanbite_teams_get_default_cover_url' ) ) {
+			$cover_url = clanbite_teams_get_default_cover_url( $team_id );
 		}
 
 		wp_send_json_success(
@@ -4073,7 +4075,7 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	protected function maybe_handle_team_media_upload( int $team_id, string $field_name, string $meta_key ): void {
-		if ( ! function_exists( 'clanspress_handle_isolated_image_upload' ) ) {
+		if ( ! function_exists( 'clanbite_handle_isolated_image_upload' ) ) {
 			return;
 		}
 
@@ -4082,7 +4084,7 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` passed to `clanspress_handle_isolated_image_upload()` after nonce check in `handle_save_team_manage()`.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` passed to `clanbite_handle_isolated_image_upload()` after nonce check in `handle_save_team_manage()`.
 		try {
 			if ( empty( $_FILES[ $field_name ] ) || ! is_array( $_FILES[ $field_name ] ) ) {
 				return;
@@ -4091,12 +4093,12 @@ class Teams extends Skeleton {
 			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing
 		}
 
-		$subdir = 'clanspress/teams/' . $team_id;
+		$subdir = 'clanbite/teams/' . $team_id;
 		$base   = 'cp_team_avatar_id' === $meta_key ? 'avatar' : 'cover';
 
 		$old_id = (int) get_post_meta( $team_id, $meta_key, true );
 
-		$attachment_id = clanspress_handle_isolated_image_upload( $field_name, $team_id, $subdir, $base );
+		$attachment_id = clanbite_handle_isolated_image_upload( $field_name, $team_id, $subdir, $base );
 		if ( is_wp_error( $attachment_id ) ) {
 			return;
 		}
@@ -4143,7 +4145,7 @@ class Teams extends Skeleton {
 				$filtered[] = $t;
 				continue;
 			}
-			if ( isset( $t->id ) && 'clanspress//single-cp_team' === $t->id ) {
+			if ( isset( $t->id ) && 'clanbite//single-cp_team' === $t->id ) {
 				$filtered[] = $t;
 			}
 		}
@@ -4154,7 +4156,7 @@ class Teams extends Skeleton {
 			}
 		}
 
-		$plugin = \get_block_template( 'clanspress//single-cp_team' );
+		$plugin = \get_block_template( 'clanbite//single-cp_team' );
 		if ( $plugin instanceof \WP_Block_Template ) {
 			$filtered[] = $plugin;
 		}
@@ -4210,7 +4212,7 @@ class Teams extends Skeleton {
 				 * @param int    $team_id  New team post ID.
 				 * @param Teams  $extension Teams extension instance.
 				 */
-				$redirect = (string) apply_filters( 'clanspress_teams_after_create_redirect', $redirect, $team_id, $this );
+				$redirect = (string) apply_filters( 'clanbite_teams_after_create_redirect', $redirect, $team_id, $this );
 
 				wp_safe_redirect( $redirect );
 				exit;
@@ -4218,8 +4220,8 @@ class Teams extends Skeleton {
 		}
 
 		$args = array(
-			'clanspress_team_status' => 'error',
-			'clanspress_team_code'   => $code,
+			'clanbite_team_status' => 'error',
+			'clanbite_team_code'   => $code,
 		);
 
 		wp_safe_redirect( add_query_arg( $args, $fallback ) );
@@ -4268,7 +4270,7 @@ class Teams extends Skeleton {
 		 * @param string $team_mode Resolved teams mode.
 		 * @param Teams  $extension Teams extension instance.
 		 */
-		return (string) apply_filters( 'clanspress_teams_mode', $team_mode, $this );
+		return (string) apply_filters( 'clanbite_teams_mode', $team_mode, $this );
 	}
 
 	/**
@@ -4304,9 +4306,9 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function register_team_image_sizes(): void {
-		add_image_size( 'clanspress-team-avatar-large', 512, 512, true );
-		add_image_size( 'clanspress-team-avatar-medium', 256, 256, true );
-		add_image_size( 'clanspress-team-avatar-small', 96, 96, true );
+		add_image_size( 'clanbite-team-avatar-large', 512, 512, true );
+		add_image_size( 'clanbite-team-avatar-medium', 256, 256, true );
+		add_image_size( 'clanbite-team-avatar-small', 96, 96, true );
 	}
 
 	/**
@@ -4320,7 +4322,7 @@ class Teams extends Skeleton {
 		$this->register_extension_block_types_from_metadata_collection( 'build/teams' );
 
 		register_block_type(
-			'clanspress/team-manage',
+			'clanbite/team-manage',
 			array(
 				'api_version'     => '3',
 				'render_callback' => array( $this, 'render_team_manage_block' ),
@@ -4340,7 +4342,7 @@ class Teams extends Skeleton {
 	 * @return array<string, mixed>
 	 */
 	public function filter_team_create_form_block_args( array $args, string $name ): array {
-		if ( 'clanspress/team-create-form' !== $name ) {
+		if ( 'clanbite/team-create-form' !== $name ) {
 			return $args;
 		}
 
@@ -4377,7 +4379,7 @@ class Teams extends Skeleton {
 		}
 
 		$tpl_id = ( isset( $_wp_current_template_id ) && is_string( $_wp_current_template_id ) ) ? $_wp_current_template_id : '';
-		if ( '' === $tpl_id || ! str_starts_with( $tpl_id, 'clanspress//' ) ) {
+		if ( '' === $tpl_id || ! str_starts_with( $tpl_id, 'clanbite//' ) ) {
 			// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 			return null;
 		}
@@ -4407,9 +4409,9 @@ class Teams extends Skeleton {
 		}
 
 		$block_name = isset( $parsed_block['blockName'] ) ? (string) $parsed_block['blockName'] : '';
-		$is_team_block_family = ( '' !== $block_name && strpos( $block_name, 'clanspress/team-' ) === 0 );
-		$is_player_query      = ( 'clanspress/player-query' === $block_name );
-		$is_player_template   = ( 'clanspress/player-template' === $block_name );
+		$is_team_block_family = ( '' !== $block_name && strpos( $block_name, 'clanbite/team-' ) === 0 );
+		$is_player_query      = ( 'clanbite/player-query' === $block_name );
+		$is_player_template   = ( 'clanbite/player-template' === $block_name );
 		if ( ! $is_team_block_family && ! $is_player_query && ! $is_player_template ) {
 			return $context;
 		}
@@ -4425,8 +4427,8 @@ class Teams extends Skeleton {
 			}
 		}
 
-		$team_id = function_exists( 'clanspress_team_block_resolve_team_id' )
-			? clanspress_team_block_resolve_team_id( $context )
+		$team_id = function_exists( 'clanbite_team_block_resolve_team_id' )
+			? clanbite_team_block_resolve_team_id( $context )
 			: 0;
 
 		if ( $team_id > 0 ) {
@@ -4448,13 +4450,13 @@ class Teams extends Skeleton {
 	public function render_team_manage_block( array $attributes, string $content, \WP_Block $block ): string {
 		unset( $attributes, $content, $block );
 
-		$team_id = (int) get_query_var( 'clanspress_manage_team_id' );
+		$team_id = (int) get_query_var( 'clanbite_manage_team_id' );
 
 		// In Site Editor previews the manage route query var is usually missing; show a safe placeholder.
 		if ( $team_id < 1 ) {
 			return sprintf(
-				'<div class="clanspress-team-manage--placeholder"><p>%s</p></div>',
-				esc_html__( 'Select a team to manage.', 'clanspress' )
+				'<div class="clanbite-team-manage--placeholder"><p>%s</p></div>',
+				esc_html__( 'Select a team to manage.', 'clanbite' )
 			);
 		}
 
@@ -4476,7 +4478,7 @@ class Teams extends Skeleton {
 	/**
 	 * Load the team block template on classic themes (block markup is not in post_content).
 	 *
-	 * Block themes resolve `clanspress//single-cp_team` via {@see register_block_template()} when
+	 * Block themes resolve `clanbite//single-cp_team` via {@see register_block_template()} when
 	 * `post_types` includes `cp_team`. PHP themes need `do_blocks()` here.
 	 *
 	 * @param string $template Path from {@see locate_template()}.
@@ -4491,7 +4493,7 @@ class Teams extends Skeleton {
 			return $template;
 		}
 
-		$plugin = clanspress()->path . 'templates/teams/single-cp_team-classic.php';
+		$plugin = clanbite()->path . 'templates/teams/single-cp_team-classic.php';
 
 		return is_readable( $plugin ) ? $plugin : $template;
 	}
@@ -4505,43 +4507,43 @@ class Teams extends Skeleton {
 		// Slug must be `single-cp_team` so it matches the singular template hierarchy for this CPT.
 		$templates = array(
 			'single-cp_team' => array(
-				'title'       => __( 'Single Team', 'clanspress' ),
-				'description' => __( 'Team profile with cover, avatar, record, motto, and description.', 'clanspress' ),
-				'path'        => clanspress()->path . 'templates/teams/single-cp_team.html',
+				'title'       => __( 'Single Team', 'clanbite' ),
+				'description' => __( 'Team profile with cover, avatar, record, motto, and description.', 'clanbite' ),
+				'path'        => clanbite()->path . 'templates/teams/single-cp_team.html',
 				// WP 6.7+: tie the plugin template to this CPT so singular views use it in the Site Editor hierarchy.
 				'post_types'  => array( 'cp_team' ),
 			),
 			// Virtual routes (create / manage / events) stay gated by `is_team_directories_mode()` in rewrites
 			// and template loaders; templates are always registered so they remain editable in the Site Editor.
 			'teams-create'          => array(
-				'title'       => __( 'Teams — Create', 'clanspress' ),
-				'description' => __( 'Create team screen at /teams/create/ when team directory mode is enabled.', 'clanspress' ),
-				'path'        => clanspress()->path . 'templates/teams/teams-create.html',
+				'title'       => __( 'Teams — Create', 'clanbite' ),
+				'description' => __( 'Create team screen at /teams/create/ when team directory mode is enabled.', 'clanbite' ),
+				'path'        => clanbite()->path . 'templates/teams/teams-create.html',
 			),
 			'teams-manage'          => array(
-				'title'       => __( 'Teams — Manage', 'clanspress' ),
-				'description' => __( 'Team management and settings at /teams/{slug}/manage/ when directory mode is enabled.', 'clanspress' ),
-				'path'        => clanspress()->path . 'templates/teams/teams-manage.html',
+				'title'       => __( 'Teams — Manage', 'clanbite' ),
+				'description' => __( 'Team management and settings at /teams/{slug}/manage/ when directory mode is enabled.', 'clanbite' ),
+				'path'        => clanbite()->path . 'templates/teams/teams-manage.html',
 			),
 			'teams-events'          => array(
-				'title'       => __( 'Teams — Events', 'clanspress' ),
-				'description' => __( 'Team events list at /teams/{slug}/events/ (block theme).', 'clanspress' ),
-				'path'        => clanspress()->path . 'templates/teams/teams-events.html',
+				'title'       => __( 'Teams — Events', 'clanbite' ),
+				'description' => __( 'Team events list at /teams/{slug}/events/ (block theme).', 'clanbite' ),
+				'path'        => clanbite()->path . 'templates/teams/teams-events.html',
 			),
 			'teams-events-single'   => array(
-				'title'       => __( 'Teams — Event', 'clanspress' ),
-				'description' => __( 'Single team event at /teams/{slug}/events/{id}/ (block theme).', 'clanspress' ),
-				'path'        => clanspress()->path . 'templates/teams/teams-events-single.html',
+				'title'       => __( 'Teams — Event', 'clanbite' ),
+				'description' => __( 'Single team event at /teams/{slug}/events/{id}/ (block theme).', 'clanbite' ),
+				'path'        => clanbite()->path . 'templates/teams/teams-events-single.html',
 			),
 			'teams-events-create'   => array(
-				'title'       => __( 'Teams — Create event', 'clanspress' ),
-				'description' => __( 'Create team event at /teams/{slug}/events/create/ (managers only).', 'clanspress' ),
-				'path'        => clanspress()->path . 'templates/teams/teams-events-create.html',
+				'title'       => __( 'Teams — Create event', 'clanbite' ),
+				'description' => __( 'Create team event at /teams/{slug}/events/create/ (managers only).', 'clanbite' ),
+				'path'        => clanbite()->path . 'templates/teams/teams-events-create.html',
 			),
 			'teams-matches'         => array(
-				'title'       => __( 'Teams — Matches', 'clanspress' ),
-				'description' => __( 'Team match list at /teams/{slug}/matches/ when the Matches extension team subpage is enabled.', 'clanspress' ),
-				'path'        => clanspress()->path . 'templates/teams/teams-matches.html',
+				'title'       => __( 'Teams — Matches', 'clanbite' ),
+				'description' => __( 'Team match list at /teams/{slug}/matches/ when the Matches extension team subpage is enabled.', 'clanbite' ),
+				'path'        => clanbite()->path . 'templates/teams/teams-matches.html',
 			),
 		);
 
@@ -4639,7 +4641,7 @@ class Teams extends Skeleton {
 	 * @return \WP_Block_Template|null
 	 */
 	protected function create_team_profile_header_template_part_object(): ?\WP_Block_Template {
-		$path = clanspress()->path . 'templates/teams/parts/team-profile-header.html';
+		$path = clanbite()->path . 'templates/teams/parts/team-profile-header.html';
 
 		if ( ! is_readable( $path ) ) {
 			return null;
@@ -4658,12 +4660,12 @@ class Teams extends Skeleton {
 		$template->theme          = $theme;
 		$template->slug           = $slug;
 		$template->type           = 'wp_template_part';
-		$template->title          = __( 'Team profile header', 'clanspress' );
-		$template->description    = __( 'Shared cover, stats row, and profile navigation for Clanspress team templates.', 'clanspress' );
+		$template->title          = __( 'Team profile header', 'clanbite' );
+		$template->description    = __( 'Shared cover, stats row, and profile navigation for Clanbite team templates.', 'clanbite' );
 		$template->content        = $raw;
 		$template->source         = 'plugin';
 		$template->origin         = 'plugin';
-		$template->plugin         = 'clanspress';
+		$template->plugin         = 'clanbite';
 		$template->status         = 'publish';
 		$template->has_theme_file = true;
 		$template->is_custom      = true;

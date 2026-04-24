@@ -1,6 +1,6 @@
 <?php
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Extension settings API uses `{$this->option_key}_*` hook names; keys are registered option slugs.
@@ -22,21 +22,21 @@ abstract class Abstract_Settings {
 	}
 
 	/**
-	 * When true, registers a classic submenu under Clanspress. The unified React
-	 * admin keeps this false; use filter `clanspress_extension_settings_register_submenu`.
+	 * When true, registers a classic submenu under Clanbite. The unified React
+	 * admin keeps this false; use filter `clanbite_extension_settings_register_submenu`.
 	 *
 	 * @var bool
 	 */
 	protected bool $register_standalone_submenu = false;
 
 	public function register_page(): void {
-		$register = (bool) apply_filters( 'clanspress_extension_settings_register_submenu', $this->register_standalone_submenu, $this );
+		$register = (bool) apply_filters( 'clanbite_extension_settings_register_submenu', $this->register_standalone_submenu, $this );
 
 		if ( ! $register ) {
 			return;
 		}
 
-		$parent_slug = (string) apply_filters( "{$this->option_key}_parent_menu_slug", 'clanspress', $this );
+		$parent_slug = (string) apply_filters( "{$this->option_key}_parent_menu_slug", 'clanbite', $this );
 
 		add_submenu_page(
 			$parent_slug,

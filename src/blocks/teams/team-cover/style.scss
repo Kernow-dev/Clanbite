@@ -1,6 +1,6 @@
 // Team cover + inner blocks (no inline editing).
 
-.wp-block-clanspress-team-cover {
+.wp-block-clanbite-team-cover {
 	position: relative;
 	background-position: center center;
 	display: flex;
@@ -51,7 +51,7 @@
 		justify-content: flex-end;
 	}
 
-	.clanspress-team-cover__media {
+	.clanbite-team-cover__media {
 		display: block;
 		position: absolute;
 		inset: 0;
@@ -61,14 +61,14 @@
 		z-index: 0;
 	}
 
-	.clanspress-team-cover__media--placeholder {
+	.clanbite-team-cover__media--placeholder {
 		position: absolute;
 		inset: 0;
 		z-index: 0;
 		background: #f0f0f1;
 	}
 
-	.clanspress-team-cover__media--empty {
+	.clanbite-team-cover__media--empty {
 		opacity: 0;
 		pointer-events: none;
 	}
@@ -83,11 +83,11 @@
 	}
 }
 
-.clanspress-team-cover {
+.clanbite-team-cover {
 	border-radius: 6px;
 }
 
-.clanspress-team-cover--placeholder {
+.clanbite-team-cover--placeholder {
 	border: 1px dashed #c3c4c7;
 	min-height: 120px;
 }

@@ -2,16 +2,16 @@
 /**
  * Extension: Notifications (first-party).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
-use Kernowdev\Clanspress\Extensions\Notification\Notification_Schema;
-use Kernowdev\Clanspress\Extensions\Notification\Notifications_Runtime;
-use Kernowdev\Clanspress\Extensions\Notifications\Admin as Notifications_Settings_Admin;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Notification\Notification_Schema;
+use Kernowdev\Clanbite\Extensions\Notification\Notifications_Runtime;
+use Kernowdev\Clanbite\Extensions\Notifications\Admin as Notifications_Settings_Admin;
 
 require_once __DIR__ . '/class-extension-notifications-admin.php';
 
@@ -21,7 +21,7 @@ require_once __DIR__ . '/class-extension-notifications-admin.php';
 class Notifications extends Skeleton {
 
 	/**
-	 * Option-backed settings for the unified Clanspress React admin.
+	 * Option-backed settings for the unified Clanbite React admin.
 	 *
 	 * @var Notifications_Settings_Admin
 	 */
@@ -36,7 +36,7 @@ class Notifications extends Skeleton {
 			'cp_notifications',
 			__(
 				'In-site notifications, REST API, and the notification bell block.',
-				'clanspress'
+				'clanbite'
 			),
 			'',
 			'1.0.0',
@@ -53,7 +53,7 @@ class Notifications extends Skeleton {
 	 * @param string $parent_slug Parent slug.
 	 * @param string $version              Version.
 	 * @param array  $requires             Required extension slugs.
-	 * @param string $requires_clanspress  Minimum Clanspress core version (`x.y.z`).
+	 * @param string $requires_clanbite  Minimum Clanbite core version (`x.y.z`).
 	 */
 	public function setup_extension(
 		string $name,
@@ -62,7 +62,7 @@ class Notifications extends Skeleton {
 		string $parent_slug,
 		string $version,
 		array $requires,
-		string $requires_clanspress = ''
+		string $requires_clanbite = ''
 	): void {
 		parent::setup_extension(
 			$name,
@@ -71,12 +71,12 @@ class Notifications extends Skeleton {
 			$parent_slug,
 			$version,
 			$requires,
-			$requires_clanspress
+			$requires_clanbite
 		);
 
-		remove_filter( 'clanspress_registered_extensions', array( $this, 'register_extension' ) );
+		remove_filter( 'clanbite_registered_extensions', array( $this, 'register_extension' ) );
 		add_filter(
-			'clanspress_official_registered_extensions',
+			'clanbite_official_registered_extensions',
 			array( $this, 'register_extension' )
 		);
 	}

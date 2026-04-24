@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Default permalinks and attributes for “link to entity” block options.
  *
- * @package clanspress
+ * @package clanbite
  */
 
 /**
@@ -14,13 +14,13 @@ defined( 'ABSPATH' ) || exit;
  * @param int $user_id User ID.
  * @return string URL or empty.
  */
-function clanspress_block_player_profile_url( int $user_id ): string {
+function clanbite_block_player_profile_url( int $user_id ): string {
 	if ( $user_id < 1 ) {
 		return '';
 	}
 
-	if ( function_exists( 'clanspress_get_player_profile_url' ) ) {
-		$url = clanspress_get_player_profile_url( $user_id );
+	if ( function_exists( 'clanbite_get_player_profile_url' ) ) {
+		$url = clanbite_get_player_profile_url( $user_id );
 
 		return $url ? (string) $url : '';
 	}
@@ -34,7 +34,7 @@ function clanspress_block_player_profile_url( int $user_id ): string {
  * @param array<string, mixed> $attributes Block attributes (`linkTarget`, `rel`).
  * @return string Space-separated rel tokens.
  */
-function clanspress_block_entity_link_rel( array $attributes ): string {
+function clanbite_block_entity_link_rel( array $attributes ): string {
 	$target = isset( $attributes['linkTarget'] ) && '_blank' === $attributes['linkTarget'] ? '_blank' : '';
 	$rel    = isset( $attributes['rel'] ) ? trim( (string) $attributes['rel'] ) : '';
 
@@ -60,12 +60,12 @@ function clanspress_block_entity_link_rel( array $attributes ): string {
  * Filterable URL used when a block’s “link” option is enabled.
  *
  * @param string               $url        Default URL.
- * @param string               $block_name Block name, e.g. `clanspress/player-display-name`.
+ * @param string               $block_name Block name, e.g. `clanbite/player-display-name`.
  * @param int                  $entity_id  User ID or team post ID.
  * @param \WP_Block|null       $block      Block instance.
  * @return string
  */
-function clanspress_block_entity_link_url( string $url, string $block_name, int $entity_id, $block = null ): string {
+function clanbite_block_entity_link_url( string $url, string $block_name, int $entity_id, $block = null ): string {
 	/**
 	 * Filter permalink used for linked player/team blocks.
 	 *
@@ -74,5 +74,5 @@ function clanspress_block_entity_link_url( string $url, string $block_name, int 
 	 * @param int            $entity_id  User or team post ID.
 	 * @param \WP_Block|null $block      Block instance.
 	 */
-	return (string) apply_filters( 'clanspress_block_entity_link_url', $url, $block_name, $entity_id, $block );
+	return (string) apply_filters( 'clanbite_block_entity_link_url', $url, $block_name, $entity_id, $block );
 }

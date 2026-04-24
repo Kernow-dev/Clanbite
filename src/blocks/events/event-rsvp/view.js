@@ -26,26 +26,26 @@ function apiFetchJson( url, opts ) {
 }
 
 function renderAttendees( root, data, i18n ) {
-	const listEl = root.querySelector( '.clanspress-event-rsvp__list' );
+	const listEl = root.querySelector( '.clanbite-event-rsvp__list' );
 	if ( ! listEl ) {
 		return;
 	}
 	listEl.innerHTML = '';
 	const rows = data.attendees || [];
 	if ( ! rows.length ) {
-		listEl.innerHTML = `<li class="clanspress-event-rsvp__empty">${ esc(
+		listEl.innerHTML = `<li class="clanbite-event-rsvp__empty">${ esc(
 			i18n.noAttendees || ''
 		) }</li>`;
 		return;
 	}
 	rows.forEach( ( row ) => {
 		const li = document.createElement( 'li' );
-		li.className = 'clanspress-event-rsvp__attendee';
+		li.className = 'clanbite-event-rsvp__attendee';
 		const name = row.name || `#${ row.user_id }`;
 		const st = row.status || '';
-		li.innerHTML = `<span class="clanspress-event-rsvp__attendee-name">${ esc(
+		li.innerHTML = `<span class="clanbite-event-rsvp__attendee-name">${ esc(
 			name
-		) }</span> <span class="clanspress-event-rsvp__attendee-status">${ esc(
+		) }</span> <span class="clanbite-event-rsvp__attendee-status">${ esc(
 			st
 		) }</span>`;
 		listEl.appendChild( li );
@@ -62,7 +62,7 @@ function restUrls( ctx ) {
 	};
 }
 
-const { state } = store( 'clanspress-event-rsvp', {
+const { state } = store( 'clanbite-event-rsvp', {
 	state: {
 		root: null,
 		panelOpen: true,
@@ -88,7 +88,7 @@ const { state } = store( 'clanspress-event-rsvp', {
 			const { rsvpUrl, attUrl } = restUrls( ctx );
 			const i18n = ctx.i18n || {};
 			const statusEl = root.querySelector(
-				'.clanspress-event-rsvp__status'
+				'.clanbite-event-rsvp__status'
 			);
 			const buttons = root.querySelectorAll( '[data-cp-rsvp-status]' );
 
@@ -118,7 +118,7 @@ const { state } = store( 'clanspress-event-rsvp', {
 				} );
 				if ( ctx.showAttendees ) {
 					const listEl = root.querySelector(
-						'.clanspress-event-rsvp__list'
+						'.clanbite-event-rsvp__list'
 					);
 					if ( listEl ) {
 						apiFetchJson( `${ attUrl }?limit=100&offset=0`, {
@@ -140,7 +140,7 @@ const { state } = store( 'clanspress-event-rsvp', {
 		init() {
 			const ctx = getContext();
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-event-rsvp' );
+			const root = ref?.closest( '.clanbite-event-rsvp' );
 			if ( ! root || ! ctx.canView || ! ctx.eventId ) {
 				return;
 			}
@@ -150,10 +150,10 @@ const { state } = store( 'clanspress-event-rsvp', {
 			const i18n = ctx.i18n || {};
 			const { rsvpUrl, attUrl } = restUrls( ctx );
 			const statusEl = root.querySelector(
-				'.clanspress-event-rsvp__status'
+				'.clanbite-event-rsvp__status'
 			);
 			const attNote = root.querySelector(
-				'.clanspress-event-rsvp__attendees-note'
+				'.clanbite-event-rsvp__attendees-note'
 			);
 			const buttons = root.querySelectorAll( '[data-cp-rsvp-status]' );
 
@@ -162,7 +162,7 @@ const { state } = store( 'clanspress-event-rsvp', {
 					return;
 				}
 				const listEl = root.querySelector(
-					'.clanspress-event-rsvp__list'
+					'.clanbite-event-rsvp__list'
 				);
 				if ( ! listEl ) {
 					return;
