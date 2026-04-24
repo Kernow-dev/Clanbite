@@ -6,29 +6,29 @@ export default function Edit( { attributes, setAttributes } ) {
 	const { scopeType, teamId, groupId, playerUserId, defaultView } =
 		attributes;
 	const blockProps = useBlockProps( {
-		className: 'clanspress-event-calendar-editor',
+		className: 'clanbite-event-calendar-editor',
 	} );
 
 	return (
 		<div { ...blockProps }>
 			<InspectorControls>
-				<PanelBody title={ __( 'Context', 'clanspress' ) }>
+				<PanelBody title={ __( 'Context', 'clanbite' ) }>
 					<SelectControl
-						label={ __( 'Scope', 'clanspress' ) }
+						label={ __( 'Scope', 'clanbite' ) }
 						value={ scopeType }
 						options={ [
 							{
-								label: __( 'Team', 'clanspress' ),
+								label: __( 'Team', 'clanbite' ),
 								value: 'team',
 							},
 							{
-								label: __( 'Group', 'clanspress' ),
+								label: __( 'Group', 'clanbite' ),
 								value: 'group',
 							},
 							{
 								label: __(
 									'Player (own profile only)',
-									'clanspress'
+									'clanbite'
 								),
 								value: 'player',
 							},
@@ -39,7 +39,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						<TextControl
 							label={ __(
 								'Team ID (0 = URL context)',
-								'clanspress'
+								'clanbite'
 							) }
 							type="number"
 							value={ teamId || '' }
@@ -56,7 +56,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						<TextControl
 							label={ __(
 								'Group ID (0 = URL context)',
-								'clanspress'
+								'clanbite'
 							) }
 							type="number"
 							value={ groupId || '' }
@@ -73,9 +73,9 @@ export default function Edit( { attributes, setAttributes } ) {
 						<TextControl
 							help={ __(
 								'0 uses the profile user from the URL; only shown to that logged-in user.',
-								'clanspress'
+								'clanbite'
 							) }
-							label={ __( 'User ID override', 'clanspress' ) }
+							label={ __( 'User ID override', 'clanbite' ) }
 							type="number"
 							value={ playerUserId || '' }
 							onChange={ ( v ) =>
@@ -88,20 +88,20 @@ export default function Edit( { attributes, setAttributes } ) {
 						/>
 					) }
 					<SelectControl
-						label={ __( 'Default view', 'clanspress' ) }
+						label={ __( 'Default view', 'clanbite' ) }
 						value={ defaultView }
 						options={ [
 							{
-								label: __( 'Month', 'clanspress' ),
+								label: __( 'Month', 'clanbite' ),
 								value: 'month',
 							},
 							{
-								label: __( 'Week', 'clanspress' ),
+								label: __( 'Week', 'clanbite' ),
 								value: 'week',
 							},
-							{ label: __( 'Day', 'clanspress' ), value: 'day' },
+							{ label: __( 'Day', 'clanbite' ), value: 'day' },
 							{
-								label: __( 'List', 'clanspress' ),
+								label: __( 'List', 'clanbite' ),
 								value: 'list',
 							},
 						] }
@@ -111,7 +111,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<p>{ __( 'Event calendar (front-end)', 'clanspress' ) }</p>
+			<p>{ __( 'Event calendar (front-end)', 'clanbite' ) }</p>
 		</div>
 	);
 }

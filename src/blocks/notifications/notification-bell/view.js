@@ -3,10 +3,12 @@
  *
  * Polls `/notifications/poll` on a server-driven interval (`next_poll`). The server defaults to
  * non-blocking polls (one DB read per request); enable long-polling via
- * `clanspress_notification_poll_blocking_wait` if desired. Third-party plugins can provide
+ * `clanbite_notification_poll_blocking_wait` if desired. Third-party plugins can provide
  * WebSocket transport via the 'sync.providers' filter (same pattern as WP 7.0 RTC).
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
+
+let notificationPollTimer = null;
 
 /**
  * Simple fetch wrapper for REST API calls.
@@ -115,7 +117,7 @@ function createNotificationItemElement( notification, ctx ) {
 	}
 
 	const root = document.createElement( 'div' );
-	let classes = 'clanspress-notification is-compact';
+	let classes = 'clanbite-notification is-compact';
 	if ( ! notification.is_read ) {
 		classes += ' is-unread';
 	}
@@ -135,7 +137,7 @@ function createNotificationItemElement( notification, ctx ) {
 			? safeHttpUrl( notification.actor.avatar_url )
 			: '';
 	if ( notification.actor && avatarSrc ) {
-		avatarWrap.className = 'clanspress-notification__avatar';
+		avatarWrap.className = 'clanbite-notification__avatar';
 		const img = document.createElement( 'img' );
 		img.src = avatarSrc;
 		img.alt = notification.actor.name
@@ -145,17 +147,17 @@ function createNotificationItemElement( notification, ctx ) {
 		img.decoding = 'async';
 		avatarWrap.appendChild( img );
 	} else {
-		avatarWrap.className = 'clanspress-notification__icon';
+		avatarWrap.className = 'clanbite-notification__icon';
 		const span = document.createElement( 'span' );
 		span.className = 'dashicons dashicons-bell';
 		avatarWrap.appendChild( span );
 	}
 
 	const content = document.createElement( 'div' );
-	content.className = 'clanspress-notification__content';
+	content.className = 'clanbite-notification__content';
 
 	const header = document.createElement( 'div' );
-	header.className = 'clanspress-notification__header';
+	header.className = 'clanbite-notification__header';
 
 	const linkUrl =
 		notification.url && ! notification.is_actionable
@@ -164,10 +166,10 @@ function createNotificationItemElement( notification, ctx ) {
 	if ( linkUrl ) {
 		const a = document.createElement( 'a' );
 		a.href = linkUrl;
-		a.className = 'clanspress-notification__link';
+		a.className = 'clanbite-notification__link';
 		a.dataset.notificationId = String( id );
 		const titleSpan = document.createElement( 'span' );
-		titleSpan.className = 'clanspress-notification__title';
+		titleSpan.className = 'clanbite-notification__title';
 		titleSpan.textContent = notification.title
 			? String( notification.title )
 			: '';
@@ -193,7 +195,7 @@ function createNotificationItemElement( notification, ctx ) {
 				} catch ( err ) {
 					// eslint-disable-next-line no-console -- surfaced for site owners when REST mark-read fails
 					console.error(
-						'Clanspress: failed to mark notification as read before navigation',
+						'Clanbite: failed to mark notification as read before navigation',
 						err
 					);
 					window.location.assign( linkUrl );
@@ -203,7 +205,7 @@ function createNotificationItemElement( notification, ctx ) {
 		header.appendChild( a );
 	} else {
 		const titleSpan = document.createElement( 'span' );
-		titleSpan.className = 'clanspress-notification__title';
+		titleSpan.className = 'clanbite-notification__title';
 		titleSpan.textContent = notification.title
 			? String( notification.title )
 			: '';
@@ -211,7 +213,7 @@ function createNotificationItemElement( notification, ctx ) {
 	}
 
 	const timeSpan = document.createElement( 'span' );
-	timeSpan.className = 'clanspress-notification__time';
+	timeSpan.className = 'clanbite-notification__time';
 	timeSpan.textContent = notification.time_ago
 		? String( notification.time_ago )
 		: '';
@@ -221,7 +223,7 @@ function createNotificationItemElement( notification, ctx ) {
 
 	if ( notification.message ) {
 		const p = document.createElement( 'p' );
-		p.className = 'clanspress-notification__message';
+		p.className = 'clanbite-notification__message';
 		p.textContent = String( notification.message );
 		content.appendChild( p );
 	}
@@ -232,13 +234,13 @@ function createNotificationItemElement( notification, ctx ) {
 		notification.actions.length > 0
 	) {
 		const actionsRow = document.createElement( 'div' );
-		actionsRow.className = 'clanspress-notification__actions';
+		actionsRow.className = 'clanbite-notification__actions';
 		notification.actions.forEach( ( action ) => {
 			const btn = document.createElement( 'button' );
 			btn.type = 'button';
 			const rawStyle = String( action.style || 'secondary' );
 			const safeStyle = safeClassSuffix( rawStyle ) || 'secondary';
-			btn.className = `clanspress-notification__action clanspress-notification__action--${ safeStyle }`;
+			btn.className = `clanbite-notification__action clanbite-notification__action--${ safeStyle }`;
 			btn.dataset.action = action.key != null ? String( action.key ) : '';
 			btn.dataset.notificationId = String( id );
 			if ( action.confirm ) {
@@ -258,7 +260,7 @@ function createNotificationItemElement( notification, ctx ) {
 		};
 		const st = String( notification.status );
 		const statusEl = document.createElement( 'div' );
-		statusEl.className = 'clanspress-notification__status';
+		statusEl.className = 'clanbite-notification__status';
 		const label = statusLabels[ st ] ?? st;
 		statusEl.textContent = String( label );
 		content.appendChild( statusEl );
@@ -269,7 +271,7 @@ function createNotificationItemElement( notification, ctx ) {
 
 	if ( ! notification.is_read && ! notification.is_actionable ) {
 		const dot = document.createElement( 'div' );
-		dot.className = 'clanspress-notification__unread-dot';
+		dot.className = 'clanbite-notification__unread-dot';
 		root.appendChild( dot );
 	}
 
@@ -287,14 +289,14 @@ function renderNotificationsList( ctx, ref ) {
 		return;
 	}
 
-	const listEl = ref.querySelector( '.clanspress-notification-bell__list' );
+	const listEl = ref.querySelector( '.clanbite-notification-bell__list' );
 	if ( ! listEl ) {
 		return;
 	}
 
 	if ( ! ctx.notifications || ctx.notifications.length === 0 ) {
 		const empty = document.createElement( 'p' );
-		empty.className = 'clanspress-notification-bell__empty';
+		empty.className = 'clanbite-notification-bell__empty';
 		empty.textContent =
 			ctx.i18n?.noNotifications || 'No notifications yet.';
 		listEl.replaceChildren( empty );
@@ -321,7 +323,7 @@ function renderNotificationsList( ctx, ref ) {
 function accessibleConfirm( message, restoreFocusTarget ) {
 	return new Promise( ( resolve ) => {
 		const custom = window.wp?.hooks?.applyFilters?.(
-			'clanspress.notifications.accessibleConfirm',
+			'clanbite.notifications.accessibleConfirm',
 			null,
 			message
 		);
@@ -330,41 +332,41 @@ function accessibleConfirm( message, restoreFocusTarget ) {
 			return;
 		}
 
-		const uid = `clanspress-nb-confirm-${ Date.now() }`;
+		const uid = `clanbite-nb-confirm-${ Date.now() }`;
 
 		const overlay = document.createElement( 'div' );
-		overlay.className = 'clanspress-notification-bell__confirm-overlay';
+		overlay.className = 'clanbite-notification-bell__confirm-overlay';
 
 		const dialog = document.createElement( 'div' );
-		dialog.className = 'clanspress-notification-bell__confirm';
+		dialog.className = 'clanbite-notification-bell__confirm';
 		dialog.setAttribute( 'role', 'alertdialog' );
 		dialog.setAttribute( 'aria-modal', 'true' );
 		dialog.setAttribute( 'aria-labelledby', `${ uid }-title` );
 		dialog.setAttribute( 'aria-describedby', `${ uid }-desc` );
 
 		const title = document.createElement( 'h2' );
-		title.className = 'clanspress-notification-bell__confirm-title';
+		title.className = 'clanbite-notification-bell__confirm-title';
 		title.id = `${ uid }-title`;
 		title.textContent = 'Confirm action';
 
 		const body = document.createElement( 'p' );
-		body.className = 'clanspress-notification-bell__confirm-message';
+		body.className = 'clanbite-notification-bell__confirm-message';
 		body.id = `${ uid }-desc`;
 		body.textContent = message;
 
 		const actionsRow = document.createElement( 'div' );
-		actionsRow.className = 'clanspress-notification-bell__confirm-actions';
+		actionsRow.className = 'clanbite-notification-bell__confirm-actions';
 
 		const cancelBtn = document.createElement( 'button' );
 		cancelBtn.type = 'button';
 		cancelBtn.className =
-			'clanspress-notification-bell__confirm-btn clanspress-notification-bell__confirm-btn--cancel';
+			'clanbite-notification-bell__confirm-btn clanbite-notification-bell__confirm-btn--cancel';
 		cancelBtn.textContent = 'Cancel';
 
 		const okBtn = document.createElement( 'button' );
 		okBtn.type = 'button';
 		okBtn.className =
-			'clanspress-notification-bell__confirm-btn clanspress-notification-bell__confirm-btn--ok';
+			'clanbite-notification-bell__confirm-btn clanbite-notification-bell__confirm-btn--ok';
 		okBtn.textContent = 'OK';
 
 		const focusables = [ cancelBtn, okBtn ];
@@ -443,7 +445,7 @@ function showToast( message, type = 'info' ) {
 	 * Filter to customize toast notification display.
 	 */
 	const handled = window.wp?.hooks?.applyFilters?.(
-		'clanspress.notifications.showToast',
+		'clanbite.notifications.showToast',
 		false,
 		message,
 		type
@@ -455,30 +457,20 @@ function showToast( message, type = 'info' ) {
 
 	// Simple fallback toast.
 	const toast = document.createElement( 'div' );
-	toast.className = `clanspress-toast clanspress-toast--${ type }`;
+	toast.className = `clanbite-toast clanbite-toast--${ type }`;
 	toast.textContent = message;
-	toast.style.cssText = `
-		position: fixed;
-		bottom: 20px;
-		right: 20px;
-		padding: 12px 20px;
-		background: ${ type === 'error' ? '#d63638' : '#00a32a' };
-		color: white;
-		border-radius: 4px;
-		z-index: 100000;
-		animation: fadeIn 0.3s ease;
-	`;
+	toast.setAttribute( 'role', 'status' );
+	toast.setAttribute( 'aria-live', 'polite' );
 
 	document.body.appendChild( toast );
 
 	setTimeout( () => {
-		toast.style.opacity = '0';
-		toast.style.transition = 'opacity 0.3s ease';
+		toast.classList.add( 'is-closing' );
 		setTimeout( () => toast.remove(), 300 );
 	}, 3000 );
 }
 
-const { state, actions, callbacks } = store( 'clanspress/notification-bell', {
+const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 	state: {
 		get hasUnread() {
 			const ctx = getContext();
@@ -507,6 +499,14 @@ const { state, actions, callbacks } = store( 'clanspress/notification-bell', {
 			const { ref } = getElement();
 			if ( ref && ! ref.contains( event.target ) ) {
 				ctx.isOpen = false;
+			}
+		},
+
+		handleKeydown( event ) {
+			const ctx = getContext();
+			if ( event.key === 'Escape' && ctx.isOpen ) {
+				ctx.isOpen = false;
+				event.preventDefault();
 			}
 		},
 
@@ -676,13 +676,13 @@ const { state, actions, callbacks } = store( 'clanspress/notification-bell', {
 			 * Providers should implement: { subscribe( channel, callback ), unsubscribe( channel ) }
 			 *
 			 * @param {Array}  providers Array of sync provider objects.
-			 * @param {string} channel   The channel name ('clanspress.notifications').
+			 * @param {string} channel   The channel name ('clanbite.notifications').
 			 */
 			const providers =
 				window.wp?.hooks?.applyFilters?.(
 					'sync.providers',
 					[],
-					'clanspress.notifications'
+					'clanbite.notifications'
 				) || [];
 			const wsProvider = providers.find(
 				( p ) => p && typeof p.subscribe === 'function'
@@ -708,7 +708,7 @@ const { state, actions, callbacks } = store( 'clanspress/notification-bell', {
 			}
 			const { ref } = getElement();
 			const root =
-				ref?.closest?.( '.clanspress-notification-bell' ) || ctx._ref;
+				ref?.closest?.( '.clanbite-notification-bell' ) || ctx._ref;
 			renderNotificationsList( ctx, root );
 		},
 	},
@@ -739,9 +739,32 @@ async function fetchInitialCount( ctx ) {
  * @param {Object} ctx Context object.
  */
 function startPolling( ctx ) {
+	if ( ! ctx._pollLifecycleBound ) {
+		const schedulePollSoon = () => {
+			if ( ctx.syncProviderActive ) {
+				return;
+			}
+			if ( notificationPollTimer ) {
+				clearTimeout( notificationPollTimer );
+			}
+			notificationPollTimer = setTimeout( poll, 50 );
+		};
+
+		document.addEventListener( 'visibilitychange', schedulePollSoon );
+		window.addEventListener( 'online', schedulePollSoon );
+		ctx._pollLifecycleBound = true;
+	}
+
 	const poll = async () => {
 		// Don't poll if sync provider is active.
 		if ( ctx.syncProviderActive ) {
+			return;
+		}
+
+		// Reduce background network work when the page is hidden or offline.
+		if ( document.hidden || ( typeof navigator !== 'undefined' && ! navigator.onLine ) ) {
+			ctx.pollInterval = Math.max( ctx.pollInterval || 4000, 15000 );
+			notificationPollTimer = setTimeout( poll, ctx.pollInterval );
 			return;
 		}
 
@@ -775,7 +798,7 @@ function startPolling( ctx ) {
 
 				// Fire event for other components.
 				window.wp?.hooks?.doAction?.(
-					'clanspress.notifications.received',
+					'clanbite.notifications.received',
 					response.notifications
 				);
 			}
@@ -790,7 +813,7 @@ function startPolling( ctx ) {
 		}
 
 		// Schedule next poll.
-		setTimeout( poll, ctx.pollInterval );
+		notificationPollTimer = setTimeout( poll, ctx.pollInterval );
 	};
 
 	// Start polling immediately.
@@ -811,7 +834,7 @@ function initSyncProvider( ctx ) {
 	}
 
 	try {
-		provider.subscribe( 'clanspress.notifications', ( data ) => {
+		provider.subscribe( 'clanbite.notifications', ( data ) => {
 			if ( data.type === 'notification' && data.notification ) {
 				ctx.notifications = [
 					data.notification,
@@ -826,7 +849,7 @@ function initSyncProvider( ctx ) {
 				}
 
 				window.wp?.hooks?.doAction?.(
-					'clanspress.notifications.received',
+					'clanbite.notifications.received',
 					[ data.notification ]
 				);
 			} else if ( data.type === 'count' ) {

@@ -11,12 +11,12 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<div { ...useBlockProps() }>
 			<InspectorControls>
-				<PanelBody title={ __( 'Match card', 'clanspress' ) }>
+				<PanelBody title={ __( 'Match card', 'clanbite' ) }>
 					<TextControl
-						label={ __( 'Match post ID', 'clanspress' ) }
+						label={ __( 'Match post ID', 'clanbite' ) }
 						help={ __(
 							'The `cp_match` post ID to display.',
-							'clanspress'
+							'clanbite'
 						) }
 						type="number"
 						value={ matchId || '' }
@@ -28,8 +28,8 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<p className="clanspress-match-card-editor-note">
-				{ __( 'Match card (preview on the front end).', 'clanspress' ) }
+			<p className="clanbite-match-card-editor-note">
+				{ __( 'Match card (preview on the front end).', 'clanbite' ) }
 			</p>
 		</div>
 	);

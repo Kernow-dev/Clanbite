@@ -24,7 +24,7 @@ function formatStart( startsAt ) {
 }
 
 function renderItems( root, items, i18n ) {
-	const ul = root.querySelector( '.clanspress-event-list' );
+	const ul = root.querySelector( '.clanbite-event-list' );
 	if ( ! ul ) {
 		return;
 	}
@@ -32,29 +32,29 @@ function renderItems( root, items, i18n ) {
 	const untitled = i18n.untitled || '';
 	if ( ! items || ! items.length ) {
 		const li = document.createElement( 'li' );
-		li.className = 'clanspress-event-list__empty';
+		li.className = 'clanbite-event-list__empty';
 		li.textContent = i18n.noEvents || '';
 		ul.appendChild( li );
 		return;
 	}
 	items.forEach( ( row ) => {
 		const li = document.createElement( 'li' );
-		li.className = 'clanspress-event-list__item';
+		li.className = 'clanbite-event-list__item';
 		const title = row.title || untitled;
 		const label = formatStart( row.startsAt );
 		const url = row.permalink || '';
 		if ( url ) {
-			li.innerHTML = `<a class="clanspress-event-list__title" href="${ esc(
+			li.innerHTML = `<a class="clanbite-event-list__title" href="${ esc(
 				url
 			) }">${ esc( title ) }</a>`;
 		} else {
-			li.innerHTML = `<span class="clanspress-event-list__title">${ esc(
+			li.innerHTML = `<span class="clanbite-event-list__title">${ esc(
 				title
 			) }</span>`;
 		}
 		if ( label ) {
 			const p = document.createElement( 'p' );
-			p.className = 'clanspress-event-list__meta';
+			p.className = 'clanbite-event-list__meta';
 			p.textContent = label;
 			li.appendChild( p );
 		}
@@ -83,7 +83,7 @@ async function apiList( ctx, query ) {
 	return res.json();
 }
 
-const { state, actions } = store( 'clanspress-event-list', {
+const { state, actions } = store( 'clanbite-event-list', {
 	state: {
 		root: null,
 		loading: false,
@@ -117,7 +117,7 @@ const { state, actions } = store( 'clanspress-event-list', {
 	callbacks: {
 		init() {
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-event-list-wrap' );
+			const root = ref?.closest( '.clanbite-event-list-wrap' );
 			if ( ! root ) {
 				return;
 			}
@@ -131,7 +131,7 @@ const { state, actions } = store( 'clanspress-event-list', {
 			state.timeScope = 'all';
 			state.page = 1;
 			const timeSel = root.querySelector(
-				'.clanspress-event-list__time'
+				'.clanbite-event-list__time'
 			);
 			if ( timeSel ) {
 				timeSel.value = 'all';

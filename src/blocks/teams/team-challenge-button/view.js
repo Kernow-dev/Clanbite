@@ -9,7 +9,7 @@ function joinRestPath( base, segment ) {
 	return `${ b }/${ s }`;
 }
 
-store( 'clanspress-team-challenge-button', {
+store( 'clanbite-team-challenge-button', {
 	actions: {
 		open() {
 			const ctx = getContext();
@@ -77,7 +77,7 @@ store( 'clanspress-team-challenge-button', {
 						? String( data.team.permalink )
 						: '';
 					ctx.remoteError = '';
-				} else if ( data.clanspress ) {
+				} else if ( data.clanbite ) {
 					ctx.remoteError = '';
 				}
 			} catch {

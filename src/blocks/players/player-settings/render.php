@@ -16,14 +16,14 @@ defined( 'ABSPATH' ) || exit;
  */
 ?>
 <?php
-$nav_items = (array) apply_filters( 'clanspress_players_settings_nav_items', array() );
+$nav_items = (array) apply_filters( 'clanbite_players_settings_nav_items', array() );
 ?>
 <div
 	<?php echo get_block_wrapper_attributes( array(), $block ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
-	data-wp-interactive="clanspress-player-settings"
+	data-wp-interactive="clanbite-player-settings"
 	data-wp-init="callbacks.init"
 >
-	<?php do_action( 'clanspress_player_settings_before_nav' ); ?>
+	<?php do_action( 'clanbite_player_settings_before_nav' ); ?>
 	<div class="nav-container">
 		<div class="nav">
 			<?php
@@ -50,7 +50,7 @@ $nav_items = (array) apply_filters( 'clanspress_players_settings_nav_items', arr
 					id="<?php echo esc_attr( $nav_item ); ?>"
 				>
 					<?php
-					$nav_sub_items = (array) apply_filters( "clanspress_players_settings_nav_{$nav_item}_sub_items", array() );
+					$nav_sub_items = (array) apply_filters( "clanbite_players_settings_nav_{$nav_item}_sub_items", array() );
 					foreach ( $nav_sub_items as $nav_sub_item => $sub_item ) :
 						$sub_label = $sub_item['label'] ?? '';
 						?>
@@ -69,12 +69,12 @@ $nav_items = (array) apply_filters( 'clanspress_players_settings_nav_items', arr
 			</div>
 			<?php endforeach; ?>
 			<div class="nav-item controls">
-				<?php wp_nonce_field( 'clanspress_profile_settings_save_action', '_clanspress_profile_settings_save_nonce', true, true ); ?>
+				<?php wp_nonce_field( 'clanbite_profile_settings_save_action', '_clanbite_profile_settings_save_nonce', true, true ); ?>
 				<button
 					type="button"
 					class="save"
 					data-wp-on--click="actions.save"
-				><?php esc_html_e( 'Save changes', 'clanspress' ); ?></button>
+				><?php esc_html_e( 'Save changes', 'clanbite' ); ?></button>
 			</div>
 		</div>
 	</div>
@@ -82,7 +82,7 @@ $nav_items = (array) apply_filters( 'clanspress_players_settings_nav_items', arr
 		<?php
 		foreach ( $nav_items as $nav_item => $item ) :
 			$section_label = $item['label'] ?? '';
-			$nav_sub_items = (array) apply_filters( "clanspress_players_settings_nav_{$nav_item}_sub_items", array() );
+			$nav_sub_items = (array) apply_filters( "clanbite_players_settings_nav_{$nav_item}_sub_items", array() );
 			foreach ( $nav_sub_items as $nav_sub_item => $sub_item ) :
 				$settings_label = $sub_item['label'] ?? '';
 				?>
@@ -97,7 +97,7 @@ $nav_items = (array) apply_filters( 'clanspress_players_settings_nav_items', arr
 						<span class="section-label"><?php echo esc_html( $section_label ); ?></span>
 						<span class="settings-label"><?php echo esc_html( $settings_label ); ?></span>
 					</div>
-					<?php do_action( "clanspress_player_settings_panel_{$nav_sub_item}" ); ?>
+					<?php do_action( "clanbite_player_settings_panel_{$nav_sub_item}" ); ?>
 				</div>
 			</div>
 		<?php endforeach; ?>

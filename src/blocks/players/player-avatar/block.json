@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-avatar",
+	"name": "clanbite/player-avatar",
 	"version": "1.0.0",
 	"title": "Player Avatar",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "smiley",
 	"description": "Example block scaffolded with Create Block tool.",
 	"example": {},
-	"usesContext": [ "clanspress/playerId" ],
+	"usesContext": [ "clanbite/playerId" ],
 	"attributes": {
 		"avatarPreset": {
 			"type": "string",
@@ -47,16 +47,16 @@
 		},
 		"html": false
 	},
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-avatar",
+		"root": ".wp-block-clanbite-player-avatar",
 		"color": {
-			"background": ".wp-block-clanspress-player-avatar"
+			"background": ".wp-block-clanbite-player-avatar"
 		},
-		"border": ".wp-block-clanspress-player-avatar .clanspress-player-avatar"
+		"border": ".wp-block-clanbite-player-avatar .clanbite-player-avatar"
 	}
 }

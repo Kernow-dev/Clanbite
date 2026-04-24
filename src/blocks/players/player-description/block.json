@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-description",
+	"name": "clanbite/player-description",
 	"version": "1.0.0",
 	"title": "Player description",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "text-page",
 	"description": "Displays the player profile description (bio) when set. Allows basic formatting from profile settings.",
-	"textdomain": "clanspress",
-	"usesContext": [ "postId", "postType", "clanspress/playerId" ],
+	"textdomain": "clanbite",
+	"usesContext": [ "postId", "postType", "clanbite/playerId" ],
 	"attributes": {
 		"textAlign": {
 			"type": "string"
@@ -54,13 +54,13 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-description",
+		"root": ".wp-block-clanbite-player-description",
 		"color": {
-			"text": ".wp-block-clanspress-player-description .clanspress-player-description__content",
-			"background": ".wp-block-clanspress-player-description",
-			"link": ".wp-block-clanspress-player-description .clanspress-player-description__content a"
+			"text": ".wp-block-clanbite-player-description .clanbite-player-description__content",
+			"background": ".wp-block-clanbite-player-description",
+			"link": ".wp-block-clanbite-player-description .clanbite-player-description__content a"
 		},
-		"typography": ".wp-block-clanspress-player-description .clanspress-player-description__content",
-		"border": ".wp-block-clanspress-player-description"
+		"typography": ".wp-block-clanbite-player-description .clanbite-player-description__content",
+		"border": ".wp-block-clanbite-player-description"
 	}
 }

@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/event-calendar",
+	"name": "clanbite/event-calendar",
 	"version": "1.0.0",
 	"title": "Event calendar",
-	"category": "clanspress",
+	"category": "clanbite",
 	"icon": "calendar-alt",
 	"description": "Month, week, day, and list views of scheduled events for the current team, group, or (own) player profile.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"attributes": {
 		"scopeType": {
 			"type": "string",
@@ -56,9 +56,9 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-event-calendar",
-		"color": ".wp-block-clanspress-event-calendar",
-		"typography": ".wp-block-clanspress-event-calendar",
-		"border": ".wp-block-clanspress-event-calendar"
+		"root": ".wp-block-clanbite-event-calendar",
+		"color": ".wp-block-clanbite-event-calendar",
+		"typography": ".wp-block-clanbite-event-calendar",
+		"border": ".wp-block-clanbite-event-calendar"
 	}
 }

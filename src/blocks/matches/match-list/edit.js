@@ -6,11 +6,11 @@ import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, TextControl, SelectControl } from '@wordpress/components';
 
 const STATUS_OPTIONS = [
-	{ label: __( 'Any status', 'clanspress' ), value: '' },
-	{ label: __( 'Scheduled', 'clanspress' ), value: 'scheduled' },
-	{ label: __( 'Live', 'clanspress' ), value: 'live' },
-	{ label: __( 'Finished', 'clanspress' ), value: 'finished' },
-	{ label: __( 'Cancelled', 'clanspress' ), value: 'cancelled' },
+	{ label: __( 'Any status', 'clanbite' ), value: '' },
+	{ label: __( 'Scheduled', 'clanbite' ), value: 'scheduled' },
+	{ label: __( 'Live', 'clanbite' ), value: 'live' },
+	{ label: __( 'Finished', 'clanbite' ), value: 'finished' },
+	{ label: __( 'Cancelled', 'clanbite' ), value: 'cancelled' },
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
@@ -19,12 +19,12 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<div { ...useBlockProps() }>
 			<InspectorControls>
-				<PanelBody title={ __( 'Match list', 'clanspress' ) }>
+				<PanelBody title={ __( 'Match list', 'clanbite' ) }>
 					<TextControl
-						label={ __( 'Team post ID (optional)', 'clanspress' ) }
+						label={ __( 'Team post ID (optional)', 'clanbite' ) }
 						help={ __(
 							'Limit to matches involving this team (`cp_team` ID). Leave 0 for all teams.',
-							'clanspress'
+							'clanbite'
 						) }
 						type="number"
 						value={ teamId || '' }
@@ -35,10 +35,10 @@ export default function Edit( { attributes, setAttributes } ) {
 						__nextHasNoMarginBottom
 					/>
 					<TextControl
-						label={ __( 'Max matches', 'clanspress' ) }
+						label={ __( 'Max matches', 'clanbite' ) }
 						help={ __(
-							'0 uses the default from Clanspress → Matches settings.',
-							'clanspress'
+							'0 uses the default from Clanbite → Matches settings.',
+							'clanbite'
 						) }
 						type="number"
 						value={ limit || '' }
@@ -49,7 +49,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						__nextHasNoMarginBottom
 					/>
 					<SelectControl
-						label={ __( 'Status filter', 'clanspress' ) }
+						label={ __( 'Status filter', 'clanbite' ) }
 						value={ statusFilter }
 						options={ STATUS_OPTIONS }
 						onChange={ ( v ) =>
@@ -57,15 +57,15 @@ export default function Edit( { attributes, setAttributes } ) {
 						}
 					/>
 					<SelectControl
-						label={ __( 'Sort by scheduled time', 'clanspress' ) }
+						label={ __( 'Sort by scheduled time', 'clanbite' ) }
 						value={ order }
 						options={ [
 							{
-								label: __( 'Ascending', 'clanspress' ),
+								label: __( 'Ascending', 'clanbite' ),
 								value: 'asc',
 							},
 							{
-								label: __( 'Descending', 'clanspress' ),
+								label: __( 'Descending', 'clanbite' ),
 								value: 'desc',
 							},
 						] }
@@ -73,8 +73,8 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<p className="clanspress-match-list-editor-note">
-				{ __( 'Match list (preview on the front end).', 'clanspress' ) }
+			<p className="clanbite-match-list-editor-note">
+				{ __( 'Match list (preview on the front end).', 'clanbite' ) }
 			</p>
 		</div>
 	);

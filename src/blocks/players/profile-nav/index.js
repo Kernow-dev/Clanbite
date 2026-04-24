@@ -7,20 +7,20 @@ registerBlockType( metadata.name, {
 	edit() {
 		const blockProps = useBlockProps( {
 			className:
-				'clanspress-player-profile-nav clanspress-player-profile-nav--editor',
+				'clanbite-player-profile-nav clanbite-player-profile-nav--editor',
 			role: 'navigation',
 			'aria-label': metadata.title,
 		} );
 		return (
 			<nav { ...blockProps }>
-				<ul className="clanspress-player-profile-nav__list">
-					<li className="clanspress-player-profile-nav__item is-active">
-						<span className="clanspress-player-profile-nav__link">
+				<ul className="clanbite-player-profile-nav__list">
+					<li className="clanbite-player-profile-nav__item is-active">
+						<span className="clanbite-player-profile-nav__link">
 							Home
 						</span>
 					</li>
-					<li className="clanspress-player-profile-nav__item">
-						<span className="clanspress-player-profile-nav__link">
+					<li className="clanbite-player-profile-nav__item">
+						<span className="clanbite-player-profile-nav__link">
 							…
 						</span>
 					</li>

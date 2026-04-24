@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-cover",
+	"name": "clanbite/player-cover",
 	"version": "1.0.0",
 	"title": "Player Cover",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "smiley",
 	"description": "Example block scaffolded with Create Block tool.",
 	"example": {},
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"attributes": {
 		"id": {
 			"type": "number"
@@ -30,7 +30,7 @@
 			"type": "string"
 		}
 	},
-	"usesContext": [ "postId", "postType", "clanspress/playerId" ],
+	"usesContext": [ "postId", "postType", "clanbite/playerId" ],
 	"supports": {
 		"spacing": {
 			"margin": [ "top", "bottom" ],
@@ -95,15 +95,15 @@
 		"allowedBlocks": true
 	},
 	"selectors": {
-		"root": ".wp-block-clanspress-player-cover",
+		"root": ".wp-block-clanbite-player-cover",
 		"color": {
-			"text": ".wp-block-clanspress-player-cover .player-cover__content-container",
-			"background": ".wp-block-clanspress-player-cover"
+			"text": ".wp-block-clanbite-player-cover .player-cover__content-container",
+			"background": ".wp-block-clanbite-player-cover"
 		},
-		"typography": ".wp-block-clanspress-player-cover .player-cover__content-container",
-		"border": ".wp-block-clanspress-player-cover",
+		"typography": ".wp-block-clanbite-player-cover .player-cover__content-container",
+		"border": ".wp-block-clanbite-player-cover",
 		"filter": {
-			"duotone": ".wp-block-clanspress-player-cover > .clanspress-player-cover__media-clip > .clanspress-player-cover__media, .wp-block-clanspress-player-cover > .player-cover__video-background"
+			"duotone": ".wp-block-clanbite-player-cover > .clanbite-player-cover__media-clip > .clanbite-player-cover__media, .wp-block-clanbite-player-cover > .player-cover__video-background"
 		}
 	},
 	"editorScript": "file:./index.js",

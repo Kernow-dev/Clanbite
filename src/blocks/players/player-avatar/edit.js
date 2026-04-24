@@ -9,15 +9,15 @@ import './editor.scss';
 
 const AVATAR_PRESET_OPTIONS = [
 	{
-		label: __( 'Large — profiles', 'clanspress' ),
+		label: __( 'Large — profiles', 'clanbite' ),
 		value: 'large',
 	},
 	{
-		label: __( 'Medium — feeds & lists', 'clanspress' ),
+		label: __( 'Medium — feeds & lists', 'clanbite' ),
 		value: 'medium',
 	},
 	{
-		label: __( 'Small — compact UI', 'clanspress' ),
+		label: __( 'Small — compact UI', 'clanbite' ),
 		value: 'small',
 	},
 ];
@@ -28,12 +28,12 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Avatar output', 'clanspress' ) }>
+				<PanelBody title={ __( 'Avatar output', 'clanbite' ) }>
 					<SelectControl
-						label={ __( 'Image size preset', 'clanspress' ) }
+						label={ __( 'Image size preset', 'clanbite' ) }
 						help={ __(
-							'Uses the matching size from Clanspress → Players → Player avatar image sizes.',
-							'clanspress'
+							'Uses the matching size from Clanbite → Players → Player avatar image sizes.',
+							'clanbite'
 						) }
 						value={ avatarPreset || 'large' }
 						options={ AVATAR_PRESET_OPTIONS }
@@ -52,11 +52,11 @@ export default function Edit( { attributes, setAttributes } ) {
 				setAttributes={ setAttributes }
 				toggleLabel={ __(
 					'Link image to player profile',
-					'clanspress'
+					'clanbite'
 				) }
 			/>
 			<div { ...useBlockProps() }>
-				<p>{ __( 'Player avatar block', 'clanspress' ) }</p>
+				<p>{ __( 'Player avatar block', 'clanbite' ) }</p>
 			</div>
 		</>
 	);

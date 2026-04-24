@@ -5,15 +5,15 @@
  * Depends on Teams (`cp_teams`) via {@see Skeleton::$requires} only; this is a top-level
  * extension (`parent_slug` empty). Blocks are registered from the root `build/matches` metadata collection.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
-use Kernowdev\Clanspress\Extensions\Matches\Admin as Matches_Settings_Admin;
-use Kernowdev\Clanspress\Extensions\Matches\Rest_Controller;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Matches\Admin as Matches_Settings_Admin;
+use Kernowdev\Clanbite\Extensions\Matches\Rest_Controller;
 use WP_Post;
 
 require_once __DIR__ . '/functions.php';
@@ -39,7 +39,7 @@ class Matches extends Skeleton {
 	public const VISIBILITY_TEAM_ADMINS  = 'team_admins';
 
 	/**
-	 * Option-backed settings surfaced in the unified Clanspress React admin.
+	 * Option-backed settings surfaced in the unified Clanbite React admin.
 	 *
 	 * @var Matches_Settings_Admin
 	 */
@@ -57,9 +57,9 @@ class Matches extends Skeleton {
 	 */
 	public function __construct() {
 		parent::__construct(
-			__( 'Matches', 'clanspress' ),
+			__( 'Matches', 'clanbite' ),
 			'cp_matches',
-			__( 'Register matches between teams, track status and scores, and display them with blocks or REST.', 'clanspress' ),
+			__( 'Register matches between teams, track status and scores, and display them with blocks or REST.', 'clanbite' ),
 			'',
 			'1.0.0',
 			array( 'cp_teams' )
@@ -75,7 +75,7 @@ class Matches extends Skeleton {
 	 * @param string $parent_slug Parent extension slug, or empty string for a root extension.
 	 * @param string $version              Semantic version `x.y.z`.
 	 * @param array  $requires             Required extension slugs.
-	 * @param string $requires_clanspress  Minimum Clanspress core version (`x.y.z`).
+	 * @param string $requires_clanbite  Minimum Clanbite core version (`x.y.z`).
 	 * @return void
 	 */
 	public function setup_extension(
@@ -85,7 +85,7 @@ class Matches extends Skeleton {
 		string $parent_slug,
 		string $version,
 		array $requires,
-		string $requires_clanspress = ''
+		string $requires_clanbite = ''
 	): void {
 		parent::setup_extension(
 			$name,
@@ -94,11 +94,11 @@ class Matches extends Skeleton {
 			$parent_slug,
 			$version,
 			$requires,
-			$requires_clanspress
+			$requires_clanbite
 		);
 
-		remove_filter( 'clanspress_registered_extensions', array( $this, 'register_extension' ) );
-		add_filter( 'clanspress_official_registered_extensions', array( $this, 'register_extension' ) );
+		remove_filter( 'clanbite_registered_extensions', array( $this, 'register_extension' ) );
+		add_filter( 'clanbite_official_registered_extensions', array( $this, 'register_extension' ) );
 	}
 
 	/**
@@ -152,15 +152,15 @@ class Matches extends Skeleton {
 		add_action( 'init', array( $this, 'register_match_meta' ), 11 );
 		add_action( 'init', array( $this, 'register_match_block_libraries' ), 11 );
 		add_action( 'rest_api_init', array( $this->matches_rest, 'register_routes' ) );
-		add_filter( 'clanspress_event_can_view_attendees', array( $this, 'events_can_view_match_attendees' ), 10, 4 );
-		add_filter( 'clanspress_team_front_action_rewrite_slugs', array( $this, 'filter_team_front_action_matches_slug' ), 20, 2 );
+		add_filter( 'clanbite_event_can_view_attendees', array( $this, 'events_can_view_match_attendees' ), 10, 4 );
+		add_filter( 'clanbite_team_front_action_rewrite_slugs', array( $this, 'filter_team_front_action_matches_slug' ), 20, 2 );
 		add_action( 'init', array( $this, 'register_team_matches_subpage' ), 15 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_match_editor' ) );
 		add_filter( 'manage_cp_match_posts_columns', array( $this, 'match_admin_columns' ) );
 		add_action( 'manage_cp_match_posts_custom_column', array( $this, 'render_match_admin_column' ), 10, 2 );
 		add_action( 'save_post_cp_match', array( $this, 'validate_match_on_save' ), 10, 2 );
 		add_filter( 'single_template', array( $this, 'maybe_single_match_template' ) );
-		add_filter( 'clanspress_team_create_form_steps', array( $this, 'register_team_create_matches_step' ), 25 );
+		add_filter( 'clanbite_team_create_form_steps', array( $this, 'register_team_create_matches_step' ), 25 );
 	}
 
 	/**
@@ -207,9 +207,9 @@ class Matches extends Skeleton {
 		}
 
 		$steps['matches'] = array(
-			'label'       => __( 'Matches', 'clanspress' ),
-			'title'       => __( 'Matches', 'clanspress' ),
-			'description' => __( 'Control whether other teams can challenge yours.', 'clanspress' ),
+			'label'       => __( 'Matches', 'clanbite' ),
+			'title'       => __( 'Matches', 'clanbite' ),
+			'description' => __( 'Control whether other teams can challenge yours.', 'clanbite' ),
 		);
 
 		return $steps;
@@ -228,16 +228,16 @@ class Matches extends Skeleton {
 	 * Add the `matches` segment to team directory rewrites when the team Matches subpage is enabled.
 	 *
 	 * @param array<string, string>                $actions Slug => label.
-	 * @param \Kernowdev\Clanspress\Extensions\Teams $teams   Teams extension instance.
+	 * @param \Kernowdev\Clanbite\Extensions\Teams $teams   Teams extension instance.
 	 * @return array<string, string>
 	 */
 	public function filter_team_front_action_matches_slug( array $actions, $teams ): array {
 		unset( $teams );
-		if ( ! function_exists( 'clanspress_matches_subpage_team_enabled' ) || ! clanspress_matches_subpage_team_enabled() ) {
+		if ( ! function_exists( 'clanbite_matches_subpage_team_enabled' ) || ! clanbite_matches_subpage_team_enabled() ) {
 			return $actions;
 		}
 
-		$actions['matches'] = __( 'Matches', 'clanspress' );
+		$actions['matches'] = __( 'Matches', 'clanbite' );
 
 		return $actions;
 	}
@@ -248,26 +248,26 @@ class Matches extends Skeleton {
 	 * @return void
 	 */
 	public function register_team_matches_subpage(): void {
-		if ( ! function_exists( 'clanspress_register_team_subpage' ) ) {
+		if ( ! function_exists( 'clanbite_register_team_subpage' ) ) {
 			return;
 		}
 
-		if ( ! function_exists( 'clanspress_teams_get_team_mode' ) ) {
+		if ( ! function_exists( 'clanbite_teams_get_team_mode' ) ) {
 			return;
 		}
 
-		if ( 'team_directories' !== clanspress_teams_get_team_mode() ) {
+		if ( 'team_directories' !== clanbite_teams_get_team_mode() ) {
 			return;
 		}
 
-		if ( ! function_exists( 'clanspress_matches_subpage_team_enabled' ) || ! clanspress_matches_subpage_team_enabled() ) {
+		if ( ! function_exists( 'clanbite_matches_subpage_team_enabled' ) || ! clanbite_matches_subpage_team_enabled() ) {
 			return;
 		}
 
-		clanspress_register_team_subpage(
+		clanbite_register_team_subpage(
 			'matches',
 			array(
-				'label'    => __( 'Matches', 'clanspress' ),
+				'label'    => __( 'Matches', 'clanbite' ),
 				'position' => 18,
 			)
 		);
@@ -285,9 +285,9 @@ class Matches extends Skeleton {
 		$fmt     = $this->admin->get( 'datetime_format', 'M j, Y g:i a' );
 		$visibility = (string) get_post_meta( $post->ID, 'cp_match_visibility', true );
 
-		$away_title = function_exists( 'clanspress_matches_resolve_away_team_title' )
-			? clanspress_matches_resolve_away_team_title( $post->ID )
-			: clanspress_matches_team_title( $away_id );
+		$away_title = function_exists( 'clanbite_matches_resolve_away_team_title' )
+			? clanbite_matches_resolve_away_team_title( $post->ID )
+			: clanbite_matches_team_title( $away_id );
 
 		$away_ext = array(
 			'label'       => (string) get_post_meta( $post->ID, 'cp_match_away_external_label', true ),
@@ -309,13 +309,13 @@ class Matches extends Skeleton {
 			'link'           => get_permalink( $post ),
 			'status'         => (string) get_post_meta( $post->ID, 'cp_match_status', true ),
 			'scheduledAt'    => (string) get_post_meta( $post->ID, 'cp_match_scheduled_at', true ),
-			'scheduledLabel' => clanspress_matches_format_datetime_local(
+			'scheduledLabel' => clanbite_matches_format_datetime_local(
 				(string) get_post_meta( $post->ID, 'cp_match_scheduled_at', true ),
 				(string) $fmt
 			),
 			'homeTeamId'     => $home_id,
 			'awayTeamId'     => $away_id,
-			'homeTeamTitle'  => clanspress_matches_team_title( $home_id ),
+			'homeTeamTitle'  => clanbite_matches_team_title( $home_id ),
 			'awayTeamTitle'  => $away_title,
 			'awayExternal'   => $away_ext,
 			'homeScore'      => (int) get_post_meta( $post->ID, 'cp_match_home_score', true ),
@@ -353,11 +353,11 @@ class Matches extends Skeleton {
 		$away_id = (int) get_post_meta( $post->ID, 'cp_match_away_team_id', true );
 
 		if ( self::VISIBILITY_TEAM_ADMINS === $vis ) {
-			if ( $viewer_id <= 0 || ! function_exists( 'clanspress_teams_user_can_manage' ) ) {
+			if ( $viewer_id <= 0 || ! function_exists( 'clanbite_teams_user_can_manage' ) ) {
 				return false;
 			}
-			return ( $home_id > 0 && clanspress_teams_user_can_manage( $home_id, $viewer_id ) )
-				|| ( $away_id > 0 && clanspress_teams_user_can_manage( $away_id, $viewer_id ) )
+			return ( $home_id > 0 && clanbite_teams_user_can_manage( $home_id, $viewer_id ) )
+				|| ( $away_id > 0 && clanbite_teams_user_can_manage( $away_id, $viewer_id ) )
 				|| current_user_can( 'manage_options' );
 		}
 
@@ -366,9 +366,9 @@ class Matches extends Skeleton {
 			return false;
 		}
 
-		if ( function_exists( 'clanspress_teams_get_member_role' ) ) {
-			return ( $home_id > 0 && null !== clanspress_teams_get_member_role( $home_id, $viewer_id ) )
-				|| ( $away_id > 0 && null !== clanspress_teams_get_member_role( $away_id, $viewer_id ) );
+		if ( function_exists( 'clanbite_teams_get_member_role' ) ) {
+			return ( $home_id > 0 && null !== clanbite_teams_get_member_role( $home_id, $viewer_id ) )
+				|| ( $away_id > 0 && null !== clanbite_teams_get_member_role( $away_id, $viewer_id ) );
 		}
 
 		// Conservative fallback when membership helper isn't available.
@@ -382,10 +382,10 @@ class Matches extends Skeleton {
 	 */
 	public function get_status_choices(): array {
 		return array(
-			self::STATUS_SCHEDULED => __( 'Scheduled', 'clanspress' ),
-			self::STATUS_LIVE      => __( 'Live', 'clanspress' ),
-			self::STATUS_FINISHED  => __( 'Finished', 'clanspress' ),
-			self::STATUS_CANCELLED => __( 'Cancelled', 'clanspress' ),
+			self::STATUS_SCHEDULED => __( 'Scheduled', 'clanbite' ),
+			self::STATUS_LIVE      => __( 'Live', 'clanbite' ),
+			self::STATUS_FINISHED  => __( 'Finished', 'clanbite' ),
+			self::STATUS_CANCELLED => __( 'Cancelled', 'clanbite' ),
 		);
 	}
 
@@ -396,30 +396,30 @@ class Matches extends Skeleton {
 	 */
 	public function register_match_post_type(): void {
 		$labels = array(
-			'name'               => _x( 'Matches', 'post type general name', 'clanspress' ),
-			'singular_name'      => _x( 'Match', 'post type singular name', 'clanspress' ),
-			'menu_name'          => _x( 'Matches', 'admin menu', 'clanspress' ),
-			'name_admin_bar'     => _x( 'Match', 'add new on admin bar', 'clanspress' ),
-			'add_new'            => _x( 'Add New', 'match', 'clanspress' ),
-			'add_new_item'       => __( 'Add New Match', 'clanspress' ),
-			'new_item'           => __( 'New Match', 'clanspress' ),
-			'edit_item'          => __( 'Edit Match', 'clanspress' ),
-			'view_item'          => __( 'View Match', 'clanspress' ),
-			'all_items'          => __( 'All Matches', 'clanspress' ),
-			'search_items'       => __( 'Search Matches', 'clanspress' ),
-			'parent_item_colon'  => __( 'Parent Match:', 'clanspress' ),
-			'not_found'          => __( 'No matches found.', 'clanspress' ),
-			'not_found_in_trash' => __( 'No matches found in Trash.', 'clanspress' ),
+			'name'               => _x( 'Matches', 'post type general name', 'clanbite' ),
+			'singular_name'      => _x( 'Match', 'post type singular name', 'clanbite' ),
+			'menu_name'          => _x( 'Matches', 'admin menu', 'clanbite' ),
+			'name_admin_bar'     => _x( 'Match', 'add new on admin bar', 'clanbite' ),
+			'add_new'            => _x( 'Add New', 'match', 'clanbite' ),
+			'add_new_item'       => __( 'Add New Match', 'clanbite' ),
+			'new_item'           => __( 'New Match', 'clanbite' ),
+			'edit_item'          => __( 'Edit Match', 'clanbite' ),
+			'view_item'          => __( 'View Match', 'clanbite' ),
+			'all_items'          => __( 'All Matches', 'clanbite' ),
+			'search_items'       => __( 'Search Matches', 'clanbite' ),
+			'parent_item_colon'  => __( 'Parent Match:', 'clanbite' ),
+			'not_found'          => __( 'No matches found.', 'clanbite' ),
+			'not_found_in_trash' => __( 'No matches found in Trash.', 'clanbite' ),
 		);
 
 		register_post_type(
 			'cp_match',
 			array(
 				'labels'          => $labels,
-				'description'     => __( 'Scheduled or completed matches between teams.', 'clanspress' ),
+				'description'     => __( 'Scheduled or completed matches between teams.', 'clanbite' ),
 				'public'          => true,
 				'show_ui'         => true,
-				'show_in_menu'    => 'clanspress',
+				'show_in_menu'    => 'clanbite',
 				'show_in_rest'    => true,
 				'has_archive'     => true,
 				'rewrite'         => array( 'slug' => 'matches' ),
@@ -715,10 +715,10 @@ class Matches extends Skeleton {
 		foreach ( $columns as $key => $label ) {
 			$new[ $key ] = $label;
 			if ( 'title' === $key ) {
-				$new['cp_match_teams']  = __( 'Teams', 'clanspress' );
-				$new['cp_match_when']   = __( 'Scheduled', 'clanspress' );
-				$new['cp_match_status'] = __( 'Match status', 'clanspress' );
-				$new['cp_match_score']  = __( 'Score', 'clanspress' );
+				$new['cp_match_teams']  = __( 'Teams', 'clanbite' );
+				$new['cp_match_when']   = __( 'Scheduled', 'clanbite' );
+				$new['cp_match_status'] = __( 'Match status', 'clanbite' );
+				$new['cp_match_score']  = __( 'Score', 'clanbite' );
 			}
 		}
 
@@ -737,17 +737,17 @@ class Matches extends Skeleton {
 			$h = (int) get_post_meta( $post_id, 'cp_match_home_team_id', true );
 			$a = (int) get_post_meta( $post_id, 'cp_match_away_team_id', true );
 			$away_label = $a > 0
-				? clanspress_matches_team_title( $a )
-				: ( function_exists( 'clanspress_matches_resolve_away_team_title' )
-					? clanspress_matches_resolve_away_team_title( $post_id )
-					: clanspress_matches_team_title( $a ) );
-			echo esc_html( clanspress_matches_team_title( $h ) . ' vs ' . $away_label );
+				? clanbite_matches_team_title( $a )
+				: ( function_exists( 'clanbite_matches_resolve_away_team_title' )
+					? clanbite_matches_resolve_away_team_title( $post_id )
+					: clanbite_matches_team_title( $a ) );
+			echo esc_html( clanbite_matches_team_title( $h ) . ' vs ' . $away_label );
 			return;
 		}
 		if ( 'cp_match_when' === $column ) {
 			$raw = (string) get_post_meta( $post_id, 'cp_match_scheduled_at', true );
 			echo esc_html(
-				clanspress_matches_format_datetime_local( $raw, get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) )
+				clanbite_matches_format_datetime_local( $raw, get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) )
 			);
 			return;
 		}
@@ -808,7 +808,7 @@ class Matches extends Skeleton {
 		}
 
 		/**
-		 * Fires after Clanspress validates a match post on save.
+		 * Fires after Clanbite validates a match post on save.
 		 *
 		 * Use to trigger side-effects (e.g. optional activity-feed integrations) when a match is
 		 * scheduled/updated and its visibility may affect who should see it.
@@ -817,7 +817,7 @@ class Matches extends Skeleton {
 		 * @param WP_Post $post    Match post object.
 		 * @param Matches $extension Matches extension instance.
 		 */
-		do_action( 'clanspress_match_saved', $post_id, $post, $this );
+		do_action( 'clanbite_match_saved', $post_id, $post, $this );
 	}
 
 	/**
@@ -826,7 +826,7 @@ class Matches extends Skeleton {
 	 * @return void
 	 */
 	public function register_match_block_libraries(): void {
-		$base = clanspress()->path . 'build/matches';
+		$base = clanbite()->path . 'build/matches';
 		$manifest = $base . '/blocks-manifest.php';
 
 		if ( ! is_dir( $base ) || ! is_readable( $manifest ) ) {
@@ -857,7 +857,7 @@ class Matches extends Skeleton {
 		if ( 'post' === $screen->base && 'cp_match' === $screen->post_type ) {
 			$relevant = true;
 		}
-		if ( 'toplevel_page_clanspress' === $screen->id || 'clanspress_page_clanspress' === $screen->id ) {
+		if ( 'toplevel_page_clanbite' === $screen->id ) {
 			$relevant = true;
 		}
 		if ( ! $relevant ) {
@@ -867,8 +867,8 @@ class Matches extends Skeleton {
 		printf(
 			'<div class="notice notice-warning"><p>%s</p></div>',
 			esc_html__(
-				'Clanspress Matches: block assets are missing. From the plugin directory, run npm ci and npm run build:production (or npm run plugin-zip).',
-				'clanspress'
+				'Clanbite Matches: block assets are missing. From the plugin directory, run npm ci and npm run build:production (or npm run plugin-zip).',
+				'clanbite'
 			)
 		);
 	}
@@ -879,7 +879,7 @@ class Matches extends Skeleton {
 	 * @return void
 	 */
 	public function enqueue_match_editor(): void {
-		$path = clanspress()->path . 'build/cp-match-editor/index.asset.php';
+		$path = clanbite()->path . 'build/cp-match-editor/index.asset.php';
 		if ( ! is_readable( $path ) ) {
 			return;
 		}
@@ -889,8 +889,8 @@ class Matches extends Skeleton {
 		$ver   = isset( $asset['version'] ) ? (string) $asset['version'] : '1.0.0';
 
 		wp_enqueue_script(
-			'clanspress-cp-match-editor',
-			clanspress()->url . 'build/cp-match-editor/index.js',
+			'clanbite-cp-match-editor',
+			clanbite()->url . 'build/cp-match-editor/index.js',
 			$deps,
 			$ver,
 			true
@@ -980,11 +980,11 @@ class Matches extends Skeleton {
 
 		ob_start();
 		if ( ! $q->have_posts() ) {
-			echo '<div class="clanspress-match-list clanspress-match-list--empty"><p>' . esc_html__( 'No matches to show.', 'clanspress' ) . '</p></div>';
+			echo '<div class="clanbite-match-list clanbite-match-list--empty"><p>' . esc_html__( 'No matches to show.', 'clanbite' ) . '</p></div>';
 			return (string) ob_get_clean();
 		}
 
-		echo '<ul class="clanspress-match-list">';
+		echo '<ul class="clanbite-match-list">';
 		while ( $q->have_posts() ) {
 			$q->the_post();
 			$pid = (int) get_the_ID();
@@ -994,9 +994,9 @@ class Matches extends Skeleton {
 			}
 			$h   = (int) get_post_meta( $pid, 'cp_match_home_team_id', true );
 			$a   = (int) get_post_meta( $pid, 'cp_match_away_team_id', true );
-			$away_title = function_exists( 'clanspress_matches_resolve_away_team_title' )
-				? clanspress_matches_resolve_away_team_title( $pid )
-				: clanspress_matches_team_title( $a );
+			$away_title = function_exists( 'clanbite_matches_resolve_away_team_title' )
+				? clanbite_matches_resolve_away_team_title( $pid )
+				: clanbite_matches_team_title( $a );
 			$st  = (string) get_post_meta( $pid, 'cp_match_status', true );
 			$raw = (string) get_post_meta( $pid, 'cp_match_scheduled_at', true );
 			$hs  = (int) get_post_meta( $pid, 'cp_match_home_score', true );
@@ -1005,13 +1005,13 @@ class Matches extends Skeleton {
 			$choices = $this->get_status_choices();
 			$st_lbl  = $choices[ $st ] ?? $st;
 
-			echo '<li class="clanspress-match-list__item">';
-			echo '<a class="clanspress-match-list__link" href="' . esc_url( get_permalink() ) . '">';
-			echo '<span class="clanspress-match-list__teams">';
-			echo esc_html( clanspress_matches_team_title( $h ) . ' vs ' . $away_title );
+			echo '<li class="clanbite-match-list__item">';
+			echo '<a class="clanbite-match-list__link" href="' . esc_url( get_permalink() ) . '">';
+			echo '<span class="clanbite-match-list__teams">';
+			echo esc_html( clanbite_matches_team_title( $h ) . ' vs ' . $away_title );
 			echo '</span>';
-			echo '<span class="clanspress-match-list__meta">';
-			echo esc_html( clanspress_matches_format_datetime_local( $raw, $fmt ) );
+			echo '<span class="clanbite-match-list__meta">';
+			echo esc_html( clanbite_matches_format_datetime_local( $raw, $fmt ) );
 			echo ' · ';
 			echo esc_html( $st_lbl );
 			if ( $show_scores ) {
@@ -1027,11 +1027,11 @@ class Matches extends Skeleton {
 
 		// If everything was filtered, show the empty state.
 		$out = (string) ob_get_clean();
-		if ( false !== strpos( $out, '<ul class="clanspress-match-list">' )
+		if ( false !== strpos( $out, '<ul class="clanbite-match-list">' )
 			&& false !== strpos( $out, '</ul>' )
-			&& false === strpos( $out, 'clanspress-match-list__item' )
+			&& false === strpos( $out, 'clanbite-match-list__item' )
 		) {
-			return '<div class="clanspress-match-list clanspress-match-list--empty"><p>' . esc_html__( 'No matches to show.', 'clanspress' ) . '</p></div>';
+			return '<div class="clanbite-match-list clanbite-match-list--empty"><p>' . esc_html__( 'No matches to show.', 'clanbite' ) . '</p></div>';
 		}
 
 		return $out;
@@ -1046,17 +1046,17 @@ class Matches extends Skeleton {
 	public function render_card_block_markup( array $attributes ): string {
 		$match_id = (int) ( $attributes['matchId'] ?? 0 );
 		if ( $match_id <= 0 ) {
-			return '<div class="clanspress-match-card clanspress-match-card--placeholder"><p>' . esc_html__( 'Select a match in the block settings.', 'clanspress' ) . '</p></div>';
+			return '<div class="clanbite-match-card clanbite-match-card--placeholder"><p>' . esc_html__( 'Select a match in the block settings.', 'clanbite' ) . '</p></div>';
 		}
 
 		$post = get_post( $match_id );
 		if ( ! $post || 'cp_match' !== $post->post_type || 'publish' !== $post->post_status ) {
-			return '<div class="clanspress-match-card clanspress-match-card--missing"><p>' . esc_html__( 'Match not found.', 'clanspress' ) . '</p></div>';
+			return '<div class="clanbite-match-card clanbite-match-card--missing"><p>' . esc_html__( 'Match not found.', 'clanbite' ) . '</p></div>';
 		}
 
 		$viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
 		if ( ! $this->viewer_can_see_match( $post, $viewer_id ) ) {
-			return '<div class="clanspress-match-card clanspress-match-card--forbidden"><p>' . esc_html__( 'This match is not available.', 'clanspress' ) . '</p></div>';
+			return '<div class="clanbite-match-card clanbite-match-card--forbidden"><p>' . esc_html__( 'This match is not available.', 'clanbite' ) . '</p></div>';
 		}
 
 		$data        = $this->match_to_rest_array( $post );
@@ -1066,20 +1066,20 @@ class Matches extends Skeleton {
 
 		ob_start();
 		?>
-		<article class="clanspress-match-card">
-			<h3 class="clanspress-match-card__title">
+		<article class="clanbite-match-card">
+			<h3 class="clanbite-match-card__title">
 				<a href="<?php echo esc_url( $data['link'] ); ?>"><?php echo esc_html( $data['title'] ); ?></a>
 			</h3>
-			<p class="clanspress-match-card__teams">
-				<span class="clanspress-match-card__home"><?php echo esc_html( $data['homeTeamTitle'] ); ?></span>
-				<span class="clanspress-match-card__vs"> <?php esc_html_e( 'vs', 'clanspress' ); ?> </span>
-				<span class="clanspress-match-card__away">
+			<p class="clanbite-match-card__teams">
+				<span class="clanbite-match-card__home"><?php echo esc_html( $data['homeTeamTitle'] ); ?></span>
+				<span class="clanbite-match-card__vs"> <?php esc_html_e( 'vs', 'clanbite' ); ?> </span>
+				<span class="clanbite-match-card__away">
 					<?php
 					$ext = isset( $data['awayExternal'] ) && is_array( $data['awayExternal'] ) ? $data['awayExternal'] : array();
 					$logo = isset( $ext['logoUrl'] ) ? esc_url( (string) $ext['logoUrl'] ) : '';
 					if ( '' !== $logo ) :
 						?>
-					<img src="<?php echo esc_url( $logo ); ?>" alt="" class="clanspress-match-card__away-logo" width="32" height="32" loading="lazy" decoding="async" />
+					<img src="<?php echo esc_url( $logo ); ?>" alt="" class="clanbite-match-card__away-logo" width="32" height="32" loading="lazy" decoding="async" />
 					<?php endif; ?>
 					<?php
 					$away_link = isset( $ext['profileUrl'] ) ? esc_url( (string) $ext['profileUrl'] ) : '';
@@ -1091,15 +1091,15 @@ class Matches extends Skeleton {
 					<?php endif; ?>
 				</span>
 			</p>
-			<p class="clanspress-match-card__when"><?php echo esc_html( $data['scheduledLabel'] ); ?></p>
-			<p class="clanspress-match-card__status"><?php echo esc_html( $st_lbl ); ?></p>
+			<p class="clanbite-match-card__when"><?php echo esc_html( $data['scheduledLabel'] ); ?></p>
+			<p class="clanbite-match-card__status"><?php echo esc_html( $st_lbl ); ?></p>
 			<?php if ( $show_scores ) : ?>
-				<p class="clanspress-match-card__score">
+				<p class="clanbite-match-card__score">
 					<?php echo esc_html( (string) $data['homeScore'] . ' – ' . (string) $data['awayScore'] ); ?>
 				</p>
 			<?php endif; ?>
 			<?php if ( ! empty( $data['venue'] ) ) : ?>
-				<p class="clanspress-match-card__venue"><?php echo esc_html( $data['venue'] ); ?></p>
+				<p class="clanbite-match-card__venue"><?php echo esc_html( $data['venue'] ); ?></p>
 			<?php endif; ?>
 		</article>
 		<?php
@@ -1118,7 +1118,7 @@ class Matches extends Skeleton {
 			return $template;
 		}
 
-		$plugin = clanspress()->path . 'templates/matches/single-cp_match.php';
+		$plugin = clanbite()->path . 'templates/matches/single-cp_match.php';
 		if ( is_readable( $plugin ) ) {
 			return $plugin;
 		}

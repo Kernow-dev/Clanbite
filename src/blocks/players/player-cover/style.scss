@@ -1,6 +1,6 @@
 // Front-end: cover image + inner blocks (no inline editing).
 
-.wp-block-clanspress-player-cover.clanspress-player-cover-block {
+.wp-block-clanbite-player-cover.clanbite-player-cover-block {
 	position: relative;
 	background-position: center center;
 	display: flex;
@@ -12,12 +12,12 @@
 	min-height: 12rem;
 	isolation: isolate;
 
-	&.clanspress-player-cover--placeholder {
+	&.clanbite-player-cover--placeholder {
 		min-height: unset;
 		background-color: #f0f0f1;
 	}
 
-	.clanspress-player-cover__media--empty {
+	.clanbite-player-cover__media--empty {
 		opacity: 0;
 		pointer-events: none;
 	}
@@ -62,7 +62,7 @@
 		justify-content: flex-end;
 	}
 
-	.clanspress-player-cover__media-clip {
+	.clanbite-player-cover__media-clip {
 		position: absolute;
 		inset: 0;
 		z-index: 0;
@@ -70,7 +70,7 @@
 		border-radius: inherit;
 	}
 
-	.clanspress-player-cover__media {
+	.clanbite-player-cover__media {
 		display: block;
 		position: absolute;
 		inset: 0;

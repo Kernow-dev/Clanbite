@@ -6,29 +6,29 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Renders the player birthday when set.
  *
- * @package clanspress
+ * @package clanbite
  *
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
 
-$user_id = function_exists( 'clanspress_player_blocks_resolve_subject_user_id' )
-	? (int) clanspress_player_blocks_resolve_subject_user_id( $block )
+$user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
+	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
 	: 0;
 
 if ( $user_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes(
 		array(
-			'class' => 'clanspress-player-birthday clanspress-player-birthday--placeholder',
+			'class' => 'clanbite-player-birthday clanbite-player-birthday--placeholder',
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><p class="clanspress-player-birthday__text">' . esc_html__( 'Player birthday', 'clanspress' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo '<div ' . $wrapper . '><p class="clanbite-player-birthday__text">' . esc_html__( 'Player birthday', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
 	return;
 }
 
-$birthday = function_exists( 'clanspress_players_get_display_birthday' )
-	? trim( (string) clanspress_players_get_display_birthday( $user_id ) )
+$birthday = function_exists( 'clanbite_players_get_display_birthday' )
+	? trim( (string) clanbite_players_get_display_birthday( $user_id ) )
 	: '';
 
 if ( '' === $birthday ) {
@@ -36,7 +36,7 @@ if ( '' === $birthday ) {
 }
 
 $align = isset( $attributes['textAlign'] ) ? sanitize_key( (string) $attributes['textAlign'] ) : '';
-$class = array( 'clanspress-player-birthday__text' );
+$class = array( 'clanbite-player-birthday__text' );
 if ( $align && in_array( $align, array( 'left', 'center', 'right', 'justify' ), true ) ) {
 	$class[] = 'has-text-align-' . $align;
 }

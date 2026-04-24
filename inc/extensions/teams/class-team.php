@@ -5,10 +5,10 @@
  * Holds mutable state for a team. Reading and writing the database is done through
  * {@see Team_Data_Store} implementations so third parties can swap storage.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Teams;
+namespace Kernowdev\Clanbite\Extensions\Teams;
 
 defined( 'ABSPATH' ) || exit;
 

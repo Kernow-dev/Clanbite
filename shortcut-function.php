@@ -1,7 +1,7 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Main;
+use Kernowdev\Clanbite\Main;
 
 /**
  * Grab the Main object and return it.
@@ -9,6 +9,6 @@ use Kernowdev\Clanspress\Main;
  *
  * @return Main Singleton instance of plugin class.
  */
-function clanspress(): Main {
+function clanbite(): Main {
 	return Main::instance();
 }

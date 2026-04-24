@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-city",
+	"name": "clanbite/player-city",
 	"version": "1.0.0",
 	"title": "Player city",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "location",
 	"description": "Displays the player city when set (profile and player loops).",
-	"textdomain": "clanspress",
-	"usesContext": [ "postId", "postType", "clanspress/playerId" ],
+	"textdomain": "clanbite",
+	"usesContext": [ "postId", "postType", "clanbite/playerId" ],
 	"attributes": {
 		"textAlign": {
 			"type": "string"
@@ -50,12 +50,12 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-city",
+		"root": ".wp-block-clanbite-player-city",
 		"color": {
-			"text": ".wp-block-clanspress-player-city .clanspress-player-city__text",
-			"background": ".wp-block-clanspress-player-city"
+			"text": ".wp-block-clanbite-player-city .clanbite-player-city__text",
+			"background": ".wp-block-clanbite-player-city"
 		},
-		"typography": ".wp-block-clanspress-player-city .clanspress-player-city__text",
-		"border": ".wp-block-clanspress-player-city"
+		"typography": ".wp-block-clanbite-player-city .clanbite-player-city__text",
+		"border": ".wp-block-clanbite-player-city"
 	}
 }

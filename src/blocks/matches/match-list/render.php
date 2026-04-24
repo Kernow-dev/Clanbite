@@ -2,7 +2,7 @@
 /**
  * Server render for the Match list block.
  *
- * @package clanspress
+ * @package clanbite
  *
  * @var array    $attributes Block attributes.
  * @var string   $content    Block default content (unused for dynamic blocks).
@@ -15,15 +15,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
-$extension = function_exists( 'clanspress_matches' ) ? clanspress_matches() : null;
+$extension = function_exists( 'clanbite_matches' ) ? clanbite_matches() : null;
 
-if ( ! $extension instanceof \Kernowdev\Clanspress\Extensions\Matches ) {
+if ( ! $extension instanceof \Kernowdev\Clanbite\Extensions\Matches ) {
 	echo '';
 	return;
 }
 
 $attributes = is_array( $attributes ) ? $attributes : array();
-$team_qv    = (int) get_query_var( 'clanspress_matches_team_id' );
+$team_qv    = (int) get_query_var( 'clanbite_matches_team_id' );
 if ( 0 === (int) ( $attributes['teamId'] ?? 0 ) && $team_qv > 0 ) {
 	$attributes['teamId'] = $team_qv;
 }

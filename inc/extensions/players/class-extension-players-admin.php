@@ -1,29 +1,29 @@
 <?php
 
-namespace Kernowdev\Clanspress\Extensions\Players;
+namespace Kernowdev\Clanbite\Extensions\Players;
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
 
 /**
  * Players admin settings and functionality.
  */
 class Admin extends Abstract_Settings {
-	protected string $option_key     = 'clanspress_players_settings';
-	protected string $settings_group = 'clanspress_players';
-	protected string $page_slug      = 'clanspress-players';
+	protected string $option_key     = 'clanbite_players_settings';
+	protected string $settings_group = 'clanbite_players';
+	protected string $page_slug      = 'clanbite-players';
 
 	protected function get_page_title(): string {
-		return __( 'Players', 'clanspress' );
+		return __( 'Players', 'clanbite' );
 	}
 
 	protected function get_menu_title(): string {
-		return __( 'Players', 'clanspress' );
+		return __( 'Players', 'clanbite' );
 	}
 
 	protected function get_defaults(): array {
 		return apply_filters(
-			'clanspress_players_defaults',
+			'clanbite_players_defaults',
 			array(
 				'enable_profiles'                 => true,
 				'enable_avatars'                  => true,
@@ -32,9 +32,9 @@ class Admin extends Abstract_Settings {
 				'default_cover'                   => '',
 				'events_profile_subpage'          => true,
 				'rank_status_updates_enabled'     => true,
-				'player_avatar_image_size_large'  => 'clanspress-avatar-large',
-				'player_avatar_image_size_medium' => 'clanspress-avatar-medium',
-				'player_avatar_image_size_small'  => 'clanspress-avatar-small',
+				'player_avatar_image_size_large'  => 'clanbite-avatar-large',
+				'player_avatar_image_size_medium' => 'clanbite-avatar-medium',
+				'player_avatar_image_size_small'  => 'clanbite-avatar-small',
 			)
 		);
 	}
@@ -42,89 +42,89 @@ class Admin extends Abstract_Settings {
 	protected function get_sections(): array {
 		$sections = array(
 				'general'  => array(
-					'title'  => __( 'General', 'clanspress' ),
+					'title'  => __( 'General', 'clanbite' ),
 					'fields' => array(
 						'enable_profiles' => array(
-							'label'       => __( 'Enable profiles', 'clanspress' ),
+							'label'       => __( 'Enable profiles', 'clanbite' ),
 							'type'        => 'checkbox',
-							'description' => __( 'Enable public player pages.', 'clanspress' ),
+							'description' => __( 'Enable public player pages.', 'clanbite' ),
 							'default'     => true,
 							'sanitize'    => 'rest_sanitize_boolean',
 						),
 						'enable_avatars'  => array(
-							'label'       => __( 'Enable avatars', 'clanspress' ),
+							'label'       => __( 'Enable avatars', 'clanbite' ),
 							'type'        => 'checkbox',
-							'description' => __( 'Enable player custom avatars.', 'clanspress' ),
+							'description' => __( 'Enable player custom avatars.', 'clanbite' ),
 							'default'     => true,
 							'sanitize'    => 'rest_sanitize_boolean',
 						),
 						'enable_covers'   => array(
-							'label'       => __( 'Enable cover images', 'clanspress' ),
+							'label'       => __( 'Enable cover images', 'clanbite' ),
 							'type'        => 'checkbox',
-							'description' => __( 'Enable player custom cover images.', 'clanspress' ),
+							'description' => __( 'Enable player custom cover images.', 'clanbite' ),
 							'default'     => true,
 							'sanitize'    => 'rest_sanitize_boolean',
 						),
 					),
 				),
 				'integrations' => array(
-					'title'  => __( 'Extension integrations', 'clanspress' ),
+					'title'  => __( 'Extension integrations', 'clanbite' ),
 					'fields' => array(
 						'events_profile_subpage' => array(
-							'label'       => __( 'Player profile: Events tab', 'clanspress' ),
+							'label'       => __( 'Player profile: Events tab', 'clanbite' ),
 							'type'        => 'checkbox',
-							'description' => __( 'When the Events extension is enabled, show the Events tab and /players/{user}/events/. When off, that URL redirects to the profile root.', 'clanspress' ),
+							'description' => __( 'When the Events extension is enabled, show the Events tab and /players/{user}/events/. When off, that URL redirects to the profile root.', 'clanbite' ),
 							'default'     => true,
 							'sanitize'    => 'rest_sanitize_boolean',
 						),
 					),
 				),
 				'avatar_sizes' => array(
-					'title'  => __( 'Player avatar image sizes', 'clanspress' ),
+					'title'  => __( 'Player avatar image sizes', 'clanbite' ),
 					'fields' => array(
 						'player_avatar_image_size_large'  => array(
-							'label'       => __( 'Large — player profiles', 'clanspress' ),
+							'label'       => __( 'Large — player profiles', 'clanbite' ),
 							'type'        => 'select',
-							'description' => __( 'Used for profile pages, the player avatar block, and other prominent displays. Code may request this with preset “large”.', 'clanspress' ),
-							'default'     => 'clanspress-avatar-large',
+							'description' => __( 'Used for profile pages, the player avatar block, and other prominent displays. Code may request this with preset “large”.', 'clanbite' ),
+							'default'     => 'clanbite-avatar-large',
 							'options'     => $this->get_avatar_image_size_options(),
 							'sanitize'    => array( $this, 'sanitize_player_avatar_size_large' ),
 						),
 						'player_avatar_image_size_medium' => array(
-							'label'       => __( 'Medium — forums and social-style feeds', 'clanspress' ),
+							'label'       => __( 'Medium — forums and social-style feeds', 'clanbite' ),
 							'type'        => 'select',
-							'description' => __( 'Typical size for post authors in forums, activity feeds, and similar layouts. Preset “medium”.', 'clanspress' ),
-							'default'     => 'clanspress-avatar-medium',
+							'description' => __( 'Typical size for post authors in forums, activity feeds, and similar layouts. Preset “medium”.', 'clanbite' ),
+							'default'     => 'clanbite-avatar-medium',
 							'options'     => $this->get_avatar_image_size_options(),
 							'sanitize'    => array( $this, 'sanitize_player_avatar_size_medium' ),
 						),
 						'player_avatar_image_size_small'  => array(
-							'label'       => __( 'Small — comments and replies', 'clanspress' ),
+							'label'       => __( 'Small — comments and replies', 'clanbite' ),
 							'type'        => 'select',
-							'description' => __( 'Compact UI such as comment threads, notifications, and nav. Preset “small”.', 'clanspress' ),
-							'default'     => 'clanspress-avatar-small',
+							'description' => __( 'Compact UI such as comment threads, notifications, and nav. Preset “small”.', 'clanbite' ),
+							'default'     => 'clanbite-avatar-small',
 							'options'     => $this->get_avatar_image_size_options(),
 							'sanitize'    => array( $this, 'sanitize_player_avatar_size_small' ),
 						),
 					),
 				),
 				'branding' => array(
-					'title'  => __( 'Branding defaults', 'clanspress' ),
+					'title'  => __( 'Branding defaults', 'clanbite' ),
 					'fields' => array(
 						'default_avatar' => array(
-							'label'       => __( 'Default player avatar image', 'clanspress' ),
+							'label'       => __( 'Default player avatar image', 'clanbite' ),
 							'type'        => 'image',
-							'description' => __( 'Shown when a player has no custom avatar. Leave empty to use the plugin bundled image.', 'clanspress' ),
+							'description' => __( 'Shown when a player has no custom avatar. Leave empty to use the plugin bundled image.', 'clanbite' ),
 							'default'     => '',
-							'fallback_url' => \clanspress_players_get_bundled_default_avatar_url(),
+							'fallback_url' => \clanbite_players_get_bundled_default_avatar_url(),
 							'sanitize'    => 'esc_url_raw',
 						),
 						'default_cover'  => array(
-							'label'       => __( 'Default player cover image', 'clanspress' ),
+							'label'       => __( 'Default player cover image', 'clanbite' ),
 							'type'        => 'image',
-							'description' => __( 'Shown when a player has no custom cover. Leave empty to use the plugin bundled image.', 'clanspress' ),
+							'description' => __( 'Shown when a player has no custom cover. Leave empty to use the plugin bundled image.', 'clanbite' ),
 							'default'     => '',
-							'fallback_url' => \clanspress_players_get_bundled_default_cover_url(),
+							'fallback_url' => \clanbite_players_get_bundled_default_cover_url(),
 							'sanitize'    => 'esc_url_raw',
 						),
 					),
@@ -133,34 +133,34 @@ class Admin extends Abstract_Settings {
 
 		if ( $this->is_ranks_extension_available() ) {
 			$sections['integrations']['fields']['rank_status_updates_enabled'] = array(
-				'label'       => __( 'Player profile: rank achievement status updates', 'clanspress' ),
+				'label'       => __( 'Player profile: rank achievement status updates', 'clanbite' ),
 				'type'        => 'checkbox',
-				'description' => __( 'When the Ranks extension is enabled, allow rank promotions and manual assignments to publish a social status post for the player.', 'clanspress' ),
+				'description' => __( 'When the Ranks extension is enabled, allow rank promotions and manual assignments to publish a social status post for the player.', 'clanbite' ),
 				'default'     => true,
 				'sanitize'    => 'rest_sanitize_boolean',
 			);
 		}
 
-		return apply_filters( 'clanspress_players_sections', $sections );
+		return apply_filters( 'clanbite_players_sections', $sections );
 	}
 
 	/**
-	 * Whether the Ranks extension is currently installed in Clanspress.
+	 * Whether the Ranks extension is currently installed in Clanbite.
 	 *
 	 * @return bool
 	 */
 	protected function is_ranks_extension_available(): bool {
-		if ( ! class_exists( \Kernowdev\Clanspress\Extensions\Loader::class ) ) {
+		if ( ! class_exists( \Kernowdev\Clanbite\Extensions\Loader::class ) ) {
 			return false;
 		}
 
-		$installed = \Kernowdev\Clanspress\Extensions\Loader::instance()->get_installed_extensions();
+		$installed = \Kernowdev\Clanbite\Extensions\Loader::instance()->get_installed_extensions();
 
 		return is_array( $installed ) && array_key_exists( 'cp_ranks', $installed );
 	}
 
 	public function render_page(): void {
-		$this->render_settings_page( __( 'Players', 'clanspress' ) );
+		$this->render_settings_page( __( 'Players', 'clanbite' ) );
 	}
 
 	/**
@@ -169,13 +169,13 @@ class Admin extends Abstract_Settings {
 	 * @return array<string, string>
 	 */
 	protected function get_avatar_image_size_options(): array {
-		return function_exists( 'clanspress_players_get_image_size_choices_for_settings' )
-			? clanspress_players_get_image_size_choices_for_settings()
+		return function_exists( 'clanbite_players_get_image_size_choices_for_settings' )
+			? clanbite_players_get_image_size_choices_for_settings()
 			: array(
-				'thumbnail' => __( 'Thumbnail', 'clanspress' ),
-				'medium'    => __( 'Medium', 'clanspress' ),
-				'large'     => __( 'Large', 'clanspress' ),
-				'full'      => __( 'Full size', 'clanspress' ),
+				'thumbnail' => __( 'Thumbnail', 'clanbite' ),
+				'medium'    => __( 'Medium', 'clanbite' ),
+				'large'     => __( 'Large', 'clanbite' ),
+				'full'      => __( 'Full size', 'clanbite' ),
 			);
 	}
 
@@ -184,9 +184,9 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	public function sanitize_player_avatar_size_large( $value ): string {
-		return function_exists( 'clanspress_players_sanitize_image_size_setting_value' )
-			? clanspress_players_sanitize_image_size_setting_value( (string) $value, 'clanspress-avatar-large' )
-			: 'clanspress-avatar-large';
+		return function_exists( 'clanbite_players_sanitize_image_size_setting_value' )
+			? clanbite_players_sanitize_image_size_setting_value( (string) $value, 'clanbite-avatar-large' )
+			: 'clanbite-avatar-large';
 	}
 
 	/**
@@ -194,9 +194,9 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	public function sanitize_player_avatar_size_medium( $value ): string {
-		return function_exists( 'clanspress_players_sanitize_image_size_setting_value' )
-			? clanspress_players_sanitize_image_size_setting_value( (string) $value, 'clanspress-avatar-medium' )
-			: 'clanspress-avatar-medium';
+		return function_exists( 'clanbite_players_sanitize_image_size_setting_value' )
+			? clanbite_players_sanitize_image_size_setting_value( (string) $value, 'clanbite-avatar-medium' )
+			: 'clanbite-avatar-medium';
 	}
 
 	/**
@@ -204,9 +204,9 @@ class Admin extends Abstract_Settings {
 	 * @return string
 	 */
 	public function sanitize_player_avatar_size_small( $value ): string {
-		return function_exists( 'clanspress_players_sanitize_image_size_setting_value' )
-			? clanspress_players_sanitize_image_size_setting_value( (string) $value, 'clanspress-avatar-small' )
-			: 'clanspress-avatar-small';
+		return function_exists( 'clanbite_players_sanitize_image_size_setting_value' )
+			? clanbite_players_sanitize_image_size_setting_value( (string) $value, 'clanbite-avatar-small' )
+			: 'clanbite-avatar-small';
 	}
 
 	/**

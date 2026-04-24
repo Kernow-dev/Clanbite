@@ -13,271 +13,271 @@ defined( 'ABSPATH' ) || exit;
  *
  * @return array Countries as Country code => Country name
  */
-function clanspress_players_get_countries() {
+function clanbite_players_get_countries() {
 	$countries = array(
-		'AF' => __( 'Afghanistan', 'clanspress' ),
-		'AL' => __( 'Albania', 'clanspress' ),
-		'DZ' => __( 'Algeria', 'clanspress' ),
-		'AS' => __( 'American Samoa', 'clanspress' ),
-		'AD' => __( 'Andorra', 'clanspress' ),
-		'AO' => __( 'Angola', 'clanspress' ),
-		'AI' => __( 'Anguilla', 'clanspress' ),
-		'AQ' => __( 'Antarctica', 'clanspress' ),
-		'AG' => __( 'Antigua and Barbuda', 'clanspress' ),
-		'AR' => __( 'Argentina', 'clanspress' ),
-		'AM' => __( 'Armenia', 'clanspress' ),
-		'AW' => __( 'Aruba', 'clanspress' ),
-		'AU' => __( 'Australia', 'clanspress' ),
-		'AT' => __( 'Austria', 'clanspress' ),
-		'AZ' => __( 'Azerbaijan', 'clanspress' ),
-		'BS' => __( 'Bahamas', 'clanspress' ),
-		'BH' => __( 'Bahrain', 'clanspress' ),
-		'BD' => __( 'Bangladesh', 'clanspress' ),
-		'BB' => __( 'Barbados', 'clanspress' ),
-		'BY' => __( 'Belarus', 'clanspress' ),
-		'BE' => __( 'Belgium', 'clanspress' ),
-		'BZ' => __( 'Belize', 'clanspress' ),
-		'BJ' => __( 'Benin', 'clanspress' ),
-		'BM' => __( 'Bermuda', 'clanspress' ),
-		'BT' => __( 'Bhutan', 'clanspress' ),
-		'BO' => __( 'Bolivia', 'clanspress' ),
-		'BA' => __( 'Bosnia and Herzegovina', 'clanspress' ),
-		'BW' => __( 'Botswana', 'clanspress' ),
-		'BV' => __( 'Bouvet Island', 'clanspress' ),
-		'BR' => __( 'Brazil', 'clanspress' ),
-		'BQ' => __( 'British Antarctic Territory', 'clanspress' ),
-		'IO' => __( 'British Indian Ocean Territory', 'clanspress' ),
-		'VG' => __( 'British Virgin Islands', 'clanspress' ),
-		'BN' => __( 'Brunei', 'clanspress' ),
-		'BG' => __( 'Bulgaria', 'clanspress' ),
-		'BF' => __( 'Burkina Faso', 'clanspress' ),
-		'BI' => __( 'Burundi', 'clanspress' ),
-		'KH' => __( 'Cambodia', 'clanspress' ),
-		'CM' => __( 'Cameroon', 'clanspress' ),
-		'CA' => __( 'Canada', 'clanspress' ),
-		'CT' => __( 'Canton and Enderbury Islands', 'clanspress' ),
-		'CV' => __( 'Cape Verde', 'clanspress' ),
-		'KY' => __( 'Cayman Islands', 'clanspress' ),
-		'CF' => __( 'Central African Republic', 'clanspress' ),
-		'TD' => __( 'Chad', 'clanspress' ),
-		'CL' => __( 'Chile', 'clanspress' ),
-		'CN' => __( 'China', 'clanspress' ),
-		'CX' => __( 'Christmas Island', 'clanspress' ),
-		'CC' => __( 'Cocos [Keeling] Islands', 'clanspress' ),
-		'CO' => __( 'Colombia', 'clanspress' ),
-		'KM' => __( 'Comoros', 'clanspress' ),
-		'CG' => __( 'Congo - Brazzaville', 'clanspress' ),
-		'CD' => __( 'Congo - Kinshasa', 'clanspress' ),
-		'CK' => __( 'Cook Islands', 'clanspress' ),
-		'CR' => __( 'Costa Rica', 'clanspress' ),
-		'HR' => __( 'Croatia', 'clanspress' ),
-		'CU' => __( 'Cuba', 'clanspress' ),
-		'CY' => __( 'Cyprus', 'clanspress' ),
-		'CZ' => __( 'Czech Republic', 'clanspress' ),
-		'CI' => __( 'Côte d’Ivoire', 'clanspress' ),
-		'DK' => __( 'Denmark', 'clanspress' ),
-		'DJ' => __( 'Djibouti', 'clanspress' ),
-		'DM' => __( 'Dominica', 'clanspress' ),
-		'DO' => __( 'Dominican Republic', 'clanspress' ),
-		'NQ' => __( 'Dronning Maud Land', 'clanspress' ),
-		'DD' => __( 'East Germany', 'clanspress' ),
-		'EC' => __( 'Ecuador', 'clanspress' ),
-		'EG' => __( 'Egypt', 'clanspress' ),
-		'SV' => __( 'El Salvador', 'clanspress' ),
-		'GQ' => __( 'Equatorial Guinea', 'clanspress' ),
-		'ER' => __( 'Eritrea', 'clanspress' ),
-		'EE' => __( 'Estonia', 'clanspress' ),
-		'ET' => __( 'Ethiopia', 'clanspress' ),
-		'FK' => __( 'Falkland Islands', 'clanspress' ),
-		'FO' => __( 'Faroe Islands', 'clanspress' ),
-		'FJ' => __( 'Fiji', 'clanspress' ),
-		'FI' => __( 'Finland', 'clanspress' ),
-		'FR' => __( 'France', 'clanspress' ),
-		'GF' => __( 'French Guiana', 'clanspress' ),
-		'PF' => __( 'French Polynesia', 'clanspress' ),
-		'TF' => __( 'French Southern Territories', 'clanspress' ),
-		'FQ' => __( 'French Southern and Antarctic Territories', 'clanspress' ),
-		'GA' => __( 'Gabon', 'clanspress' ),
-		'GM' => __( 'Gambia', 'clanspress' ),
-		'GE' => __( 'Georgia', 'clanspress' ),
-		'DE' => __( 'Germany', 'clanspress' ),
-		'GH' => __( 'Ghana', 'clanspress' ),
-		'GI' => __( 'Gibraltar', 'clanspress' ),
-		'GR' => __( 'Greece', 'clanspress' ),
-		'GL' => __( 'Greenland', 'clanspress' ),
-		'GD' => __( 'Grenada', 'clanspress' ),
-		'GP' => __( 'Guadeloupe', 'clanspress' ),
-		'GU' => __( 'Guam', 'clanspress' ),
-		'GT' => __( 'Guatemala', 'clanspress' ),
-		'GG' => __( 'Guernsey', 'clanspress' ),
-		'GN' => __( 'Guinea', 'clanspress' ),
-		'GW' => __( 'Guinea-Bissau', 'clanspress' ),
-		'GY' => __( 'Guyana', 'clanspress' ),
-		'HT' => __( 'Haiti', 'clanspress' ),
-		'HM' => __( 'Heard Island and McDonald Islands', 'clanspress' ),
-		'HN' => __( 'Honduras', 'clanspress' ),
-		'HK' => __( 'Hong Kong SAR China', 'clanspress' ),
-		'HU' => __( 'Hungary', 'clanspress' ),
-		'IS' => __( 'Iceland', 'clanspress' ),
-		'IN' => __( 'India', 'clanspress' ),
-		'ID' => __( 'Indonesia', 'clanspress' ),
-		'IR' => __( 'Iran', 'clanspress' ),
-		'IQ' => __( 'Iraq', 'clanspress' ),
-		'IE' => __( 'Ireland', 'clanspress' ),
-		'IM' => __( 'Isle of Man', 'clanspress' ),
-		'IL' => __( 'Israel', 'clanspress' ),
-		'IT' => __( 'Italy', 'clanspress' ),
-		'JM' => __( 'Jamaica', 'clanspress' ),
-		'JP' => __( 'Japan', 'clanspress' ),
-		'JE' => __( 'Jersey', 'clanspress' ),
-		'JT' => __( 'Johnston Island', 'clanspress' ),
-		'JO' => __( 'Jordan', 'clanspress' ),
-		'KZ' => __( 'Kazakhstan', 'clanspress' ),
-		'KE' => __( 'Kenya', 'clanspress' ),
-		'KI' => __( 'Kiribati', 'clanspress' ),
-		'KW' => __( 'Kuwait', 'clanspress' ),
-		'KG' => __( 'Kyrgyzstan', 'clanspress' ),
-		'LA' => __( 'Laos', 'clanspress' ),
-		'LV' => __( 'Latvia', 'clanspress' ),
-		'LB' => __( 'Lebanon', 'clanspress' ),
-		'LS' => __( 'Lesotho', 'clanspress' ),
-		'LR' => __( 'Liberia', 'clanspress' ),
-		'LY' => __( 'Libya', 'clanspress' ),
-		'LI' => __( 'Liechtenstein', 'clanspress' ),
-		'LT' => __( 'Lithuania', 'clanspress' ),
-		'LU' => __( 'Luxembourg', 'clanspress' ),
-		'MO' => __( 'Macau SAR China', 'clanspress' ),
-		'MK' => __( 'Macedonia', 'clanspress' ),
-		'MG' => __( 'Madagascar', 'clanspress' ),
-		'MW' => __( 'Malawi', 'clanspress' ),
-		'MY' => __( 'Malaysia', 'clanspress' ),
-		'MV' => __( 'Maldives', 'clanspress' ),
-		'ML' => __( 'Mali', 'clanspress' ),
-		'MT' => __( 'Malta', 'clanspress' ),
-		'MH' => __( 'Marshall Islands', 'clanspress' ),
-		'MQ' => __( 'Martinique', 'clanspress' ),
-		'MR' => __( 'Mauritania', 'clanspress' ),
-		'MU' => __( 'Mauritius', 'clanspress' ),
-		'YT' => __( 'Mayotte', 'clanspress' ),
-		'FX' => __( 'Metropolitan France', 'clanspress' ),
-		'MX' => __( 'Mexico', 'clanspress' ),
-		'FM' => __( 'Micronesia', 'clanspress' ),
-		'MI' => __( 'Midway Islands', 'clanspress' ),
-		'MD' => __( 'Moldova', 'clanspress' ),
-		'MC' => __( 'Monaco', 'clanspress' ),
-		'MN' => __( 'Mongolia', 'clanspress' ),
-		'ME' => __( 'Montenegro', 'clanspress' ),
-		'MS' => __( 'Montserrat', 'clanspress' ),
-		'MA' => __( 'Morocco', 'clanspress' ),
-		'MZ' => __( 'Mozambique', 'clanspress' ),
-		'MM' => __( 'Myanmar [Burma]', 'clanspress' ),
-		'NA' => __( 'Namibia', 'clanspress' ),
-		'NR' => __( 'Nauru', 'clanspress' ),
-		'NP' => __( 'Nepal', 'clanspress' ),
-		'NL' => __( 'Netherlands', 'clanspress' ),
-		'AN' => __( 'Netherlands Antilles', 'clanspress' ),
-		'NT' => __( 'Neutral Zone', 'clanspress' ),
-		'NC' => __( 'New Caledonia', 'clanspress' ),
-		'NZ' => __( 'New Zealand', 'clanspress' ),
-		'NI' => __( 'Nicaragua', 'clanspress' ),
-		'NE' => __( 'Niger', 'clanspress' ),
-		'NG' => __( 'Nigeria', 'clanspress' ),
-		'NU' => __( 'Niue', 'clanspress' ),
-		'NF' => __( 'Norfolk Island', 'clanspress' ),
-		'KP' => __( 'North Korea', 'clanspress' ),
-		'VD' => __( 'North Vietnam', 'clanspress' ),
-		'MP' => __( 'Northern Mariana Islands', 'clanspress' ),
-		'NO' => __( 'Norway', 'clanspress' ),
-		'OM' => __( 'Oman', 'clanspress' ),
-		'PC' => __( 'Pacific Islands Trust Territory', 'clanspress' ),
-		'PK' => __( 'Pakistan', 'clanspress' ),
-		'PW' => __( 'Palau', 'clanspress' ),
-		'PS' => __( 'Palestinian Territories', 'clanspress' ),
-		'PA' => __( 'Panama', 'clanspress' ),
-		'PZ' => __( 'Panama Canal Zone', 'clanspress' ),
-		'PG' => __( 'Papua New Guinea', 'clanspress' ),
-		'PY' => __( 'Paraguay', 'clanspress' ),
-		'YD' => __( 'People\'s Democratic Republic of Yemen', 'clanspress' ),
-		'PE' => __( 'Peru', 'clanspress' ),
-		'PH' => __( 'Philippines', 'clanspress' ),
-		'PN' => __( 'Pitcairn Islands', 'clanspress' ),
-		'PL' => __( 'Poland', 'clanspress' ),
-		'PT' => __( 'Portugal', 'clanspress' ),
-		'PR' => __( 'Puerto Rico', 'clanspress' ),
-		'QA' => __( 'Qatar', 'clanspress' ),
-		'RO' => __( 'Romania', 'clanspress' ),
-		'RU' => __( 'Russia', 'clanspress' ),
-		'RW' => __( 'Rwanda', 'clanspress' ),
-		'BL' => __( 'Saint Barthélemy', 'clanspress' ),
-		'SH' => __( 'Saint Helena', 'clanspress' ),
-		'KN' => __( 'Saint Kitts and Nevis', 'clanspress' ),
-		'LC' => __( 'Saint Lucia', 'clanspress' ),
-		'MF' => __( 'Saint Martin', 'clanspress' ),
-		'PM' => __( 'Saint Pierre and Miquelon', 'clanspress' ),
-		'VC' => __( 'Saint Vincent and the Grenadines', 'clanspress' ),
-		'WS' => __( 'Samoa', 'clanspress' ),
-		'SM' => __( 'San Marino', 'clanspress' ),
-		'SA' => __( 'Saudi Arabia', 'clanspress' ),
-		'SN' => __( 'Senegal', 'clanspress' ),
-		'RS' => __( 'Serbia', 'clanspress' ),
-		'CS' => __( 'Serbia and Montenegro', 'clanspress' ),
-		'SC' => __( 'Seychelles', 'clanspress' ),
-		'SL' => __( 'Sierra Leone', 'clanspress' ),
-		'SG' => __( 'Singapore', 'clanspress' ),
-		'SK' => __( 'Slovakia', 'clanspress' ),
-		'SI' => __( 'Slovenia', 'clanspress' ),
-		'SB' => __( 'Solomon Islands', 'clanspress' ),
-		'SO' => __( 'Somalia', 'clanspress' ),
-		'ZA' => __( 'South Africa', 'clanspress' ),
-		'GS' => __( 'South Georgia and the South Sandwich Islands', 'clanspress' ),
-		'KR' => __( 'South Korea', 'clanspress' ),
-		'ES' => __( 'Spain', 'clanspress' ),
-		'LK' => __( 'Sri Lanka', 'clanspress' ),
-		'SD' => __( 'Sudan', 'clanspress' ),
-		'SR' => __( 'Suriname', 'clanspress' ),
-		'SJ' => __( 'Svalbard and Jan Mayen', 'clanspress' ),
-		'SZ' => __( 'Swaziland', 'clanspress' ),
-		'SE' => __( 'Sweden', 'clanspress' ),
-		'CH' => __( 'Switzerland', 'clanspress' ),
-		'SY' => __( 'Syria', 'clanspress' ),
-		'ST' => __( 'São Tomé and Príncipe', 'clanspress' ),
-		'TW' => __( 'Taiwan', 'clanspress' ),
-		'TJ' => __( 'Tajikistan', 'clanspress' ),
-		'TZ' => __( 'Tanzania', 'clanspress' ),
-		'TH' => __( 'Thailand', 'clanspress' ),
-		'TL' => __( 'Timor-Leste', 'clanspress' ),
-		'TG' => __( 'Togo', 'clanspress' ),
-		'TK' => __( 'Tokelau', 'clanspress' ),
-		'TO' => __( 'Tonga', 'clanspress' ),
-		'TT' => __( 'Trinidad and Tobago', 'clanspress' ),
-		'TN' => __( 'Tunisia', 'clanspress' ),
-		'TR' => __( 'Turkey', 'clanspress' ),
-		'TM' => __( 'Turkmenistan', 'clanspress' ),
-		'TC' => __( 'Turks and Caicos Islands', 'clanspress' ),
-		'TV' => __( 'Tuvalu', 'clanspress' ),
-		'UM' => __( 'U.S. Minor Outlying Islands', 'clanspress' ),
-		'PU' => __( 'U.S. Miscellaneous Pacific Islands', 'clanspress' ),
-		'VI' => __( 'U.S. Virgin Islands', 'clanspress' ),
-		'UG' => __( 'Uganda', 'clanspress' ),
-		'UA' => __( 'Ukraine', 'clanspress' ),
-		'SU' => __( 'Union of Soviet Socialist Republics', 'clanspress' ),
-		'AE' => __( 'United Arab Emirates', 'clanspress' ),
-		'GB' => __( 'United Kingdom', 'clanspress' ),
-		'US' => __( 'United States', 'clanspress' ),
-		'ZZ' => __( 'Unknown or Invalid Region', 'clanspress' ),
-		'UY' => __( 'Uruguay', 'clanspress' ),
-		'UZ' => __( 'Uzbekistan', 'clanspress' ),
-		'VU' => __( 'Vanuatu', 'clanspress' ),
-		'VA' => __( 'Vatican City', 'clanspress' ),
-		'VE' => __( 'Venezuela', 'clanspress' ),
-		'VN' => __( 'Vietnam', 'clanspress' ),
-		'WK' => __( 'Wake Island', 'clanspress' ),
-		'WF' => __( 'Wallis and Futuna', 'clanspress' ),
-		'EH' => __( 'Western Sahara', 'clanspress' ),
-		'YE' => __( 'Yemen', 'clanspress' ),
-		'ZM' => __( 'Zambia', 'clanspress' ),
-		'ZW' => __( 'Zimbabwe', 'clanspress' ),
-		'AX' => __( 'Åland Islands', 'clanspress' ),
+		'AF' => __( 'Afghanistan', 'clanbite' ),
+		'AL' => __( 'Albania', 'clanbite' ),
+		'DZ' => __( 'Algeria', 'clanbite' ),
+		'AS' => __( 'American Samoa', 'clanbite' ),
+		'AD' => __( 'Andorra', 'clanbite' ),
+		'AO' => __( 'Angola', 'clanbite' ),
+		'AI' => __( 'Anguilla', 'clanbite' ),
+		'AQ' => __( 'Antarctica', 'clanbite' ),
+		'AG' => __( 'Antigua and Barbuda', 'clanbite' ),
+		'AR' => __( 'Argentina', 'clanbite' ),
+		'AM' => __( 'Armenia', 'clanbite' ),
+		'AW' => __( 'Aruba', 'clanbite' ),
+		'AU' => __( 'Australia', 'clanbite' ),
+		'AT' => __( 'Austria', 'clanbite' ),
+		'AZ' => __( 'Azerbaijan', 'clanbite' ),
+		'BS' => __( 'Bahamas', 'clanbite' ),
+		'BH' => __( 'Bahrain', 'clanbite' ),
+		'BD' => __( 'Bangladesh', 'clanbite' ),
+		'BB' => __( 'Barbados', 'clanbite' ),
+		'BY' => __( 'Belarus', 'clanbite' ),
+		'BE' => __( 'Belgium', 'clanbite' ),
+		'BZ' => __( 'Belize', 'clanbite' ),
+		'BJ' => __( 'Benin', 'clanbite' ),
+		'BM' => __( 'Bermuda', 'clanbite' ),
+		'BT' => __( 'Bhutan', 'clanbite' ),
+		'BO' => __( 'Bolivia', 'clanbite' ),
+		'BA' => __( 'Bosnia and Herzegovina', 'clanbite' ),
+		'BW' => __( 'Botswana', 'clanbite' ),
+		'BV' => __( 'Bouvet Island', 'clanbite' ),
+		'BR' => __( 'Brazil', 'clanbite' ),
+		'BQ' => __( 'British Antarctic Territory', 'clanbite' ),
+		'IO' => __( 'British Indian Ocean Territory', 'clanbite' ),
+		'VG' => __( 'British Virgin Islands', 'clanbite' ),
+		'BN' => __( 'Brunei', 'clanbite' ),
+		'BG' => __( 'Bulgaria', 'clanbite' ),
+		'BF' => __( 'Burkina Faso', 'clanbite' ),
+		'BI' => __( 'Burundi', 'clanbite' ),
+		'KH' => __( 'Cambodia', 'clanbite' ),
+		'CM' => __( 'Cameroon', 'clanbite' ),
+		'CA' => __( 'Canada', 'clanbite' ),
+		'CT' => __( 'Canton and Enderbury Islands', 'clanbite' ),
+		'CV' => __( 'Cape Verde', 'clanbite' ),
+		'KY' => __( 'Cayman Islands', 'clanbite' ),
+		'CF' => __( 'Central African Republic', 'clanbite' ),
+		'TD' => __( 'Chad', 'clanbite' ),
+		'CL' => __( 'Chile', 'clanbite' ),
+		'CN' => __( 'China', 'clanbite' ),
+		'CX' => __( 'Christmas Island', 'clanbite' ),
+		'CC' => __( 'Cocos [Keeling] Islands', 'clanbite' ),
+		'CO' => __( 'Colombia', 'clanbite' ),
+		'KM' => __( 'Comoros', 'clanbite' ),
+		'CG' => __( 'Congo - Brazzaville', 'clanbite' ),
+		'CD' => __( 'Congo - Kinshasa', 'clanbite' ),
+		'CK' => __( 'Cook Islands', 'clanbite' ),
+		'CR' => __( 'Costa Rica', 'clanbite' ),
+		'HR' => __( 'Croatia', 'clanbite' ),
+		'CU' => __( 'Cuba', 'clanbite' ),
+		'CY' => __( 'Cyprus', 'clanbite' ),
+		'CZ' => __( 'Czech Republic', 'clanbite' ),
+		'CI' => __( 'Côte d’Ivoire', 'clanbite' ),
+		'DK' => __( 'Denmark', 'clanbite' ),
+		'DJ' => __( 'Djibouti', 'clanbite' ),
+		'DM' => __( 'Dominica', 'clanbite' ),
+		'DO' => __( 'Dominican Republic', 'clanbite' ),
+		'NQ' => __( 'Dronning Maud Land', 'clanbite' ),
+		'DD' => __( 'East Germany', 'clanbite' ),
+		'EC' => __( 'Ecuador', 'clanbite' ),
+		'EG' => __( 'Egypt', 'clanbite' ),
+		'SV' => __( 'El Salvador', 'clanbite' ),
+		'GQ' => __( 'Equatorial Guinea', 'clanbite' ),
+		'ER' => __( 'Eritrea', 'clanbite' ),
+		'EE' => __( 'Estonia', 'clanbite' ),
+		'ET' => __( 'Ethiopia', 'clanbite' ),
+		'FK' => __( 'Falkland Islands', 'clanbite' ),
+		'FO' => __( 'Faroe Islands', 'clanbite' ),
+		'FJ' => __( 'Fiji', 'clanbite' ),
+		'FI' => __( 'Finland', 'clanbite' ),
+		'FR' => __( 'France', 'clanbite' ),
+		'GF' => __( 'French Guiana', 'clanbite' ),
+		'PF' => __( 'French Polynesia', 'clanbite' ),
+		'TF' => __( 'French Southern Territories', 'clanbite' ),
+		'FQ' => __( 'French Southern and Antarctic Territories', 'clanbite' ),
+		'GA' => __( 'Gabon', 'clanbite' ),
+		'GM' => __( 'Gambia', 'clanbite' ),
+		'GE' => __( 'Georgia', 'clanbite' ),
+		'DE' => __( 'Germany', 'clanbite' ),
+		'GH' => __( 'Ghana', 'clanbite' ),
+		'GI' => __( 'Gibraltar', 'clanbite' ),
+		'GR' => __( 'Greece', 'clanbite' ),
+		'GL' => __( 'Greenland', 'clanbite' ),
+		'GD' => __( 'Grenada', 'clanbite' ),
+		'GP' => __( 'Guadeloupe', 'clanbite' ),
+		'GU' => __( 'Guam', 'clanbite' ),
+		'GT' => __( 'Guatemala', 'clanbite' ),
+		'GG' => __( 'Guernsey', 'clanbite' ),
+		'GN' => __( 'Guinea', 'clanbite' ),
+		'GW' => __( 'Guinea-Bissau', 'clanbite' ),
+		'GY' => __( 'Guyana', 'clanbite' ),
+		'HT' => __( 'Haiti', 'clanbite' ),
+		'HM' => __( 'Heard Island and McDonald Islands', 'clanbite' ),
+		'HN' => __( 'Honduras', 'clanbite' ),
+		'HK' => __( 'Hong Kong SAR China', 'clanbite' ),
+		'HU' => __( 'Hungary', 'clanbite' ),
+		'IS' => __( 'Iceland', 'clanbite' ),
+		'IN' => __( 'India', 'clanbite' ),
+		'ID' => __( 'Indonesia', 'clanbite' ),
+		'IR' => __( 'Iran', 'clanbite' ),
+		'IQ' => __( 'Iraq', 'clanbite' ),
+		'IE' => __( 'Ireland', 'clanbite' ),
+		'IM' => __( 'Isle of Man', 'clanbite' ),
+		'IL' => __( 'Israel', 'clanbite' ),
+		'IT' => __( 'Italy', 'clanbite' ),
+		'JM' => __( 'Jamaica', 'clanbite' ),
+		'JP' => __( 'Japan', 'clanbite' ),
+		'JE' => __( 'Jersey', 'clanbite' ),
+		'JT' => __( 'Johnston Island', 'clanbite' ),
+		'JO' => __( 'Jordan', 'clanbite' ),
+		'KZ' => __( 'Kazakhstan', 'clanbite' ),
+		'KE' => __( 'Kenya', 'clanbite' ),
+		'KI' => __( 'Kiribati', 'clanbite' ),
+		'KW' => __( 'Kuwait', 'clanbite' ),
+		'KG' => __( 'Kyrgyzstan', 'clanbite' ),
+		'LA' => __( 'Laos', 'clanbite' ),
+		'LV' => __( 'Latvia', 'clanbite' ),
+		'LB' => __( 'Lebanon', 'clanbite' ),
+		'LS' => __( 'Lesotho', 'clanbite' ),
+		'LR' => __( 'Liberia', 'clanbite' ),
+		'LY' => __( 'Libya', 'clanbite' ),
+		'LI' => __( 'Liechtenstein', 'clanbite' ),
+		'LT' => __( 'Lithuania', 'clanbite' ),
+		'LU' => __( 'Luxembourg', 'clanbite' ),
+		'MO' => __( 'Macau SAR China', 'clanbite' ),
+		'MK' => __( 'Macedonia', 'clanbite' ),
+		'MG' => __( 'Madagascar', 'clanbite' ),
+		'MW' => __( 'Malawi', 'clanbite' ),
+		'MY' => __( 'Malaysia', 'clanbite' ),
+		'MV' => __( 'Maldives', 'clanbite' ),
+		'ML' => __( 'Mali', 'clanbite' ),
+		'MT' => __( 'Malta', 'clanbite' ),
+		'MH' => __( 'Marshall Islands', 'clanbite' ),
+		'MQ' => __( 'Martinique', 'clanbite' ),
+		'MR' => __( 'Mauritania', 'clanbite' ),
+		'MU' => __( 'Mauritius', 'clanbite' ),
+		'YT' => __( 'Mayotte', 'clanbite' ),
+		'FX' => __( 'Metropolitan France', 'clanbite' ),
+		'MX' => __( 'Mexico', 'clanbite' ),
+		'FM' => __( 'Micronesia', 'clanbite' ),
+		'MI' => __( 'Midway Islands', 'clanbite' ),
+		'MD' => __( 'Moldova', 'clanbite' ),
+		'MC' => __( 'Monaco', 'clanbite' ),
+		'MN' => __( 'Mongolia', 'clanbite' ),
+		'ME' => __( 'Montenegro', 'clanbite' ),
+		'MS' => __( 'Montserrat', 'clanbite' ),
+		'MA' => __( 'Morocco', 'clanbite' ),
+		'MZ' => __( 'Mozambique', 'clanbite' ),
+		'MM' => __( 'Myanmar [Burma]', 'clanbite' ),
+		'NA' => __( 'Namibia', 'clanbite' ),
+		'NR' => __( 'Nauru', 'clanbite' ),
+		'NP' => __( 'Nepal', 'clanbite' ),
+		'NL' => __( 'Netherlands', 'clanbite' ),
+		'AN' => __( 'Netherlands Antilles', 'clanbite' ),
+		'NT' => __( 'Neutral Zone', 'clanbite' ),
+		'NC' => __( 'New Caledonia', 'clanbite' ),
+		'NZ' => __( 'New Zealand', 'clanbite' ),
+		'NI' => __( 'Nicaragua', 'clanbite' ),
+		'NE' => __( 'Niger', 'clanbite' ),
+		'NG' => __( 'Nigeria', 'clanbite' ),
+		'NU' => __( 'Niue', 'clanbite' ),
+		'NF' => __( 'Norfolk Island', 'clanbite' ),
+		'KP' => __( 'North Korea', 'clanbite' ),
+		'VD' => __( 'North Vietnam', 'clanbite' ),
+		'MP' => __( 'Northern Mariana Islands', 'clanbite' ),
+		'NO' => __( 'Norway', 'clanbite' ),
+		'OM' => __( 'Oman', 'clanbite' ),
+		'PC' => __( 'Pacific Islands Trust Territory', 'clanbite' ),
+		'PK' => __( 'Pakistan', 'clanbite' ),
+		'PW' => __( 'Palau', 'clanbite' ),
+		'PS' => __( 'Palestinian Territories', 'clanbite' ),
+		'PA' => __( 'Panama', 'clanbite' ),
+		'PZ' => __( 'Panama Canal Zone', 'clanbite' ),
+		'PG' => __( 'Papua New Guinea', 'clanbite' ),
+		'PY' => __( 'Paraguay', 'clanbite' ),
+		'YD' => __( 'People\'s Democratic Republic of Yemen', 'clanbite' ),
+		'PE' => __( 'Peru', 'clanbite' ),
+		'PH' => __( 'Philippines', 'clanbite' ),
+		'PN' => __( 'Pitcairn Islands', 'clanbite' ),
+		'PL' => __( 'Poland', 'clanbite' ),
+		'PT' => __( 'Portugal', 'clanbite' ),
+		'PR' => __( 'Puerto Rico', 'clanbite' ),
+		'QA' => __( 'Qatar', 'clanbite' ),
+		'RO' => __( 'Romania', 'clanbite' ),
+		'RU' => __( 'Russia', 'clanbite' ),
+		'RW' => __( 'Rwanda', 'clanbite' ),
+		'BL' => __( 'Saint Barthélemy', 'clanbite' ),
+		'SH' => __( 'Saint Helena', 'clanbite' ),
+		'KN' => __( 'Saint Kitts and Nevis', 'clanbite' ),
+		'LC' => __( 'Saint Lucia', 'clanbite' ),
+		'MF' => __( 'Saint Martin', 'clanbite' ),
+		'PM' => __( 'Saint Pierre and Miquelon', 'clanbite' ),
+		'VC' => __( 'Saint Vincent and the Grenadines', 'clanbite' ),
+		'WS' => __( 'Samoa', 'clanbite' ),
+		'SM' => __( 'San Marino', 'clanbite' ),
+		'SA' => __( 'Saudi Arabia', 'clanbite' ),
+		'SN' => __( 'Senegal', 'clanbite' ),
+		'RS' => __( 'Serbia', 'clanbite' ),
+		'CS' => __( 'Serbia and Montenegro', 'clanbite' ),
+		'SC' => __( 'Seychelles', 'clanbite' ),
+		'SL' => __( 'Sierra Leone', 'clanbite' ),
+		'SG' => __( 'Singapore', 'clanbite' ),
+		'SK' => __( 'Slovakia', 'clanbite' ),
+		'SI' => __( 'Slovenia', 'clanbite' ),
+		'SB' => __( 'Solomon Islands', 'clanbite' ),
+		'SO' => __( 'Somalia', 'clanbite' ),
+		'ZA' => __( 'South Africa', 'clanbite' ),
+		'GS' => __( 'South Georgia and the South Sandwich Islands', 'clanbite' ),
+		'KR' => __( 'South Korea', 'clanbite' ),
+		'ES' => __( 'Spain', 'clanbite' ),
+		'LK' => __( 'Sri Lanka', 'clanbite' ),
+		'SD' => __( 'Sudan', 'clanbite' ),
+		'SR' => __( 'Suriname', 'clanbite' ),
+		'SJ' => __( 'Svalbard and Jan Mayen', 'clanbite' ),
+		'SZ' => __( 'Swaziland', 'clanbite' ),
+		'SE' => __( 'Sweden', 'clanbite' ),
+		'CH' => __( 'Switzerland', 'clanbite' ),
+		'SY' => __( 'Syria', 'clanbite' ),
+		'ST' => __( 'São Tomé and Príncipe', 'clanbite' ),
+		'TW' => __( 'Taiwan', 'clanbite' ),
+		'TJ' => __( 'Tajikistan', 'clanbite' ),
+		'TZ' => __( 'Tanzania', 'clanbite' ),
+		'TH' => __( 'Thailand', 'clanbite' ),
+		'TL' => __( 'Timor-Leste', 'clanbite' ),
+		'TG' => __( 'Togo', 'clanbite' ),
+		'TK' => __( 'Tokelau', 'clanbite' ),
+		'TO' => __( 'Tonga', 'clanbite' ),
+		'TT' => __( 'Trinidad and Tobago', 'clanbite' ),
+		'TN' => __( 'Tunisia', 'clanbite' ),
+		'TR' => __( 'Turkey', 'clanbite' ),
+		'TM' => __( 'Turkmenistan', 'clanbite' ),
+		'TC' => __( 'Turks and Caicos Islands', 'clanbite' ),
+		'TV' => __( 'Tuvalu', 'clanbite' ),
+		'UM' => __( 'U.S. Minor Outlying Islands', 'clanbite' ),
+		'PU' => __( 'U.S. Miscellaneous Pacific Islands', 'clanbite' ),
+		'VI' => __( 'U.S. Virgin Islands', 'clanbite' ),
+		'UG' => __( 'Uganda', 'clanbite' ),
+		'UA' => __( 'Ukraine', 'clanbite' ),
+		'SU' => __( 'Union of Soviet Socialist Republics', 'clanbite' ),
+		'AE' => __( 'United Arab Emirates', 'clanbite' ),
+		'GB' => __( 'United Kingdom', 'clanbite' ),
+		'US' => __( 'United States', 'clanbite' ),
+		'ZZ' => __( 'Unknown or Invalid Region', 'clanbite' ),
+		'UY' => __( 'Uruguay', 'clanbite' ),
+		'UZ' => __( 'Uzbekistan', 'clanbite' ),
+		'VU' => __( 'Vanuatu', 'clanbite' ),
+		'VA' => __( 'Vatican City', 'clanbite' ),
+		'VE' => __( 'Venezuela', 'clanbite' ),
+		'VN' => __( 'Vietnam', 'clanbite' ),
+		'WK' => __( 'Wake Island', 'clanbite' ),
+		'WF' => __( 'Wallis and Futuna', 'clanbite' ),
+		'EH' => __( 'Western Sahara', 'clanbite' ),
+		'YE' => __( 'Yemen', 'clanbite' ),
+		'ZM' => __( 'Zambia', 'clanbite' ),
+		'ZW' => __( 'Zimbabwe', 'clanbite' ),
+		'AX' => __( 'Åland Islands', 'clanbite' ),
 	);
 
 	/**
@@ -285,7 +285,7 @@ function clanspress_players_get_countries() {
 	 *
 	 * @param array $countries countries array for filtering
 	 */
-	$countries = apply_filters( 'clanspress_players_countries_filters', $countries );
+	$countries = apply_filters( 'clanbite_players_countries_filters', $countries );
 
 	/**
 	 * Return the translated and filtered countries
@@ -296,63 +296,63 @@ function clanspress_players_get_countries() {
 /**
  * URL of the plugin-bundled default player avatar (used when Players -> default avatar is unset).
  *
- * @return string Empty when `clanspress()` is unavailable.
+ * @return string Empty when `clanbite()` is unavailable.
  */
-function clanspress_players_get_bundled_default_avatar_url(): string {
-	if ( ! function_exists( 'clanspress' ) ) {
+function clanbite_players_get_bundled_default_avatar_url(): string {
+	if ( ! function_exists( 'clanbite' ) ) {
 		return '';
 	}
 
-	return clanspress()->url . 'assets/img/avatars/default-player-avatar.png';
+	return clanbite()->url . 'assets/img/avatars/default-player-avatar.png';
 }
 
 /**
  * URL of the plugin-bundled default player cover (used when Players → default cover is unset).
  *
- * @return string Empty when `clanspress()` is unavailable.
+ * @return string Empty when `clanbite()` is unavailable.
  */
-function clanspress_players_get_bundled_default_cover_url(): string {
-	if ( ! function_exists( 'clanspress' ) ) {
+function clanbite_players_get_bundled_default_cover_url(): string {
+	if ( ! function_exists( 'clanbite' ) ) {
 		return '';
 	}
 
-	return clanspress()->url . 'assets/img/covers/default-player-cover-image.png';
+	return clanbite()->url . 'assets/img/covers/default-player-cover-image.png';
 }
 
-function clanspress_players_get_default_avatar( $player_id ) {
-	$loader = clanspress()->extensions;
+function clanbite_players_get_default_avatar( $player_id ) {
+	$loader = clanbite()->extensions;
 	if ( null === $loader ) {
 		$ext = null;
 	} else {
 		$ext = $loader->get( 'cp_players' );
 	}
-	$default_avatar = $ext instanceof \Kernowdev\Clanspress\Extensions\Players
+	$default_avatar = $ext instanceof \Kernowdev\Clanbite\Extensions\Players
 		? $ext->get_setting( 'default_avatar' )
 		: '';
 
 	if ( empty( $default_avatar ) ) {
-		$default_avatar = clanspress_players_get_bundled_default_avatar_url();
+		$default_avatar = clanbite_players_get_bundled_default_avatar_url();
 	}
 
-	return apply_filters( 'clanspress_players_get_default_avatar', $default_avatar, $player_id );
+	return apply_filters( 'clanbite_players_get_default_avatar', $default_avatar, $player_id );
 }
 
-function clanspress_players_get_default_cover( $player_id ) {
-	$loader = clanspress()->extensions;
+function clanbite_players_get_default_cover( $player_id ) {
+	$loader = clanbite()->extensions;
 	if ( null === $loader ) {
 		$ext = null;
 	} else {
 		$ext = $loader->get( 'cp_players' );
 	}
-	$default_cover = $ext instanceof \Kernowdev\Clanspress\Extensions\Players
+	$default_cover = $ext instanceof \Kernowdev\Clanbite\Extensions\Players
 		? $ext->get_setting( 'default_cover' )
 		: '';
 
 	if ( empty( $default_cover ) ) {
-		$default_cover = clanspress_players_get_bundled_default_cover_url();
+		$default_cover = clanbite_players_get_bundled_default_cover_url();
 	}
 
-	return apply_filters( 'clanspress_players_get_default_cover', $default_cover, $player_id );
+	return apply_filters( 'clanbite_players_get_default_cover', $default_cover, $player_id );
 }
 
 /**
@@ -363,16 +363,16 @@ function clanspress_players_get_default_cover( $player_id ) {
  * @param string $slug Unique slug (used in the URL).
  * @param array  $args {
  *     @type string $label        Human-readable label for navigation.
- *     @type string $template_id  FSE template identifier (defaults to "clanspress-player-{$slug}").
+ *     @type string $template_id  FSE template identifier (defaults to "clanbite-player-{$slug}").
  *     @type string $default_blocks Optional default block markup to seed the template.
  *     @type string $capability   Capability required to view (default "read").
  *     @type int    $position     Sort order in navigation (lower first).
  * }
  * @return void
  */
-function clanspress_register_player_subpage( string $slug, array $args = array() ): void {
-	if ( function_exists( 'clanspress_register_profile_subpage' ) ) {
-		clanspress_register_profile_subpage( 'player', $slug, $args );
+function clanbite_register_player_subpage( string $slug, array $args = array() ): void {
+	if ( function_exists( 'clanbite_register_profile_subpage' ) ) {
+		clanbite_register_profile_subpage( 'player', $slug, $args );
 	}
 }
 
@@ -381,8 +381,8 @@ function clanspress_register_player_subpage( string $slug, array $args = array()
  *
  * @return array<string,array>
  */
-function clanspress_get_player_subpages(): array {
-	return function_exists( 'clanspress_get_profile_subpages' ) ? clanspress_get_profile_subpages( 'player' ) : array();
+function clanbite_get_player_subpages(): array {
+	return function_exists( 'clanbite_get_profile_subpages' ) ? clanbite_get_profile_subpages( 'player' ) : array();
 }
 
 /**
@@ -391,24 +391,24 @@ function clanspress_get_player_subpages(): array {
  * @param string $slug Subpage slug.
  * @return array<string,mixed>|null
  */
-function clanspress_get_player_subpage( string $slug ): ?array {
-	return function_exists( 'clanspress_get_profile_subpage' ) ? clanspress_get_profile_subpage( 'player', $slug ) : null;
+function clanbite_get_player_subpage( string $slug ): ?array {
+	return function_exists( 'clanbite_get_profile_subpage' ) ? clanbite_get_profile_subpage( 'player', $slug ) : null;
 }
 
 /**
  * Resolve a player user ID from the canonical `/players/{nicename}/…` path (see rewrite rules).
  *
- * Uses {@see clanspress_get_canonical_request_path()} so subdirectory installs and `home_path` prefixes
- * match the same routes as {@see \Kernowdev\Clanspress\Extensions\Players::filter_request_for_players_virtual_routes()}.
+ * Uses {@see clanbite_get_canonical_request_path()} so subdirectory installs and `home_path` prefixes
+ * match the same routes as {@see \Kernowdev\Clanbite\Extensions\Players::filter_request_for_players_virtual_routes()}.
  *
  * @return int User ID or 0 when the path is not a member profile (directory, settings, etc.).
  */
-function clanspress_player_user_id_from_canonical_request_path(): int {
-	if ( ! function_exists( 'clanspress_get_canonical_request_path' ) ) {
+function clanbite_player_user_id_from_canonical_request_path(): int {
+	if ( ! function_exists( 'clanbite_get_canonical_request_path' ) ) {
 		return 0;
 	}
 
-	$path = clanspress_get_canonical_request_path();
+	$path = clanbite_get_canonical_request_path();
 	if ( '' === $path ) {
 		return 0;
 	}
@@ -445,7 +445,7 @@ function clanspress_player_user_id_from_canonical_request_path(): int {
  *
  * @return int
  */
-function clanspress_player_profile_context_user_id(): int {
+function clanbite_player_profile_context_user_id(): int {
 	if ( (int) get_query_var( 'players_settings' ) ) {
 		$uid = get_current_user_id();
 
@@ -456,29 +456,29 @@ function clanspress_player_profile_context_user_id(): int {
 		return (int) get_queried_object()->ID;
 	}
 
-	$from_path = clanspress_player_user_id_from_canonical_request_path();
+	$from_path = clanbite_player_user_id_from_canonical_request_path();
 
 	return $from_path > 0 ? $from_path : 0;
 }
 
 /**
- * Resolves the subject user ID for Clanspress player blocks on the front end.
+ * Resolves the subject user ID for Clanbite player blocks on the front end.
  *
- * Uses {@see clanspress_player_profile_context_user_id()} first (author archive, player settings),
+ * Uses {@see clanbite_player_profile_context_user_id()} first (author archive, player settings),
  * then the block `postId` context author, then the logged-in user.
  *
  * @param \WP_Block|null $block Optional block instance for post context.
  * @return int User ID or 0 if none resolved.
  */
-function clanspress_player_blocks_resolve_subject_user_id( $block = null ): int {
-	if ( $block instanceof \WP_Block && ! empty( $block->context['clanspress/playerId'] ) ) {
-		$loop_uid = (int) $block->context['clanspress/playerId'];
+function clanbite_player_blocks_resolve_subject_user_id( $block = null ): int {
+	if ( $block instanceof \WP_Block && ! empty( $block->context['clanbite/playerId'] ) ) {
+		$loop_uid = (int) $block->context['clanbite/playerId'];
 		if ( $loop_uid > 0 ) {
 			return $loop_uid;
 		}
 	}
 
-	$uid = (int) clanspress_player_profile_context_user_id();
+	$uid = (int) clanbite_player_profile_context_user_id();
 	if ( $uid > 0 ) {
 		return $uid;
 	}
@@ -502,7 +502,7 @@ function clanspress_player_blocks_resolve_subject_user_id( $block = null ): int 
  *
  * @return string
  */
-function clanspress_player_profile_route_current_slug(): string {
+function clanbite_player_profile_route_current_slug(): string {
 	if ( (int) get_query_var( 'players_settings' ) ) {
 		return 'settings';
 	}
@@ -515,7 +515,7 @@ function clanspress_player_profile_route_current_slug(): string {
  *
  * @return array<string, string> Slug => translated label.
  */
-function clanspress_players_get_image_size_choices_for_settings(): array {
+function clanbite_players_get_image_size_choices_for_settings(): array {
 	$slugs = array_values(
 		array_unique(
 			array_merge(
@@ -527,17 +527,17 @@ function clanspress_players_get_image_size_choices_for_settings(): array {
 	sort( $slugs );
 
 	$labels = array(
-		'full'                          => __( 'Full size', 'clanspress' ),
-		'thumbnail'                     => __( 'Thumbnail', 'clanspress' ),
-		'medium'                        => __( 'Medium', 'clanspress' ),
-		'medium_large'                  => __( 'Medium large', 'clanspress' ),
-		'large'                         => __( 'Large (WordPress)', 'clanspress' ),
-		'clanspress-avatar-large'       => __( 'Clanspress player avatar — large (default preset)', 'clanspress' ),
-		'clanspress-avatar-medium'      => __( 'Clanspress player avatar — medium (default preset)', 'clanspress' ),
-		'clanspress-avatar-small'       => __( 'Clanspress player avatar — small (default preset)', 'clanspress' ),
-		'clanspress-team-avatar-large'  => __( 'Clanspress team avatar — large (default preset)', 'clanspress' ),
-		'clanspress-team-avatar-medium' => __( 'Clanspress team avatar — medium (default preset)', 'clanspress' ),
-		'clanspress-team-avatar-small'  => __( 'Clanspress team avatar — small (default preset)', 'clanspress' ),
+		'full'                          => __( 'Full size', 'clanbite' ),
+		'thumbnail'                     => __( 'Thumbnail', 'clanbite' ),
+		'medium'                        => __( 'Medium', 'clanbite' ),
+		'medium_large'                  => __( 'Medium large', 'clanbite' ),
+		'large'                         => __( 'Large (WordPress)', 'clanbite' ),
+		'clanbite-avatar-large'       => __( 'Clanbite player avatar — large (default preset)', 'clanbite' ),
+		'clanbite-avatar-medium'      => __( 'Clanbite player avatar — medium (default preset)', 'clanbite' ),
+		'clanbite-avatar-small'       => __( 'Clanbite player avatar — small (default preset)', 'clanbite' ),
+		'clanbite-team-avatar-large'  => __( 'Clanbite team avatar — large (default preset)', 'clanbite' ),
+		'clanbite-team-avatar-medium' => __( 'Clanbite team avatar — medium (default preset)', 'clanbite' ),
+		'clanbite-team-avatar-small'  => __( 'Clanbite team avatar — small (default preset)', 'clanbite' ),
 	);
 
 	$out = array();
@@ -547,11 +547,11 @@ function clanspress_players_get_image_size_choices_for_settings(): array {
 	}
 
 	/**
-	 * Filters selectable image size slugs for Clanspress avatar settings dropdowns.
+	 * Filters selectable image size slugs for Clanbite avatar settings dropdowns.
 	 *
 	 * @param array<string, string> $out Slug => label.
 	 */
-	return (array) apply_filters( 'clanspress_players_image_size_choices_for_settings', $out );
+	return (array) apply_filters( 'clanbite_players_image_size_choices_for_settings', $out );
 }
 
 /**
@@ -561,10 +561,10 @@ function clanspress_players_get_image_size_choices_for_settings(): array {
  * @param string $fallback Slug to use when invalid.
  * @return string
  */
-function clanspress_players_sanitize_image_size_setting_value( string $value, string $fallback ): string {
+function clanbite_players_sanitize_image_size_setting_value( string $value, string $fallback ): string {
 	$value    = sanitize_key( $value );
 	$fallback = sanitize_key( $fallback );
-	$allowed  = array_keys( clanspress_players_get_image_size_choices_for_settings() );
+	$allowed  = array_keys( clanbite_players_get_image_size_choices_for_settings() );
 
 	if ( in_array( $value, $allowed, true ) ) {
 		return $value;
@@ -583,7 +583,7 @@ function clanspress_players_sanitize_image_size_setting_value( string $value, st
  * @param string $preset One of `large`, `medium`, `small`.
  * @return string Registered size name or `full`.
  */
-function clanspress_players_resolve_player_avatar_image_size( string $preset ): string {
+function clanbite_players_resolve_player_avatar_image_size( string $preset ): string {
 	$preset = sanitize_key( $preset );
 	$keys   = array(
 		'large'  => 'player_avatar_image_size_large',
@@ -591,24 +591,24 @@ function clanspress_players_resolve_player_avatar_image_size( string $preset ): 
 		'small'  => 'player_avatar_image_size_small',
 	);
 	$defaults = array(
-		'large'  => 'clanspress-avatar-large',
-		'medium' => 'clanspress-avatar-medium',
-		'small'  => 'clanspress-avatar-small',
+		'large'  => 'clanbite-avatar-large',
+		'medium' => 'clanbite-avatar-medium',
+		'small'  => 'clanbite-avatar-small',
 	);
 
 	$setting_key = $keys[ $preset ] ?? $keys['large'];
 	$fallback    = $defaults[ $preset ] ?? $defaults['large'];
 
 	$raw = '';
-	$loader = clanspress()->extensions;
+	$loader = clanbite()->extensions;
 	if ( null !== $loader ) {
 		$ext = $loader->get( 'cp_players' );
-		if ( $ext instanceof \Kernowdev\Clanspress\Extensions\Players && method_exists( $ext, 'get_setting' ) ) {
+		if ( $ext instanceof \Kernowdev\Clanbite\Extensions\Players && method_exists( $ext, 'get_setting' ) ) {
 			$raw = (string) $ext->get_setting( $setting_key, $fallback );
 		}
 	}
 
-	$sanitized = clanspress_players_sanitize_image_size_setting_value( $raw, $fallback );
+	$sanitized = clanbite_players_sanitize_image_size_setting_value( $raw, $fallback );
 
 	/**
 	 * Filters the resolved image size slug for a player avatar preset.
@@ -618,18 +618,18 @@ function clanspress_players_resolve_player_avatar_image_size( string $preset ): 
 	 * @param string $raw      Value from settings before sanitization.
 	 * @param string $fallback Default slug for this preset.
 	 */
-	return (string) apply_filters( 'clanspress_players_resolve_player_avatar_image_size', $sanitized, $preset, $raw, $fallback );
+	return (string) apply_filters( 'clanbite_players_resolve_player_avatar_image_size', $sanitized, $preset, $raw, $fallback );
 }
 
 /**
  * Returns the players display avatar URL.
  *
- * All Clanspress player avatar surfaces should resolve the image URL through this function so third-party
+ * All Clanbite player avatar surfaces should resolve the image URL through this function so third-party
  * code can override output once (XP overlays, rank badges as image, CDN URLs, etc.). Use the optional
  * {@see $context} argument to vary behaviour by surface; it is passed to filters and avatar markup helpers.
  *
  * Pass {@see $avatar_preset} as `large`, `medium`, or `small` to use the image sizes configured under
- * Clanspress → Players (profiles, forums/social feeds, comments/replies). When set, it overrides {@see $size}.
+ * Clanbite → Players (profiles, forums/social feeds, comments/replies). When set, it overrides {@see $size}.
  *
  * @param int          $player_id        The Player/User unique identifier.
  * @param bool         $suppress_filters Disallows filtering of the value.
@@ -639,7 +639,7 @@ function clanspress_players_resolve_player_avatar_image_size( string $preset ): 
  *
  * @return string
  */
-function clanspress_players_get_display_avatar( int $player_id = 0, bool $suppress_filters = false, string|array $size = '', string $context = '', string $avatar_preset = '' ): string {
+function clanbite_players_get_display_avatar( int $player_id = 0, bool $suppress_filters = false, string|array $size = '', string $context = '', string $avatar_preset = '' ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -648,17 +648,17 @@ function clanspress_players_get_display_avatar( int $player_id = 0, bool $suppre
 	$preset_for_filter = '';
 
 	if ( in_array( $preset_key, array( 'large', 'medium', 'small' ), true ) ) {
-		$size              = clanspress_players_resolve_player_avatar_image_size( $preset_key );
+		$size              = clanbite_players_resolve_player_avatar_image_size( $preset_key );
 		$preset_for_filter = $preset_key;
 	} elseif ( '' === $size || ( is_array( $size ) && empty( $size ) ) ) {
-		$size              = clanspress_players_resolve_player_avatar_image_size( 'large' );
+		$size              = clanbite_players_resolve_player_avatar_image_size( 'large' );
 		$preset_for_filter = 'large';
 	}
 
-	$user_avatar = wp_get_attachment_image_url( clanspress_players_get_display_avatar_id( $player_id, $suppress_filters ), $size );
+	$user_avatar = wp_get_attachment_image_url( clanbite_players_get_display_avatar_id( $player_id, $suppress_filters ), $size );
 
 	if ( false === $user_avatar || '' === $user_avatar ) {
-		$user_avatar = clanspress_players_get_default_avatar( $player_id );
+		$user_avatar = clanbite_players_get_default_avatar( $player_id );
 	}
 
 	if ( $suppress_filters ) {
@@ -669,7 +669,7 @@ function clanspress_players_get_display_avatar( int $player_id = 0, bool $suppre
 	 * Filters the resolved player avatar image URL after attachment/default resolution.
 	 *
 	 * Return a URL string; consumers (REST, img[src], notifications) expect a URL, not HTML. Use
-	 * {@see clanspress_players_get_player_avatar_img_html()} for markup.
+	 * {@see clanbite_players_get_player_avatar_img_html()} for markup.
 	 *
 	 * @param string       $user_avatar      URL.
 	 * @param int          $player_id        User ID.
@@ -677,7 +677,7 @@ function clanspress_players_get_display_avatar( int $player_id = 0, bool $suppre
 	 * @param string       $context          Surface key (empty string when not passed by caller).
 	 * @param string       $avatar_preset  `large`, `medium`, `small`, or empty when an explicit size was used.
 	 */
-	return apply_filters( 'clanspress_players_get_display_avatar', $user_avatar, $player_id, $size, $context, $preset_for_filter );
+	return apply_filters( 'clanbite_players_get_display_avatar', $user_avatar, $player_id, $size, $context, $preset_for_filter );
 }
 
 /**
@@ -688,7 +688,7 @@ function clanspress_players_get_display_avatar( int $player_id = 0, bool $suppre
  *
  * @return int The players display avatar attachment identifier.
  */
-function clanspress_players_get_display_avatar_id( int $player_id = 0, bool $suppress_filters = false ): int {
+function clanbite_players_get_display_avatar_id( int $player_id = 0, bool $suppress_filters = false ): int {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -703,14 +703,14 @@ function clanspress_players_get_display_avatar_id( int $player_id = 0, bool $sup
 	 * Allows filtering of the players display avatar attachment ID, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_avatar_id', $user_avatar_id, $player_id );
+	return apply_filters( 'clanbite_players_get_display_avatar_id', $user_avatar_id, $player_id );
 }
 
 /**
- * Builds a single &lt;img&gt; tag for a player avatar using {@see clanspress_players_get_display_avatar()}.
+ * Builds a single &lt;img&gt; tag for a player avatar using {@see clanbite_players_get_display_avatar()}.
  *
  * Prefer this over hand-built &lt;img&gt; markup in templates and blocks so attribute and inner markup
- * hooks run consistently. Wrap or extend output with {@see clanspress_players_apply_player_avatar_display_markup()}.
+ * hooks run consistently. Wrap or extend output with {@see clanbite_players_apply_player_avatar_display_markup()}.
  *
  * @param int   $user_id WordPress user ID.
  * @param array $args {
@@ -719,9 +719,9 @@ function clanspress_players_get_display_avatar_id( int $player_id = 0, bool $sup
  *     @type string       $preset           Optional. `large`, `medium`, or `small` (Players settings). Overrides `size` when set.
  *     @type string|array $size             Image size when `preset` is empty. Default resolves to large preset.
  *     @type string       $context          Surface key for URL/img hooks. Default ''.
- *     @type string       $class            Class attribute (full string). Default `clanspress-player-avatar__img`.
+ *     @type string       $class            Class attribute (full string). Default `clanbite-player-avatar__img`.
  *     @type string       $alt              Alt text. Default from display name + translated “player avatar”.
- *     @type bool         $suppress_filters Same as {@see clanspress_players_get_display_avatar()}. Default false.
+ *     @type bool         $suppress_filters Same as {@see clanbite_players_get_display_avatar()}. Default false.
  *     @type string       $loading          `loading` attribute. Default `lazy`. Use empty string to omit.
  *     @type string       $decoding         `decoding` attribute. Default `async`. Use empty string to omit.
  *     @type int          $width            If positive, output width attribute.
@@ -729,7 +729,7 @@ function clanspress_players_get_display_avatar_id( int $player_id = 0, bool $sup
  * }
  * @return string HTML fragment or empty string when no URL resolves.
  */
-function clanspress_players_get_player_avatar_img_html( int $user_id, array $args = array() ): string {
+function clanbite_players_get_player_avatar_img_html( int $user_id, array $args = array() ): string {
 	if ( $user_id <= 0 ) {
 		return '';
 	}
@@ -738,7 +738,7 @@ function clanspress_players_get_player_avatar_img_html( int $user_id, array $arg
 		'preset'           => '',
 		'size'             => '',
 		'context'          => '',
-		'class'            => 'clanspress-player-avatar__img',
+		'class'            => 'clanbite-player-avatar__img',
 		'alt'              => '',
 		'suppress_filters' => false,
 		'loading'          => 'lazy',
@@ -751,24 +751,24 @@ function clanspress_players_get_player_avatar_img_html( int $user_id, array $arg
 
 	$preset_arg = sanitize_key( (string) $args['preset'] );
 	if ( in_array( $preset_arg, array( 'large', 'medium', 'small' ), true ) ) {
-		$url = clanspress_players_get_display_avatar( $user_id, (bool) $args['suppress_filters'], '', (string) $args['context'], $preset_arg );
+		$url = clanbite_players_get_display_avatar( $user_id, (bool) $args['suppress_filters'], '', (string) $args['context'], $preset_arg );
 	} else {
 		$size_arg = $args['size'];
 		if ( '' === $size_arg || ( is_array( $size_arg ) && empty( $size_arg ) ) ) {
-			$size_arg = clanspress_players_resolve_player_avatar_image_size( 'large' );
+			$size_arg = clanbite_players_resolve_player_avatar_image_size( 'large' );
 		}
-		$url = clanspress_players_get_display_avatar( $user_id, (bool) $args['suppress_filters'], $size_arg, (string) $args['context'], '' );
+		$url = clanbite_players_get_display_avatar( $user_id, (bool) $args['suppress_filters'], $size_arg, (string) $args['context'], '' );
 	}
 
 	if ( '' === $url ) {
 		return '';
 	}
 
-	if ( '' === $args['alt'] && function_exists( 'clanspress_players_get_display_name' ) ) {
+	if ( '' === $args['alt'] && function_exists( 'clanbite_players_get_display_name' ) ) {
 		$args['alt'] = sprintf(
 			/* translators: %s: Player display name. */
-			__( '%s player avatar', 'clanspress' ),
-			clanspress_players_get_display_name( $user_id )
+			__( '%s player avatar', 'clanbite' ),
+			clanbite_players_get_display_name( $user_id )
 		);
 	}
 
@@ -776,10 +776,10 @@ function clanspress_players_get_player_avatar_img_html( int $user_id, array $arg
 	 * Fires before the player avatar &lt;img&gt; is built (URL is resolved).
 	 *
 	 * @param int    $user_id User ID.
-	 * @param array  $args    Arguments passed to {@see clanspress_players_get_player_avatar_img_html()}.
+	 * @param array  $args    Arguments passed to {@see clanbite_players_get_player_avatar_img_html()}.
 	 * @param string $url     Avatar URL.
 	 */
-	do_action( 'clanspress_player_avatar_img_before', $user_id, $args, $url );
+	do_action( 'clanbite_player_avatar_img_before', $user_id, $args, $url );
 
 	$attr = array(
 		'class'    => (string) $args['class'],
@@ -803,10 +803,10 @@ function clanspress_players_get_player_avatar_img_html( int $user_id, array $arg
 	 *
 	 * @param array  $attr    Attribute name => value. Omitted or empty values are skipped (except alt may be empty).
 	 * @param int    $user_id User ID.
-	 * @param array  $args    Arguments from {@see clanspress_players_get_player_avatar_img_html()}.
+	 * @param array  $args    Arguments from {@see clanbite_players_get_player_avatar_img_html()}.
 	 * @param string $url     Avatar URL.
 	 */
-	$attr = apply_filters( 'clanspress_players_player_avatar_img_attributes', $attr, $user_id, $args, $url );
+	$attr = apply_filters( 'clanbite_players_player_avatar_img_attributes', $attr, $user_id, $args, $url );
 
 	$parts = array();
 	foreach ( $attr as $name => $value ) {
@@ -830,35 +830,35 @@ function clanspress_players_get_player_avatar_img_html( int $user_id, array $arg
 	 * Fires after the player avatar &lt;img&gt; HTML is built.
 	 *
 	 * @param int    $user_id User ID.
-	 * @param array  $args    Arguments from {@see clanspress_players_get_player_avatar_img_html()}.
+	 * @param array  $args    Arguments from {@see clanbite_players_get_player_avatar_img_html()}.
 	 * @param string $url     Avatar URL.
 	 * @param string $html    Built &lt;img&gt; markup.
 	 */
-	do_action( 'clanspress_player_avatar_img_after', $user_id, $args, $url, $html );
+	do_action( 'clanbite_player_avatar_img_after', $user_id, $args, $url, $html );
 
 	/**
 	 * Filters the player avatar &lt;img&gt; HTML fragment.
 	 *
 	 * @param string $html    Markup.
 	 * @param int    $user_id User ID.
-	 * @param array  $args    Arguments from {@see clanspress_players_get_player_avatar_img_html()}.
+	 * @param array  $args    Arguments from {@see clanbite_players_get_player_avatar_img_html()}.
 	 * @param string $url     Avatar URL.
 	 */
-	return (string) apply_filters( 'clanspress_players_player_avatar_img_html', $html, $user_id, $args, $url );
+	return (string) apply_filters( 'clanbite_players_player_avatar_img_html', $html, $user_id, $args, $url );
 }
 
 /**
  * Filters inner avatar markup (image, placeholder, or empty-state image) for display.
  *
  * Use this to wrap the avatar with rank badges, XP bars, or extra layout. Applies
- * {@see 'clanspress_players_player_avatar_display_markup'}.
+ * {@see 'clanbite_players_player_avatar_display_markup'}.
  *
  * @param string $inner   HTML inside the avatar area (before profile link wrapping, if any).
  * @param int    $user_id User ID.
  * @param array  $args    Optional. Same `context` / `size` keys as passed to image helpers; extra keys allowed.
  * @return string
  */
-function clanspress_players_apply_player_avatar_display_markup( string $inner, int $user_id, array $args = array() ): string {
+function clanbite_players_apply_player_avatar_display_markup( string $inner, int $user_id, array $args = array() ): string {
 	/**
 	 * Filters inner player avatar markup after core builds the image or empty-state fragment.
 	 *
@@ -866,13 +866,13 @@ function clanspress_players_apply_player_avatar_display_markup( string $inner, i
 	 * @param int    $user_id User ID.
 	 * @param array  $args    Context from the caller (e.g. `context`, `size`).
 	 */
-	return (string) apply_filters( 'clanspress_players_player_avatar_display_markup', $inner, $user_id, $args );
+	return (string) apply_filters( 'clanbite_players_player_avatar_display_markup', $inner, $user_id, $args );
 }
 
 /**
  * Splits large player-avatar block output so markup can sit beside the circular clip (not inside it).
  *
- * @param string               $display_inner Full HTML from {@see clanspress_players_apply_player_avatar_display_markup()}.
+ * @param string               $display_inner Full HTML from {@see clanbite_players_apply_player_avatar_display_markup()}.
  * @param int                  $user_id       User ID.
  * @param array<string, mixed> $args          Avatar args (`context`, `preset`, etc.).
  * @return array{
@@ -882,7 +882,7 @@ function clanspress_players_apply_player_avatar_display_markup( string $inner, i
  *     rank_overlay_html: string
  * }
  */
-function clanspress_players_apply_player_avatar_block_parts( string $display_inner, int $user_id, array $args ): array {
+function clanbite_players_apply_player_avatar_block_parts( string $display_inner, int $user_id, array $args ): array {
 	$defaults = array(
 		'clip_inner'          => $display_inner,
 		'after_clip'          => '',
@@ -893,16 +893,16 @@ function clanspress_players_apply_player_avatar_block_parts( string $display_inn
 	 * Filters layout parts for the player avatar block when preset is `large`.
 	 *
 	 * @param array<string, string> $parts {
-	 *     @type string $clip_inner           Markup inside `.clanspress-player-avatar__clip`.
+	 *     @type string $clip_inner           Markup inside `.clanbite-player-avatar__clip`.
 	 *     @type string $after_clip           Sibling markup after the clip (e.g. rank progress).
-	 *     @type string $avatar_extra_class   Extra classes on `.clanspress-player-avatar` (space-separated).
-	 *     @type string $rank_overlay_html    Rank icons outside the circular clip (sibling in `.clanspress-player-avatar__media`).
+	 *     @type string $avatar_extra_class   Extra classes on `.clanbite-player-avatar` (space-separated).
+	 *     @type string $rank_overlay_html    Rank icons outside the circular clip (sibling in `.clanbite-player-avatar__media`).
 	 * }
 	 * @param int                  $user_id       User ID.
 	 * @param array<string, mixed> $args          Avatar args from the block.
 	 * @param string               $display_inner Markup before splitting (same as default `clip_inner`).
 	 */
-	$filtered = apply_filters( 'clanspress_players_player_avatar_block_parts', $defaults, $user_id, $args, $display_inner );
+	$filtered = apply_filters( 'clanbite_players_player_avatar_block_parts', $defaults, $user_id, $args, $display_inner );
 	if ( ! is_array( $filtered ) ) {
 		return $defaults;
 	}
@@ -923,15 +923,15 @@ function clanspress_players_apply_player_avatar_block_parts( string $display_inn
  *
  * @return string
  */
-function clanspress_players_get_display_cover( int $player_id = 0, bool $suppress_filters = false, string|array $size = 'clanspress-cover' ): string {
+function clanbite_players_get_display_cover( int $player_id = 0, bool $suppress_filters = false, string|array $size = 'clanbite-cover' ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
 
-	$user_cover = wp_get_attachment_image_url( clanspress_players_get_display_cover_id( $player_id, $suppress_filters ), $size );
+	$user_cover = wp_get_attachment_image_url( clanbite_players_get_display_cover_id( $player_id, $suppress_filters ), $size );
 
 	if ( false === $user_cover || '' === $user_cover ) {
-		$user_cover = clanspress_players_get_default_cover( $player_id );
+		$user_cover = clanbite_players_get_default_cover( $player_id );
 	}
 
 	if ( $suppress_filters ) {
@@ -942,7 +942,7 @@ function clanspress_players_get_display_cover( int $player_id = 0, bool $suppres
 	 * Allows filtering of the players display cover, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_cover', $user_cover, $player_id );
+	return apply_filters( 'clanbite_players_get_display_cover', $user_cover, $player_id );
 }
 
 /**
@@ -953,7 +953,7 @@ function clanspress_players_get_display_cover( int $player_id = 0, bool $suppres
  *
  * @return int The players display cover attachment identifier.
  */
-function clanspress_players_get_display_cover_id( int $player_id = 0, bool $suppress_filters = false ): int {
+function clanbite_players_get_display_cover_id( int $player_id = 0, bool $suppress_filters = false ): int {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -968,7 +968,7 @@ function clanspress_players_get_display_cover_id( int $player_id = 0, bool $supp
 	 * Allows filtering of the players display cover attachment ID, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_cover_id', $user_cover_id, $player_id );
+	return apply_filters( 'clanbite_players_get_display_cover_id', $user_cover_id, $player_id );
 }
 
 /**
@@ -979,7 +979,7 @@ function clanspress_players_get_display_cover_id( int $player_id = 0, bool $supp
  *
  * @return float The players display cover attachment identifier.
  */
-function clanspress_players_get_display_cover_position_x( int $player_id = 0, bool $suppress_filters = false ): float {
+function clanbite_players_get_display_cover_position_x( int $player_id = 0, bool $suppress_filters = false ): float {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -994,7 +994,7 @@ function clanspress_players_get_display_cover_position_x( int $player_id = 0, bo
 	 * Allows filtering of the players display cover position on the X axis, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_cover_position_x', $user_cover_position_x, $player_id );
+	return apply_filters( 'clanbite_players_get_display_cover_position_x', $user_cover_position_x, $player_id );
 }
 
 /**
@@ -1005,7 +1005,7 @@ function clanspress_players_get_display_cover_position_x( int $player_id = 0, bo
  *
  * @return float The players display cover attachment identifier.
  */
-function clanspress_players_get_display_cover_position_y( int $player_id = 0, bool $suppress_filters = false ): float {
+function clanbite_players_get_display_cover_position_y( int $player_id = 0, bool $suppress_filters = false ): float {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1020,7 +1020,7 @@ function clanspress_players_get_display_cover_position_y( int $player_id = 0, bo
 	 * Allows filtering of the players display cover position on the Y axis, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_cover_position_y', $user_cover_position_y, $player_id );
+	return apply_filters( 'clanbite_players_get_display_cover_position_y', $user_cover_position_y, $player_id );
 }
 
 /**
@@ -1031,7 +1031,7 @@ function clanspress_players_get_display_cover_position_y( int $player_id = 0, bo
  *
  * @return string
  */
-function clanspress_players_get_display_name( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_display_name( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1050,7 +1050,7 @@ function clanspress_players_get_display_name( int $player_id = 0, bool $suppress
 	 * Allows filtering of the players display name, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_name', $player->display_name, $player_id, $player );
+	return apply_filters( 'clanbite_players_get_display_name', $player->display_name, $player_id, $player );
 }
 
 /**
@@ -1061,7 +1061,7 @@ function clanspress_players_get_display_name( int $player_id = 0, bool $suppress
  *
  * @return string
  */
-function clanspress_players_get_display_tagline( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_display_tagline( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1076,7 +1076,7 @@ function clanspress_players_get_display_tagline( int $player_id = 0, bool $suppr
 	 * Allows filtering of the players display tagline, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_tagline', $tagline, $player_id );
+	return apply_filters( 'clanbite_players_get_display_tagline', $tagline, $player_id );
 }
 
 /**
@@ -1087,7 +1087,7 @@ function clanspress_players_get_display_tagline( int $player_id = 0, bool $suppr
  *
  * @return string
  */
-function clanspress_players_get_display_bio( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_display_bio( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1102,7 +1102,7 @@ function clanspress_players_get_display_bio( int $player_id = 0, bool $suppress_
 	 * Allows filtering of the players display bio, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_bio', $bio, $player_id );
+	return apply_filters( 'clanbite_players_get_display_bio', $bio, $player_id );
 }
 
 /**
@@ -1113,7 +1113,7 @@ function clanspress_players_get_display_bio( int $player_id = 0, bool $suppress_
  *
  * @return string
  */
-function clanspress_players_get_display_website( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_display_website( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1128,16 +1128,16 @@ function clanspress_players_get_display_website( int $player_id = 0, bool $suppr
 	 * Allows filtering of the players display website, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_website', $website, $player_id );
+	return apply_filters( 'clanbite_players_get_display_website', $website, $player_id );
 }
 
 /**
  * Meta key for a player social profile field (user meta).
  *
- * @param string $slug Sanitized key from {@see clanspress_players_get_social_profile_field_definitions()}.
+ * @param string $slug Sanitized key from {@see clanbite_players_get_social_profile_field_definitions()}.
  * @return string
  */
-function clanspress_players_social_profile_meta_key( string $slug ): string {
+function clanbite_players_social_profile_meta_key( string $slug ): string {
 	return 'cp_player_social_' . sanitize_key( $slug );
 }
 
@@ -1145,63 +1145,63 @@ function clanspress_players_social_profile_meta_key( string $slug ): string {
  * Registered social profile fields for player settings and user meta.
  *
  * Keys are stable slugs (`facebook`, `x`, …). Extend or replace fields via
- * {@see 'clanspress_players_social_profile_field_definitions'}.
+ * {@see 'clanbite_players_social_profile_field_definitions'}.
  *
  * @return array<string, array{label: string, placeholder: string}>
  */
-function clanspress_players_get_social_profile_field_definitions(): array {
+function clanbite_players_get_social_profile_field_definitions(): array {
 	$definitions = array(
 		'facebook'  => array(
-			'label'       => __( 'Facebook', 'clanspress' ),
-			'placeholder' => __( 'Profile URL or username', 'clanspress' ),
+			'label'       => __( 'Facebook', 'clanbite' ),
+			'placeholder' => __( 'Profile URL or username', 'clanbite' ),
 		),
 		'x'         => array(
-			'label'       => __( 'X', 'clanspress' ),
-			'placeholder' => __( 'Profile URL or @handle', 'clanspress' ),
+			'label'       => __( 'X', 'clanbite' ),
+			'placeholder' => __( 'Profile URL or @handle', 'clanbite' ),
 		),
 		'instagram' => array(
-			'label'       => __( 'Instagram', 'clanspress' ),
-			'placeholder' => __( 'Profile URL or @handle', 'clanspress' ),
+			'label'       => __( 'Instagram', 'clanbite' ),
+			'placeholder' => __( 'Profile URL or @handle', 'clanbite' ),
 		),
 		'youtube'   => array(
-			'label'       => __( 'YouTube', 'clanspress' ),
-			'placeholder' => __( 'Channel URL or @handle', 'clanspress' ),
+			'label'       => __( 'YouTube', 'clanbite' ),
+			'placeholder' => __( 'Channel URL or @handle', 'clanbite' ),
 		),
 		'twitch'    => array(
-			'label'       => __( 'Twitch', 'clanspress' ),
-			'placeholder' => __( 'Channel URL or username', 'clanspress' ),
+			'label'       => __( 'Twitch', 'clanbite' ),
+			'placeholder' => __( 'Channel URL or username', 'clanbite' ),
 		),
 		'discord'   => array(
-			'label'       => __( 'Discord', 'clanspress' ),
-			'placeholder' => __( 'Username, invite, or server link', 'clanspress' ),
+			'label'       => __( 'Discord', 'clanbite' ),
+			'placeholder' => __( 'Username, invite, or server link', 'clanbite' ),
 		),
 		'steam'     => array(
-			'label'       => __( 'Steam', 'clanspress' ),
-			'placeholder' => __( 'Profile URL or custom ID', 'clanspress' ),
+			'label'       => __( 'Steam', 'clanbite' ),
+			'placeholder' => __( 'Profile URL or custom ID', 'clanbite' ),
 		),
 		'linkedin'  => array(
-			'label'       => __( 'LinkedIn', 'clanspress' ),
-			'placeholder' => __( 'Profile URL', 'clanspress' ),
+			'label'       => __( 'LinkedIn', 'clanbite' ),
+			'placeholder' => __( 'Profile URL', 'clanbite' ),
 		),
 		'tiktok'    => array(
-			'label'       => __( 'TikTok', 'clanspress' ),
-			'placeholder' => __( 'Profile URL or @handle', 'clanspress' ),
+			'label'       => __( 'TikTok', 'clanbite' ),
+			'placeholder' => __( 'Profile URL or @handle', 'clanbite' ),
 		),
 		'bluesky'   => array(
-			'label'       => __( 'Bluesky', 'clanspress' ),
-			'placeholder' => __( 'Profile URL or handle', 'clanspress' ),
+			'label'       => __( 'Bluesky', 'clanbite' ),
+			'placeholder' => __( 'Profile URL or handle', 'clanbite' ),
 		),
 		'reddit'    => array(
-			'label'       => __( 'Reddit', 'clanspress' ),
-			'placeholder' => __( 'Profile URL or u/username', 'clanspress' ),
+			'label'       => __( 'Reddit', 'clanbite' ),
+			'placeholder' => __( 'Profile URL or u/username', 'clanbite' ),
 		),
 		'github'    => array(
-			'label'       => __( 'GitHub', 'clanspress' ),
-			'placeholder' => __( 'Profile URL or username', 'clanspress' ),
+			'label'       => __( 'GitHub', 'clanbite' ),
+			'placeholder' => __( 'Profile URL or username', 'clanbite' ),
 		),
 		'mastodon'  => array(
-			'label'       => __( 'Mastodon', 'clanspress' ),
-			'placeholder' => __( 'Full profile URL (@user@instance)', 'clanspress' ),
+			'label'       => __( 'Mastodon', 'clanbite' ),
+			'placeholder' => __( 'Full profile URL (@user@instance)', 'clanbite' ),
 		),
 	);
 
@@ -1210,7 +1210,7 @@ function clanspress_players_get_social_profile_field_definitions(): array {
 	 *
 	 * @param array<string, array{label: string, placeholder: string}> $definitions Slug => label and placeholder.
 	 */
-	return (array) apply_filters( 'clanspress_players_social_profile_field_definitions', $definitions );
+	return (array) apply_filters( 'clanbite_players_social_profile_field_definitions', $definitions );
 }
 
 /**
@@ -1219,7 +1219,7 @@ function clanspress_players_get_social_profile_field_definitions(): array {
  * @param mixed $value Raw input (stringable).
  * @return string
  */
-function clanspress_players_sanitize_social_profile_value( $value ): string {
+function clanbite_players_sanitize_social_profile_value( $value ): string {
 	$value = wp_strip_all_tags( (string) $value );
 	$value = sanitize_text_field( $value );
 
@@ -1235,18 +1235,18 @@ function clanspress_players_sanitize_social_profile_value( $value ): string {
 /**
  * Returns a single social profile value for display or editing.
  *
- * @param string $slug            Key from {@see clanspress_players_get_social_profile_field_definitions()}.
+ * @param string $slug            Key from {@see clanbite_players_get_social_profile_field_definitions()}.
  * @param int    $player_id       User ID.
- * @param bool   $suppress_filters When true, skip {@see 'clanspress_players_get_display_social'}.
+ * @param bool   $suppress_filters When true, skip {@see 'clanbite_players_get_display_social'}.
  * @return string
  */
-function clanspress_players_get_display_social( string $slug, int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_display_social( string $slug, int $player_id = 0, bool $suppress_filters = false ): string {
 	$slug = sanitize_key( $slug );
 	if ( '' === $slug ) {
 		return '';
 	}
 
-	$definitions = clanspress_players_get_social_profile_field_definitions();
+	$definitions = clanbite_players_get_social_profile_field_definitions();
 	if ( ! isset( $definitions[ $slug ] ) ) {
 		return '';
 	}
@@ -1255,7 +1255,7 @@ function clanspress_players_get_display_social( string $slug, int $player_id = 0
 		$player_id = get_current_user_id();
 	}
 
-	$value = (string) get_user_meta( $player_id, clanspress_players_social_profile_meta_key( $slug ), true );
+	$value = (string) get_user_meta( $player_id, clanbite_players_social_profile_meta_key( $slug ), true );
 
 	if ( $suppress_filters ) {
 		return $value;
@@ -1268,7 +1268,7 @@ function clanspress_players_get_display_social( string $slug, int $player_id = 0
 	 * @param string $slug      Field slug (e.g. `facebook`, `x`).
 	 * @param int    $player_id User ID.
 	 */
-	return (string) apply_filters( 'clanspress_players_get_display_social', $value, $slug, $player_id );
+	return (string) apply_filters( 'clanbite_players_get_display_social', $value, $slug, $player_id );
 }
 
 /**
@@ -1277,11 +1277,11 @@ function clanspress_players_get_display_social( string $slug, int $player_id = 0
  * Used by the Player Social Links block and available to extensions. Unknown or invalid input
  * returns an empty string.
  *
- * @param string $slug Field slug from {@see clanspress_players_get_social_profile_field_definitions()}.
+ * @param string $slug Field slug from {@see clanbite_players_get_social_profile_field_definitions()}.
  * @param string $raw  Stored value (trimmed internally).
  * @return string Escaped-safe absolute URL, or empty string.
  */
-function clanspress_players_normalize_social_profile_link_url( string $slug, string $raw ): string {
+function clanbite_players_normalize_social_profile_link_url( string $slug, string $raw ): string {
 	$raw = trim( $raw );
 	if ( '' === $raw ) {
 		return '';
@@ -1394,13 +1394,13 @@ function clanspress_players_normalize_social_profile_link_url( string $slug, str
  * @param int    $player_id WordPress user ID.
  * @return string Absolute URL or empty when unset / invalid.
  */
-function clanspress_players_get_social_profile_link_url( string $slug, int $player_id ): string {
+function clanbite_players_get_social_profile_link_url( string $slug, int $player_id ): string {
 	if ( $player_id < 1 ) {
 		return '';
 	}
 
-	$raw = clanspress_players_get_display_social( $slug, $player_id, true );
-	$url = clanspress_players_normalize_social_profile_link_url( $slug, $raw );
+	$raw = clanbite_players_get_display_social( $slug, $player_id, true );
+	$url = clanbite_players_normalize_social_profile_link_url( $slug, $raw );
 
 	/**
 	 * Filters the final social profile link URL for a player.
@@ -1410,7 +1410,7 @@ function clanspress_players_get_social_profile_link_url( string $slug, int $play
 	 * @param int    $player_id User ID.
 	 * @param string $raw       Raw meta value.
 	 */
-	return (string) apply_filters( 'clanspress_players_social_profile_link_url', $url, $slug, $player_id, $raw );
+	return (string) apply_filters( 'clanbite_players_social_profile_link_url', $url, $slug, $player_id, $raw );
 }
 
 /**
@@ -1419,11 +1419,11 @@ function clanspress_players_get_social_profile_link_url( string $slug, int $play
  * @param string $slug Field slug.
  * @return string SVG element HTML (safe, no user input).
  */
-function clanspress_players_get_social_profile_svg_icon( string $slug ): string {
+function clanbite_players_get_social_profile_svg_icon( string $slug ): string {
 	$slug = sanitize_key( $slug );
 
 	$wrap = static function ( string $path_d ): string {
-		return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" class="clanspress-player-social-links__svg" aria-hidden="true" focusable="false"><path d="' . $path_d . '"/></svg>';
+		return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor" class="clanbite-player-social-links__svg" aria-hidden="true" focusable="false"><path d="' . $path_d . '"/></svg>';
 	};
 
 	$paths = array(
@@ -1452,7 +1452,7 @@ function clanspress_players_get_social_profile_svg_icon( string $slug ): string 
 	 * @param string $markup SVG HTML.
 	 * @param string $slug   Field slug.
 	 */
-	return (string) apply_filters( 'clanspress_players_social_profile_svg_icon', $markup, $slug );
+	return (string) apply_filters( 'clanbite_players_social_profile_svg_icon', $markup, $slug );
 }
 
 /**
@@ -1464,7 +1464,7 @@ function clanspress_players_get_social_profile_svg_icon( string $slug ): string 
  *
  * @return string
  */
-function clanspress_players_get_display_country( int $player_id = 0, string $return_type = 'name', bool $suppress_filters = false ): string {
+function clanbite_players_get_display_country( int $player_id = 0, string $return_type = 'name', bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1472,7 +1472,7 @@ function clanspress_players_get_display_country( int $player_id = 0, string $ret
 	$country = get_user_meta( $player_id, 'cp_player_country', true );
 
 	if ( $return_type === 'name' ) {
-		$countries = clanspress_players_get_countries();
+		$countries = clanbite_players_get_countries();
 
 		foreach ( $countries as $country_code => $country_name ) {
 			if ( $country_code === $country ) {
@@ -1490,7 +1490,7 @@ function clanspress_players_get_display_country( int $player_id = 0, string $ret
 	 * Allows filtering of the players display country, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_country', $country, $player_id, $return_type );
+	return apply_filters( 'clanbite_players_get_display_country', $country, $player_id, $return_type );
 }
 
 /**
@@ -1501,7 +1501,7 @@ function clanspress_players_get_display_country( int $player_id = 0, string $ret
  *
  * @return string
  */
-function clanspress_players_get_display_city( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_display_city( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1516,7 +1516,7 @@ function clanspress_players_get_display_city( int $player_id = 0, bool $suppress
 	 * Allows filtering of the players display city, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_city', $city, $player_id );
+	return apply_filters( 'clanbite_players_get_display_city', $city, $player_id );
 }
 
 /**
@@ -1527,7 +1527,7 @@ function clanspress_players_get_display_city( int $player_id = 0, bool $suppress
  *
  * @return string
  */
-function clanspress_players_get_display_birthday( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_display_birthday( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1542,7 +1542,7 @@ function clanspress_players_get_display_birthday( int $player_id = 0, bool $supp
 	 * Allows filtering of the players display birthday, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_display_birthday', $birthday, $player_id );
+	return apply_filters( 'clanbite_players_get_display_birthday', $birthday, $player_id );
 }
 
 /**
@@ -1553,12 +1553,12 @@ function clanspress_players_get_display_birthday( int $player_id = 0, bool $supp
  *
  * @return string
  */
-function clanspress_players_get_display_age( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_display_age( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
 
-	$birthday = clanspress_players_get_display_birthday( $player_id, true );
+	$birthday = clanbite_players_get_display_birthday( $player_id, true );
 
 	// Create DateTime objects.
 	$birth = new DateTime( $birthday );
@@ -1575,7 +1575,7 @@ function clanspress_players_get_display_age( int $player_id = 0, bool $suppress_
 	 * Allows filtering of the players display age, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return (string) apply_filters( 'clanspress_players_get_display_age', $age, $player_id, $birthday );
+	return (string) apply_filters( 'clanbite_players_get_display_age', $age, $player_id, $birthday );
 }
 
 /**
@@ -1586,7 +1586,7 @@ function clanspress_players_get_display_age( int $player_id = 0, bool $suppress_
  *
  * @return string
  */
-function clanspress_players_get_account_firstname( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_account_firstname( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1601,7 +1601,7 @@ function clanspress_players_get_account_firstname( int $player_id = 0, bool $sup
 	 * Allows filtering of the players account first name, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_account_firstname', $first_name, $player_id );
+	return apply_filters( 'clanbite_players_get_account_firstname', $first_name, $player_id );
 }
 
 /**
@@ -1612,7 +1612,7 @@ function clanspress_players_get_account_firstname( int $player_id = 0, bool $sup
  *
  * @return string
  */
-function clanspress_players_get_account_lastname( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_account_lastname( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
@@ -1627,7 +1627,7 @@ function clanspress_players_get_account_lastname( int $player_id = 0, bool $supp
 	 * Allows filtering of the players account last name, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_account_lastname', $last_name, $player_id );
+	return apply_filters( 'clanbite_players_get_account_lastname', $last_name, $player_id );
 }
 
 /**
@@ -1638,13 +1638,13 @@ function clanspress_players_get_account_lastname( int $player_id = 0, bool $supp
  *
  * @return string
  */
-function clanspress_players_get_account_fullname( int $player_id = 0, bool $suppress_filters = false ): string {
+function clanbite_players_get_account_fullname( int $player_id = 0, bool $suppress_filters = false ): string {
 	if ( ! $player_id ) {
 		$player_id = get_current_user_id();
 	}
 
-	$first_name = clanspress_players_get_account_firstname( $player_id, $suppress_filters );
-	$last_name  = clanspress_players_get_account_lastname( $player_id, $suppress_filters );
+	$first_name = clanbite_players_get_account_firstname( $player_id, $suppress_filters );
+	$last_name  = clanbite_players_get_account_lastname( $player_id, $suppress_filters );
 	$full_name  = $first_name . ' ' . $last_name;
 
 	if ( $suppress_filters ) {
@@ -1655,7 +1655,7 @@ function clanspress_players_get_account_fullname( int $player_id = 0, bool $supp
 	 * Allows filtering of the players account full name, this can be bypassed by setting $suppress_filters param
 	 * to true.
 	 */
-	return apply_filters( 'clanspress_players_get_account_fullname', $full_name, $player_id, $first_name, $last_name );
+	return apply_filters( 'clanbite_players_get_account_fullname', $full_name, $player_id, $first_name, $last_name );
 }
 
 /**
@@ -1676,7 +1676,7 @@ function clanspress_players_get_account_fullname( int $player_id = 0, bool $supp
  *     priority?: int
  * }> Array of menu items sorted by group and priority.
  */
-function clanspress_get_user_nav_menu_items( int $user_id = 0 ): array {
+function clanbite_get_user_nav_menu_items( int $user_id = 0 ): array {
 	if ( ! $user_id ) {
 		$user_id = get_current_user_id();
 	}
@@ -1685,15 +1685,15 @@ function clanspress_get_user_nav_menu_items( int $user_id = 0 ): array {
 		return array();
 	}
 
-	$profile_url  = function_exists( 'clanspress_get_player_profile_url' )
-		? clanspress_get_player_profile_url( $user_id )
+	$profile_url  = function_exists( 'clanbite_get_player_profile_url' )
+		? clanbite_get_player_profile_url( $user_id )
 		: get_author_posts_url( $user_id );
 	$settings_url = home_url( '/players/settings/' );
 
 	$items = array(
 		array(
 			'id'       => 'profile',
-			'label'    => __( 'My Profile', 'clanspress' ),
+			'label'    => __( 'My Profile', 'clanbite' ),
 			'url'      => $profile_url,
 			'icon'     => 'admin-users',
 			'group'    => 'profile',
@@ -1701,7 +1701,7 @@ function clanspress_get_user_nav_menu_items( int $user_id = 0 ): array {
 		),
 		array(
 			'id'       => 'settings',
-			'label'    => __( 'Settings', 'clanspress' ),
+			'label'    => __( 'Settings', 'clanbite' ),
 			'url'      => $settings_url,
 			'icon'     => 'admin-generic',
 			'group'    => 'profile',
@@ -1709,11 +1709,11 @@ function clanspress_get_user_nav_menu_items( int $user_id = 0 ): array {
 		),
 	);
 
-	if ( function_exists( 'clanspress_get_notifications_url' ) ) {
+	if ( function_exists( 'clanbite_get_notifications_url' ) ) {
 		$items[] = array(
 			'id'       => 'notifications',
-			'label'    => __( 'Notifications', 'clanspress' ),
-			'url'      => clanspress_get_notifications_url( $user_id ),
+			'label'    => __( 'Notifications', 'clanbite' ),
+			'url'      => clanbite_get_notifications_url( $user_id ),
 			'icon'     => 'bell',
 			'group'    => 'profile',
 			'priority' => 30,
@@ -1723,7 +1723,7 @@ function clanspress_get_user_nav_menu_items( int $user_id = 0 ): array {
 	if ( current_user_can( 'edit_posts' ) ) {
 		$items[] = array(
 			'id'       => 'dashboard',
-			'label'    => __( 'Dashboard', 'clanspress' ),
+			'label'    => __( 'Dashboard', 'clanbite' ),
 			'url'      => admin_url(),
 			'icon'     => 'dashboard',
 			'group'    => 'admin',
@@ -1733,11 +1733,11 @@ function clanspress_get_user_nav_menu_items( int $user_id = 0 ): array {
 
 	$items[] = array(
 		'id'       => 'logout',
-		'label'    => __( 'Log Out', 'clanspress' ),
+		'label'    => __( 'Log Out', 'clanbite' ),
 		'url'      => wp_logout_url( home_url() ),
 		'icon'     => 'exit',
 		'group'    => 'logout',
-		'class'    => 'clanspress-user-nav__menu-item--danger',
+		'class'    => 'clanbite-user-nav__menu-item--danger',
 		'priority' => 100,
 	);
 
@@ -1750,7 +1750,7 @@ function clanspress_get_user_nav_menu_items( int $user_id = 0 ): array {
 	 * @param array $items   Array of menu items.
 	 * @param int   $user_id Current user ID.
 	 */
-	$items = (array) apply_filters( 'clanspress_user_nav_menu_items', $items, $user_id );
+	$items = (array) apply_filters( 'clanbite_user_nav_menu_items', $items, $user_id );
 
 	usort(
 		$items,
@@ -1797,11 +1797,11 @@ function clanspress_get_user_nav_menu_items( int $user_id = 0 ): array {
  *     priority?: int
  * }> Array of guest links sorted by priority.
  */
-function clanspress_get_user_nav_guest_links(): array {
+function clanbite_get_user_nav_guest_links(): array {
 	$links = array(
 		array(
 			'id'       => 'login',
-			'label'    => __( 'Log In', 'clanspress' ),
+			'label'    => __( 'Log In', 'clanbite' ),
 			'url'      => wp_login_url( get_permalink() ),
 			'style'    => 'secondary',
 			'priority' => 10,
@@ -1811,7 +1811,7 @@ function clanspress_get_user_nav_guest_links(): array {
 	if ( get_option( 'users_can_register' ) ) {
 		$links[] = array(
 			'id'       => 'register',
-			'label'    => __( 'Register', 'clanspress' ),
+			'label'    => __( 'Register', 'clanbite' ),
 			'url'      => wp_registration_url(),
 			'style'    => 'primary',
 			'priority' => 20,
@@ -1826,7 +1826,7 @@ function clanspress_get_user_nav_guest_links(): array {
 	 *
 	 * @param array $links Array of guest links.
 	 */
-	$links = (array) apply_filters( 'clanspress_user_nav_guest_links', $links );
+	$links = (array) apply_filters( 'clanbite_user_nav_guest_links', $links );
 
 	usort(
 		$links,
@@ -1848,9 +1848,9 @@ function clanspress_get_user_nav_guest_links(): array {
  * @param array $item Menu item configuration.
  * @return void
  */
-function clanspress_add_user_nav_menu_item( array $item ): void {
+function clanbite_add_user_nav_menu_item( array $item ): void {
 	add_filter(
-		'clanspress_user_nav_menu_items',
+		'clanbite_user_nav_menu_items',
 		static function ( $items ) use ( $item ) {
 			$items[] = $item;
 			return $items;
@@ -1866,9 +1866,9 @@ function clanspress_add_user_nav_menu_item( array $item ): void {
  * @param string $item_id The ID of the item to remove.
  * @return void
  */
-function clanspress_remove_user_nav_menu_item( string $item_id ): void {
+function clanbite_remove_user_nav_menu_item( string $item_id ): void {
 	add_filter(
-		'clanspress_user_nav_menu_items',
+		'clanbite_user_nav_menu_items',
 		static function ( $items ) use ( $item_id ) {
 			return array_filter(
 				$items,

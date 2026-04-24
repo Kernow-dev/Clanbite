@@ -1,0 +1,96 @@
+/**
+ * Player profile notifications subpage (shortcode / template).
+ *
+ * @package clanbite
+ */
+
+.clanbite-notifications-page {
+	max-width: 700px;
+	margin: 2rem auto;
+	padding: 0 1rem;
+}
+
+.clanbite-notifications-page__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.5rem;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.clanbite-notifications-page__header h1 {
+	margin: 0;
+	font-size: 1.5rem;
+}
+
+.clanbite-notifications-page__mark-all-btn {
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	color: var(--wp--preset--color--primary, #0073aa);
+	background: transparent;
+	border: 1px solid currentColor;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.clanbite-notifications-page__mark-all-btn:hover {
+	background: var(--wp--preset--color--primary, #0073aa);
+	color: #fff;
+}
+
+.clanbite-notifications-page__empty {
+	text-align: center;
+	padding: 4rem 2rem;
+	color: rgba(0, 0, 0, 0.5);
+}
+
+.clanbite-notifications-page__empty p {
+	margin-top: 1rem;
+	font-size: 1rem;
+}
+
+.clanbite-notifications-page__list {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.clanbite-notifications-page__list .clanbite-notification {
+	padding: 1rem 1.25rem;
+}
+
+.clanbite-notifications-page__pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1.5rem;
+	margin-top: 1.5rem;
+	padding-top: 1rem;
+}
+
+.clanbite-notifications-page__pagination a {
+	color: var(--wp--preset--color--primary, #0073aa);
+	text-decoration: none;
+}
+
+.clanbite-notifications-page__pagination a:hover {
+	text-decoration: underline;
+}
+
+.clanbite-notifications-page__pagination-info {
+	color: rgba(0, 0, 0, 0.5);
+	font-size: 0.875rem;
+}
+
+.clanbite-notifications-page__read-error {
+	margin: 0 0 1rem;
+	padding: 0.75rem 1rem;
+	color: #1e1e1e;
+	background: #fcf0f1;
+	border: 1px solid #d63638;
+	border-radius: 4px;
+	font-size: 0.875rem;
+}

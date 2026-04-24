@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/team-code",
+	"name": "clanbite/team-code",
 	"version": "1.0.0",
 	"title": "Team code",
-	"category": "clanspress-teams",
+	"category": "clanbite-teams",
 	"icon": "tag",
 	"description": "Displays the short team code.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"postTypes": [ "cp_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"supports": {
@@ -34,12 +34,12 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-team-code",
+		"root": ".wp-block-clanbite-team-code",
 		"color": {
-			"text": ".wp-block-clanspress-team-code .clanspress-team-code__value",
-			"background": ".wp-block-clanspress-team-code"
+			"text": ".wp-block-clanbite-team-code .clanbite-team-code__value",
+			"background": ".wp-block-clanbite-team-code"
 		},
-		"typography": ".wp-block-clanspress-team-code .clanspress-team-code__value",
-		"border": ".wp-block-clanspress-team-code"
+		"typography": ".wp-block-clanbite-team-code .clanbite-team-code__value",
+		"border": ".wp-block-clanbite-team-code"
 	}
 }

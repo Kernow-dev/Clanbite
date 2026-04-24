@@ -3,26 +3,26 @@
  * Group profile integration options (unified React admin tab).
  *
  * Core does not ship a `cp_groups` extension; group CPTs and templates come from add-ons.
- * These settings control how Clanspress features attach to group profiles.
+ * These settings control how Clanbite features attach to group profiles.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Admin;
+namespace Kernowdev\Clanbite\Admin;
 
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
 
 /**
  * Options stored in {@see Groups_Settings::OPTION_KEY}.
  */
 class Groups_Settings extends Abstract_Settings {
-	public const OPTION_KEY = 'clanspress_groups_settings';
+	public const OPTION_KEY = 'clanbite_groups_settings';
 
 	protected string $option_key     = self::OPTION_KEY;
-	protected string $settings_group = 'clanspress_groups';
-	protected string $page_slug      = 'clanspress-groups';
+	protected string $settings_group = 'clanbite_groups';
+	protected string $page_slug      = 'clanbite-groups';
 
 	/**
 	 * Unified React admin: do not add a separate submenu.
@@ -37,7 +37,7 @@ class Groups_Settings extends Abstract_Settings {
 	 * @return string
 	 */
 	protected function get_page_title(): string {
-		return __( 'Groups', 'clanspress' );
+		return __( 'Groups', 'clanbite' );
 	}
 
 	/**
@@ -46,7 +46,7 @@ class Groups_Settings extends Abstract_Settings {
 	 * @return string
 	 */
 	protected function get_menu_title(): string {
-		return __( 'Groups', 'clanspress' );
+		return __( 'Groups', 'clanbite' );
 	}
 
 	/**
@@ -69,19 +69,19 @@ class Groups_Settings extends Abstract_Settings {
 	protected function get_sections(): array {
 		return array(
 			'integrations' => array(
-				'title'  => __( 'Extension integrations', 'clanspress' ),
+				'title'  => __( 'Extension integrations', 'clanbite' ),
 				'fields' => array(
 					'events_profile_subpage' => array(
-						'label'       => __( 'Group profile: Events tab', 'clanspress' ),
+						'label'       => __( 'Group profile: Events tab', 'clanbite' ),
 						'type'        => 'checkbox',
-						'description' => __( 'When the Events extension is enabled, register the group Events subpage and block template. When off, those integrations are not loaded.', 'clanspress' ),
+						'description' => __( 'When the Events extension is enabled, register the group Events subpage and block template. When off, those integrations are not loaded.', 'clanbite' ),
 						'default'     => true,
 						'sanitize'    => 'rest_sanitize_boolean',
 					),
 					'group_name_wordban_custom_list' => array(
-						'label'       => __( 'Additional banned words for group names', 'clanspress' ),
+						'label'       => __( 'Additional banned words for group names', 'clanbite' ),
 						'type'        => 'textarea',
-						'description' => __( 'Comma- or line-separated. These are enforced only for group names. When the global word filter is enabled, this list is added on top of it; when global is off, this list still applies to group names.', 'clanspress' ),
+						'description' => __( 'Comma- or line-separated. These are enforced only for group names. When the global word filter is enabled, this list is added on top of it; when global is off, this list still applies to group names.', 'clanbite' ),
 						'default'     => '',
 						'sanitize'    => 'sanitize_textarea_field',
 					),
@@ -96,6 +96,6 @@ class Groups_Settings extends Abstract_Settings {
 	 * @return void
 	 */
 	public function render_page(): void {
-		$this->render_settings_page( __( 'Groups', 'clanspress' ) );
+		$this->render_settings_page( __( 'Groups', 'clanbite' ) );
 	}
 }

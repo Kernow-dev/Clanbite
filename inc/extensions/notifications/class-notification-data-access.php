@@ -2,10 +2,10 @@
 /**
  * Notification data access layer.
  *
- * @package Clanspress
+ * @package Clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Notification;
+namespace Kernowdev\Clanbite\Extensions\Notification;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -40,7 +40,7 @@ final class Notification_Data_Access {
 	 *     @type string $object_type Optional. Related object type (e.g., 'team', 'post').
 	 *     @type int    $object_id   Optional. Related object ID.
 	 *     @type array  $data        Optional. Additional data (JSON encoded).
-	 *     @type array  $actions     Optional. Action buttons (see clanspress_notify for format).
+	 *     @type array  $actions     Optional. Action buttons (see clanbite_notify for format).
 	 * }
 	 * @return int|\WP_Error Notification ID or error.
 	 */
@@ -52,13 +52,13 @@ final class Notification_Data_Access {
 		$title   = isset( $data['title'] ) ? sanitize_text_field( $data['title'] ) : '';
 
 		if ( $user_id <= 0 ) {
-			return new \WP_Error( 'missing_user', __( 'User ID is required.', 'clanspress' ) );
+			return new \WP_Error( 'missing_user', __( 'User ID is required.', 'clanbite' ) );
 		}
 		if ( '' === $type ) {
-			return new \WP_Error( 'missing_type', __( 'Notification type is required.', 'clanspress' ) );
+			return new \WP_Error( 'missing_type', __( 'Notification type is required.', 'clanbite' ) );
 		}
 		if ( '' === $title ) {
-			return new \WP_Error( 'missing_title', __( 'Notification title is required.', 'clanspress' ) );
+			return new \WP_Error( 'missing_title', __( 'Notification title is required.', 'clanbite' ) );
 		}
 
 		$extra_data = isset( $data['data'] ) && is_array( $data['data'] ) ? $data['data'] : null;
@@ -69,7 +69,7 @@ final class Notification_Data_Access {
 		 *
 		 * @param array $data Notification data.
 		 */
-		$data = (array) apply_filters( 'clanspress_before_insert_notification', $data );
+		$data = (array) apply_filters( 'clanbite_before_insert_notification', $data );
 
 		$insert = array(
 			'user_id'     => $user_id,
@@ -92,7 +92,7 @@ final class Notification_Data_Access {
 		$result = $wpdb->insert( Notification_Schema::table_name(), $insert );
 
 		if ( false === $result ) {
-			return new \WP_Error( 'db_error', __( 'Failed to insert notification.', 'clanspress' ) );
+			return new \WP_Error( 'db_error', __( 'Failed to insert notification.', 'clanbite' ) );
 		}
 
 		$notification_id = (int) $wpdb->insert_id;
@@ -103,7 +103,7 @@ final class Notification_Data_Access {
 		 * @param int   $notification_id Notification ID.
 		 * @param array $data            Notification data.
 		 */
-		do_action( 'clanspress_notification_inserted', $notification_id, $data );
+		do_action( 'clanbite_notification_inserted', $notification_id, $data );
 
 		return $notification_id;
 	}
@@ -259,7 +259,7 @@ final class Notification_Data_Access {
 			 * @param int $notification_id Notification ID.
 			 * @param int $user_id         User ID.
 			 */
-			do_action( 'clanspress_notification_read', $notification_id, $user_id );
+			do_action( 'clanbite_notification_read', $notification_id, $user_id );
 			return true;
 		}
 
@@ -295,7 +295,7 @@ final class Notification_Data_Access {
 			 * @param int $user_id User ID.
 			 * @param int $count   Number marked read.
 			 */
-			do_action( 'clanspress_notifications_all_read', $user_id, $count );
+			do_action( 'clanbite_notifications_all_read', $user_id, $count );
 		}
 
 		return $count;
@@ -329,7 +329,7 @@ final class Notification_Data_Access {
 			 * @param int $notification_id Notification ID.
 			 * @param int $user_id         User ID.
 			 */
-			do_action( 'clanspress_notification_deleted', $notification_id, $user_id );
+			do_action( 'clanbite_notification_deleted', $notification_id, $user_id );
 			return true;
 		}
 
@@ -423,20 +423,20 @@ final class Notification_Data_Access {
 		$notification = self::get( $notification_id );
 
 		if ( ! $notification ) {
-			return new \WP_Error( 'not_found', __( 'Notification not found.', 'clanspress' ) );
+			return new \WP_Error( 'not_found', __( 'Notification not found.', 'clanbite' ) );
 		}
 
 		if ( (int) $notification->user_id !== $user_id ) {
-			return new \WP_Error( 'forbidden', __( 'You cannot action this notification.', 'clanspress' ) );
+			return new \WP_Error( 'forbidden', __( 'You cannot action this notification.', 'clanbite' ) );
 		}
 
 		if ( self::STATUS_PENDING !== $notification->status ) {
-			return new \WP_Error( 'already_actioned', __( 'This notification has already been actioned.', 'clanspress' ) );
+			return new \WP_Error( 'already_actioned', __( 'This notification has already been actioned.', 'clanbite' ) );
 		}
 
 		$actions = $notification->actions;
 		if ( ! is_array( $actions ) || empty( $actions ) ) {
-			return new \WP_Error( 'no_actions', __( 'This notification has no actions.', 'clanspress' ) );
+			return new \WP_Error( 'no_actions', __( 'This notification has no actions.', 'clanbite' ) );
 		}
 
 		$action = null;
@@ -448,7 +448,7 @@ final class Notification_Data_Access {
 		}
 
 		if ( ! $action ) {
-			return new \WP_Error( 'invalid_action', __( 'Invalid action.', 'clanspress' ) );
+			return new \WP_Error( 'invalid_action', __( 'Invalid action.', 'clanbite' ) );
 		}
 
 		$handler = $action['handler'] ?? null;
@@ -464,7 +464,7 @@ final class Notification_Data_Access {
 		 * @param array      $action       Action config.
 		 * @param int        $user_id      User ID.
 		 */
-		$result = apply_filters( 'clanspress_notification_action_' . $notification->type, null, $notification, $action, $user_id );
+		$result = apply_filters( 'clanbite_notification_action_' . $notification->type, null, $notification, $action, $user_id );
 
 		if ( null === $result && $handler ) {
 			/**
@@ -476,13 +476,13 @@ final class Notification_Data_Access {
 			 * @param array      $action       Action config.
 			 * @param int        $user_id      User ID.
 			 */
-			$result = apply_filters( 'clanspress_notification_action_handler', null, $handler, $notification, $action, $user_id );
+			$result = apply_filters( 'clanbite_notification_action_handler', null, $handler, $notification, $action, $user_id );
 		}
 
 		if ( null === $result ) {
 			$result = array(
 				'success' => true,
-				'message' => $action['success_message'] ?? __( 'Action completed.', 'clanspress' ),
+				'message' => $action['success_message'] ?? __( 'Action completed.', 'clanbite' ),
 			);
 		}
 
@@ -540,7 +540,7 @@ final class Notification_Data_Access {
 			 * @param int    $notification_id Notification ID.
 			 * @param string $status          New status.
 			 */
-			do_action( 'clanspress_notification_status_changed', $notification_id, $status );
+			do_action( 'clanbite_notification_status_changed', $notification_id, $status );
 			return true;
 		}
 
@@ -573,8 +573,8 @@ final class Notification_Data_Access {
 				$row->actor = (object) array(
 					'id'         => $actor->ID,
 					'name'       => $actor->display_name,
-					'avatar_url' => function_exists( 'clanspress_players_get_display_avatar' )
-						? clanspress_players_get_display_avatar( (int) $actor->ID, false, '', 'notifications', 'small' )
+					'avatar_url' => function_exists( 'clanbite_players_get_display_avatar' )
+						? clanbite_players_get_display_avatar( (int) $actor->ID, false, '', 'notifications', 'small' )
 						: get_avatar_url( $actor->ID, array( 'size' => 48 ) ),
 				);
 			}
@@ -585,7 +585,7 @@ final class Notification_Data_Access {
 		 *
 		 * @param object $row Notification object.
 		 */
-		return (object) apply_filters( 'clanspress_notification_hydrate', $row );
+		return (object) apply_filters( 'clanbite_notification_hydrate', $row );
 	}
 }
 

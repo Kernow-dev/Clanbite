@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Clanspress
- * Plugin URI: https://clanspress.com
+ * Plugin Name: Clanbite
+ * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
  * Version: 1.0.0
  * Requires at least: 6.7
@@ -12,31 +12,31 @@
  * Donate link: https://kernow.dev
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: clanspress
+ * Text Domain: clanbite
  * Domain Path: /languages
  *
- * @link    https://clanspress.com/
+ * @link    https://clanbite.com/
  *
- * @package clanspress
+ * @package clanbite
  * @version 1.0.0
  */
 
-namespace Kernowdev\Clanspress;
+namespace Kernowdev\Clanbite;
 
 defined( 'ABSPATH' ) || exit;
 
 use AllowDynamicProperties;
-use Kernowdev\Clanspress\Admin\Settings;
-use Kernowdev\Clanspress\Extensions\Loader as Extension_Loader;
-use Kernowdev\Clanspress\Cross_Site_Match_Sync;
-use Kernowdev\Clanspress\Public_Rest;
-use Kernowdev\Clanspress\Wordban;
+use Kernowdev\Clanbite\Admin\Settings;
+use Kernowdev\Clanbite\Extensions\Loader as Extension_Loader;
+use Kernowdev\Clanbite\Cross_Site_Match_Sync;
+use Kernowdev\Clanbite\Public_Rest;
+use Kernowdev\Clanbite\Wordban;
 
 // Use composer autoload.
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/inc/class-block-patterns.php';
-require_once __DIR__ . '/inc/clanspress-private-media.php';
-require_once __DIR__ . '/inc/clanspress-team-challenge-uploads.php';
+require_once __DIR__ . '/inc/clanbite-private-media.php';
+require_once __DIR__ . '/inc/clanbite-team-challenge-uploads.php';
 require_once __DIR__ . '/inc/functions-block-templates.php';
 require_once __DIR__ . '/inc/functions-request-input.php';
 require_once __DIR__ . '/inc/functions-country-flags.php';
@@ -75,7 +75,7 @@ final class Main {
 	 *
 	 * @var   string
 	 */
-	protected string $_token = 'clanspress_';
+	protected string $_token = 'clanbite_';
 
 	/**
 	 * URL of the plugin directory.
@@ -209,8 +209,8 @@ final class Main {
 		$default_message = sprintf(
 			/* translators: %s: URL to the Plugins admin screen. */
 			__(
-				'Clanspress Plugin is missing requirements and has been <a href="%s">deactivated</a>. Please make sure all requirements are available.',
-				'clanspress'
+				'Clanbite Plugin is missing requirements and has been <a href="%s">deactivated</a>. Please make sure all requirements are available.',
+				'clanbite'
 			),
 			esc_url( admin_url( 'plugins.php' ) )
 		);
@@ -278,7 +278,7 @@ final class Main {
 	}
 
 	/**
-	 * Register block editor categories (core Clanspress + per-extension groups).
+	 * Register block editor categories (core Clanbite + per-extension groups).
 	 *
 	 * @param array<int, array<string, mixed>> $categories Existing categories.
 	 * @param \WP_Block_Editor_Context|null    $context    Editor context (unused).
@@ -287,20 +287,20 @@ final class Main {
 	public function register_block_categories( array $categories, $context ): array {
 		$ours = array(
 			array(
-				'slug'  => 'clanspress',
-				'title' => __( 'Clanspress', 'clanspress' ),
+				'slug'  => 'clanbite',
+				'title' => __( 'Clanbite', 'clanbite' ),
 			),
 			array(
-				'slug'  => 'clanspress-players',
-				'title' => __( 'Clanspress Players', 'clanspress' ),
+				'slug'  => 'clanbite-players',
+				'title' => __( 'Clanbite Players', 'clanbite' ),
 			),
 			array(
-				'slug'  => 'clanspress-teams',
-				'title' => __( 'Clanspress Teams', 'clanspress' ),
+				'slug'  => 'clanbite-teams',
+				'title' => __( 'Clanbite Teams', 'clanbite' ),
 			),
 			array(
-				'slug'  => 'clanspress-matches',
-				'title' => __( 'Clanspress Matches', 'clanspress' ),
+				'slug'  => 'clanbite-matches',
+				'title' => __( 'Clanbite Matches', 'clanbite' ),
 			),
 		);
 
@@ -323,15 +323,15 @@ final class Main {
 		if ( current_user_can( 'manage_options' ) ) {
 			$prepend[] = sprintf(
 				'<a href="%1$s">%2$s</a>',
-				esc_url( admin_url( 'admin.php?page=clanspress' ) ),
-				esc_html__( 'Settings', 'clanspress' )
+				esc_url( admin_url( 'admin.php?page=clanbite' ) ),
+				esc_html__( 'Settings', 'clanbite' )
 			);
 		}
 
 		$prepend[] = sprintf(
 			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-			esc_url( 'https://clanspress.com/' ),
-			esc_html__( 'Website', 'clanspress' )
+			esc_url( 'https://clanbite.com/' ),
+			esc_html__( 'Website', 'clanbite' )
 		);
 
 		return array_merge( $prepend, $links );
@@ -349,7 +349,7 @@ final class Main {
 		// Load translated strings for the plugin.
 		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Standard plugin i18n; languages live under /languages (not only language packs).
 		load_plugin_textdomain(
-			'clanspress',
+			'clanbite',
 			false,
 			dirname( $this->basename ) . '/languages/'
 		);
@@ -363,7 +363,7 @@ final class Main {
 		$this->extensions = Extension_Loader::instance();
 
 		// Must run on every request: REST (`/wp-json/...`) is not `is_admin()`, but the
-		// React settings app calls `clanspress/v1/admin/*` from the browser.
+		// React settings app calls `clanbite/v1/admin/*` from the browser.
 		Settings::instance();
 
 		add_action( 'rest_api_init', array( Public_Rest::class, 'register_routes' ) );
@@ -403,7 +403,7 @@ final class Main {
 		}
 
 		$registry = \WP_Block_Type_Registry::get_instance();
-		$block    = $registry->get_registered( 'clanspress/visibility-container' );
+		$block    = $registry->get_registered( 'clanbite/visibility-container' );
 		if ( ! $block instanceof \WP_Block_Type || empty( $block->editor_script ) ) {
 			return;
 		}
@@ -424,7 +424,7 @@ final class Main {
 		 *
 		 * @param string $handle Editor script handle.
 		 */
-		$handle = (string) apply_filters( 'clanspress_visibility_container_editor_script_handle', $handle );
+		$handle = (string) apply_filters( 'clanbite_visibility_container_editor_script_handle', $handle );
 
 		if ( '' === $handle || ! wp_script_is( $handle, 'registered' ) ) {
 			return;
@@ -440,7 +440,7 @@ final class Main {
 
 		wp_localize_script(
 			$handle,
-			'clanspressVisibilityContainer',
+			'clanbiteVisibilityContainer',
 			array( 'roles' => $roles_out )
 		);
 	}
@@ -491,9 +491,9 @@ final class Main {
 }
 
 // Kick it off.
-add_action( 'plugins_loaded', array( clanspress(), 'early_hooks' ), 0 );
-add_action( 'plugins_loaded', array( clanspress(), 'hooks' ) );
+add_action( 'plugins_loaded', array( clanbite(), 'early_hooks' ), 0 );
+add_action( 'plugins_loaded', array( clanbite(), 'hooks' ) );
 
 // Activation and deactivation.
-register_activation_hook( __FILE__, array( clanspress(), '_activate' ) );
-register_deactivation_hook( __FILE__, array( clanspress(), '_deactivate' ) );
+register_activation_hook( __FILE__, array( clanbite(), '_activate' ) );
+register_deactivation_hook( __FILE__, array( clanbite(), '_deactivate' ) );

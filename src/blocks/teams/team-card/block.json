@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/team-card",
+	"name": "clanbite/team-card",
 	"version": "1.0.0",
 	"title": "Team Card",
-	"category": "clanspress-teams",
+	"category": "clanbite-teams",
 	"icon": "groups",
 	"description": "Display a simple team profile card.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"supports": {
 		"spacing": {
 			"margin": true,
@@ -45,9 +45,9 @@
 	"editorStyle": "file:./index.css",
 	"style": "file:./style-index.css",
 	"selectors": {
-		"root": ".wp-block-clanspress-team-card",
-		"color": ".wp-block-clanspress-team-card",
-		"typography": ".wp-block-clanspress-team-card",
-		"border": ".wp-block-clanspress-team-card"
+		"root": ".wp-block-clanbite-team-card",
+		"color": ".wp-block-clanbite-team-card",
+		"typography": ".wp-block-clanbite-team-card",
+		"border": ".wp-block-clanbite-team-card"
 	}
 }

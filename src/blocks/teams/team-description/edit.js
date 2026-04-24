@@ -5,10 +5,10 @@ import './editor.scss';
 export default function Edit() {
 	return (
 		<div { ...useBlockProps() }>
-			<p className="clanspress-team-block-placeholder">
+			<p className="clanbite-team-block-placeholder">
 				{ __(
 					'Team description — uses the team post content.',
-					'clanspress'
+					'clanbite'
 				) }
 			</p>
 		</div>

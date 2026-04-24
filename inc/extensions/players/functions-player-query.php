@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Player Query block: roster subset, ordering, meta filters, and exclusions.
  *
- * @package clanspress
+ * @package clanbite
  */
 
 /**
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * @param string $raw Raw list from block attributes.
  * @return list<int>
  */
-function clanspress_player_query_parse_id_list( string $raw ): array {
+function clanbite_player_query_parse_id_list( string $raw ): array {
 	$raw   = trim( $raw );
 	$parts = preg_split( '/[\s,]+/', $raw, -1, PREG_SPLIT_NO_EMPTY );
 	$out   = array();
@@ -37,7 +37,7 @@ function clanspress_player_query_parse_id_list( string $raw ): array {
  * @param string $raw Raw list from block attributes.
  * @return list<string>
  */
-function clanspress_player_query_parse_role_slugs( string $raw ): array {
+function clanbite_player_query_parse_role_slugs( string $raw ): array {
 	$raw   = trim( $raw );
 	$parts = preg_split( '/[\s,]+/', $raw, -1, PREG_SPLIT_NO_EMPTY );
 	$out   = array();
@@ -58,7 +58,7 @@ function clanspress_player_query_parse_role_slugs( string $raw ): array {
  * @param array<string|int, mixed> $node Meta query node.
  * @return bool
  */
-function clanspress_player_query_meta_query_is_indexed_clause_list( array $node ): bool {
+function clanbite_player_query_meta_query_is_indexed_clause_list( array $node ): bool {
 	$found = false;
 
 	foreach ( $node as $k => $v ) {
@@ -83,7 +83,7 @@ function clanspress_player_query_meta_query_is_indexed_clause_list( array $node 
  * @param array<string|int, mixed> $meta_query Sanitized meta query.
  * @return array<int|string, mixed>
  */
-function clanspress_player_query_meta_query_for_wp_user_query( array $meta_query ): array {
+function clanbite_player_query_meta_query_for_wp_user_query( array $meta_query ): array {
 	if ( array() === $meta_query ) {
 		return array();
 	}
@@ -101,7 +101,7 @@ function clanspress_player_query_meta_query_for_wp_user_query( array $meta_query
  * @param array<string, mixed> $node Raw clause.
  * @return array<string, mixed>
  */
-function clanspress_player_query_sanitize_meta_query_clause( array $node ): array {
+function clanbite_player_query_sanitize_meta_query_clause( array $node ): array {
 	$allowed_compare = array( '=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN', 'EXISTS', 'NOT EXISTS', 'REGEXP', 'RLIKE' );
 	$allowed_type    = array( 'NUMERIC', 'BINARY', 'CHAR', 'DATE', 'DATETIME', 'DECIMAL', 'SIGNED', 'UNSIGNED', 'TIME' );
 
@@ -137,7 +137,7 @@ function clanspress_player_query_sanitize_meta_query_clause( array $node ): arra
 	}
 
 	if ( array_key_exists( 'value', $node ) ) {
-		$out['value'] = clanspress_player_query_sanitize_meta_value( $node['value'], $compare );
+		$out['value'] = clanbite_player_query_sanitize_meta_value( $node['value'], $compare );
 	}
 
 	return $out;
@@ -150,7 +150,7 @@ function clanspress_player_query_sanitize_meta_query_clause( array $node ): arra
  * @param string $compare Compare operator.
  * @return mixed
  */
-function clanspress_player_query_sanitize_meta_value( $value, string $compare ) {
+function clanbite_player_query_sanitize_meta_value( $value, string $compare ) {
 	if ( in_array( $compare, array( 'IN', 'NOT IN' ), true ) && is_array( $value ) ) {
 		$clean = array();
 		foreach ( array_slice( $value, 0, 100 ) as $v ) {
@@ -196,12 +196,12 @@ function clanspress_player_query_sanitize_meta_value( $value, string $compare ) 
  * @param int   $depth Recursion guard.
  * @return array<string|int, mixed>
  */
-function clanspress_player_query_sanitize_meta_query( $node, int $depth = 0 ): array {
+function clanbite_player_query_sanitize_meta_query( $node, int $depth = 0 ): array {
 	if ( $depth > 5 || ! is_array( $node ) || array() === $node ) {
 		return array();
 	}
 
-	if ( isset( $node['relation'] ) || clanspress_player_query_meta_query_is_indexed_clause_list( $node ) ) {
+	if ( isset( $node['relation'] ) || clanbite_player_query_meta_query_is_indexed_clause_list( $node ) ) {
 		$out = array();
 		if ( isset( $node['relation'] ) ) {
 			$rel = strtoupper( sanitize_text_field( (string) $node['relation'] ) );
@@ -215,7 +215,7 @@ function clanspress_player_query_sanitize_meta_query( $node, int $depth = 0 ): a
 				continue;
 			}
 
-			$child = clanspress_player_query_sanitize_meta_query( $clause, $depth + 1 );
+			$child = clanbite_player_query_sanitize_meta_query( $clause, $depth + 1 );
 			if ( array() !== $child ) {
 				$out[] = $child;
 			}
@@ -235,7 +235,7 @@ function clanspress_player_query_sanitize_meta_query( $node, int $depth = 0 ): a
 		return $out;
 	}
 
-	return clanspress_player_query_sanitize_meta_query_clause( $node );
+	return clanbite_player_query_sanitize_meta_query_clause( $node );
 }
 
 /**
@@ -244,7 +244,7 @@ function clanspress_player_query_sanitize_meta_query( $node, int $depth = 0 ): a
  * @param string $json JSON object or array string.
  * @return array<string|int, mixed>
  */
-function clanspress_player_query_meta_query_from_json( string $json ): array {
+function clanbite_player_query_meta_query_from_json( string $json ): array {
 	$json = trim( $json );
 	if ( '' === $json ) {
 		return array();
@@ -255,22 +255,22 @@ function clanspress_player_query_meta_query_from_json( string $json ): array {
 		return array();
 	}
 
-	return clanspress_player_query_sanitize_meta_query( $decoded );
+	return clanbite_player_query_sanitize_meta_query( $decoded );
 }
 
 /**
- * Build normalized player-query options from ancestor `clanspress/player-query` block context.
+ * Build normalized player-query options from ancestor `clanbite/player-query` block context.
  *
  * @param array<string, mixed> $context Block context.
  * @return array<string, mixed>
  */
-function clanspress_player_query_options_from_block_context( array $context ): array {
-	$orderby = isset( $context['clanspress/queryOrderby'] ) ? sanitize_key( (string) $context['clanspress/queryOrderby'] ) : 'default';
+function clanbite_player_query_options_from_block_context( array $context ): array {
+	$orderby = isset( $context['clanbite/queryOrderby'] ) ? sanitize_key( (string) $context['clanbite/queryOrderby'] ) : 'default';
 	if ( '' === $orderby ) {
 		$orderby = 'default';
 	}
 
-	$order = isset( $context['clanspress/queryOrder'] ) ? strtoupper( sanitize_text_field( (string) $context['clanspress/queryOrder'] ) ) : 'ASC';
+	$order = isset( $context['clanbite/queryOrder'] ) ? strtoupper( sanitize_text_field( (string) $context['clanbite/queryOrder'] ) ) : 'ASC';
 	if ( 'DESC' !== $order ) {
 		$order = 'ASC';
 	}
@@ -278,14 +278,14 @@ function clanspress_player_query_options_from_block_context( array $context ): a
 	return array(
 		'orderby'                 => $orderby,
 		'order'                   => $order,
-		'meta_key'                => isset( $context['clanspress/queryMetaKey'] ) ? sanitize_text_field( (string) $context['clanspress/queryMetaKey'] ) : '',
-		'per_page'                => isset( $context['clanspress/queryPerPage'] ) ? max( 0, (int) $context['clanspress/queryPerPage'] ) : 0,
-		'offset'                  => isset( $context['clanspress/queryOffset'] ) ? max( 0, (int) $context['clanspress/queryOffset'] ) : 0,
-		'meta_query_json'         => isset( $context['clanspress/queryMetaQueryJson'] ) ? (string) $context['clanspress/queryMetaQueryJson'] : '',
-		'exclude_users'           => isset( $context['clanspress/queryExcludeUsers'] ) ? (string) $context['clanspress/queryExcludeUsers'] : '',
-		'exclude_current_user'    => ! empty( $context['clanspress/queryExcludeCurrentUser'] ),
-		'exclude_roles'           => isset( $context['clanspress/queryExcludeRoles'] ) ? (string) $context['clanspress/queryExcludeRoles'] : '',
-		'exclude_meta_query_json' => isset( $context['clanspress/queryExcludeMetaQueryJson'] ) ? (string) $context['clanspress/queryExcludeMetaQueryJson'] : '',
+		'meta_key'                => isset( $context['clanbite/queryMetaKey'] ) ? sanitize_text_field( (string) $context['clanbite/queryMetaKey'] ) : '',
+		'per_page'                => isset( $context['clanbite/queryPerPage'] ) ? max( 0, (int) $context['clanbite/queryPerPage'] ) : 0,
+		'offset'                  => isset( $context['clanbite/queryOffset'] ) ? max( 0, (int) $context['clanbite/queryOffset'] ) : 0,
+		'meta_query_json'         => isset( $context['clanbite/queryMetaQueryJson'] ) ? (string) $context['clanbite/queryMetaQueryJson'] : '',
+		'exclude_users'           => isset( $context['clanbite/queryExcludeUsers'] ) ? (string) $context['clanbite/queryExcludeUsers'] : '',
+		'exclude_current_user'    => ! empty( $context['clanbite/queryExcludeCurrentUser'] ),
+		'exclude_roles'           => isset( $context['clanbite/queryExcludeRoles'] ) ? (string) $context['clanbite/queryExcludeRoles'] : '',
+		'exclude_meta_query_json' => isset( $context['clanbite/queryExcludeMetaQueryJson'] ) ? (string) $context['clanbite/queryExcludeMetaQueryJson'] : '',
 	);
 }
 
@@ -295,7 +295,7 @@ function clanspress_player_query_options_from_block_context( array $context ): a
  * @param string $slug Block attribute value.
  * @return string|null Core query value, or null when ordering is handled without WP_User_Query.
  */
-function clanspress_player_query_wp_user_query_orderby( string $slug ): ?string {
+function clanbite_player_query_wp_user_query_orderby( string $slug ): ?string {
 	$map = array(
 		'id'             => 'ID',
 		'display_name'   => 'display_name',
@@ -322,25 +322,25 @@ function clanspress_player_query_wp_user_query_orderby( string $slug ): ?string 
  *
  * @param int                  $team_id         Team post ID.
  * @param bool                 $exclude_banned  Whether to omit banned roster members.
- * @param array<string, mixed> $query_options   From {@see clanspress_player_query_options_from_block_context()}.
+ * @param array<string, mixed> $query_options   From {@see clanbite_player_query_options_from_block_context()}.
  * @param \WP_Block|null       $block           Optional block instance for filters.
  * @return list<int>
  */
-function clanspress_player_query_resolve_member_user_ids( int $team_id, bool $exclude_banned, array $query_options, $block = null ): array {
-	if ( $team_id < 1 || ! function_exists( 'clanspress_teams_get_roster_user_ids' ) ) {
+function clanbite_player_query_resolve_member_user_ids( int $team_id, bool $exclude_banned, array $query_options, $block = null ): array {
+	if ( $team_id < 1 || ! function_exists( 'clanbite_teams_get_roster_user_ids' ) ) {
 		return array();
 	}
 
 	$orderby_slug = isset( $query_options['orderby'] ) ? (string) $query_options['orderby'] : 'default';
 	$preserve     = in_array( $orderby_slug, array( 'include', 'roster' ), true );
 
-	$user_ids = clanspress_teams_get_roster_user_ids( $team_id, $exclude_banned, $preserve );
+	$user_ids = clanbite_teams_get_roster_user_ids( $team_id, $exclude_banned, $preserve );
 	if ( array() === $user_ids ) {
 		return array();
 	}
 
 	// Exclude explicit user IDs (like Query Loop “Exclude” posts).
-	$exclude_ids = clanspress_player_query_parse_id_list( (string) ( $query_options['exclude_users'] ?? '' ) );
+	$exclude_ids = clanbite_player_query_parse_id_list( (string) ( $query_options['exclude_users'] ?? '' ) );
 	if ( ! empty( $query_options['exclude_current_user'] ) && is_user_logged_in() ) {
 		$exclude_ids[] = (int) get_current_user_id();
 	}
@@ -352,9 +352,9 @@ function clanspress_player_query_resolve_member_user_ids( int $team_id, bool $ex
 	}
 
 	// Exclude by team roster role slug (additional to “exclude banned”).
-	$exclude_roles = clanspress_player_query_parse_role_slugs( (string) ( $query_options['exclude_roles'] ?? '' ) );
-	if ( array() !== $exclude_roles && function_exists( 'clanspress_teams_get_member_roles_map' ) ) {
-		$map    = clanspress_teams_get_member_roles_map( $team_id );
+	$exclude_roles = clanbite_player_query_parse_role_slugs( (string) ( $query_options['exclude_roles'] ?? '' ) );
+	if ( array() !== $exclude_roles && function_exists( 'clanbite_teams_get_member_roles_map' ) ) {
+		$map    = clanbite_teams_get_member_roles_map( $team_id );
 		$keep   = array();
 		$bad    = array_flip( $exclude_roles );
 		foreach ( $user_ids as $uid ) {
@@ -369,8 +369,8 @@ function clanspress_player_query_resolve_member_user_ids( int $team_id, bool $ex
 	}
 
 	// Exclude members matching a meta_query (removed from the roster set).
-	$exclude_meta = clanspress_player_query_meta_query_for_wp_user_query(
-		clanspress_player_query_meta_query_from_json( (string) ( $query_options['exclude_meta_query_json'] ?? '' ) )
+	$exclude_meta = clanbite_player_query_meta_query_for_wp_user_query(
+		clanbite_player_query_meta_query_from_json( (string) ( $query_options['exclude_meta_query_json'] ?? '' ) )
 	);
 	if ( array() !== $exclude_meta && array() !== $user_ids ) {
 		$q = new \WP_User_Query(
@@ -387,8 +387,8 @@ function clanspress_player_query_resolve_member_user_ids( int $team_id, bool $ex
 	}
 
 	// Filter to members matching include meta_query.
-	$include_meta = clanspress_player_query_meta_query_for_wp_user_query(
-		clanspress_player_query_meta_query_from_json( (string) ( $query_options['meta_query_json'] ?? '' ) )
+	$include_meta = clanbite_player_query_meta_query_for_wp_user_query(
+		clanbite_player_query_meta_query_from_json( (string) ( $query_options['meta_query_json'] ?? '' ) )
 	);
 	if ( array() !== $include_meta && array() !== $user_ids ) {
 		$q = new \WP_User_Query(
@@ -425,12 +425,12 @@ function clanspress_player_query_resolve_member_user_ids( int $team_id, bool $ex
 		return array_values(
 			array_map(
 				'intval',
-				(array) apply_filters( 'clanspress_player_query_member_user_ids', $user_ids, $team_id, $query_options, $block )
+				(array) apply_filters( 'clanbite_player_query_member_user_ids', $user_ids, $team_id, $query_options, $block )
 			)
 		);
 	}
 
-	$wp_orderby = clanspress_player_query_wp_user_query_orderby( $orderby_slug );
+	$wp_orderby = clanbite_player_query_wp_user_query_orderby( $orderby_slug );
 	if ( null === $wp_orderby || array() === $user_ids ) {
 		if ( $offset > 0 ) {
 			$user_ids = array_slice( $user_ids, $offset );
@@ -442,7 +442,7 @@ function clanspress_player_query_resolve_member_user_ids( int $team_id, bool $ex
 		return array_values(
 			array_map(
 				'intval',
-				(array) apply_filters( 'clanspress_player_query_member_user_ids', $user_ids, $team_id, $query_options, $block )
+				(array) apply_filters( 'clanbite_player_query_member_user_ids', $user_ids, $team_id, $query_options, $block )
 			)
 		);
 	}
@@ -459,7 +459,7 @@ function clanspress_player_query_resolve_member_user_ids( int $team_id, bool $ex
 		return array_values(
 			array_map(
 				'intval',
-				(array) apply_filters( 'clanspress_player_query_member_user_ids', $user_ids, $team_id, $query_options, $block )
+				(array) apply_filters( 'clanbite_player_query_member_user_ids', $user_ids, $team_id, $query_options, $block )
 			)
 		);
 	}
@@ -488,7 +488,7 @@ function clanspress_player_query_resolve_member_user_ids( int $team_id, bool $ex
 	return array_values(
 		array_map(
 			'intval',
-			(array) apply_filters( 'clanspress_player_query_member_user_ids', $user_ids, $team_id, $query_options, $block )
+			(array) apply_filters( 'clanbite_player_query_member_user_ids', $user_ids, $team_id, $query_options, $block )
 		)
 	);
 }

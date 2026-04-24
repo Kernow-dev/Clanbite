@@ -9,21 +9,21 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Icon size', 'clanspress' ) }>
+				<PanelBody title={ __( 'Icon size', 'clanbite' ) }>
 					<SelectControl
-						label={ __( 'Size', 'clanspress' ) }
+						label={ __( 'Size', 'clanbite' ) }
 						value={ iconSize }
 						options={ [
 							{
-								label: __( 'Small', 'clanspress' ),
+								label: __( 'Small', 'clanbite' ),
 								value: 'small',
 							},
 							{
-								label: __( 'Medium', 'clanspress' ),
+								label: __( 'Medium', 'clanbite' ),
 								value: 'medium',
 							},
 							{
-								label: __( 'Large', 'clanspress' ),
+								label: __( 'Large', 'clanbite' ),
 								value: 'large',
 							},
 						] }
@@ -32,10 +32,10 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...useBlockProps() }>
-				<p className="clanspress-player-block-placeholder">
+				<p className="clanbite-player-block-placeholder">
 					{ __(
 						'Player social links (icons from Profile → Social Networks)',
-						'clanspress'
+						'clanbite'
 					) }
 				</p>
 			</div>

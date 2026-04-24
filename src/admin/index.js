@@ -1,5 +1,5 @@
 /**
- * Unified Clanspress wp-admin (tabs: General, Extensions, per-extension settings).
+ * Unified Clanbite wp-admin (tabs: General, Extensions, per-extension settings).
  * Active tab is synced to `?tab=<id>` for deep links and refresh.
  */
 import {
@@ -87,7 +87,7 @@ function IconUrlFieldControl( { field, value, onChange } ) {
 				? fromCtx
 				: normalizeIconPackList(
 						typeof window !== 'undefined'
-							? window.clanspressAdmin?.iconPacks
+							? window.clanbiteAdmin?.iconPacks
 							: undefined
 				  );
 		return filterIconPacksByFieldScope( field, allPacks );
@@ -98,9 +98,9 @@ function IconUrlFieldControl( { field, value, onChange } ) {
 		Object.keys( contextI18n ).length > 0
 			? contextI18n
 			: typeof window !== 'undefined' &&
-			  window.clanspressAdmin?.iconPickerI18n &&
-			  typeof window.clanspressAdmin.iconPickerI18n === 'object'
-			? window.clanspressAdmin.iconPickerI18n
+			  window.clanbiteAdmin?.iconPickerI18n &&
+			  typeof window.clanbiteAdmin.iconPickerI18n === 'object'
+			? window.clanbiteAdmin.iconPickerI18n
 			: {};
 
 	const openMediaFrame = () => {
@@ -108,9 +108,9 @@ function IconUrlFieldControl( { field, value, onChange } ) {
 			return;
 		}
 		const frame = window.wp.media( {
-			title: field.mediaTitle || __( 'Select image', 'clanspress' ),
+			title: field.mediaTitle || __( 'Select image', 'clanbite' ),
 			button: {
-				text: field.mediaButtonText || __( 'Use image', 'clanspress' ),
+				text: field.mediaButtonText || __( 'Use image', 'clanbite' ),
 			},
 			library: { type: 'image' },
 			multiple: false,
@@ -168,37 +168,37 @@ function IconUrlFieldControl( { field, value, onChange } ) {
 	let helpCombined = field.description || '';
 	if ( packs.length === 0 && ! hasMedia ) {
 		const extra =
-			i18n.noIcons || __( 'No icon packs registered yet.', 'clanspress' );
+			i18n.noIcons || __( 'No icon packs registered yet.', 'clanbite' );
 		helpCombined = helpCombined ? `${ helpCombined } ${ extra }` : extra;
 	}
 
 	return (
-		<div className="clanspress-field-icon-url">
+		<div className="clanbite-field-icon-url">
 			<BaseControl
-				id={ `clanspress-icon-url-${ id }` }
+				id={ `clanbite-icon-url-${ id }` }
 				label={ field.label }
 				help={ helpCombined || undefined }
 				__nextHasNoMarginBottom
 			>
 				{ previewUrl ? (
-					<div className="clanspress-field-icon-url__preview">
+					<div className="clanbite-field-icon-url__preview">
 						<img src={ previewUrl } alt="" />
 					</div>
 				) : null }
-				<div className="clanspress-field-icon-url__actions">
+				<div className="clanbite-field-icon-url__actions">
 					{ packs.length > 0 ? (
 						<Button
 							variant="secondary"
 							onClick={ () => setPickerOpen( true ) }
 						>
 							{ i18n.chooseIcon ||
-								__( 'Choose icon', 'clanspress' ) }
+								__( 'Choose icon', 'clanbite' ) }
 						</Button>
 					) : null }
 					{ hasMedia ? (
 						<Button variant="secondary" onClick={ openMediaFrame }>
 							{ i18n.mediaLibrary ||
-								__( 'Media Library…', 'clanspress' ) }
+								__( 'Media Library…', 'clanbite' ) }
 						</Button>
 					) : null }
 					{ previewUrl ? (
@@ -207,24 +207,24 @@ function IconUrlFieldControl( { field, value, onChange } ) {
 							isDestructive
 							onClick={ () => onChange( id, '' ) }
 						>
-							{ i18n.clear || __( 'Clear', 'clanspress' ) }
+							{ i18n.clear || __( 'Clear', 'clanbite' ) }
 						</Button>
 					) : null }
 				</div>
 			</BaseControl>
 			{ pickerOpen ? (
 				<Modal
-					title={ i18n.title || __( 'Choose icon', 'clanspress' ) }
+					title={ i18n.title || __( 'Choose icon', 'clanbite' ) }
 					onRequestClose={ () => setPickerOpen( false ) }
-					className="clanspress-icon-picker-modal"
+					className="clanbite-icon-picker-modal"
 				>
-					<div className="clanspress-icon-picker-modal__inner">
+					<div className="clanbite-icon-picker-modal__inner">
 						<p>
 							<Button
 								variant="secondary"
 								onClick={ () => pickIcon( '' ) }
 							>
-								{ i18n.none || __( 'No icon', 'clanspress' ) }
+								{ i18n.none || __( 'No icon', 'clanbite' ) }
 							</Button>
 						</p>
 						{ packs.length === 0 ? (
@@ -232,25 +232,25 @@ function IconUrlFieldControl( { field, value, onChange } ) {
 								{ i18n.noIcons ||
 									__(
 										'No icon packs registered yet.',
-										'clanspress'
+										'clanbite'
 									) }
 							</p>
 						) : (
 							packs.map( ( pack ) => (
 								<section
 									key={ String( pack.id ) }
-									className="clanspress-icon-picker-pack"
+									className="clanbite-icon-picker-pack"
 								>
-									<h4 className="clanspress-icon-picker-pack__title">
+									<h4 className="clanbite-icon-picker-pack__title">
 										{ pack.label }
 									</h4>
-									<div className="clanspress-icon-picker-grid">
+									<div className="clanbite-icon-picker-grid">
 										{ ( pack.icons || [] ).map(
 											( icon ) => (
 												<button
 													key={ String( icon.id ) }
 													type="button"
-													className="clanspress-icon-picker-grid__item"
+													className="clanbite-icon-picker-grid__item"
 													onClick={ () =>
 														pickIcon(
 															String(
@@ -359,14 +359,14 @@ function setupApiFetch() {
 	const root =
 		typeof wpApiSettings !== 'undefined' && wpApiSettings?.root
 			? wpApiSettings.root
-			: ( clanspressAdmin?.restUrl || '' ).replace(
-					/clanspress\/v1\/$/,
+			: ( clanbiteAdmin?.restUrl || '' ).replace(
+					/clanbite\/v1\/$/,
 					''
 			  ) || '/wp-json/';
 	const nonce =
 		typeof wpApiSettings !== 'undefined' && wpApiSettings?.nonce
 			? wpApiSettings.nonce
-			: clanspressAdmin?.nonce || '';
+			: clanbiteAdmin?.nonce || '';
 	apiFetch.use( apiFetch.createNonceMiddleware( nonce ) );
 	apiFetch.use( apiFetch.createRootURLMiddleware( root ) );
 }
@@ -443,7 +443,7 @@ function UserIdListControl( { field, value, onChange } ) {
 								u.name ||
 								u.slug ||
 								/* translators: %d: user ID */
-								sprintf( __( 'User %d', 'clanspress' ), uid ),
+								sprintf( __( 'User %d', 'clanbite' ), uid ),
 							avatar: av,
 						};
 					}
@@ -510,7 +510,7 @@ function UserIdListControl( { field, value, onChange } ) {
 				name:
 					u.name ||
 					u.slug ||
-					sprintf( __( 'User %d', 'clanspress' ), uid ),
+					sprintf( __( 'User %d', 'clanbite' ), uid ),
 				avatar: av,
 			},
 		} ) );
@@ -527,71 +527,71 @@ function UserIdListControl( { field, value, onChange } ) {
 	};
 
 	return (
-		<div className="clanspress-field-user-id-list">
+		<div className="clanbite-field-user-id-list">
 			{ field.label ? (
-				<p className="clanspress-field-user-id-list__label">
+				<p className="clanbite-field-user-id-list__label">
 					<strong>{ field.label }</strong>
 				</p>
 			) : null }
 			{ ids.length ? (
 				<ul
-					className="clanspress-field-user-id-list__rows"
-					aria-label={ __( 'Selected users', 'clanspress' ) }
+					className="clanbite-field-user-id-list__rows"
+					aria-label={ __( 'Selected users', 'clanbite' ) }
 				>
 					{ ids.map( ( uid ) => {
 						const row = details[ uid ];
 						const label = row?.name
 							? row.name
-							: sprintf( __( 'User %d', 'clanspress' ), uid );
+							: sprintf( __( 'User %d', 'clanbite' ), uid );
 						return (
 							<li
 								key={ uid }
-								className="clanspress-field-user-id-list__row"
+								className="clanbite-field-user-id-list__row"
 							>
-								<span className="clanspress-field-user-id-list__avatar-wrap">
+								<span className="clanbite-field-user-id-list__avatar-wrap">
 									{ row?.avatar ? (
 										<img
 											src={ row.avatar }
 											alt=""
 											width={ 32 }
 											height={ 32 }
-											className="clanspress-field-user-id-list__avatar"
+											className="clanbite-field-user-id-list__avatar"
 										/>
 									) : (
 										<span
-											className="clanspress-field-user-id-list__avatar clanspress-field-user-id-list__avatar--placeholder"
+											className="clanbite-field-user-id-list__avatar clanbite-field-user-id-list__avatar--placeholder"
 											aria-hidden="true"
 										/>
 									) }
 								</span>
-								<span className="clanspress-field-user-id-list__name">
+								<span className="clanbite-field-user-id-list__name">
 									{ label }
 								</span>
 								<Button
 									variant="tertiary"
 									isDestructive
 									onClick={ () => removeUser( uid ) }
-									className="clanspress-field-user-id-list__remove"
+									className="clanbite-field-user-id-list__remove"
 								>
-									{ __( 'Remove', 'clanspress' ) }
+									{ __( 'Remove', 'clanbite' ) }
 								</Button>
 							</li>
 						);
 					} ) }
 				</ul>
 			) : (
-				<p className="description clanspress-field-user-id-list__empty">
-					{ __( 'No users added yet.', 'clanspress' ) }
+				<p className="description clanbite-field-user-id-list__empty">
+					{ __( 'No users added yet.', 'clanbite' ) }
 				</p>
 			) }
-			<div className="clanspress-field-user-id-list__search">
+			<div className="clanbite-field-user-id-list__search">
 				<TextControl
-					label={ __( 'Add user', 'clanspress' ) }
+					label={ __( 'Add user', 'clanbite' ) }
 					value={ query }
 					onChange={ setQuery }
 					placeholder={ __(
 						'Search by name or username…',
-						'clanspress'
+						'clanbite'
 					) }
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -599,14 +599,14 @@ function UserIdListControl( { field, value, onChange } ) {
 				/>
 				{ loading ? (
 					<p className="description">
-						{ __( 'Searching…', 'clanspress' ) }
+						{ __( 'Searching…', 'clanbite' ) }
 					</p>
 				) : null }
 				{ suggestions.length ? (
 					<ul
-						className="clanspress-field-user-id-list__suggestions"
+						className="clanbite-field-user-id-list__suggestions"
 						role="listbox"
-						aria-label={ __( 'Matching users', 'clanspress' ) }
+						aria-label={ __( 'Matching users', 'clanbite' ) }
 					>
 						{ suggestions.map( ( u ) => {
 							const uid = parseInt( u.id, 10 );
@@ -619,12 +619,12 @@ function UserIdListControl( { field, value, onChange } ) {
 							const name =
 								u.name ||
 								u.slug ||
-								sprintf( __( 'User %d', 'clanspress' ), uid );
+								sprintf( __( 'User %d', 'clanbite' ), uid );
 							return (
 								<li key={ uid || u.slug } role="option">
 									<button
 										type="button"
-										className="clanspress-field-user-id-list__suggestion"
+										className="clanbite-field-user-id-list__suggestion"
 										disabled={ disabled }
 										onClick={ () => addUser( u ) }
 									>
@@ -634,7 +634,7 @@ function UserIdListControl( { field, value, onChange } ) {
 												alt=""
 												width={ 24 }
 												height={ 24 }
-												className="clanspress-field-user-id-list__suggestion-avatar"
+												className="clanbite-field-user-id-list__suggestion-avatar"
 											/>
 										) : null }
 										<span>{ name }</span>
@@ -642,7 +642,7 @@ function UserIdListControl( { field, value, onChange } ) {
 											<span className="description">
 												{ __(
 													'(already added)',
-													'clanspress'
+													'clanbite'
 												) }
 											</span>
 										) : null }
@@ -746,7 +746,7 @@ function PostIdListControl( { field, value, onChange } ) {
 								title ||
 								p.slug ||
 								/* translators: %d: post ID */
-								sprintf( __( 'Item %d', 'clanspress' ), pid ),
+								sprintf( __( 'Item %d', 'clanbite' ), pid ),
 						};
 					}
 					return next;
@@ -809,7 +809,7 @@ function PostIdListControl( { field, value, onChange } ) {
 					title ||
 					p.slug ||
 					/* translators: %d: post ID */
-					sprintf( __( 'Item %d', 'clanspress' ), pid ),
+					sprintf( __( 'Item %d', 'clanbite' ), pid ),
 			},
 		} ) );
 		onChange( fid, [ ...ids, pid ] );
@@ -825,16 +825,16 @@ function PostIdListControl( { field, value, onChange } ) {
 	};
 
 	return (
-		<div className="clanspress-field-post-id-list">
+		<div className="clanbite-field-post-id-list">
 			{ field.label ? (
-				<p className="clanspress-field-post-id-list__label">
+				<p className="clanbite-field-post-id-list__label">
 					<strong>{ field.label }</strong>
 				</p>
 			) : null }
 			{ ids.length ? (
 				<ul
-					className="clanspress-field-post-id-list__rows"
-					aria-label={ __( 'Selected items', 'clanspress' ) }
+					className="clanbite-field-post-id-list__rows"
+					aria-label={ __( 'Selected items', 'clanbite' ) }
 				>
 					{ ids.map( ( pid ) => {
 						const row = details[ pid ];
@@ -844,43 +844,43 @@ function PostIdListControl( { field, value, onChange } ) {
 						} else {
 							/* translators: %d: post ID */
 							label = sprintf(
-								__( 'Item %d', 'clanspress' ),
+								__( 'Item %d', 'clanbite' ),
 								pid
 							);
 						}
 						return (
 							<li
 								key={ pid }
-								className="clanspress-field-post-id-list__row"
+								className="clanbite-field-post-id-list__row"
 							>
-								<span className="clanspress-field-post-id-list__name">
+								<span className="clanbite-field-post-id-list__name">
 									{ label }
 								</span>
 								<Button
 									variant="tertiary"
 									isDestructive
 									onClick={ () => removePost( pid ) }
-									className="clanspress-field-post-id-list__remove"
+									className="clanbite-field-post-id-list__remove"
 								>
-									{ __( 'Remove', 'clanspress' ) }
+									{ __( 'Remove', 'clanbite' ) }
 								</Button>
 							</li>
 						);
 					} ) }
 				</ul>
 			) : (
-				<p className="description clanspress-field-post-id-list__empty">
-					{ __( 'No items added yet.', 'clanspress' ) }
+				<p className="description clanbite-field-post-id-list__empty">
+					{ __( 'No items added yet.', 'clanbite' ) }
 				</p>
 			) }
-			<div className="clanspress-field-post-id-list__search">
+			<div className="clanbite-field-post-id-list__search">
 				<TextControl
-					label={ __( 'Add item', 'clanspress' ) }
+					label={ __( 'Add item', 'clanbite' ) }
 					value={ query }
 					onChange={ setQuery }
 					placeholder={ __(
 						'Search by title or slug…',
-						'clanspress'
+						'clanbite'
 					) }
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -888,14 +888,14 @@ function PostIdListControl( { field, value, onChange } ) {
 				/>
 				{ loading ? (
 					<p className="description">
-						{ __( 'Searching…', 'clanspress' ) }
+						{ __( 'Searching…', 'clanbite' ) }
 					</p>
 				) : null }
 				{ suggestions.length ? (
 					<ul
-						className="clanspress-field-post-id-list__suggestions"
+						className="clanbite-field-post-id-list__suggestions"
 						role="listbox"
-						aria-label={ __( 'Matching items', 'clanspress' ) }
+						aria-label={ __( 'Matching items', 'clanbite' ) }
 					>
 						{ suggestions.map( ( p ) => {
 							const pid = parseInt( p.id, 10 );
@@ -905,12 +905,12 @@ function PostIdListControl( { field, value, onChange } ) {
 								title ||
 								p.slug ||
 								/* translators: %d: post ID */
-								sprintf( __( 'Item %d', 'clanspress' ), pid );
+								sprintf( __( 'Item %d', 'clanbite' ), pid );
 							return (
 								<li key={ pid || p.slug } role="option">
 									<button
 										type="button"
-										className="clanspress-field-post-id-list__suggestion"
+										className="clanbite-field-post-id-list__suggestion"
 										disabled={ disabled }
 										onClick={ () => addPost( p ) }
 									>
@@ -919,7 +919,7 @@ function PostIdListControl( { field, value, onChange } ) {
 											<span className="description">
 												{ __(
 													'(already added)',
-													'clanspress'
+													'clanbite'
 												) }
 											</span>
 										) : null }
@@ -953,14 +953,14 @@ function RepeaterControl( { field, value, onChange } ) {
 	const [ editingIndex, setEditingIndex ] = useState( -1 );
 	const [ draftRow, setDraftRow ] = useState( null );
 	const addLabel =
-		field.addLabel || field.add_label || __( 'Add row', 'clanspress' );
+		field.addLabel || field.add_label || __( 'Add row', 'clanbite' );
 	const inferEntityName = () => {
 		const key = String( id || '' ).toLowerCase();
-		if ( key === 'point_types' ) return __( 'point type', 'clanspress' );
-		if ( key === 'rank_types' ) return __( 'rank type', 'clanspress' );
-		if ( key === 'rules' ) return __( 'rule', 'clanspress' );
-		if ( key === 'levels' ) return __( 'level', 'clanspress' );
-		return __( 'row', 'clanspress' );
+		if ( key === 'point_types' ) return __( 'point type', 'clanbite' );
+		if ( key === 'rank_types' ) return __( 'rank type', 'clanbite' );
+		if ( key === 'rules' ) return __( 'rule', 'clanbite' );
+		if ( key === 'levels' ) return __( 'level', 'clanbite' );
+		return __( 'row', 'clanbite' );
 	};
 	const entityName = inferEntityName();
 
@@ -1007,7 +1007,7 @@ function RepeaterControl( { field, value, onChange } ) {
 	};
 
 	const removeRow = ( index ) => {
-		if ( ! window.confirm( __( 'Delete this row?', 'clanspress' ) ) ) {
+		if ( ! window.confirm( __( 'Delete this row?', 'clanbite' ) ) ) {
 			return;
 		}
 		setRows( rows.filter( ( _, i ) => i !== index ) );
@@ -1050,12 +1050,12 @@ function RepeaterControl( { field, value, onChange } ) {
 			const count = Array.isArray( cell ) ? cell.length : 0;
 			return sprintf(
 				/* translators: %d: number of nested rows. */
-				__( '%d rows', 'clanspress' ),
+				__( '%d rows', 'clanbite' ),
 				count
 			);
 		}
 		if ( sub.type === 'checkbox' ) {
-			return cell ? __( 'Yes', 'clanspress' ) : __( 'No', 'clanspress' );
+			return cell ? __( 'Yes', 'clanbite' ) : __( 'No', 'clanbite' );
 		}
 		return String( cell ?? '' );
 	};
@@ -1070,23 +1070,23 @@ function RepeaterControl( { field, value, onChange } ) {
 					editingIndex >= 0
 						? sprintf(
 								/* translators: 1: entity label (e.g. rule), 2: 1-based row index. */
-								__( 'Edit %1$s %2$d', 'clanspress' ),
+								__( 'Edit %1$s %2$d', 'clanbite' ),
 								entityName,
 								editingIndex + 1
 						  )
 						: sprintf(
 								/* translators: %s: entity label (e.g. rule). */
-								__( 'Add %s', 'clanspress' ),
+								__( 'Add %s', 'clanbite' ),
 								entityName
 						  )
 				}
 				onRequestClose={ closeDraftRow }
 			>
-				<div className="clanspress-field-repeater__row-edit">
+				<div className="clanbite-field-repeater__row-edit">
 					{ subFields.map( ( sub ) => (
 						<div
 							key={ sub.id }
-							className="clanspress-field-repeater__cell"
+							className="clanbite-field-repeater__cell"
 						>
 							{ sub.type === 'repeater' ? (
 								<RepeaterControl
@@ -1107,16 +1107,16 @@ function RepeaterControl( { field, value, onChange } ) {
 							) }
 						</div>
 					) ) }
-					<div className="clanspress-field-repeater__modal-actions">
+					<div className="clanbite-field-repeater__modal-actions">
 						<Button variant="primary" onClick={ saveDraftRow }>
 							{ sprintf(
 								/* translators: %s: entity label (e.g. rule). */
-								__( 'Save %s', 'clanspress' ),
+								__( 'Save %s', 'clanbite' ),
 								entityName
 							) }
 						</Button>{ ' ' }
 						<Button variant="secondary" onClick={ closeDraftRow }>
-							{ __( 'Cancel', 'clanspress' ) }
+							{ __( 'Cancel', 'clanbite' ) }
 						</Button>
 					</div>
 				</div>
@@ -1125,16 +1125,16 @@ function RepeaterControl( { field, value, onChange } ) {
 	};
 
 	return (
-		<div className="clanspress-field-repeater">
+		<div className="clanbite-field-repeater">
 			<fieldset>
-				<legend className="clanspress-field-repeater__legend">
+				<legend className="clanbite-field-repeater__legend">
 					{ field.label }
 				</legend>
 				{ field.description ? (
 					<p className="description">{ field.description }</p>
 				) : null }
-				<div className="clanspress-extensions-table-wrap">
-					<table className="widefat striped clanspress-extensions-table clanspress-field-repeater__table">
+				<div className="clanbite-extensions-table-wrap">
+					<table className="widefat striped clanbite-extensions-table clanbite-field-repeater__table">
 						<thead>
 							<tr>
 								{ subFields.map( ( sub ) => (
@@ -1142,7 +1142,7 @@ function RepeaterControl( { field, value, onChange } ) {
 										{ sub.label || sub.id }
 									</th>
 								) ) }
-								<th>{ __( 'Actions', 'clanspress' ) }</th>
+								<th>{ __( 'Actions', 'clanbite' ) }</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -1153,14 +1153,14 @@ function RepeaterControl( { field, value, onChange } ) {
 											{ summarizeCell( row, sub ) }
 										</td>
 									) ) }
-									<td className="clanspress-field-repeater__actions-cell">
+									<td className="clanbite-field-repeater__actions-cell">
 										<Button
 											variant="secondary"
 											onClick={ () =>
 												openRowEditor( rowIndex )
 											}
 										>
-											{ __( 'Edit', 'clanspress' ) }
+											{ __( 'Edit', 'clanbite' ) }
 										</Button>{ ' ' }
 										<Button
 											isDestructive
@@ -1169,7 +1169,7 @@ function RepeaterControl( { field, value, onChange } ) {
 												removeRow( rowIndex )
 											}
 										>
-											{ __( 'Delete', 'clanspress' ) }
+											{ __( 'Delete', 'clanbite' ) }
 										</Button>
 									</td>
 								</tr>
@@ -1234,11 +1234,11 @@ function FieldControl( { field, value, onChange } ) {
 
 				const frame = window.wp.media( {
 					title:
-						field.mediaTitle || __( 'Select image', 'clanspress' ),
+						field.mediaTitle || __( 'Select image', 'clanbite' ),
 					button: {
 						text:
 							field.mediaButtonText ||
-							__( 'Use image', 'clanspress' ),
+							__( 'Use image', 'clanbite' ),
 					},
 					library: { type: 'image' },
 					multiple: false,
@@ -1257,22 +1257,22 @@ function FieldControl( { field, value, onChange } ) {
 			};
 
 			return (
-				<div className="clanspress-field-image">
+				<div className="clanbite-field-image">
 					{ previewUrl ? (
-						<div className="clanspress-field-image-preview">
+						<div className="clanbite-field-image-preview">
 							<img src={ previewUrl } alt="" />
 						</div>
 					) : null }
-					<div className="clanspress-field-image-actions">
+					<div className="clanbite-field-image-actions">
 						<Button variant="secondary" onClick={ openMediaFrame }>
-							{ __( 'Upload / choose image', 'clanspress' ) }
+							{ __( 'Upload / choose image', 'clanbite' ) }
 						</Button>
 						<Button
 							variant="tertiary"
 							isDestructive
 							onClick={ () => onChange( id, '' ) }
 						>
-							{ __( 'Use plugin default', 'clanspress' ) }
+							{ __( 'Use plugin default', 'clanbite' ) }
 						</Button>
 					</div>
 					{ common.help ? (
@@ -1401,7 +1401,7 @@ function SettingsSections( { sections, optionKey, values, onFieldChange } ) {
 			<p className="description">
 				{ __(
 					'No configurable fields for this section.',
-					'clanspress'
+					'clanbite'
 				) }
 			</p>
 		);
@@ -1417,13 +1417,13 @@ function SettingsSections( { sections, optionKey, values, onFieldChange } ) {
 		}
 
 		return (
-			<div key={ section.id } className="clanspress-settings-section">
+			<div key={ section.id } className="clanbite-settings-section">
 				{ section.title ? <h3>{ section.title }</h3> : null }
-				<div className="clanspress-settings-fields">
+				<div className="clanbite-settings-fields">
 					{ visibleFields.map( ( field ) => (
 						<div
 							key={ field.id }
-							className="clanspress-settings-field-row"
+							className="clanbite-settings-field-row"
 						>
 							<FieldControl
 								field={ field }
@@ -1447,25 +1447,25 @@ function SettingsSections( { sections, optionKey, values, onFieldChange } ) {
  * @param {string[]} props.requires                 Slugs from the server (`ext.requires`).
  * @param {Object[]} props.allExtensions          Full `bootstrap.extensions` list.
  * @param {string[]} props.installedSlugs         Currently toggled-on slugs in the UI.
- * @param {string}   props.requiresClanspress     Minimum core version (`x.y.z`) or empty.
- * @param {boolean}  props.meetsClanspressVersion Whether core satisfies `requiresClanspress`.
+ * @param {string}   props.requiresClanbite     Minimum core version (`x.y.z`) or empty.
+ * @param {boolean}  props.meetsClanbiteVersion Whether core satisfies `requiresClanbite`.
  * @return {import('react').ReactNode}
  */
 function ExtensionRequiresCell( {
 	requires,
 	allExtensions,
 	installedSlugs,
-	requiresClanspress,
-	meetsClanspressVersion,
+	requiresClanbite,
+	meetsClanbiteVersion,
 } ) {
 	const hasExtReqs = requires?.length > 0;
-	const hasCoreReq = Boolean( requiresClanspress );
+	const hasCoreReq = Boolean( requiresClanbite );
 
 	if ( ! hasExtReqs && ! hasCoreReq ) {
 		return (
 			<span
 				className="description"
-				aria-label={ __( 'None', 'clanspress' ) }
+				aria-label={ __( 'None', 'clanbite' ) }
 			>
 				—
 			</span>
@@ -1473,9 +1473,9 @@ function ExtensionRequiresCell( {
 	}
 
 	return (
-		<div className="clanspress-extension-requires-cell">
+		<div className="clanbite-extension-requires-cell">
 			{ hasExtReqs ? (
-				<ul className="clanspress-extension-requires">
+				<ul className="clanbite-extension-requires">
 					{ requires.map( ( reqSlug ) => {
 						const reqExt = allExtensions.find(
 							( e ) => e.slug === reqSlug
@@ -1487,7 +1487,7 @@ function ExtensionRequiresCell( {
 								{ label }
 								{ ! isInstalled ? (
 									<span className="description">
-										({ __( 'not installed', 'clanspress' ) })
+										({ __( 'not installed', 'clanbite' ) })
 									</span>
 								) : null }
 							</li>
@@ -1498,23 +1498,23 @@ function ExtensionRequiresCell( {
 			{ hasCoreReq ? (
 				<p
 					className={ `description${
-						meetsClanspressVersion
+						meetsClanbiteVersion
 							? ''
-							: ' clanspress-extension-requires-core-miss'
+							: ' clanbite-extension-requires-core-miss'
 					}` }
 				>
 					{ sprintf(
-						/* translators: %s: minimum Clanspress version (x.y.z). */
-						__( 'Requires Clanspress %s or newer.', 'clanspress' ),
-						requiresClanspress
+						/* translators: %s: minimum Clanbite version (x.y.z). */
+						__( 'Requires Clanbite %s or newer.', 'clanbite' ),
+						requiresClanbite
 					) }
-					{ ! meetsClanspressVersion ? (
+					{ ! meetsClanbiteVersion ? (
 						<>
 							{ ' ' }
-							<span className="clanspress-extension-requires-core-miss-label">
+							<span className="clanbite-extension-requires-core-miss-label">
 								{ __(
-									'(current Clanspress is too old)',
-									'clanspress'
+									'(current Clanbite is too old)',
+									'clanbite'
 								) }
 							</span>
 						</>
@@ -1547,7 +1547,7 @@ function extensionCanBeTurnedOn( ext, pendingInstalledSlugs ) {
  *
  * @param {Object}  ext                  Extension row from bootstrap.
  * @param {boolean} isRequired           Whether the extension cannot be turned off.
- * @param {boolean} versionBlocksInstall Core version below `requiresClanspress`.
+ * @param {boolean} versionBlocksInstall Core version below `requiresClanbite`.
  * @return {string} Localized message.
  */
 function getExtensionToggleDisabledMessage(
@@ -1558,23 +1558,23 @@ function getExtensionToggleDisabledMessage(
 	if ( isRequired ) {
 		return __(
 			'This extension is required and cannot be disabled.',
-			'clanspress'
+			'clanbite'
 		);
 	}
 	if ( versionBlocksInstall ) {
 		return sprintf(
-			/* translators: %s: minimum Clanspress version (x.y.z). */
-			__( 'Requires Clanspress %s or newer.', 'clanspress' ),
-			ext.requiresClanspress
+			/* translators: %s: minimum Clanbite version (x.y.z). */
+			__( 'Requires Clanbite %s or newer.', 'clanbite' ),
+			ext.requiresClanbite
 		);
 	}
 	if ( ext.requires?.length ) {
 		return __(
 			'Turn on all required extensions first (you can save everything in one step).',
-			'clanspress'
+			'clanbite'
 		);
 	}
-	return __( 'This extension cannot be enabled.', 'clanspress' );
+	return __( 'This extension cannot be enabled.', 'clanbite' );
 }
 
 function App() {
@@ -1597,7 +1597,7 @@ function App() {
 		setError( null );
 		try {
 			const data = await apiFetch( {
-				path: 'clanspress/v1/admin/bootstrap',
+				path: 'clanbite/v1/admin/bootstrap',
 			} );
 			setBootstrap( data );
 			setValues( { ...data.values } );
@@ -1616,7 +1616,7 @@ function App() {
 			}
 		} catch ( e ) {
 			setError(
-				e?.message || __( 'Failed to load settings.', 'clanspress' )
+				e?.message || __( 'Failed to load settings.', 'clanbite' )
 			);
 		}
 	}, [] );
@@ -1661,7 +1661,7 @@ function App() {
 		}
 		document.title = sprintf(
 			/* translators: 1: original admin screen title, 2: settings tab label */
-			__( '%1$s ‹ %2$s', 'clanspress' ),
+			__( '%1$s ‹ %2$s', 'clanbite' ),
 			capturedAdminTitleRef.current,
 			tab.label
 		);
@@ -1712,7 +1712,7 @@ function App() {
 		setSaveNotice( null );
 		try {
 			const res = await apiFetch( {
-				path: `clanspress/v1/admin/settings/${ optionKey }`,
+				path: `clanbite/v1/admin/settings/${ optionKey }`,
 				method: 'PUT',
 				data: values[ optionKey ] || {},
 			} );
@@ -1723,7 +1723,7 @@ function App() {
 					isDismissible
 					onRemove={ () => setSaveNotice( null ) }
 				>
-					{ __( 'Settings saved.', 'clanspress' ) }
+					{ __( 'Settings saved.', 'clanbite' ) }
 				</Notice>
 			);
 		} catch ( e ) {
@@ -1733,7 +1733,7 @@ function App() {
 					isDismissible
 					onRemove={ () => setSaveNotice( null ) }
 				>
-					{ e?.message || __( 'Save failed.', 'clanspress' ) }
+					{ e?.message || __( 'Save failed.', 'clanbite' ) }
 				</Notice>
 			);
 		} finally {
@@ -1746,7 +1746,7 @@ function App() {
 		setSaveNotice( null );
 		try {
 			await apiFetch( {
-				path: 'clanspress/v1/admin/extensions',
+				path: 'clanbite/v1/admin/extensions',
 				method: 'PUT',
 				data: { installed },
 			} );
@@ -1756,7 +1756,7 @@ function App() {
 					isDismissible
 					onRemove={ () => setSaveNotice( null ) }
 				>
-					{ __( 'Extensions updated. Reloading…', 'clanspress' ) }
+					{ __( 'Extensions updated. Reloading…', 'clanbite' ) }
 				</Notice>
 			);
 			setTimeout( () => window.location.reload(), 800 );
@@ -1768,7 +1768,7 @@ function App() {
 					onRemove={ () => setSaveNotice( null ) }
 				>
 					{ e?.message ||
-						__( 'Could not update extensions.', 'clanspress' ) }
+						__( 'Could not update extensions.', 'clanbite' ) }
 				</Notice>
 			);
 		} finally {
@@ -1802,7 +1802,7 @@ function App() {
 		? pluginMeta.isBeta
 			? sprintf(
 					/* translators: 1: version, 2: "beta" label */
-					__( '%1$s beta', 'clanspress' ),
+					__( '%1$s beta', 'clanbite' ),
 					pluginMeta.version
 			  )
 			: pluginMeta.version
@@ -1813,7 +1813,7 @@ function App() {
 	);
 	const fromLocalized = normalizeIconPackList(
 		typeof window !== 'undefined'
-			? window.clanspressAdmin?.iconPacks
+			? window.clanbiteAdmin?.iconPacks
 			: undefined
 	);
 	const iconPacksForContext =
@@ -1829,9 +1829,9 @@ function App() {
 			? bootstrap.icon_picker_i18n
 			: null ) ||
 		( typeof window !== 'undefined' &&
-		window.clanspressAdmin?.iconPickerI18n &&
-		typeof window.clanspressAdmin.iconPickerI18n === 'object'
-			? window.clanspressAdmin.iconPickerI18n
+		window.clanbiteAdmin?.iconPickerI18n &&
+		typeof window.clanbiteAdmin.iconPickerI18n === 'object'
+			? window.clanbiteAdmin.iconPickerI18n
 			: {} );
 
 	return (
@@ -1841,65 +1841,65 @@ function App() {
 				iconPickerI18n,
 			} }
 		>
-			<div className="clanspress-admin-app clanspress-admin-shell">
-				<header className="clanspress-admin-header">
-					<div className="clanspress-admin-header-inner">
-						<div className="clanspress-admin-header-brand">
-							<span className="clanspress-admin-logo-wrap">
+			<div className="clanbite-admin-app clanbite-admin-shell">
+				<header className="clanbite-admin-header">
+					<div className="clanbite-admin-header-inner">
+						<div className="clanbite-admin-header-brand">
+							<span className="clanbite-admin-logo-wrap">
 								<img
 									src={
-										window.clanspressAdmin?.logoUrl || ''
+										window.clanbiteAdmin?.logoUrl || ''
 									}
 									alt=""
-									className="clanspress-admin-logo"
+									className="clanbite-admin-logo"
 								/>
 							</span>
 							{ versionLabel ? (
-								<div className="clanspress-admin-version">
+								<div className="clanbite-admin-version">
 									{ versionLabel }
 								</div>
 							) : null }
 						</div>
-						<div className="clanspress-admin-header-actions">
+						<div className="clanbite-admin-header-actions">
 							<a
-								href="https://clanspress.com"
-								className="clanspress-admin-header-btn"
+								href="https://clanbite.com"
+								className="clanbite-admin-header-btn"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								{ __( 'Developers', 'clanspress' ) }
+								{ __( 'Developers', 'clanbite' ) }
 							</a>
 							<a
-								href="https://github.com/Kernow-dev/Clanspress"
-								className="clanspress-admin-header-btn"
+								href="https://github.com/Kernow-dev/Clanbite"
+								className="clanbite-admin-header-btn"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								{ __( 'GitHub', 'clanspress' ) }
+								{ __( 'GitHub', 'clanbite' ) }
 							</a>
 							<a
 								href="https://discord.gg/vCaA8JyGWh"
-								className="clanspress-admin-header-btn"
+								className="clanbite-admin-header-btn"
 								target="_blank"
 								rel="noopener noreferrer"
 							>
-								{ __( 'Discord', 'clanspress' ) }
+								{ __( 'Discord', 'clanbite' ) }
 							</a>
 						</div>
 					</div>
 				</header>
-				<div className="clanspress-admin-main">
+				<div className="clanbite-admin-main">
 					{ saveNotice ? (
 						<div
-							className="clanspress-admin-global-notice"
+							className="clanbite-admin-global-notice"
 							role="status"
 						>
 							{ saveNotice }
 						</div>
 					) : null }
 					<TabPanel
-						key={ `clanspress-admin-tabpanel-${ tabPanelEpoch }` }
-						className="clanspress-admin-tabs"
+						key={ `clanbite-admin-tabpanel-${ tabPanelEpoch }` }
+						className="clanbite-admin-tabs"
 						activeClass="is-active"
 						tabs={ tabs }
 						initialTabName={ initialTabName }
@@ -1914,7 +1914,7 @@ function App() {
 							}
 							if ( meta.type === 'general' ) {
 								return (
-									<div className="clanspress-admin-section-inner">
+									<div className="clanbite-admin-section-inner">
 										<SettingsSections
 											sections={ generalSections }
 											optionKey={ generalKey }
@@ -1930,7 +1930,7 @@ function App() {
 										>
 											{ __(
 												'Save settings',
-												'clanspress'
+												'clanbite'
 											) }
 										</Button>
 									</div>
@@ -1938,50 +1938,50 @@ function App() {
 							}
 							if ( meta.type === 'extensions' ) {
 								return (
-									<div className="clanspress-admin-section-inner">
+									<div className="clanbite-admin-section-inner">
 										<p className="description">
 											{ __(
 												'Enable or disable extensions. You can turn on dependencies and dependents in any order; save once when ready. Saving reloads this screen.',
-												'clanspress'
+												'clanbite'
 											) }
 										</p>
-										<div className="clanspress-extensions-table-wrap">
-											<table className="widefat striped clanspress-extensions-table">
+										<div className="clanbite-extensions-table-wrap">
+											<table className="widefat striped clanbite-extensions-table">
 												<thead>
 													<tr>
 														<th>
 															{ __(
 																'Name',
-																'clanspress'
+																'clanbite'
 															) }
 														</th>
 														<th
 															scope="col"
-															className="clanspress-extensions-table__badges-col"
+															className="clanbite-extensions-table__badges-col"
 														>
 															<VisuallyHidden as="span">
 																{ __(
 																	'Official and core labels',
-																	'clanspress'
+																	'clanbite'
 																) }
 															</VisuallyHidden>
 														</th>
 														<th>
 															{ __(
 																'Description',
-																'clanspress'
+																'clanbite'
 															) }
 														</th>
 														<th>
 															{ __(
 																'Requires',
-																'clanspress'
+																'clanbite'
 															) }
 														</th>
 														<th>
 															{ __(
 																'Active',
-																'clanspress'
+																'clanbite'
 															) }
 														</th>
 													</tr>
@@ -2007,9 +2007,9 @@ function App() {
 																	! canTurnOn );
 															const versionBlocksInstall =
 																Boolean(
-																	ext.requiresClanspress
+																	ext.requiresClanbite
 																) &&
-																ext.meetsClanspressVersion ===
+																ext.meetsClanbiteVersion ===
 																	false;
 															return (
 																<tr
@@ -2020,9 +2020,9 @@ function App() {
 																	<td>
 																		<span
 																			className={
-																				'clanspress-extension-name' +
+																				'clanbite-extension-name' +
 																				( ext.parentSlug
-																					? ' clanspress-extension-name--child'
+																					? ' clanbite-extension-name--child'
 																					: '' )
 																			}
 																		>
@@ -2036,15 +2036,15 @@ function App() {
 																			</strong>
 																		</span>
 																	</td>
-																	<td className="clanspress-extensions-table__badges-col">
+																	<td className="clanbite-extensions-table__badges-col">
 																		<div
-																			className="clanspress-extension-badges"
+																			className="clanbite-extension-badges"
 																			role="group"
 																			aria-label={ sprintf(
 																				/* translators: %s: extension display name. */
 																				__(
 																					'Distribution labels for %s',
-																					'clanspress'
+																					'clanbite'
 																				),
 																				ext.name
 																			) }
@@ -2053,18 +2053,18 @@ function App() {
 																			ext.isCoreBundled ? (
 																				<>
 																					{ ext.isOfficial ? (
-																						<span className="clanspress-extension-badge">
+																						<span className="clanbite-extension-badge">
 																							{ __(
 																								'Official',
-																								'clanspress'
+																								'clanbite'
 																							) }
 																						</span>
 																					) : null }
 																					{ ext.isCoreBundled ? (
-																						<span className="clanspress-extension-badge clanspress-extension-badge--core">
+																						<span className="clanbite-extension-badge clanbite-extension-badge--core">
 																							{ __(
 																								'Core',
-																								'clanspress'
+																								'clanbite'
 																							) }
 																						</span>
 																					) : null }
@@ -2072,7 +2072,7 @@ function App() {
 																			) : (
 																				<>
 																					<span
-																						className="clanspress-extension-badge-placeholder"
+																						className="clanbite-extension-badge-placeholder"
 																						aria-hidden="true"
 																					>
 																						—
@@ -2080,7 +2080,7 @@ function App() {
 																					<VisuallyHidden as="span">
 																						{ __(
 																							'No official or core label',
-																							'clanspress'
+																							'clanbite'
 																						) }
 																					</VisuallyHidden>
 																				</>
@@ -2104,12 +2104,12 @@ function App() {
 																			installedSlugs={
 																				installed
 																			}
-																			requiresClanspress={
-																				ext.requiresClanspress ||
+																			requiresClanbite={
+																				ext.requiresClanbite ||
 																				''
 																			}
-																			meetsClanspressVersion={
-																				ext.meetsClanspressVersion !==
+																			meetsClanbiteVersion={
+																				ext.meetsClanbiteVersion !==
 																				false
 																			}
 																		/>
@@ -2118,7 +2118,7 @@ function App() {
 																		<ToggleControl
 																			label={ __(
 																				'Installed',
-																				'clanspress'
+																				'clanbite'
 																			) }
 																			checked={
 																				isOn
@@ -2182,13 +2182,13 @@ function App() {
 										</div>
 										<Button
 											variant="primary"
-											className="clanspress-extensions-save"
+											className="clanbite-extensions-save"
 											onClick={ saveExtensions }
 											isBusy={ saving }
 										>
 											{ __(
 												'Save extensions',
-												'clanspress'
+												'clanbite'
 											) }
 										</Button>
 									</div>
@@ -2196,12 +2196,12 @@ function App() {
 							}
 							if ( meta.type === 'extension' ) {
 								return (
-									<div className="clanspress-admin-section-inner">
+									<div className="clanbite-admin-section-inner">
 										{ ( meta.sectionGroups || [] ).map(
 											( group ) => (
 												<div
 													key={ `${ group.kind }-${ group.slug }` }
-													className="clanspress-settings-section"
+													className="clanbite-settings-section"
 												>
 													{ group.kind === 'child' ? (
 														<h3>{ group.name }</h3>
@@ -2226,11 +2226,11 @@ function App() {
 															)
 														}
 														isBusy={ saving }
-														className="clanspress-extension-save"
+														className="clanbite-extension-save"
 													>
 														{ __(
 															'Save',
-															'clanspress'
+															'clanbite'
 														) }
 													</Button>
 												</div>
@@ -2248,7 +2248,7 @@ function App() {
 	);
 }
 
-const root = document.getElementById( 'clanspress-admin-root' );
+const root = document.getElementById( 'clanbite-admin-root' );
 if ( root ) {
 	render( <App />, root );
 }

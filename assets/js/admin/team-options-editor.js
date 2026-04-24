@@ -19,13 +19,13 @@
 
 	function getCountryOptions() {
 		const w =
-			typeof window !== 'undefined' && window.clanspressTeamEditor
-				? window.clanspressTeamEditor
+			typeof window !== 'undefined' && window.clanbiteTeamEditor
+				? window.clanbiteTeamEditor
 				: null;
 		if ( w && Array.isArray( w.countries ) && w.countries.length ) {
 			return w.countries;
 		}
-		return [ { value: '', label: __( '— Select —', 'clanspress' ) } ];
+		return [ { value: '', label: __( '— Select —', 'clanbite' ) } ];
 	}
 
 	function useTeamMeta() {
@@ -72,7 +72,7 @@
 				PanelRow,
 				{ key: 'cp_team_code' },
 				el( TextControl, {
-					label: __( 'Team code', 'clanspress' ),
+					label: __( 'Team code', 'clanbite' ),
 					value: meta.cp_team_code || '',
 					onChange( value ) {
 						patch( 'cp_team_code', value );
@@ -83,7 +83,7 @@
 				PanelRow,
 				{ key: 'cp_team_motto' },
 				el( TextareaControl, {
-					label: __( 'Motto', 'clanspress' ),
+					label: __( 'Motto', 'clanbite' ),
 					value: meta.cp_team_motto || '',
 					onChange( value ) {
 						patch( 'cp_team_motto', value );
@@ -95,7 +95,7 @@
 				PanelRow,
 				{ key: 'cp_team_country' },
 				el( SelectControl, {
-					label: __( 'Country', 'clanspress' ),
+					label: __( 'Country', 'clanbite' ),
 					value:
 						meta.cp_team_country != null
 							? String( meta.cp_team_country )
@@ -110,7 +110,7 @@
 				PanelRow,
 				{ key: 'cp_team_wins' },
 				el( TextControl, {
-					label: __( 'Wins', 'clanspress' ),
+					label: __( 'Wins', 'clanbite' ),
 					type: 'number',
 					min: 0,
 					value: statString( meta, 'cp_team_wins' ),
@@ -123,7 +123,7 @@
 				PanelRow,
 				{ key: 'cp_team_losses' },
 				el( TextControl, {
-					label: __( 'Losses', 'clanspress' ),
+					label: __( 'Losses', 'clanbite' ),
 					type: 'number',
 					min: 0,
 					value: statString( meta, 'cp_team_losses' ),
@@ -136,7 +136,7 @@
 				PanelRow,
 				{ key: 'cp_team_draws' },
 				el( TextControl, {
-					label: __( 'Draws', 'clanspress' ),
+					label: __( 'Draws', 'clanbite' ),
 					type: 'number',
 					min: 0,
 					value: statString( meta, 'cp_team_draws' ),
@@ -150,8 +150,8 @@
 
 	function getDefaultUrls() {
 		const w =
-			typeof window !== 'undefined' && window.clanspressTeamEditor
-				? window.clanspressTeamEditor
+			typeof window !== 'undefined' && window.clanbiteTeamEditor
+				? window.clanbiteTeamEditor
 				: null;
 		const d = w && w.defaults ? w.defaults : {};
 		return {
@@ -245,7 +245,7 @@
 			el(
 				'div',
 				{
-					className: 'clanspress-team-editor-branding-field',
+					className: 'clanbite-team-editor-branding-field',
 					style: { width: '100%' },
 				},
 				el(
@@ -303,7 +303,7 @@
 								},
 								__(
 									'Image unavailable. Replace it or use the site default.',
-									'clanspress'
+									'clanbite'
 								)
 						  )
 						: null
@@ -336,8 +336,8 @@
 										onClick: obj.open,
 									},
 									id
-										? __( 'Replace image', 'clanspress' )
-										: __( 'Choose image', 'clanspress' )
+										? __( 'Replace image', 'clanbite' )
+										: __( 'Choose image', 'clanbite' )
 								);
 							},
 						} )
@@ -351,7 +351,7 @@
 										patch( metaKey, 0 );
 									},
 								},
-								__( 'Use site default', 'clanspress' )
+								__( 'Use site default', 'clanbite' )
 						  )
 						: null
 				),
@@ -364,11 +364,11 @@
 					id
 						? __(
 								'Custom image — replace or restore the site default above.',
-								'clanspress'
+								'clanbite'
 						  )
 						: __(
 								'Using site default image on the front end.',
-								'clanspress'
+								'clanbite'
 						  )
 				)
 			)
@@ -386,10 +386,10 @@
 			null,
 			el( TeamBrandingImageRow, {
 				metaKey: 'cp_team_avatar_id',
-				label: __( 'Team avatar', 'clanspress' ),
+				label: __( 'Team avatar', 'clanbite' ),
 				help: __(
 					'Shown on team templates. Leave as site default or pick a custom image.',
-					'clanspress'
+					'clanbite'
 				),
 				meta,
 				patchMeta: patch,
@@ -398,10 +398,10 @@
 			} ),
 			el( TeamBrandingImageRow, {
 				metaKey: 'cp_team_cover_id',
-				label: __( 'Team cover', 'clanspress' ),
+				label: __( 'Team cover', 'clanbite' ),
 				help: __(
 					'Wide image behind the team header. Leave as site default or pick a custom image.',
-					'clanspress'
+					'clanbite'
 				),
 				meta,
 				patchMeta: patch,
@@ -417,16 +417,16 @@
 		const patch = _useTeamMeta3.patchMeta;
 
 		const baseJoinModes = [
-			{ label: __( 'Open join', 'clanspress' ), value: 'open_join' },
+			{ label: __( 'Open join', 'clanbite' ), value: 'open_join' },
 			{
-				label: __( 'Join with permission', 'clanspress' ),
+				label: __( 'Join with permission', 'clanbite' ),
 				value: 'join_with_permission',
 			},
-			{ label: __( 'Invite only', 'clanspress' ), value: 'invite_only' },
+			{ label: __( 'Invite only', 'clanbite' ), value: 'invite_only' },
 		];
 
 		const joinModes = applyFilters(
-			'clanspress.teams.joinModes',
+			'clanbite.teams.joinModes',
 			baseJoinModes,
 			meta
 		);
@@ -436,7 +436,7 @@
 				PanelRow,
 				{ key: 'cp_team_join_mode' },
 				el( SelectControl, {
-					label: __( 'Join mode', 'clanspress' ),
+					label: __( 'Join mode', 'clanbite' ),
 					value: meta.cp_team_join_mode || 'open_join',
 					options: joinModes,
 					onChange( value ) {
@@ -448,7 +448,7 @@
 				PanelRow,
 				{ key: 'cp_team_allow_invites' },
 				el( ToggleControl, {
-					label: __( 'Allow player invites', 'clanspress' ),
+					label: __( 'Allow player invites', 'clanbite' ),
 					checked: boolMeta( meta, 'cp_team_allow_invites', true ),
 					onChange( value ) {
 						patch( 'cp_team_allow_invites', !! value );
@@ -459,7 +459,7 @@
 				PanelRow,
 				{ key: 'cp_team_allow_frontend_edit' },
 				el( ToggleControl, {
-					label: __( 'Allow front-end team editing', 'clanspress' ),
+					label: __( 'Allow front-end team editing', 'clanbite' ),
 					checked: boolMeta(
 						meta,
 						'cp_team_allow_frontend_edit',
@@ -474,7 +474,7 @@
 				PanelRow,
 				{ key: 'cp_team_allow_ban_players' },
 				el( ToggleControl, {
-					label: __( 'Allow banning players', 'clanspress' ),
+					label: __( 'Allow banning players', 'clanbite' ),
 					checked: boolMeta(
 						meta,
 						'cp_team_allow_ban_players',
@@ -489,7 +489,7 @@
 				PanelRow,
 				{ key: 'cp_team_accept_challenges' },
 				el( ToggleControl, {
-					label: __( 'Accept match challenges', 'clanspress' ),
+					label: __( 'Accept match challenges', 'clanbite' ),
 					checked: boolMeta(
 						meta,
 						'cp_team_accept_challenges',
@@ -503,7 +503,7 @@
 		];
 
 		const filtered = applyFilters(
-			'clanspress.teams.optionControls',
+			'clanbite.teams.optionControls',
 			membershipControls,
 			{
 				meta,
@@ -533,27 +533,27 @@
 			el(
 				PluginDocumentSettingPanel,
 				{
-					name: 'clanspress-team-basic',
-					title: __( 'Team — Basic', 'clanspress' ),
-					className: 'clanspress-team-panel-basic',
+					name: 'clanbite-team-basic',
+					title: __( 'Team — Basic', 'clanbite' ),
+					className: 'clanbite-team-panel-basic',
 				},
 				el( TeamBasicFields, null )
 			),
 			el(
 				PluginDocumentSettingPanel,
 				{
-					name: 'clanspress-team-branding',
-					title: __( 'Team — Branding', 'clanspress' ),
-					className: 'clanspress-team-panel-branding',
+					name: 'clanbite-team-branding',
+					title: __( 'Team — Branding', 'clanbite' ),
+					className: 'clanbite-team-panel-branding',
 				},
 				el( TeamBrandingFields, null )
 			),
 			el(
 				PluginDocumentSettingPanel,
 				{
-					name: 'clanspress-team-membership',
-					title: __( 'Team — Membership & rules', 'clanspress' ),
-					className: 'clanspress-team-panel-membership',
+					name: 'clanbite-team-membership',
+					title: __( 'Team — Membership & rules', 'clanbite' ),
+					className: 'clanbite-team-panel-membership',
 				},
 				el( TeamMembershipFields, null )
 			)
@@ -572,7 +572,7 @@
 		return el( TeamOptionsDocumentPanels, null );
 	}
 
-	registerPlugin( 'clanspress-team-options', {
+	registerPlugin( 'clanbite-team-options', {
 		render: TeamOptionsPanel,
 		icon: null,
 	} );

@@ -80,7 +80,7 @@ const applyPlayerSettingsPayloadToFields = ( root, payload ) => {
 	// Forums signature RTE: textarea is source of truth for save; mirror into contenteditable.
 	root.querySelectorAll( '[data-cp-forum-signature-rte]' ).forEach( ( rteRoot ) => {
 		const ta = rteRoot.querySelector( 'textarea[name="cp_forum_signature"]' );
-		const ed = rteRoot.querySelector( '.clanspress-forums-board__rte-editor' );
+		const ed = rteRoot.querySelector( '.clanbite-forums-board__rte-editor' );
 		if ( ta instanceof HTMLTextAreaElement && ed instanceof HTMLElement ) {
 			ed.innerHTML = ta.value;
 		}
@@ -169,7 +169,7 @@ const parsePlayerSettingsRouteFromWindow = () => {
 
 let playerSettingsPopstateBound = false;
 
-const { state, actions } = store( 'clanspress-player-settings', {
+const { state, actions } = store( 'clanbite-player-settings', {
 	state: {
 		root: null,
 		activeNav: null,
@@ -435,7 +435,7 @@ const { state, actions } = store( 'clanspress-player-settings', {
 
 			// Grab the nonce from the hidden field
 			const nonceInput = state.root.querySelector(
-				'input[name="_clanspress_profile_settings_save_nonce"]'
+				'input[name="_clanbite_profile_settings_save_nonce"]'
 			);
 
 			if ( ! nonceInput || ! window.CLANSPRESSPLAYERSETTINGS?.ajax_url ) {
@@ -474,7 +474,7 @@ const { state, actions } = store( 'clanspress-player-settings', {
 
 			data.nonce = nonceInput.value;
 
-			data.action = 'clanspress_save_player_settings';
+			data.action = 'clanbite_save_player_settings';
 
 			const formData = new FormData();
 			for ( const key in data ) {
@@ -760,7 +760,7 @@ const replacePlayerSettingsUrl = () => {
 		url.pathname.replace( /\/$/, '' )
 	) {
 		window.history.replaceState(
-			{ clanspressPlayerSettings: true },
+			{ clanbitePlayerSettings: true },
 			'',
 			url
 		);
@@ -779,6 +779,6 @@ const pushPlayerSettingsUrl = () => {
 		window.location.pathname.replace( /\/$/, '' ) !==
 		url.pathname.replace( /\/$/, '' )
 	) {
-		window.history.pushState( { clanspressPlayerSettings: true }, '', url );
+		window.history.pushState( { clanbitePlayerSettings: true }, '', url );
 	}
 };

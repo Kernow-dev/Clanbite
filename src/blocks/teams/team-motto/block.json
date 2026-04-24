@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/team-motto",
+	"name": "clanbite/team-motto",
 	"version": "1.0.0",
 	"title": "Team motto",
-	"category": "clanspress-teams",
+	"category": "clanbite-teams",
 	"icon": "format-quote",
 	"description": "Displays the team motto.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"postTypes": [ "cp_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"supports": {
@@ -38,12 +38,12 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-team-motto",
+		"root": ".wp-block-clanbite-team-motto",
 		"color": {
-			"text": ".wp-block-clanspress-team-motto .clanspress-team-motto__text",
-			"background": ".wp-block-clanspress-team-motto"
+			"text": ".wp-block-clanbite-team-motto .clanbite-team-motto__text",
+			"background": ".wp-block-clanbite-team-motto"
 		},
-		"typography": ".wp-block-clanspress-team-motto .clanspress-team-motto__text",
-		"border": ".wp-block-clanspress-team-motto"
+		"typography": ".wp-block-clanbite-team-motto .clanbite-team-motto__text",
+		"border": ".wp-block-clanbite-team-motto"
 	}
 }

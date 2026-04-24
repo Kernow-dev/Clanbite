@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/event-create-form",
+	"name": "clanbite/event-create-form",
 	"version": "1.0.0",
 	"title": "Create event",
-	"category": "clanspress",
+	"category": "clanbite",
 	"icon": "plus-alt2",
 	"description": "Create a team or group event (in-person or virtual) via the REST API.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"attributes": {
 		"scopeType": {
 			"type": "string",
@@ -52,9 +52,9 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-event-create-form",
-		"color": ".wp-block-clanspress-event-create-form",
-		"typography": ".wp-block-clanspress-event-create-form",
-		"border": ".wp-block-clanspress-event-create-form"
+		"root": ".wp-block-clanbite-event-create-form",
+		"color": ".wp-block-clanbite-event-create-form",
+		"typography": ".wp-block-clanbite-event-create-form",
+		"border": ".wp-block-clanbite-event-create-form"
 	}
 }

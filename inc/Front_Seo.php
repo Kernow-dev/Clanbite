@@ -1,29 +1,29 @@
 <?php
 /**
- * Front-end SEO: document titles, robots, Open Graph, Twitter Card tags, and JSON-LD for Clanspress routes.
+ * Front-end SEO: document titles, robots, Open Graph, Twitter Card tags, and JSON-LD for Clanbite routes.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress;
+namespace Kernowdev\Clanbite;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Registers head output for player profiles, team profiles, players directory, and public match pages.
  *
- * Extensions (for example Clanspress Forums) may attach additional filters and head callbacks.
- * Use {@see 'clanspress_seo_enabled'} to disable all core output, or granular filters below.
+ * Extensions (for example Clanbite Forums) may attach additional filters and head callbacks.
+ * Use {@see 'clanbite_seo_enabled'} to disable all core output, or granular filters below.
  *
  * Filters:
- * - `clanspress_seo_enabled` (bool) — master switch.
- * - `clanspress_seo_output_open_graph` (bool) — OG / Twitter meta tags.
- * - `clanspress_seo_output_json_ld` (bool) — JSON-LD script blocks.
- * - `clanspress_seo_output_site_graph` (bool) — WebSite + Organization on the home/front page when no major SEO plugin is detected.
- * - `clanspress_seo_player_graph` (array) — merge extra `@graph` nodes for player profiles.
- * - `clanspress_seo_team_graph` (array) — merge extra `@graph` nodes for team profiles.
- * - `clanspress_seo_match_graph` (array) — merge extra `@graph` nodes for single matches.
- * - `clanspress_seo_group_graph` (array) — merge extra `@graph` nodes for Social Kit `cp_group` singular views.
+ * - `clanbite_seo_enabled` (bool) — master switch.
+ * - `clanbite_seo_output_open_graph` (bool) — OG / Twitter meta tags.
+ * - `clanbite_seo_output_json_ld` (bool) — JSON-LD script blocks.
+ * - `clanbite_seo_output_site_graph` (bool) — WebSite + Organization on the home/front page when no major SEO plugin is detected.
+ * - `clanbite_seo_player_graph` (array) — merge extra `@graph` nodes for player profiles.
+ * - `clanbite_seo_team_graph` (array) — merge extra `@graph` nodes for team profiles.
+ * - `clanbite_seo_match_graph` (array) — merge extra `@graph` nodes for single matches.
+ * - `clanbite_seo_group_graph` (array) — merge extra `@graph` nodes for Social Kit `cp_group` singular views.
  */
 final class Front_Seo {
 
@@ -31,6 +31,13 @@ final class Front_Seo {
 	 * JSON encode flags for inline `application/ld+json` (mitigate `</script>` breakouts).
 	 */
 	private const JSON_LD_FLAGS = \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_HEX_TAG | \JSON_HEX_AMP | \JSON_HEX_APOS | \JSON_HEX_QUOT;
+
+	/**
+	 * Sequence for unique JSON-LD script handles when multiple graphs print on one response.
+	 *
+	 * @var int
+	 */
+	private static int $json_ld_sequence = 0;
 
 	/**
 	 * Register hooks.
@@ -48,7 +55,7 @@ final class Front_Seo {
 	}
 
 	/**
-	 * Whether core Clanspress SEO runs on this request.
+	 * Whether core Clanbite SEO runs on this request.
 	 *
 	 * @return bool
 	 */
@@ -64,11 +71,11 @@ final class Front_Seo {
 		}
 
 		/**
-		 * Master switch for Clanspress front SEO (titles, robots, OG, JSON-LD).
+		 * Master switch for Clanbite front SEO (titles, robots, OG, JSON-LD).
 		 *
 		 * @param bool $enabled Default true.
 		 */
-		return (bool) apply_filters( 'clanspress_seo_enabled', true );
+		return (bool) apply_filters( 'clanbite_seo_enabled', true );
 	}
 
 	/**
@@ -80,7 +87,7 @@ final class Front_Seo {
 		 *
 		 * @param bool $enabled Default true.
 		 */
-		return (bool) apply_filters( 'clanspress_seo_output_open_graph', true );
+		return (bool) apply_filters( 'clanbite_seo_output_open_graph', true );
 	}
 
 	/**
@@ -92,7 +99,7 @@ final class Front_Seo {
 		 *
 		 * @param bool $enabled Default true.
 		 */
-		return (bool) apply_filters( 'clanspress_seo_output_json_ld', true );
+		return (bool) apply_filters( 'clanbite_seo_output_json_ld', true );
 	}
 
 	/**
@@ -107,7 +114,7 @@ final class Front_Seo {
 		 *
 		 * @param bool $enabled Default true when no major SEO plugin is active.
 		 */
-		return (bool) apply_filters( 'clanspress_seo_output_site_graph', true );
+		return (bool) apply_filters( 'clanbite_seo_output_site_graph', true );
 	}
 
 	/**
@@ -134,7 +141,7 @@ final class Front_Seo {
 			$robots['nofollow'] = true;
 		}
 
-		if ( function_exists( 'clanspress_team_profile_route_current_slug' ) && 'settings' === clanspress_team_profile_route_current_slug() ) {
+		if ( function_exists( 'clanbite_team_profile_route_current_slug' ) && 'settings' === clanbite_team_profile_route_current_slug() ) {
 			$robots['noindex']  = true;
 			$robots['nofollow'] = true;
 		}
@@ -152,11 +159,11 @@ final class Front_Seo {
 		}
 
 		if ( (int) get_query_var( 'cp_players_directory' ) ) {
-			$title['title'] = __( 'Players', 'clanspress' );
+			$title['title'] = __( 'Players', 'clanbite' );
 			return $title;
 		}
 
-		$player_id = function_exists( 'clanspress_player_profile_context_user_id' ) ? (int) clanspress_player_profile_context_user_id() : 0;
+		$player_id = function_exists( 'clanbite_player_profile_context_user_id' ) ? (int) clanbite_player_profile_context_user_id() : 0;
 		if ( $player_id > 0 && ! (int) get_query_var( 'players_settings' ) && get_queried_object() instanceof \WP_User ) {
 			$user  = get_queried_object();
 			$label = self::player_subpage_title_fragment( $player_id );
@@ -168,14 +175,14 @@ final class Front_Seo {
 			return $title;
 		}
 
-		$team_id = function_exists( 'clanspress_team_profile_context_team_id' ) ? (int) clanspress_team_profile_context_team_id() : 0;
+		$team_id = function_exists( 'clanbite_team_profile_context_team_id' ) ? (int) clanbite_team_profile_context_team_id() : 0;
 		if ( $team_id > 0 ) {
 			$post = get_post( $team_id );
 			if ( $post instanceof \WP_Post && 'cp_team' === $post->post_type ) {
 				$base = get_the_title( $post );
-				$sub  = function_exists( 'clanspress_team_profile_route_current_slug' ) ? clanspress_team_profile_route_current_slug() : '';
+				$sub  = function_exists( 'clanbite_team_profile_route_current_slug' ) ? clanbite_team_profile_route_current_slug() : '';
 				if ( 'events' === $sub ) {
-					$base = __( 'Events', 'clanspress' ) . ' &mdash; ' . $base;
+					$base = __( 'Events', 'clanbite' ) . ' &mdash; ' . $base;
 				}
 				$title['title'] = $base;
 			}
@@ -187,8 +194,8 @@ final class Front_Seo {
 			if ( $post instanceof \WP_Post ) {
 				$base = get_the_title( $post );
 				$sub  = sanitize_key( (string) get_query_var( 'cp_group_subpage' ) );
-				if ( '' !== $sub && function_exists( 'clanspress_social_kit_get_group_subpages' ) ) {
-					$subs = clanspress_social_kit_get_group_subpages();
+				if ( '' !== $sub && function_exists( 'clanbite_social_kit_get_group_subpages' ) ) {
+					$subs = clanbite_social_kit_get_group_subpages();
 					if ( isset( $subs[ $sub ] ) && is_array( $subs[ $sub ] ) && isset( $subs[ $sub ]['label'] ) ) {
 						$base = (string) $subs[ $sub ]['label'] . ' &mdash; ' . $base;
 					}
@@ -206,12 +213,12 @@ final class Front_Seo {
 	 * @return string Fragment or empty when on main profile.
 	 */
 	private static function player_subpage_title_fragment( int $player_id ): string {
-		$slug = function_exists( 'clanspress_player_profile_route_current_slug' ) ? clanspress_player_profile_route_current_slug() : '';
+		$slug = function_exists( 'clanbite_player_profile_route_current_slug' ) ? clanbite_player_profile_route_current_slug() : '';
 		if ( '' === $slug ) {
 			return '';
 		}
 
-		$cfg = function_exists( 'clanspress_get_profile_subpage' ) ? clanspress_get_profile_subpage( 'player', $slug ) : null;
+		$cfg = function_exists( 'clanbite_get_profile_subpage' ) ? clanbite_get_profile_subpage( 'player', $slug ) : null;
 		if ( is_array( $cfg ) && isset( $cfg['label'] ) && '' !== (string) $cfg['label'] ) {
 			return (string) $cfg['label'];
 		}
@@ -240,17 +247,17 @@ final class Front_Seo {
 			return;
 		}
 
-		$player_id = function_exists( 'clanspress_player_profile_context_user_id' ) ? (int) clanspress_player_profile_context_user_id() : 0;
+		$player_id = function_exists( 'clanbite_player_profile_context_user_id' ) ? (int) clanbite_player_profile_context_user_id() : 0;
 		if ( $player_id > 0 && get_queried_object() instanceof \WP_User ) {
 			self::print_player_seo( $player_id );
 			return;
 		}
 
-		$team_id = function_exists( 'clanspress_team_profile_context_team_id' ) ? (int) clanspress_team_profile_context_team_id() : 0;
+		$team_id = function_exists( 'clanbite_team_profile_context_team_id' ) ? (int) clanbite_team_profile_context_team_id() : 0;
 		if ( $team_id > 0 ) {
 			$post = get_post( $team_id );
 			if ( $post instanceof \WP_Post && 'cp_team' === $post->post_type ) {
-				if ( 'settings' === ( function_exists( 'clanspress_team_profile_route_current_slug' ) ? clanspress_team_profile_route_current_slug() : '' ) ) {
+				if ( 'settings' === ( function_exists( 'clanbite_team_profile_route_current_slug' ) ? clanbite_team_profile_route_current_slug() : '' ) ) {
 					return;
 				}
 				self::print_team_seo( $post );
@@ -337,8 +344,8 @@ final class Front_Seo {
 		$url = home_url( '/players/' );
 
 		if ( self::output_open_graph() ) {
-			$title = __( 'Players', 'clanspress' ) . ' &mdash; ' . get_bloginfo( 'name', 'display' );
-			self::print_og_and_twitter( $title, __( 'Member directory', 'clanspress' ), $url, 'website', '' );
+			$title = __( 'Players', 'clanbite' ) . ' &mdash; ' . get_bloginfo( 'name', 'display' );
+			self::print_og_and_twitter( $title, __( 'Member directory', 'clanbite' ), $url, 'website', '' );
 		}
 
 		if ( self::output_json_ld() ) {
@@ -347,8 +354,8 @@ final class Front_Seo {
 					'@type' => 'CollectionPage',
 					'@id'   => trailingslashit( $url ) . '#webpage',
 					'url'   => $url,
-					'name'  => __( 'Players', 'clanspress' ),
-					'description' => __( 'Community member profiles.', 'clanspress' ),
+					'name'  => __( 'Players', 'clanbite' ),
+					'description' => __( 'Community member profiles.', 'clanbite' ),
 					'isPartOf'    => array( '@id' => trailingslashit( home_url( '/' ) ) . '#website' ),
 				),
 			);
@@ -374,20 +381,20 @@ final class Front_Seo {
 		$url         = get_author_posts_url( $user_id );
 		$display     = $user->display_name;
 		$description = '';
-		if ( function_exists( 'clanspress_players_get_display_bio' ) ) {
-			$description = wp_strip_all_tags( (string) clanspress_players_get_display_bio( $user_id, true ) );
+		if ( function_exists( 'clanbite_players_get_display_bio' ) ) {
+			$description = wp_strip_all_tags( (string) clanbite_players_get_display_bio( $user_id, true ) );
 		}
-		if ( '' === $description && function_exists( 'clanspress_players_get_display_tagline' ) ) {
-			$description = wp_strip_all_tags( (string) clanspress_players_get_display_tagline( $user_id, true ) );
+		if ( '' === $description && function_exists( 'clanbite_players_get_display_tagline' ) ) {
+			$description = wp_strip_all_tags( (string) clanbite_players_get_display_tagline( $user_id, true ) );
 		}
 		$description = self::trim_description( $description );
 
 		$image = '';
-		if ( function_exists( 'clanspress_players_get_display_cover' ) ) {
-			$image = (string) clanspress_players_get_display_cover( $user_id, true );
+		if ( function_exists( 'clanbite_players_get_display_cover' ) ) {
+			$image = (string) clanbite_players_get_display_cover( $user_id, true );
 		}
-		if ( '' === $image && function_exists( 'clanspress_players_get_display_avatar' ) ) {
-			$image = (string) clanspress_players_get_display_avatar( $user_id, true, '', 'clanspress_seo', 'large' );
+		if ( '' === $image && function_exists( 'clanbite_players_get_display_avatar' ) ) {
+			$image = (string) clanbite_players_get_display_avatar( $user_id, true, '', 'clanbite_seo', 'large' );
 		}
 
 		if ( self::output_open_graph() ) {
@@ -438,7 +445,7 @@ final class Front_Seo {
 		 * @param array<int, array<string, mixed>> $extra_graph Nodes.
 		 * @param int                               $user_id     User ID.
 		 */
-		$extra = (array) apply_filters( 'clanspress_seo_player_graph', array(), $user_id );
+		$extra = (array) apply_filters( 'clanbite_seo_player_graph', array(), $user_id );
 		if ( ! empty( $extra ) ) {
 			$graph = array_merge( $graph, $extra );
 		}
@@ -457,17 +464,17 @@ final class Front_Seo {
 	 */
 	private static function collect_player_same_as( int $user_id ): array {
 		$out = array();
-		if ( ! function_exists( 'clanspress_players_get_social_profile_field_definitions' )
-			|| ! function_exists( 'clanspress_players_get_social_profile_link_url' ) ) {
+		if ( ! function_exists( 'clanbite_players_get_social_profile_field_definitions' )
+			|| ! function_exists( 'clanbite_players_get_social_profile_link_url' ) ) {
 			return $out;
 		}
 
-		foreach ( array_keys( clanspress_players_get_social_profile_field_definitions() ) as $slug ) {
+		foreach ( array_keys( clanbite_players_get_social_profile_field_definitions() ) as $slug ) {
 			$slug = sanitize_key( (string) $slug );
 			if ( '' === $slug ) {
 				continue;
 			}
-			$link = clanspress_players_get_social_profile_link_url( $slug, $user_id );
+			$link = clanbite_players_get_social_profile_link_url( $slug, $user_id );
 			$link = esc_url_raw( $link );
 			if ( '' !== $link && str_starts_with( $link, 'http' ) ) {
 				$out[] = $link;
@@ -475,8 +482,8 @@ final class Front_Seo {
 		}
 
 		$website = '';
-		if ( function_exists( 'clanspress_players_get_display_website' ) ) {
-			$website = esc_url_raw( (string) clanspress_players_get_display_website( $user_id, true ) );
+		if ( function_exists( 'clanbite_players_get_display_website' ) ) {
+			$website = esc_url_raw( (string) clanbite_players_get_display_website( $user_id, true ) );
 		}
 		if ( '' !== $website && str_starts_with( $website, 'http' ) ) {
 			$out[] = $website;
@@ -551,7 +558,7 @@ final class Front_Seo {
 		 * @param array<int, array<string, mixed>> $extra_graph Nodes.
 		 * @param int                                 $team_id     Team post ID.
 		 */
-		$extra = (array) apply_filters( 'clanspress_seo_team_graph', array(), (int) $post->ID );
+		$extra = (array) apply_filters( 'clanbite_seo_team_graph', array(), (int) $post->ID );
 		if ( ! empty( $extra ) ) {
 			$graph = array_merge( $graph, $extra );
 		}
@@ -585,11 +592,11 @@ final class Front_Seo {
 		}
 
 		$image = '';
-		if ( function_exists( 'clanspress_social_kit_get_group_cover_url' ) ) {
-			$image = (string) clanspress_social_kit_get_group_cover_url( $post );
+		if ( function_exists( 'clanbite_social_kit_get_group_cover_url' ) ) {
+			$image = (string) clanbite_social_kit_get_group_cover_url( $post );
 		}
-		if ( '' === $image && function_exists( 'clanspress_social_kit_get_group_avatar_url' ) ) {
-			$image = (string) clanspress_social_kit_get_group_avatar_url( $post );
+		if ( '' === $image && function_exists( 'clanbite_social_kit_get_group_avatar_url' ) ) {
+			$image = (string) clanbite_social_kit_get_group_avatar_url( $post );
 		}
 		if ( '' === $image && has_post_thumbnail( $post ) ) {
 			$image = (string) get_the_post_thumbnail_url( $post, 'large' );
@@ -638,7 +645,7 @@ final class Front_Seo {
 		 * @param array<int, array<string, mixed>> $extra_graph Nodes.
 		 * @param int                               $post_id     Group post ID.
 		 */
-		$extra = (array) apply_filters( 'clanspress_seo_group_graph', array(), (int) $post->ID );
+		$extra = (array) apply_filters( 'clanbite_seo_group_graph', array(), (int) $post->ID );
 		if ( ! empty( $extra ) ) {
 			$graph = array_merge( $graph, $extra );
 		}
@@ -728,7 +735,7 @@ final class Front_Seo {
 		 * @param array<int, array<string, mixed>> $extra_graph Nodes.
 		 * @param int                               $post_id     Post ID.
 		 */
-		$extra = (array) apply_filters( 'clanspress_seo_match_graph', array(), (int) $post->ID );
+		$extra = (array) apply_filters( 'clanbite_seo_match_graph', array(), (int) $post->ID );
 		if ( ! empty( $extra ) ) {
 			$graph = array_merge( $graph, $extra );
 		}
@@ -783,11 +790,25 @@ final class Front_Seo {
 	 */
 	private static function print_json_ld_script( array $data ): void {
 		$json = wp_json_encode( $data, self::JSON_LD_FLAGS );
-		if ( false === $json ) {
+		if ( false === $json || '' === $json ) {
 			return;
 		}
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON-LD from wp_json_encode() with JSON_HEX_* flags; HTML escapers would corrupt the payload.
-		echo '<script type="application/ld+json">' . "\n" . $json . "\n" . '</script>' . "\n";
+
+		$handle = 'clanbite-json-ld-' . self::$json_ld_sequence++;
+
+		wp_register_script(
+			$handle,
+			false,
+			array(),
+			Main::VERSION,
+			array(
+				'in_footer' => false,
+			)
+		);
+
+		wp_script_add_data( $handle, 'type', 'application/ld+json' );
+		wp_enqueue_script( $handle );
+		wp_add_inline_script( $handle, $json, 'after' );
 	}
 
 	/**

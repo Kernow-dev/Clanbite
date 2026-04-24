@@ -7,10 +7,10 @@
  * {@see $internal_meta_keys}. Custom stores may ignore this class and use
  * `update_post_meta` directly when they prefer.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Data_Stores;
+namespace Kernowdev\Clanbite\Extensions\Data_Stores;
 
 defined( 'ABSPATH' ) || exit;
 

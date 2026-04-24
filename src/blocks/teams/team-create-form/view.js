@@ -7,7 +7,7 @@ function clearDomNode( node ) {
 	}
 }
 
-const { state, actions } = store( 'clanspress-team-create-form', {
+const { state, actions } = store( 'clanbite-team-create-form', {
 	state: {
 		root: null,
 		step: 1,
@@ -44,7 +44,7 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 			}
 
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-team-create-form' );
+			const root = ref?.closest( '.clanbite-team-create-form' );
 			if ( ! root ) {
 				state.step += 1;
 				syncTeamFormTabs( state.root, state.step, { wizard: true } );
@@ -83,7 +83,7 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 			if ( state.step > 1 ) {
 				state.step -= 1;
 				const { ref } = getElement();
-				const root = ref?.closest( '.clanspress-team-create-form' );
+				const root = ref?.closest( '.clanbite-team-create-form' );
 				syncTeamFormTabs( root, state.step, { wizard: true } );
 			}
 		},
@@ -96,7 +96,7 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 			}
 
 			const { ref } = getElement();
-			const root = ref?.closest( '.clanspress-team-create-form' );
+			const root = ref?.closest( '.clanbite-team-create-form' );
 			state.step = n;
 			syncTeamFormTabs( root, state.step, { wizard: true } );
 		},
@@ -120,7 +120,7 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 			}
 
 			const preview = state.root?.querySelector(
-				'.clanspress-team-create-form__avatar-preview'
+				'.clanbite-team-create-form__avatar-preview'
 			);
 			if ( ! preview ) {
 				return;
@@ -150,7 +150,7 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 			}
 
 			const preview = state.root?.querySelector(
-				'.clanspress-team-create-form__cover-preview'
+				'.clanbite-team-create-form__cover-preview'
 			);
 			if ( ! preview ) {
 				return;
@@ -186,7 +186,7 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 			}
 
 			const params = new URLSearchParams( {
-				action: 'clanspress_team_invite_search',
+				action: 'clanbite_team_invite_search',
 				nonce: context.inviteSearchNonce,
 				q: state.inviteQuery,
 			} );
@@ -286,7 +286,7 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 			actions.renderInviteList();
 
 			const input = state.root?.querySelector(
-				'#clanspress-team-invite-search'
+				'#clanbite-team-invite-search'
 			);
 			if ( input ) {
 				input.value = '';
@@ -343,7 +343,7 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 				'[data-team-invite-suggestions]'
 			);
 			const input = state.root?.querySelector(
-				'#clanspress-team-invite-search'
+				'#clanbite-team-invite-search'
 			);
 			if ( ! list ) {
 				return;
@@ -379,9 +379,9 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 				const btn = document.createElement( 'button' );
 				btn.type = 'button';
 				btn.setAttribute( 'role', 'option' );
-				btn.id = `clanspress-invite-option-${ index }`;
+				btn.id = `clanbite-invite-option-${ index }`;
 				btn.className =
-					'clanspress-team-create-form__invite-option' +
+					'clanbite-team-create-form__invite-option' +
 					( index === state.inviteActiveIndex ? ' is-active' : '' );
 				btn.setAttribute( 'data-invite-user-id', String( id ) );
 				btn.setAttribute(
@@ -404,10 +404,10 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 				if ( state.inviteActiveIndex >= 0 ) {
 					input.setAttribute(
 						'aria-activedescendant',
-						`clanspress-invite-option-${ state.inviteActiveIndex }`
+						`clanbite-invite-option-${ state.inviteActiveIndex }`
 					);
 					const activeBtn = list.querySelector(
-						`#clanspress-invite-option-${ state.inviteActiveIndex }`
+						`#clanbite-invite-option-${ state.inviteActiveIndex }`
 					);
 					activeBtn?.scrollIntoView( { block: 'nearest' } );
 				} else {
@@ -441,7 +441,7 @@ const { state, actions } = store( 'clanspress-team-create-form', {
 				ids.push( id );
 
 				const wrap = document.createElement( 'div' );
-				wrap.className = 'clanspress-team-create-form__invite-chip';
+				wrap.className = 'clanbite-team-create-form__invite-chip';
 
 				const span = document.createElement( 'span' );
 				span.textContent = String( user?.label ?? '' );

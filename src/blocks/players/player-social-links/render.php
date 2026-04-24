@@ -6,14 +6,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Renders social profile links for the resolved player (profile, loops, post author fallback).
  *
- * @package clanspress
+ * @package clanbite
  *
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
 
-$user_id = function_exists( 'clanspress_player_blocks_resolve_subject_user_id' )
-	? (int) clanspress_player_blocks_resolve_subject_user_id( $block )
+$user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
+	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
 	: 0;
 
 $icon_size = isset( $attributes['iconSize'] ) ? sanitize_key( (string) $attributes['iconSize'] ) : 'medium';
@@ -24,21 +24,21 @@ if ( ! in_array( $icon_size, array( 'small', 'medium', 'large' ), true ) ) {
 if ( $user_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes(
 		array(
-			'class' => 'clanspress-player-social-links--placeholder',
+			'class' => 'clanbite-player-social-links--placeholder',
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><p>' . esc_html__( 'Player social links', 'clanspress' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo '<div ' . $wrapper . '><p>' . esc_html__( 'Player social links', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
 	return;
 }
 
-if ( ! function_exists( 'clanspress_players_get_social_profile_field_definitions' )
-	|| ! function_exists( 'clanspress_players_get_social_profile_link_url' )
-	|| ! function_exists( 'clanspress_players_get_social_profile_svg_icon' ) ) {
+if ( ! function_exists( 'clanbite_players_get_social_profile_field_definitions' )
+	|| ! function_exists( 'clanbite_players_get_social_profile_link_url' )
+	|| ! function_exists( 'clanbite_players_get_social_profile_svg_icon' ) ) {
 	return '';
 }
 
-$definitions = clanspress_players_get_social_profile_field_definitions();
+$definitions = clanbite_players_get_social_profile_field_definitions();
 $items       = array();
 
 foreach ( $definitions as $slug => $def ) {
@@ -47,7 +47,7 @@ foreach ( $definitions as $slug => $def ) {
 		continue;
 	}
 
-	$url = clanspress_players_get_social_profile_link_url( $slug, $user_id );
+	$url = clanbite_players_get_social_profile_link_url( $slug, $user_id );
 	if ( '' === $url ) {
 		continue;
 	}
@@ -69,7 +69,7 @@ foreach ( $definitions as $slug => $def ) {
  * @param int                                                         $user_id Resolved player user ID.
  * @param WP_Block                                                    $block   Block instance.
  */
-$items = (array) apply_filters( 'clanspress_player_social_links_block_items', $items, $user_id, $block );
+$items = (array) apply_filters( 'clanbite_player_social_links_block_items', $items, $user_id, $block );
 
 if ( array() === $items ) {
 	return '';
@@ -77,14 +77,14 @@ if ( array() === $items ) {
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class' => 'clanspress-player-social-links--size-' . $icon_size,
+		'class' => 'clanbite-player-social-links--size-' . $icon_size,
 	),
 	$block
 );
 
 ?>
 <div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>>
-	<ul class="clanspress-player-social-links" role="list">
+	<ul class="clanbite-player-social-links" role="list">
 		<?php foreach ( $items as $row ) : ?>
 			<?php
 			$slug  = isset( $row['slug'] ) ? sanitize_key( (string) $row['slug'] ) : '';
@@ -93,11 +93,11 @@ $wrapper_attributes = get_block_wrapper_attributes(
 			if ( '' === $slug || '' === $url ) {
 				continue;
 			}
-			$icon = clanspress_players_get_social_profile_svg_icon( $slug );
+			$icon = clanbite_players_get_social_profile_svg_icon( $slug );
 			?>
-			<li class="clanspress-player-social-links__item">
+			<li class="clanbite-player-social-links__item">
 				<a
-					class="clanspress-player-social-links__link clanspress-player-social-links__link--<?php echo esc_attr( $slug ); ?>"
+					class="clanbite-player-social-links__link clanbite-player-social-links__link--<?php echo esc_attr( $slug ); ?>"
 					href="<?php echo esc_url( $url ); ?>"
 					target="_blank"
 					rel="noopener noreferrer"

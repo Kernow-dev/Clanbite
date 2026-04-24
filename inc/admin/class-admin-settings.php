@@ -1,16 +1,16 @@
 <?php
 /**
- * Clanspress wp-admin: unified React settings + CPT submenu placement.
+ * Clanbite wp-admin: unified React settings + CPT submenu placement.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Admin;
+namespace Kernowdev\Clanbite\Admin;
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
-use Kernowdev\Clanspress\Extensions\Loader;
-use Kernowdev\Clanspress\Extensions\Skeleton;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Loader;
+use Kernowdev\Clanbite\Extensions\Skeleton;
 
 require_once __DIR__ . '/class-general-settings.php';
 require_once __DIR__ . '/class-groups-settings.php';
@@ -67,7 +67,7 @@ class Settings {
 
 		add_action( 'rest_api_init', array( $this->rest, 'register_routes' ) );
 		// Priority 5: register before CPT submenus (usually priority 10) so the
-		// duplicate "clanspress" submenu is first — otherwise the parent menu
+		// duplicate "clanbite" submenu is first — otherwise the parent menu
 		// links to the first real child (e.g. Teams) instead of this screen.
 		add_action( 'admin_menu', array( $this, 'register_admin_pages' ), 5 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'maybe_enqueue_admin_app' ) );
@@ -75,30 +75,30 @@ class Settings {
 	}
 
 	/**
-	 * Old bookmark to `clanspress-extensions` lands on the unified screen.
+	 * Old bookmark to `clanbite-extensions` lands on the unified screen.
 	 */
 	public function redirect_legacy_extension_submenu(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only legacy `?page=` redirect; value is compared to a constant after `sanitize_key()`.
 		if ( ! is_admin() || ! isset( $_GET['page'] ) ) {
 			return;
 		}
-		if ( 'clanspress-extensions' !== sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+		if ( 'clanbite-extensions' !== sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
 			return;
 		}
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		wp_safe_redirect( admin_url( 'admin.php?page=clanspress' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=clanbite' ) );
 		exit;
 	}
 
 	public function register_admin_pages(): void {
 		add_menu_page(
-			__( 'Clanspress', 'clanspress' ),
-			__( 'Clanspress', 'clanspress' ),
+			__( 'Clanbite', 'clanbite' ),
+			__( 'Clanbite', 'clanbite' ),
 			'manage_options',
-			'clanspress',
+			'clanbite',
 			array( $this, 'render_main_page' ),
 			'dashicons-groups',
 			56
@@ -107,29 +107,28 @@ class Settings {
 		// Required: same slug as parent so this is the first submenu entry; WP uses
 		// that for the top-level menu href and avoids jumping straight to CPTs.
 		add_submenu_page(
-			'clanspress',
-			__( 'Clanspress settings', 'clanspress' ),
-			__( 'Settings', 'clanspress' ),
+			'clanbite',
+			__( 'Clanbite settings', 'clanbite' ),
+			__( 'Settings', 'clanbite' ),
 			'manage_options',
-			'clanspress',
+			'clanbite',
 			array( $this, 'render_main_page' )
 		);
 	}
 
 	/**
-	 * Enqueue the unified settings app on the main Clanspress screen only.
+	 * Enqueue the unified settings app on the main Clanbite screen only.
 	 */
 	public function maybe_enqueue_admin_app( string $hook_suffix ): void {
-		// Top-level only: toplevel_page_clanspress. With a duplicate submenu
-		// (same slug as parent), WP often reports clanspress_page_clanspress.
-		$settings_hooks = array( 'toplevel_page_clanspress', 'clanspress_page_clanspress' );
+		// Top-level only: toplevel_page_clanbite.
+		$settings_hooks = array( 'toplevel_page_clanbite' );
 		if ( ! in_array( $hook_suffix, $settings_hooks, true ) ) {
 			return;
 		}
 
-		$handle = 'clanspress-admin-app';
-		$rel    = \clanspress()->path . 'assets/dist/clanspress-admin.js';
-		$url    = \clanspress()->url . 'assets/dist/clanspress-admin.js';
+		$handle = 'clanbite-admin-app';
+		$rel    = \clanbite()->path . 'assets/dist/clanbite-admin.js';
+		$url    = \clanbite()->url . 'assets/dist/clanbite-admin.js';
 
 		if ( ! file_exists( $rel ) ) {
 			add_action(
@@ -137,14 +136,14 @@ class Settings {
 				static function (): void {
 					printf(
 						'<div class="notice notice-warning"><p>%s</p></div>',
-						esc_html__( 'Clanspress admin UI assets are missing. Run `npm run build:admin` from the plugin directory.', 'clanspress' )
+						esc_html__( 'Clanbite admin UI assets are missing. Run `npm run build:admin` from the plugin directory.', 'clanbite' )
 					);
 				}
 			);
 			return;
 		}
 
-		$asset_file = dirname( $rel ) . '/clanspress-admin.asset.php';
+		$asset_file = dirname( $rel ) . '/clanbite-admin.asset.php';
 		$asset      = file_exists( $asset_file ) ? include $asset_file : array(
 			'dependencies' => array(),
 			'version'      => (string) filemtime( $rel ),
@@ -171,15 +170,15 @@ class Settings {
 		wp_enqueue_style( 'wp-components' );
 
 		// CSS is emitted by wp-scripts as style-{entry}.css automatically.
-		wp_enqueue_style( 'clanspress-admin', \clanspress()->url . 'assets/dist/style-clanspress-admin.css', array( 'wp-components' ), $ver );
+		wp_enqueue_style( 'clanbite-admin', \clanbite()->url . 'assets/dist/style-clanbite-admin.css', array( 'wp-components' ), $ver );
 
 		wp_localize_script(
 			$handle,
-			'clanspressAdmin',
+			'clanbiteAdmin',
 			array(
-				'restUrl'        => esc_url_raw( rest_url( 'clanspress/v1/' ) ),
+				'restUrl'        => esc_url_raw( rest_url( 'clanbite/v1/' ) ),
 				'nonce'          => wp_create_nonce( 'wp_rest' ),
-				'logoUrl'        => \clanspress()->url . 'assets/img/logos/clanspress-logo-small.svg',
+				'logoUrl'        => \clanbite()->url . 'assets/img/logos/clanbite-logo-small.svg',
 				'iconPacks'      => Admin_Rest::get_unified_icon_packs(),
 				'iconPickerI18n' => Admin_Rest::get_default_icon_picker_i18n(),
 			)
@@ -191,6 +190,6 @@ class Settings {
 			return;
 		}
 
-		echo '<div class="wrap"><div id="clanspress-admin-root"></div></div>';
+		echo '<div class="wrap"><div id="clanbite-admin-root"></div></div>';
 	}
 }

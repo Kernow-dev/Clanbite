@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-birthday",
+	"name": "clanbite/player-birthday",
 	"version": "1.0.0",
 	"title": "Player birthday",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "calendar-alt",
 	"description": "Displays the player birthday when set (profile and player loops).",
-	"textdomain": "clanspress",
-	"usesContext": [ "postId", "postType", "clanspress/playerId" ],
+	"textdomain": "clanbite",
+	"usesContext": [ "postId", "postType", "clanbite/playerId" ],
 	"attributes": {
 		"textAlign": {
 			"type": "string"
@@ -50,12 +50,12 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-birthday",
+		"root": ".wp-block-clanbite-player-birthday",
 		"color": {
-			"text": ".wp-block-clanspress-player-birthday .clanspress-player-birthday__text",
-			"background": ".wp-block-clanspress-player-birthday"
+			"text": ".wp-block-clanbite-player-birthday .clanbite-player-birthday__text",
+			"background": ".wp-block-clanbite-player-birthday"
 		},
-		"typography": ".wp-block-clanspress-player-birthday .clanspress-player-birthday__text",
-		"border": ".wp-block-clanspress-player-birthday"
+		"typography": ".wp-block-clanbite-player-birthday .clanbite-player-birthday__text",
+		"border": ".wp-block-clanbite-player-birthday"
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * Shared tab strip + step panel sync for team create (wizard) and manage (free navigation).
  *
- * @param {Element|null|undefined} root    Block root containing `.clanspress-team-create-form__form`.
+ * @param {Element|null|undefined} root    Block root containing `.clanbite-team-create-form__form`.
  * @param {number}                 step    Active step (1-based).
  * @param {{ wizard?: boolean }}   options `wizard`: disable tabs ahead of current step (create flow).
  */
@@ -12,7 +12,7 @@ export function syncTeamFormTabs( root, step, options = {} ) {
 		return;
 	}
 
-	const form = root.querySelector( '.clanspress-team-create-form__form' );
+	const form = root.querySelector( '.clanbite-team-create-form__form' );
 	if ( ! form ) {
 		return;
 	}
@@ -31,7 +31,7 @@ export function syncTeamFormTabs( root, step, options = {} ) {
 	} );
 
 	form.querySelectorAll(
-		'.clanspress-team-create-form__step[data-team-step]'
+		'.clanbite-team-create-form__step[data-team-step]'
 	).forEach( ( panel ) => {
 		const n = Number( panel.getAttribute( 'data-team-step' ) );
 		if ( n === step ) {
@@ -52,7 +52,7 @@ export function focusActiveTabButton( root, step ) {
 	if ( ! root || step < 1 ) {
 		return;
 	}
-	const form = root.querySelector( '.clanspress-team-create-form__form' );
+	const form = root.querySelector( '.clanbite-team-create-form__form' );
 	const el = form?.querySelector( `[data-team-tab="${ step }"]` );
 	if (
 		el &&

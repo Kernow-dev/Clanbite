@@ -1,15 +1,15 @@
 {
-	"name": "kernowdev/clanspress",
+	"name": "kernowdev/clanbite",
 	"description": "Community management system for gamers and sports teams plugin for Wordpress.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"autoload": {
 		"classmap": [
-			"clanspress.php",
+			"clanbite.php",
 			"inc/"
 		],
 		"psr-4": {
-			"Kernowdev\\Clanspress\\": "inc/"
+			"Kernowdev\\Clanbite\\": "inc/"
 		},
 		"files": [
 			"inc/extensions/notifications/functions.php",

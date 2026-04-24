@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/visibility-container",
+	"name": "clanbite/visibility-container",
 	"version": "1.0.0",
 	"title": "Visibility container",
-	"category": "clanspress",
+	"category": "clanbite",
 	"icon": "visibility",
 	"description": "Show or hide inner blocks for guests, logged-in users, or specific roles.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"attributes": {
 		"showTo": {
 			"type": "string",

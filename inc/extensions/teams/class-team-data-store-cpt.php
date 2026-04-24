@@ -2,15 +2,15 @@
 /**
  * Default {@see Team_Data_Store}: `cp_team` posts and post meta.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Teams;
+namespace Kernowdev\Clanbite\Extensions\Teams;
 
 defined( 'ABSPATH' ) || exit;
 
 
-use Kernowdev\Clanspress\Extensions\Data_Stores\WP_Post_Meta_Data_Store;
+use Kernowdev\Clanbite\Extensions\Data_Stores\WP_Post_Meta_Data_Store;
 
 /**
  * Loads and persists {@see Team} objects using the posts table and postmeta.
@@ -20,14 +20,14 @@ class Team_Data_Store_CPT extends WP_Post_Meta_Data_Store implements Team_Data_S
 	/**
 	 * Running Teams extension (sanitization, etc.).
 	 *
-	 * @var \Kernowdev\Clanspress\Extensions\Teams
+	 * @var \Kernowdev\Clanbite\Extensions\Teams
 	 */
-	protected \Kernowdev\Clanspress\Extensions\Teams $extension;
+	protected \Kernowdev\Clanbite\Extensions\Teams $extension;
 
 	/**
-	 * @param \Kernowdev\Clanspress\Extensions\Teams $extension Teams extension instance.
+	 * @param \Kernowdev\Clanbite\Extensions\Teams $extension Teams extension instance.
 	 */
-	public function __construct( \Kernowdev\Clanspress\Extensions\Teams $extension ) {
+	public function __construct( \Kernowdev\Clanbite\Extensions\Teams $extension ) {
 		$this->extension            = $extension;
 		$this->meta_type            = 'post';
 		$this->internal_meta_keys   = array(

@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 export default function Edit() {
 	return (
 		<div { ...useBlockProps() }>
-			<p>{ __( 'Create event form (front-end)', 'clanspress' ) }</p>
+			<p>{ __( 'Create event form (front-end)', 'clanbite' ) }</p>
 		</div>
 	);
 }

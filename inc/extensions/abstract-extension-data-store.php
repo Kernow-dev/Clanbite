@@ -2,10 +2,10 @@
 /**
  * Shared helpers for {@see Extension_Data_Store} implementations.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,7 +19,7 @@ abstract class Abstract_Extension_Data_Store implements Extension_Data_Store {
 	 *
 	 * @var string
 	 */
-	protected string $option_key = 'clanspress_extension_data';
+	protected string $option_key = 'clanbite_extension_data';
 
 	/**
 	 * Sanitize an extension slug before using it as an array key.

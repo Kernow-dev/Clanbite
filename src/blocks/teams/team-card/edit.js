@@ -10,13 +10,13 @@ export default function Edit( { attributes, setAttributes } ) {
 				tagName="h3"
 				value={ teamName }
 				onChange={ ( value ) => setAttributes( { teamName: value } ) }
-				placeholder={ __( 'Team name', 'clanspress' ) }
+				placeholder={ __( 'Team name', 'clanbite' ) }
 			/>
 			<RichText
 				tagName="p"
 				value={ gameTitle }
 				onChange={ ( value ) => setAttributes( { gameTitle: value } ) }
-				placeholder={ __( 'Game title (optional)', 'clanspress' ) }
+				placeholder={ __( 'Game title (optional)', 'clanbite' ) }
 			/>
 			<RichText
 				tagName="p"
@@ -26,7 +26,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				}
 				placeholder={ __(
 					'Team description (optional)',
-					'clanspress'
+					'clanbite'
 				) }
 			/>
 		</div>

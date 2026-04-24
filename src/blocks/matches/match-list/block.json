@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/match-list",
+	"name": "clanbite/match-list",
 	"version": "1.0.0",
 	"title": "Match list",
-	"category": "clanspress-matches",
+	"category": "clanbite-matches",
 	"icon": "list-view",
 	"description": "List published matches with optional filters.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"supports": {
 		"spacing": {
 			"margin": true,
@@ -52,13 +52,13 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-match-list",
+		"root": ".wp-block-clanbite-match-list",
 		"color": {
-			"text": ".wp-block-clanspress-match-list .clanspress-match-list, .wp-block-clanspress-match-list .clanspress-match-list__link",
-			"background": ".wp-block-clanspress-match-list",
-			"link": ".wp-block-clanspress-match-list .clanspress-match-list__link"
+			"text": ".wp-block-clanbite-match-list .clanbite-match-list, .wp-block-clanbite-match-list .clanbite-match-list__link",
+			"background": ".wp-block-clanbite-match-list",
+			"link": ".wp-block-clanbite-match-list .clanbite-match-list__link"
 		},
-		"typography": ".wp-block-clanspress-match-list .clanspress-match-list",
-		"border": ".wp-block-clanspress-match-list"
+		"typography": ".wp-block-clanbite-match-list .clanbite-match-list",
+		"border": ".wp-block-clanbite-match-list"
 	}
 }

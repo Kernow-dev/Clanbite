@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/team-challenge-button",
+	"name": "clanbite/team-challenge-button",
 	"version": "1.0.0",
 	"title": "Team challenge button",
-	"category": "clanspress-teams",
+	"category": "clanbite-teams",
 	"icon": "flag",
 	"description": "Lets guests and team managers challenge this team when challenges are enabled.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"postTypes": [ "cp_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"supports": {
@@ -35,12 +35,12 @@
 	"render": "file:./render.php",
 	"viewScriptModule": "file:./view.js",
 	"selectors": {
-		"root": ".wp-block-clanspress-team-challenge-button",
+		"root": ".wp-block-clanbite-team-challenge-button",
 		"color": {
-			"text": ".wp-block-clanspress-team-challenge-button .wp-block-button__link, .wp-block-clanspress-team-challenge-button button",
-			"background": ".wp-block-clanspress-team-challenge-button .wp-block-button__link, .wp-block-clanspress-team-challenge-button button"
+			"text": ".wp-block-clanbite-team-challenge-button .wp-block-button__link, .wp-block-clanbite-team-challenge-button button",
+			"background": ".wp-block-clanbite-team-challenge-button .wp-block-button__link, .wp-block-clanbite-team-challenge-button button"
 		},
-		"typography": ".wp-block-clanspress-team-challenge-button .wp-block-button__link",
-		"border": ".wp-block-clanspress-team-challenge-button"
+		"typography": ".wp-block-clanbite-team-challenge-button .wp-block-button__link",
+		"border": ".wp-block-clanbite-team-challenge-button"
 	}
 }

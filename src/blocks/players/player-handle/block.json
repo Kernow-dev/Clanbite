@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-handle",
+	"name": "clanbite/player-handle",
 	"version": "1.0.0",
 	"title": "Player @ handle",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "nametag",
 	"description": "Displays the player’s @ handle (WordPress nicename) on profiles and in player loops — the taggable username form.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"keywords": [
 		"@",
 		"handle",
@@ -17,7 +17,7 @@
 		"tag",
 		"profile"
 	],
-	"usesContext": [ "postId", "postType", "clanspress/playerId" ],
+	"usesContext": [ "postId", "postType", "clanbite/playerId" ],
 	"attributes": {
 		"textAlign": {
 			"type": "string"
@@ -59,12 +59,12 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-handle",
+		"root": ".wp-block-clanbite-player-handle",
 		"color": {
-			"text": ".wp-block-clanspress-player-handle .clanspress-player-handle__text",
-			"background": ".wp-block-clanspress-player-handle"
+			"text": ".wp-block-clanbite-player-handle .clanbite-player-handle__text",
+			"background": ".wp-block-clanbite-player-handle"
 		},
-		"typography": ".wp-block-clanspress-player-handle .clanspress-player-handle__text",
-		"border": ".wp-block-clanspress-player-handle"
+		"typography": ".wp-block-clanbite-player-handle .clanbite-player-handle__text",
+		"border": ".wp-block-clanbite-player-handle"
 	}
 }

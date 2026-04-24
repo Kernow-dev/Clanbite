@@ -1,10 +1,10 @@
 <?php
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Extensions\Abstract_Settings;
-use Kernowdev\Clanspress\Extensions\Players\Admin;
+use Kernowdev\Clanbite\Extensions\Abstract_Settings;
+use Kernowdev\Clanbite\Extensions\Players\Admin;
 
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/functions-player-query.php';
@@ -19,7 +19,7 @@ class Players extends Skeleton {
 	/**
 	 * Slug for the virtual `wp_template_part` resolved from `templates/players/parts/player-profile-header.html`.
 	 */
-	public const PLAYER_PROFILE_HEADER_TEMPLATE_PART_SLUG = 'clanspress-player-profile-header';
+	public const PLAYER_PROFILE_HEADER_TEMPLATE_PART_SLUG = 'clanbite-player-profile-header';
 
 	/**
 	 * Cached {@see \WP_Block_Template} for {@see Players::PLAYER_PROFILE_HEADER_TEMPLATE_PART_SLUG} (per request).
@@ -39,7 +39,7 @@ class Players extends Skeleton {
 			'cp_players',
 			__(
 				'Extends user functionality to add support for players.',
-				'clanspress'
+				'clanbite'
 			),
 			'',
 			'1.0.0',
@@ -56,7 +56,7 @@ class Players extends Skeleton {
 	 * @param string $parent_slug The slug of the parent extension.
 	 * @param string $version              The extension version.
 	 * @param array  $requires             An array of required extensions.
-	 * @param string $requires_clanspress  Minimum Clanspress core version (`x.y.z`).
+	 * @param string $requires_clanbite  Minimum Clanbite core version (`x.y.z`).
 	 */
 	public function setup_extension(
 		string $name,
@@ -65,7 +65,7 @@ class Players extends Skeleton {
 		string $parent_slug,
 		string $version,
 		array $requires,
-		string $requires_clanspress = ''
+		string $requires_clanbite = ''
 	): void {
 		parent::setup_extension(
 			$name,
@@ -74,13 +74,13 @@ class Players extends Skeleton {
 			$parent_slug,
 			$version,
 			$requires,
-			$requires_clanspress
+			$requires_clanbite
 		);
 
 		// Built-in extensions register as official, not third-party.
-		remove_filter( 'clanspress_registered_extensions', array( $this, 'register_extension' ) );
+		remove_filter( 'clanbite_registered_extensions', array( $this, 'register_extension' ) );
 		add_filter(
-			'clanspress_official_registered_extensions',
+			'clanbite_official_registered_extensions',
 			array( $this, 'register_extension' )
 		);
 	}
@@ -161,20 +161,20 @@ class Players extends Skeleton {
 		add_action( 'init', array( $this, 'register_user_meta_keys' ) );
 
 		// Profile settings.
-		add_filter( 'clanspress_players_settings_nav_items', array( $this, 'register_player_settings_nav_items' ) );
-		add_filter( 'clanspress_players_settings_nav_profile_sub_items', array( $this, 'register_profile_nav_items' ) );
-		add_filter( 'clanspress_players_settings_nav_account_sub_items', array( $this, 'register_account_nav_items' ) );
-		add_action( 'clanspress_player_settings_panel_profile-info', array( $this, 'do_profile_avatar_fields' ) );
-		add_action( 'clanspress_player_settings_panel_profile-info', array( $this, 'do_profile_info_fields' ), 20 );
-		add_action( 'clanspress_player_settings_panel_social-networks', array( $this, 'do_social_networks_fields' ) );
-		add_action( 'clanspress_player_settings_panel_account-info', array( $this, 'do_account_info_fields' ) );
+		add_filter( 'clanbite_players_settings_nav_items', array( $this, 'register_player_settings_nav_items' ) );
+		add_filter( 'clanbite_players_settings_nav_profile_sub_items', array( $this, 'register_profile_nav_items' ) );
+		add_filter( 'clanbite_players_settings_nav_account_sub_items', array( $this, 'register_account_nav_items' ) );
+		add_action( 'clanbite_player_settings_panel_profile-info', array( $this, 'do_profile_avatar_fields' ) );
+		add_action( 'clanbite_player_settings_panel_profile-info', array( $this, 'do_profile_info_fields' ), 20 );
+		add_action( 'clanbite_player_settings_panel_social-networks', array( $this, 'do_social_networks_fields' ) );
+		add_action( 'clanbite_player_settings_panel_account-info', array( $this, 'do_account_info_fields' ) );
 
 		// Save profile settings.
-		add_action( 'clanspress_save_player_settings', array( $this, 'save_player_profile_settings' ), 10, 4 );
-		add_action( 'clanspress_save_player_settings', array( $this, 'save_player_account_info_settings' ), 10, 4 );
+		add_action( 'clanbite_save_player_settings', array( $this, 'save_player_profile_settings' ), 10, 4 );
+		add_action( 'clanbite_save_player_settings', array( $this, 'save_player_account_info_settings' ), 10, 4 );
 
 		// Ajax handlers.
-		add_action( 'wp_ajax_clanspress_save_player_settings', array( $this, 'ajax_save_player_settings' ) );
+		add_action( 'wp_ajax_clanbite_save_player_settings', array( $this, 'ajax_save_player_settings' ) );
 	}
 
 	public function modify_author_links( $link, $author_id, $author_nicename ) {
@@ -225,7 +225,7 @@ class Players extends Skeleton {
 		 * @param string   $target Full URL.
 		 * @param \WP_User $user   Queried author.
 		 */
-		$target = (string) apply_filters( 'clanspress_redirect_author_archive_to_players_url', $target, $user );
+		$target = (string) apply_filters( 'clanbite_redirect_author_archive_to_players_url', $target, $user );
 
 		wp_safe_redirect( $target, 301 );
 		exit;
@@ -302,10 +302,10 @@ class Players extends Skeleton {
 	}
 
 	/**
-	 * Supplies `clanspress/playerId` to Social Kit blocks on player-profile routes.
+	 * Supplies `clanbite/playerId` to Social Kit blocks on player-profile routes.
 	 *
 	 * The `players-player-profile` template renders `post-content` without a `player-query` ancestor, so
-	 * blocks that declare `usesContext: [ "clanspress/playerId" ]` would otherwise get `0` and render empty.
+	 * blocks that declare `usesContext: [ "clanbite/playerId" ]` would otherwise get `0` and render empty.
 	 *
 	 * - **Feed / composer:** still requires `feedContext` `profile` (same as before).
 	 * - **Player stats / add friend:** always receive the profile owner when this resolves (no `feedContext` gate).
@@ -326,13 +326,13 @@ class Players extends Skeleton {
 		$name = (string) ( $parsed_block['blockName'] ?? '' );
 
 		$feed_blocks = array(
-			'clanspress-social/social-feed',
-			'clanspress-social/social-composer',
+			'clanbite-social/social-feed',
+			'clanbite-social/social-composer',
 		);
 		$profile_context_blocks = array(
-			'clanspress-social/player-friends-count',
-			'clanspress-social/player-post-count',
-			'clanspress-social/player-add-friend',
+			'clanbite-social/player-friends-count',
+			'clanbite-social/player-post-count',
+			'clanbite-social/player-add-friend',
 		);
 
 		if ( ! in_array( $name, array_merge( $feed_blocks, $profile_context_blocks ), true ) ) {
@@ -352,7 +352,7 @@ class Players extends Skeleton {
 			}
 		}
 
-		if ( ! empty( $context['clanspress/playerId'] ) && (int) $context['clanspress/playerId'] > 0 ) {
+		if ( ! empty( $context['clanbite/playerId'] ) && (int) $context['clanbite/playerId'] > 0 ) {
 			return $context;
 		}
 
@@ -360,8 +360,8 @@ class Players extends Skeleton {
 		if ( null !== $cached_positive_profile_owner_id && $cached_positive_profile_owner_id > 0 ) {
 			$profile_owner_id = (int) $cached_positive_profile_owner_id;
 		} else {
-			$profile_owner_id = function_exists( 'clanspress_player_profile_context_user_id' )
-				? (int) clanspress_player_profile_context_user_id()
+			$profile_owner_id = function_exists( 'clanbite_player_profile_context_user_id' )
+				? (int) clanbite_player_profile_context_user_id()
 				: 0;
 			if ( $profile_owner_id > 0 ) {
 				$cached_positive_profile_owner_id = $profile_owner_id;
@@ -372,7 +372,7 @@ class Players extends Skeleton {
 			return $context;
 		}
 
-		$context['clanspress/playerId'] = $profile_owner_id;
+		$context['clanbite/playerId'] = $profile_owner_id;
 
 		return $context;
 	}
@@ -383,7 +383,7 @@ class Players extends Skeleton {
 	 * @return string
 	 */
 	protected function get_canonical_request_path(): string {
-		return clanspress_get_canonical_request_path();
+		return clanbite_get_canonical_request_path();
 	}
 
 	/**
@@ -558,8 +558,8 @@ class Players extends Skeleton {
 			return false;
 		}
 
-		if ( function_exists( '\clanspress_get_player_subpage' ) ) {
-			$config = \clanspress_get_player_subpage( $slug );
+		if ( function_exists( '\clanbite_get_player_subpage' ) ) {
+			$config = \clanbite_get_player_subpage( $slug );
 			if ( null === $config ) {
 				return false;
 			}
@@ -576,7 +576,7 @@ class Players extends Skeleton {
 			return true;
 		}
 
-		$plugin = clanspress()->path . "templates/players/player-{$slug}.php";
+		$plugin = clanbite()->path . "templates/players/player-{$slug}.php";
 
 		return is_readable( $plugin );
 	}
@@ -857,7 +857,7 @@ class Players extends Skeleton {
 		$templates = array( 'players/players-directory.php', 'players-directory.php' );
 		$located   = locate_template( $templates );
 		if ( ! $located ) {
-			$located = clanspress()->path . 'templates/players/players-directory.php';
+			$located = clanbite()->path . 'templates/players/players-directory.php';
 		}
 
 		/**
@@ -872,7 +872,7 @@ class Players extends Skeleton {
 		}
 
 		$resolved = (string) apply_filters(
-			'clanspress_load_players_directory_template',
+			'clanbite_load_players_directory_template',
 			$resolved,
 			$located
 		);
@@ -886,7 +886,7 @@ class Players extends Skeleton {
 	 * @return void
 	 */
 	public function register_players_directory_shortcode(): void {
-		add_shortcode( 'clanspress_players_directory', array( $this, 'render_players_directory_shortcode' ) );
+		add_shortcode( 'clanbite_players_directory', array( $this, 'render_players_directory_shortcode' ) );
 	}
 
 	/**
@@ -896,7 +896,7 @@ class Players extends Skeleton {
 	 * @return string
 	 */
 	public function render_players_directory_shortcode( $atts = array() ): string {
-		$per_page = (int) apply_filters( 'clanspress_players_directory_per_page', 20 );
+		$per_page = (int) apply_filters( 'clanbite_players_directory_per_page', 20 );
 		$per_page = max( 1, min( 100, $per_page ) );
 
 		$paged = max( 1, (int) get_query_var( 'paged' ) );
@@ -923,18 +923,18 @@ class Players extends Skeleton {
 
 		ob_start();
 
-		echo '<div class="clanspress-players-directory">';
+		echo '<div class="clanbite-players-directory">';
 
 		if ( empty( $users ) ) {
-			echo '<p class="clanspress-players-directory__empty">' . esc_html__( 'No players found.', 'clanspress' ) . '</p>';
+			echo '<p class="clanbite-players-directory__empty">' . esc_html__( 'No players found.', 'clanbite' ) . '</p>';
 		} else {
-			echo '<ul class="clanspress-players-directory__list">';
+			echo '<ul class="clanbite-players-directory__list">';
 			foreach ( $users as $user ) {
 				if ( ! $user instanceof \WP_User ) {
 					continue;
 				}
 				$url = trailingslashit( home_url( '/players/' . $user->user_nicename ) );
-				echo '<li class="clanspress-players-directory__item"><a href="' . esc_url( $url ) . '">' . esc_html( $user->display_name ) . '</a></li>';
+				echo '<li class="clanbite-players-directory__item"><a href="' . esc_url( $url ) . '">' . esc_html( $user->display_name ) . '</a></li>';
 			}
 			echo '</ul>';
 		}
@@ -948,12 +948,12 @@ class Players extends Skeleton {
 					'current'   => $paged,
 					'total'     => max( 1, $pages ),
 					'type'      => 'list',
-					'prev_text' => __( 'Previous', 'clanspress' ),
-					'next_text' => __( 'Next', 'clanspress' ),
+					'prev_text' => __( 'Previous', 'clanbite' ),
+					'next_text' => __( 'Next', 'clanbite' ),
 				)
 			);
 			if ( is_string( $paging ) && $paging !== '' ) {
-				echo '<nav class="clanspress-players-directory__pagination" aria-label="' . esc_attr__( 'Players list pagination', 'clanspress' ) . '">' . wp_kses_post( $paging ) . '</nav>';
+				echo '<nav class="clanbite-players-directory__pagination" aria-label="' . esc_attr__( 'Players list pagination', 'clanbite' ) . '">' . wp_kses_post( $paging ) . '</nav>';
 			}
 		}
 
@@ -987,7 +987,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		$subpages = function_exists( '\clanspress_get_player_subpages' ) ? \clanspress_get_player_subpages() : array();
+		$subpages = function_exists( '\clanbite_get_player_subpages' ) ? \clanbite_get_player_subpages() : array();
 
 		// Unknown subpage slug — redirect to profile root.
 		if ( ! isset( $subpages[ $requested ] ) ) {
@@ -996,8 +996,8 @@ class Players extends Skeleton {
 			exit;
 		}
 
-		$visible = function_exists( '\clanspress_profile_subpages_visible_for_nav' )
-			? \clanspress_profile_subpages_visible_for_nav( 'player', (int) $user->ID, $subpages )
+		$visible = function_exists( '\clanbite_profile_subpages_visible_for_nav' )
+			? \clanbite_profile_subpages_visible_for_nav( 'player', (int) $user->ID, $subpages )
 			: array();
 
 		if ( isset( $visible[ $requested ] ) ) {
@@ -1010,10 +1010,10 @@ class Players extends Skeleton {
 	}
 
 	/**
-	 * Point the Site Editor admin-bar link at Clanspress plugin templates, not the theme fallback (e.g. Archive).
+	 * Point the Site Editor admin-bar link at Clanbite plugin templates, not the theme fallback (e.g. Archive).
 	 *
 	 * Block themes set the global `$_wp_current_template_id` during template resolution. Author archives often
-	 * resolve to `archive` while we render `clanspress//players-player-profile` via `template_include`.
+	 * resolve to `archive` while we render `clanbite//players-player-profile` via `template_include`.
 	 *
 	 * @return void
 	 */
@@ -1031,15 +1031,15 @@ class Players extends Skeleton {
 			|| ( $path !== '' && preg_match( '#^players/page/[0-9]+/?$#', $path ) );
 
 		if ( $is_players_directory ) {
-			$_wp_current_template_id = 'clanspress//players-directory';
+			$_wp_current_template_id = 'clanbite//players-directory';
 		} elseif ( get_query_var( 'players_settings' ) ) {
-			$_wp_current_template_id = 'clanspress//player-settings';
+			$_wp_current_template_id = 'clanbite//player-settings';
 		} else {
 			$sub = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
 			if ( '' !== $sub && is_author() && $this->player_subpage_has_dedicated_template( $sub ) ) {
-				$_wp_current_template_id = 'clanspress//player-' . $sub;
+				$_wp_current_template_id = 'clanbite//player-' . $sub;
 			} elseif ( $this->should_use_player_profile_template() ) {
-				$_wp_current_template_id = 'clanspress//players-player-profile';
+				$_wp_current_template_id = 'clanbite//players-player-profile';
 			}
 		}
 
@@ -1076,7 +1076,7 @@ class Players extends Skeleton {
 				$filtered[] = $t;
 				continue;
 			}
-			if ( isset( $t->id ) && 'clanspress//players-directory' === $t->id ) {
+			if ( isset( $t->id ) && 'clanbite//players-directory' === $t->id ) {
 				$filtered[] = $t;
 			}
 		}
@@ -1087,7 +1087,7 @@ class Players extends Skeleton {
 			}
 		}
 
-		$plugin = \get_block_template( 'clanspress//players-directory' );
+		$plugin = \get_block_template( 'clanbite//players-directory' );
 		if ( $plugin instanceof \WP_Block_Template ) {
 			$filtered[] = $plugin;
 		}
@@ -1129,7 +1129,7 @@ class Players extends Skeleton {
 				$filtered[] = $t;
 				continue;
 			}
-			if ( isset( $t->id ) && 'clanspress//players-player-profile' === $t->id ) {
+			if ( isset( $t->id ) && 'clanbite//players-player-profile' === $t->id ) {
 				$filtered[] = $t;
 			}
 		}
@@ -1140,7 +1140,7 @@ class Players extends Skeleton {
 			}
 		}
 
-		$plugin = \get_block_template( 'clanspress//players-player-profile' );
+		$plugin = \get_block_template( 'clanbite//players-player-profile' );
 		if ( $plugin instanceof \WP_Block_Template ) {
 			$filtered[] = $plugin;
 		}
@@ -1175,7 +1175,7 @@ class Players extends Skeleton {
 			return $query_result;
 		}
 
-		$plugin_id = 'clanspress//' . $slug;
+		$plugin_id = 'clanbite//' . $slug;
 
 		$filtered = array();
 		foreach ( $query_result as $t ) {
@@ -1234,7 +1234,7 @@ class Players extends Skeleton {
 
 		$located = locate_template( $candidates );
 		if ( ! $located ) {
-			$located = clanspress()->path . "templates/players/player-{$sub}.php";
+			$located = clanbite()->path . "templates/players/player-{$sub}.php";
 		}
 
 		if ( ! is_readable( $located ) ) {
@@ -1258,13 +1258,13 @@ class Players extends Skeleton {
 		 * @param string $sub      Subpage slug.
 		 * @param string $located  Theme or plugin PHP path.
 		 */
-		$found = (string) apply_filters( 'clanspress_load_player_subpage_template', $found, $sub, $located );
+		$found = (string) apply_filters( 'clanbite_load_player_subpage_template', $found, $sub, $located );
 
 		return '' !== $found ? $found : $template;
 	}
 
 	/**
-	 * Prefer the Clanspress player profile template for player author archives.
+	 * Prefer the Clanbite player profile template for player author archives.
 	 *
 	 * @param string $template Resolved template path.
 	 * @return string
@@ -1281,7 +1281,7 @@ class Players extends Skeleton {
 		);
 		$located   = locate_template( $templates );
 		if ( ! $located ) {
-			$located = clanspress()->path . 'templates/players/player-profile.php';
+			$located = clanbite()->path . 'templates/players/player-profile.php';
 		}
 
 		$found = locate_block_template( $located, 'players-player-profile', $templates );
@@ -1301,7 +1301,7 @@ class Players extends Skeleton {
 		$nav   = sanitize_key( (string) get_query_var( 'players_settings_nav' ) );
 		$panel = sanitize_key( (string) get_query_var( 'players_settings_panel' ) );
 
-		$nav_items = (array) apply_filters( 'clanspress_players_settings_nav_items', array() );
+		$nav_items = (array) apply_filters( 'clanbite_players_settings_nav_items', array() );
 		if ( empty( $nav_items ) ) {
 			return array( '', '' );
 		}
@@ -1312,20 +1312,20 @@ class Players extends Skeleton {
 		}
 
 		if ( $nav && $panel ) {
-			$sub = (array) apply_filters( "clanspress_players_settings_nav_{$nav}_sub_items", array() );
+			$sub = (array) apply_filters( "clanbite_players_settings_nav_{$nav}_sub_items", array() );
 			if ( ! isset( $sub[ $panel ] ) ) {
 				$panel = '';
 			}
 		}
 
 		if ( $nav && ! $panel ) {
-			$sub = (array) apply_filters( "clanspress_players_settings_nav_{$nav}_sub_items", array() );
+			$sub = (array) apply_filters( "clanbite_players_settings_nav_{$nav}_sub_items", array() );
 			$panel = (string) array_key_first( $sub );
 		}
 
 		if ( ! $nav || ! $panel ) {
 			$nav = (string) array_key_first( $nav_items );
-			$sub = (array) apply_filters( "clanspress_players_settings_nav_{$nav}_sub_items", array() );
+			$sub = (array) apply_filters( "clanbite_players_settings_nav_{$nav}_sub_items", array() );
 			$panel = (string) array_key_first( $sub );
 		}
 
@@ -1391,7 +1391,7 @@ class Players extends Skeleton {
 		// First, search for PHP templates, which block themes can also use.
 		$located = locate_template( $templates );
 		if ( ! $located ) {
-			$located = clanspress()->path . 'templates/players/player-settings.php';
+			$located = clanbite()->path . 'templates/players/player-settings.php';
 		}
 
 		// Pass the result into the block template locator and let it figure
@@ -1401,7 +1401,7 @@ class Players extends Skeleton {
 			$resolved = $located;
 		}
 
-		return apply_filters( 'clanspress_load_player_settings_template', $resolved ? $resolved : $template );
+		return apply_filters( 'clanbite_load_player_settings_template', $resolved ? $resolved : $template );
 	}
 
 	public function register_profile_templates() {
@@ -1416,30 +1416,30 @@ class Players extends Skeleton {
 	protected function get_profile_templates(): array {
 		return array(
 			'player-settings' => array(
-				'title' => __( 'Player Settings', 'clanspress' ),
-				'path'  => clanspress()->path . 'templates/players/player-settings.html',
+				'title' => __( 'Player Settings', 'clanbite' ),
+				'path'  => clanbite()->path . 'templates/players/player-settings.html',
 			),
 			'players-player-profile' => array(
-				'title' => __( 'Player Profile', 'clanspress' ),
-				'path'  => clanspress()->path . 'templates/players/player-profile.html',
+				'title' => __( 'Player Profile', 'clanbite' ),
+				'path'  => clanbite()->path . 'templates/players/player-profile.html',
 			),
 			'players-directory' => array(
-				'title' => __( 'Players Directory', 'clanspress' ),
-				'path'  => clanspress()->path . 'templates/players/players-directory.html',
+				'title' => __( 'Players Directory', 'clanbite' ),
+				'path'  => clanbite()->path . 'templates/players/players-directory.html',
 			),
 		);
 	}
 
 	public function register_image_sizes() {
 		add_image_size(
-			'clanspress-cover',
+			'clanbite-cover',
 			1184,
 			300,
 			true
 		);
-		add_image_size( 'clanspress-avatar-large', 512, 512, true );
-		add_image_size( 'clanspress-avatar-medium', 256, 256, true );
-		add_image_size( 'clanspress-avatar-small', 96, 96, true );
+		add_image_size( 'clanbite-avatar-large', 512, 512, true );
+		add_image_size( 'clanbite-avatar-medium', 256, 256, true );
+		add_image_size( 'clanbite-avatar-small', 96, 96, true );
 	}
 
 	public function register_profile_blocks() {
@@ -1475,7 +1475,7 @@ class Players extends Skeleton {
 				$post = get_queried_object();
 				if ( $post instanceof \WP_Post ) {
 					$player_blocks = array(
-						'clanspress/player-settings',
+						'clanbite/player-settings',
 					);
 					foreach ( $player_blocks as $block_name ) {
 						if ( has_block( $block_name, $post ) ) {
@@ -1496,7 +1496,7 @@ class Players extends Skeleton {
 		 *
 		 * @param bool $enqueue Default decision from core heuristics.
 		 */
-		return (bool) apply_filters( 'clanspress_should_enqueue_player_settings_frontend_assets', $enqueue );
+		return (bool) apply_filters( 'clanbite_should_enqueue_player_settings_frontend_assets', $enqueue );
 	}
 
 	public function enqueue_scripts() {
@@ -1505,16 +1505,16 @@ class Players extends Skeleton {
 		}
 
 		wp_register_script(
-			'clanspress-player-settings-localize',
+			'clanbite-player-settings-localize',
 			'',
 			array(),
-			\Kernowdev\Clanspress\Main::VERSION,
+			\Kernowdev\Clanbite\Main::VERSION,
 			true
 		);
 
 		$config = array(
 			'ajax_url'   => admin_url( 'admin-ajax.php' ),
-			'nonce'      => wp_create_nonce( 'clanspress_profile_settings_save_action' ),
+			'nonce'      => wp_create_nonce( 'clanbite_profile_settings_save_action' ),
 			'rest_url'   => esc_url_raw( rest_url() ),
 			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 		);
@@ -1527,26 +1527,26 @@ class Players extends Skeleton {
 		}
 
 		wp_localize_script(
-			'clanspress-player-settings-localize',
+			'clanbite-player-settings-localize',
 			'CLANSPRESSPLAYERSETTINGS',
 			apply_filters(
-				'clanspress_player_settings_frontend_config',
+				'clanbite_player_settings_frontend_config',
 				$config
 			)
 		);
 
-		wp_enqueue_script( 'clanspress-player-settings-localize' );
+		wp_enqueue_script( 'clanbite-player-settings-localize' );
 	}
 
 	public function register_player_settings_nav_items( array $items ) {
 		$items['profile'] = array(
-			'label'       => __( 'Profile', 'clanspress' ),
-			'description' => __( 'Public profile data', 'clanspress' ),
+			'label'       => __( 'Profile', 'clanbite' ),
+			'description' => __( 'Public profile data', 'clanbite' ),
 		);
 
 		$items['account'] = array(
-			'label'       => __( 'Account', 'clanspress' ),
-			'description' => __( 'Account settings', 'clanspress' ),
+			'label'       => __( 'Account', 'clanbite' ),
+			'description' => __( 'Account settings', 'clanbite' ),
 		);
 
 		return $items;
@@ -1765,9 +1765,9 @@ class Players extends Skeleton {
 			)
 		);
 
-		if ( function_exists( 'clanspress_players_get_social_profile_field_definitions' ) ) {
-			foreach ( array_keys( clanspress_players_get_social_profile_field_definitions() ) as $social_slug ) {
-				$meta_key = clanspress_players_social_profile_meta_key( $social_slug );
+		if ( function_exists( 'clanbite_players_get_social_profile_field_definitions' ) ) {
+			foreach ( array_keys( clanbite_players_get_social_profile_field_definitions() ) as $social_slug ) {
+				$meta_key = clanbite_players_social_profile_meta_key( $social_slug );
 				register_meta(
 					'user',
 					$meta_key,
@@ -1775,7 +1775,7 @@ class Players extends Skeleton {
 						'type'              => 'string',
 						'description'       => 'Player social profile: ' . $social_slug,
 						'single'            => true,
-						'sanitize_callback' => 'clanspress_players_sanitize_social_profile_value',
+						'sanitize_callback' => 'clanbite_players_sanitize_social_profile_value',
 						'show_in_rest'      => true,
 						'default'           => '',
 						'auth_callback'     => function () {
@@ -1788,7 +1788,7 @@ class Players extends Skeleton {
 
 		// register_meta(
 		// 'user',
-		// 'clanspress_player_avatar_id',
+		// 'clanbite_player_avatar_id',
 		// array(
 		// 'type'              => 'integer',
 		// 'single'            => true,
@@ -1801,13 +1801,13 @@ class Players extends Skeleton {
 
 	public function register_profile_nav_items( array $items ) {
 		$items['profile-info'] = array(
-			'label'       => __( 'Profile Info', 'clanspress' ),
-			'description' => __( 'General account data', 'clanspress' ),
+			'label'       => __( 'Profile Info', 'clanbite' ),
+			'description' => __( 'General account data', 'clanbite' ),
 		);
 
 		$items['social-networks'] = array(
-			'label'       => __( 'Social Networks', 'clanspress' ),
-			'description' => __( 'Public social links', 'clanspress' ),
+			'label'       => __( 'Social Networks', 'clanbite' ),
+			'description' => __( 'Public social links', 'clanbite' ),
 		);
 
 		return $items;
@@ -1815,8 +1815,8 @@ class Players extends Skeleton {
 
 	public function register_account_nav_items( array $items ) {
 		$items['account-info'] = array(
-			'label'       => __( 'Account Info', 'clanspress' ),
-			'description' => __( 'General account data', 'clanspress' ),
+			'label'       => __( 'Account Info', 'clanbite' ),
+			'description' => __( 'General account data', 'clanbite' ),
 		);
 
 		return $items;
@@ -1829,14 +1829,14 @@ class Players extends Skeleton {
 			return null;
 		}
 
-		$user_avatar           = clanspress_players_get_display_avatar( $user_id, true, '', '', 'large' );
-		$user_cover            = clanspress_players_get_display_cover( $user_id, true );
-		$background_position_x = round( clanspress_players_get_display_cover_position_x( $user_id ) * 100 ) . '% ';
-		$background_position_y = round( clanspress_players_get_display_cover_position_y( $user_id ) * 100 ) . '% ';
+		$user_avatar           = clanbite_players_get_display_avatar( $user_id, true, '', '', 'large' );
+		$user_cover            = clanbite_players_get_display_cover( $user_id, true );
+		$background_position_x = round( clanbite_players_get_display_cover_position_x( $user_id ) * 100 ) . '% ';
+		$background_position_y = round( clanbite_players_get_display_cover_position_y( $user_id ) * 100 ) . '% ';
 
 		$background_position = $background_position_x . ' ' . $background_position_y;
 
-		do_action( 'clanspress_before_profile_avatar_fields', $user_id );
+		do_action( 'clanbite_before_profile_avatar_fields', $user_id );
 
 		$avatars_enabled = $this->admin->get( 'enable_avatars' );
 		$covers_enabled  = $this->admin->get( 'enable_covers' );
@@ -1856,7 +1856,7 @@ class Players extends Skeleton {
 				<button
 						class="change-media avatar"
 						data-wp-on--click="actions.selectAvatar"
-				><?php esc_html_e( 'Set avatar', 'clanspress' ); ?></button>
+				><?php esc_html_e( 'Set avatar', 'clanbite' ); ?></button>
 				<input
 						type="file"
 						accept="image/png,image/jpeg"
@@ -1870,7 +1870,7 @@ class Players extends Skeleton {
 				<button
 						class="change-media cover"
 						data-wp-on--click="actions.selectCover"
-				><?php esc_html_e( 'Set cover image', 'clanspress' ); ?></button>
+				><?php esc_html_e( 'Set cover image', 'clanbite' ); ?></button>
 				<input
 						type="file"
 						accept="image/png,image/jpeg"
@@ -1893,28 +1893,28 @@ class Players extends Skeleton {
 		}
 
 		$user          = get_userdata( $user_id );
-		$user_tagline  = clanspress_players_get_display_tagline( $user_id, true );
-		$user_bio      = clanspress_players_get_display_bio( $user_id, true );
-		$user_website  = clanspress_players_get_display_website( $user_id, true );
-		$user_country  = clanspress_players_get_display_country( $user_id, 'code', true );
-		$user_city     = clanspress_players_get_display_city( $user_id, true );
-		$user_birthday = clanspress_players_get_display_birthday( $user_id, true );
+		$user_tagline  = clanbite_players_get_display_tagline( $user_id, true );
+		$user_bio      = clanbite_players_get_display_bio( $user_id, true );
+		$user_website  = clanbite_players_get_display_website( $user_id, true );
+		$user_country  = clanbite_players_get_display_country( $user_id, 'code', true );
+		$user_city     = clanbite_players_get_display_city( $user_id, true );
+		$user_birthday = clanbite_players_get_display_birthday( $user_id, true );
 
-		do_action( 'clanspress_before_profile_info_fields', $user_id, $user );
+		do_action( 'clanbite_before_profile_info_fields', $user_id, $user );
 		?>
 		<div class="settings-section">
-			<h2 class="settings-section-title"><?php esc_html_e( 'About You', 'clanspress' ); ?></h2>
+			<h2 class="settings-section-title"><?php esc_html_e( 'About You', 'clanbite' ); ?></h2>
 			<div class="settings-section-row">
 				<div class="form-item">
 					<div class="form-input">
-						<label for="display-name"><?php esc_html_e( 'Profile Name', 'clanspress' ); ?></label>
+						<label for="display-name"><?php esc_html_e( 'Profile Name', 'clanbite' ); ?></label>
 						<input type="text" id="display-name" name="display_name" value="<?php echo esc_attr( $user->display_name ); ?>" data-wp-class--error="state.isError">
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="display_name" data-wp-text="state.errorMessage"></div>
 					</div>
 				</div>
 				<div class="form-item">
 					<div class="form-input">
-						<label for="profile-tagline"><?php esc_html_e( 'Tagline', 'clanspress' ); ?></label>
+						<label for="profile-tagline"><?php esc_html_e( 'Tagline', 'clanbite' ); ?></label>
 						<input type="text" id="profile-tagline" name="profile_tagline" value="<?php echo esc_attr( $user_tagline ); ?>" data-wp-class--error="state.isError">
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="profile_tagline" data-wp-text="state.errorMessage"></div>
 					</div>
@@ -1923,14 +1923,14 @@ class Players extends Skeleton {
 			<div class="settings-section-row">
 				<div class="form-item">
 					<div class="form-input">
-						<label for="profile-description"><?php esc_html_e( 'Description', 'clanspress' ); ?></label>
-						<textarea id="profile-description" name="profile_description" data-wp-class--error="state.isError" placeholder="<?php esc_html_e( 'Write a little description about you...', 'clanspress' ); ?>"><?php echo wp_kses_post( $user_bio ); ?></textarea>
+						<label for="profile-description"><?php esc_html_e( 'Description', 'clanbite' ); ?></label>
+						<textarea id="profile-description" name="profile_description" data-wp-class--error="state.isError" placeholder="<?php esc_html_e( 'Write a little description about you...', 'clanbite' ); ?>"><?php echo wp_kses_post( $user_bio ); ?></textarea>
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="profile_description" data-wp-text="state.errorMessage"></div>
 					</div>
 				</div>
 				<div class="form-item">
 					<div class="form-input">
-						<label for="profile-website"><?php esc_html_e( 'Public website', 'clanspress' ); ?></label>
+						<label for="profile-website"><?php esc_html_e( 'Public website', 'clanbite' ); ?></label>
 						<input type="text" id="profile-website" name="profile_website" value="<?php echo esc_attr( $user_website ); ?>" data-wp-class--error="state.isError">
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="profile_website" data-wp-text="state.errorMessage"></div>
 					</div>
@@ -1939,11 +1939,11 @@ class Players extends Skeleton {
 			<div class="settings-section-row">
 				<div class="form-item">
 					<div class="form-input">
-						<label for="profile-country"><?php esc_html_e( 'Country', 'clanspress' ); ?></label>
+						<label for="profile-country"><?php esc_html_e( 'Country', 'clanbite' ); ?></label>
 						<select id="profile-country" name="profile_country" data-wp-class--error="state.isError">
-							<option value="" <?php selected( $user_country, '', true ); ?>><?php esc_html_e( 'Select Country', 'clanspress' ); ?></option>
+							<option value="" <?php selected( $user_country, '', true ); ?>><?php esc_html_e( 'Select Country', 'clanbite' ); ?></option>
 							<?php
-							$countries = clanspress_players_get_countries();
+							$countries = clanbite_players_get_countries();
 
 							if ( $countries ) :
 								?>
@@ -1957,7 +1957,7 @@ class Players extends Skeleton {
 				</div>
 				<div class="form-item">
 					<div class="form-input">
-						<label for="profile-city"><?php esc_html_e( 'City', 'clanspress' ); ?></label>
+						<label for="profile-city"><?php esc_html_e( 'City', 'clanbite' ); ?></label>
 						<input type="text" id="profile-city" name="profile_city" value="<?php echo esc_attr( $user_city ); ?>" data-wp-class--error="state.isError">
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="profile_city" data-wp-text="state.errorMessage"></div>
 					</div>
@@ -1966,7 +1966,7 @@ class Players extends Skeleton {
 			<div class="settings-section-row">
 				<div class="form-item">
 					<div class="form-input">
-						<label for="profile-birthday"><?php esc_html_e( 'Birthday', 'clanspress' ); ?></label>
+						<label for="profile-birthday"><?php esc_html_e( 'Birthday', 'clanbite' ); ?></label>
 						<input type="date" id="profile-birthday" name="profile_birthday" value="<?php echo esc_attr( $user_birthday ); ?>" data-wp-class--error="state.isError">
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="profile_birthday" data-wp-text="state.errorMessage"></div>
 					</div>
@@ -1975,7 +1975,7 @@ class Players extends Skeleton {
 		</div>
 		<?php
 
-		do_action( 'clanspress_after_profile_info_fields', $user_id, $user );
+		do_action( 'clanbite_after_profile_info_fields', $user_id, $user );
 	}
 
 	public function do_account_info_fields() {
@@ -1986,24 +1986,24 @@ class Players extends Skeleton {
 		}
 
 		$user            = get_userdata( $user_id );
-		$user_first_name = clanspress_players_get_account_firstname( $user_id, true );
-		$user_last_name  = clanspress_players_get_account_lastname( $user_id, true );
+		$user_first_name = clanbite_players_get_account_firstname( $user_id, true );
+		$user_last_name  = clanbite_players_get_account_lastname( $user_id, true );
 
-		do_action( 'clanspress_before_account_info_fields', $user_id, $user );
+		do_action( 'clanbite_before_account_info_fields', $user_id, $user );
 		?>
 		<div class="settings-section">
-			<h2 class="settings-section-title"><?php esc_html_e( 'Personal Info', 'clanspress' ); ?></h2>
+			<h2 class="settings-section-title"><?php esc_html_e( 'Personal Info', 'clanbite' ); ?></h2>
 			<div class="settings-section-row">
 				<div class="form-item">
 					<div class="form-input">
-						<label for="account-first-name"><?php esc_html_e( 'First Name', 'clanspress' ); ?></label>
+						<label for="account-first-name"><?php esc_html_e( 'First Name', 'clanbite' ); ?></label>
 						<input type="text" id="account-first-name" name="account_first_name" value="<?php echo esc_attr( $user_first_name ); ?>" data-wp-class--error="state.isError">
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="account_first_name" data-wp-text="state.errorMessage"></div>
 					</div>
 				</div>
 				<div class="form-item">
 					<div class="form-input">
-						<label for="account-last-name"><?php esc_html_e( 'Surname', 'clanspress' ); ?></label>
+						<label for="account-last-name"><?php esc_html_e( 'Surname', 'clanbite' ); ?></label>
 						<input type="text" id="account-last-name" name="account_last_name" value="<?php echo esc_attr( $user_last_name ); ?>" data-wp-class--error="state.isError">
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="account_last_name" data-wp-text="state.errorMessage"></div>
 					</div>
@@ -2012,14 +2012,14 @@ class Players extends Skeleton {
 			<div class="settings-section-row">
 				<div class="form-item">
 					<div class="form-input">
-						<label for="account-email"><?php esc_html_e( 'Email Address', 'clanspress' ); ?></label>
+						<label for="account-email"><?php esc_html_e( 'Email Address', 'clanbite' ); ?></label>
 						<input type="text" id="account-email" name="account_email" value="<?php echo esc_attr( $user->user_email ); ?>" data-wp-class--error="state.isError" disabled>
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="account_email" data-wp-text="state.errorMessage"></div>
 					</div>
 				</div>
 				<div class="form-item">
 					<div class="form-input">
-						<label for="account-url"><?php esc_html_e( 'Profile URL', 'clanspress' ); ?></label>
+						<label for="account-url"><?php esc_html_e( 'Profile URL', 'clanbite' ); ?></label>
 						<p class="description"><?php echo esc_html( trailingslashit( home_url( '/players/' ) ) ); ?></p>
 						<input type="text" id="account-url" name="account_url" value="<?php echo esc_attr( $user->user_nicename ); ?>" data-wp-class--error="state.isError" disabled>
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="account_url" data-wp-text="state.errorMessage"></div>
@@ -2029,7 +2029,7 @@ class Players extends Skeleton {
 		</div>
 		<?php
 
-		do_action( 'clanspress_after_account_info_fields', $user_id, $user );
+		do_action( 'clanbite_after_account_info_fields', $user_id, $user );
 	}
 
 	/**
@@ -2040,20 +2040,20 @@ class Players extends Skeleton {
 	public function do_social_networks_fields() {
 		$user_id = get_current_user_id();
 
-		if ( ! $user_id || ! function_exists( 'clanspress_players_get_social_profile_field_definitions' ) ) {
+		if ( ! $user_id || ! function_exists( 'clanbite_players_get_social_profile_field_definitions' ) ) {
 			return;
 		}
 
-		$definitions = clanspress_players_get_social_profile_field_definitions();
+		$definitions = clanbite_players_get_social_profile_field_definitions();
 		if ( array() === $definitions ) {
 			return;
 		}
 
-		do_action( 'clanspress_before_social_networks_fields', $user_id );
+		do_action( 'clanbite_before_social_networks_fields', $user_id );
 		?>
 		<div class="settings-section">
-			<h2 class="settings-section-title"><?php esc_html_e( 'Social profiles', 'clanspress' ); ?></h2>
-			<p class="description"><?php esc_html_e( 'These may be shown on your public player profile. Use a full URL, @handle, or username depending on the network.', 'clanspress' ); ?></p>
+			<h2 class="settings-section-title"><?php esc_html_e( 'Social profiles', 'clanbite' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'These may be shown on your public player profile. Use a full URL, @handle, or username depending on the network.', 'clanbite' ); ?></p>
 			<?php
 			$row_open = false;
 			$index    = 0;
@@ -2062,7 +2062,7 @@ class Players extends Skeleton {
 				$placeholder = isset( $field['placeholder'] ) ? (string) $field['placeholder'] : '';
 				$post_name   = 'profile_social_' . sanitize_key( $slug );
 				$input_id    = 'profile-social-' . sanitize_key( $slug );
-				$value       = clanspress_players_get_display_social( (string) $slug, $user_id, true );
+				$value       = clanbite_players_get_display_social( (string) $slug, $user_id, true );
 
 				if ( 0 === $index % 2 ) {
 					if ( $row_open ) {
@@ -2096,13 +2096,13 @@ class Players extends Skeleton {
 			?>
 		</div>
 		<?php
-		do_action( 'clanspress_after_social_networks_fields', $user_id );
+		do_action( 'clanbite_after_social_networks_fields', $user_id );
 	}
 
 	public function save_player_profile_settings( $filtered_data, $data, $files, $user_id ) {
 		$errors = array();
 
-		// Handle avatar and cover image first (isolated under uploads/clanspress/players/{id}/).
+		// Handle avatar and cover image first (isolated under uploads/clanbite/players/{id}/).
 		if ( isset( $files['profile_avatar'] ) ) {
 			$_FILES['profile_avatar'] = $files['profile_avatar'];
 
@@ -2111,15 +2111,15 @@ class Players extends Skeleton {
 				wp_delete_attachment( $old_avatar, true );
 			}
 
-			if ( function_exists( 'clanspress_handle_isolated_image_upload' ) ) {
-				$attachment_id = clanspress_handle_isolated_image_upload(
+			if ( function_exists( 'clanbite_handle_isolated_image_upload' ) ) {
+				$attachment_id = clanbite_handle_isolated_image_upload(
 					'profile_avatar',
 					0,
-					'clanspress/players/' . $user_id,
+					'clanbite/players/' . $user_id,
 					'avatar'
 				);
 			} else {
-				$attachment_id = new \WP_Error( 'clanspress_upload_missing', __( 'Upload handler unavailable.', 'clanspress' ) );
+				$attachment_id = new \WP_Error( 'clanbite_upload_missing', __( 'Upload handler unavailable.', 'clanbite' ) );
 			}
 
 			if ( ! is_wp_error( $attachment_id ) ) {
@@ -2131,7 +2131,7 @@ class Players extends Skeleton {
 				 * @param int $user_id        Profile owner user ID.
 				 * @param int $attachment_id New attachment ID.
 				 */
-				do_action( 'clanspress_player_avatar_updated', $user_id, (int) $attachment_id );
+				do_action( 'clanbite_player_avatar_updated', $user_id, (int) $attachment_id );
 			} else {
 				$errors['profile_avatar'] = $attachment_id->get_error_message();
 			}
@@ -2145,34 +2145,34 @@ class Players extends Skeleton {
 				wp_delete_attachment( $old_cover, true );
 			}
 
-			if ( function_exists( 'clanspress_handle_isolated_image_upload' ) ) {
-				$attachment_id = clanspress_handle_isolated_image_upload(
+			if ( function_exists( 'clanbite_handle_isolated_image_upload' ) ) {
+				$attachment_id = clanbite_handle_isolated_image_upload(
 					'profile_cover',
 					0,
-					'clanspress/players/' . $user_id,
+					'clanbite/players/' . $user_id,
 					'cover'
 				);
 			} else {
-				$attachment_id = new \WP_Error( 'clanspress_upload_missing', __( 'Upload handler unavailable.', 'clanspress' ) );
+				$attachment_id = new \WP_Error( 'clanbite_upload_missing', __( 'Upload handler unavailable.', 'clanbite' ) );
 			}
 
 			if ( ! is_wp_error( $attachment_id ) ) {
 				update_user_meta( $user_id, 'cp_player_cover_id', $attachment_id );
-				update_user_meta( $user_id, 'cp_player_cover', wp_get_attachment_image_url( (int) $attachment_id, 'clanspress-cover' ) );
+				update_user_meta( $user_id, 'cp_player_cover', wp_get_attachment_image_url( (int) $attachment_id, 'clanbite-cover' ) );
 				/**
 				 * Fires after the player successfully uploads a new profile cover attachment.
 				 *
 				 * @param int $user_id        Profile owner user ID.
 				 * @param int $attachment_id New attachment ID.
 				 */
-				do_action( 'clanspress_player_cover_updated', $user_id, (int) $attachment_id );
+				do_action( 'clanbite_player_cover_updated', $user_id, (int) $attachment_id );
 			} else {
 				$errors['profile_cover'] = $attachment_id->get_error_message();
 			}
 		}
 
 		if ( isset( $filtered_data['profile_cover_position_x'] ) ) {
-			$profile_cover_position_x = apply_filters( 'clanspress_player_settings_update_display_cover_position_x', $filtered_data['profile_cover_position_x'], $user_id );
+			$profile_cover_position_x = apply_filters( 'clanbite_player_settings_update_display_cover_position_x', $filtered_data['profile_cover_position_x'], $user_id );
 
 			if ( ! is_wp_error( $profile_cover_position_x ) ) {
 				update_user_meta( $user_id, 'cp_player_cover_position_x', $profile_cover_position_x );
@@ -2182,7 +2182,7 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_cover_position_y'] ) ) {
-			$profile_cover_position_y = apply_filters( 'clanspress_player_settings_update_display_cover_position_y', $filtered_data['profile_cover_position_y'], $user_id );
+			$profile_cover_position_y = apply_filters( 'clanbite_player_settings_update_display_cover_position_y', $filtered_data['profile_cover_position_y'], $user_id );
 
 			if ( ! is_wp_error( $profile_cover_position_y ) ) {
 				update_user_meta( $user_id, 'cp_player_cover_position_y', $profile_cover_position_y );
@@ -2192,7 +2192,7 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['display_name'] ) ) {
-			$display_name = apply_filters( 'clanspress_player_settings_update_display_name', sanitize_user( $filtered_data['display_name'] ), $user_id );
+			$display_name = apply_filters( 'clanbite_player_settings_update_display_name', sanitize_user( $filtered_data['display_name'] ), $user_id );
 
 			if ( ! is_wp_error( $display_name ) ) {
 				$result = wp_update_user(
@@ -2207,7 +2207,7 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_tagline'] ) ) {
-			$display_tagline = apply_filters( 'clanspress_player_settings_update_tagline', sanitize_text_field( $filtered_data['profile_tagline'] ), $user_id );
+			$display_tagline = apply_filters( 'clanbite_player_settings_update_tagline', sanitize_text_field( $filtered_data['profile_tagline'] ), $user_id );
 
 			if ( ! is_wp_error( $display_tagline ) ) {
 				update_user_meta( $user_id, 'cp_player_tagline', $display_tagline );
@@ -2217,7 +2217,7 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_description'] ) ) {
-			$display_description = apply_filters( 'clanspress_player_settings_update_description', wp_kses_post( $filtered_data['profile_description'] ), $user_id );
+			$display_description = apply_filters( 'clanbite_player_settings_update_description', wp_kses_post( $filtered_data['profile_description'] ), $user_id );
 
 			if ( ! is_wp_error( $display_description ) ) {
 				update_user_meta( $user_id, 'cp_player_bio', $display_description );
@@ -2227,7 +2227,7 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_website'] ) ) {
-			$display_website = apply_filters( 'clanspress_player_settings_update_website', sanitize_text_field( $filtered_data['profile_website'] ), $user_id );
+			$display_website = apply_filters( 'clanbite_player_settings_update_website', sanitize_text_field( $filtered_data['profile_website'] ), $user_id );
 
 			if ( ! is_wp_error( $display_website ) ) {
 				update_user_meta( $user_id, 'cp_player_website', $display_website );
@@ -2237,7 +2237,7 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_country'] ) ) {
-			$display_country = apply_filters( 'clanspress_player_settings_update_country', sanitize_text_field( $filtered_data['profile_country'] ), $user_id );
+			$display_country = apply_filters( 'clanbite_player_settings_update_country', sanitize_text_field( $filtered_data['profile_country'] ), $user_id );
 
 			if ( ! is_wp_error( $display_country ) ) {
 				update_user_meta( $user_id, 'cp_player_country', $display_country );
@@ -2247,7 +2247,7 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_city'] ) ) {
-			$display_city = apply_filters( 'clanspress_player_settings_update_city', sanitize_text_field( $filtered_data['profile_city'] ), $user_id );
+			$display_city = apply_filters( 'clanbite_player_settings_update_city', sanitize_text_field( $filtered_data['profile_city'] ), $user_id );
 
 			if ( ! is_wp_error( $display_city ) ) {
 				update_user_meta( $user_id, 'cp_player_city', $display_city );
@@ -2257,7 +2257,7 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_birthday'] ) ) {
-			$display_birthday = apply_filters( 'clanspress_player_settings_update_birthday', sanitize_text_field( $filtered_data['profile_birthday'] ), $user_id );
+			$display_birthday = apply_filters( 'clanbite_player_settings_update_birthday', sanitize_text_field( $filtered_data['profile_birthday'] ), $user_id );
 
 			if ( ! is_wp_error( $display_birthday ) ) {
 				update_user_meta( $user_id, 'cp_player_birthday', $display_birthday );
@@ -2266,8 +2266,8 @@ class Players extends Skeleton {
 			}
 		}
 
-		if ( function_exists( 'clanspress_players_get_social_profile_field_definitions' ) ) {
-			foreach ( array_keys( clanspress_players_get_social_profile_field_definitions() ) as $social_slug ) {
+		if ( function_exists( 'clanbite_players_get_social_profile_field_definitions' ) ) {
+			foreach ( array_keys( clanbite_players_get_social_profile_field_definitions() ) as $social_slug ) {
 				$social_slug = sanitize_key( (string) $social_slug );
 				if ( '' === $social_slug ) {
 					continue;
@@ -2276,7 +2276,7 @@ class Players extends Skeleton {
 				if ( ! array_key_exists( $post_key, $filtered_data ) ) {
 					continue;
 				}
-				$raw = clanspress_players_sanitize_social_profile_value( (string) $filtered_data[ $post_key ] );
+				$raw = clanbite_players_sanitize_social_profile_value( (string) $filtered_data[ $post_key ] );
 				/**
 				 * Filters a social profile value before it is saved from player settings.
 				 *
@@ -2284,26 +2284,26 @@ class Players extends Skeleton {
 				 * @param string          $slug      Field slug (e.g. `facebook`).
 				 * @param int             $user_id   User ID.
 				 */
-				$stored = apply_filters( 'clanspress_player_settings_update_social_profile_value', $raw, $social_slug, $user_id );
+				$stored = apply_filters( 'clanbite_player_settings_update_social_profile_value', $raw, $social_slug, $user_id );
 				if ( is_wp_error( $stored ) ) {
 					$errors[ $post_key ] = $stored->get_error_message();
 					continue;
 				}
-				$stored = clanspress_players_sanitize_social_profile_value( (string) $stored );
-				update_user_meta( $user_id, clanspress_players_social_profile_meta_key( $social_slug ), $stored );
+				$stored = clanbite_players_sanitize_social_profile_value( (string) $stored );
+				update_user_meta( $user_id, clanbite_players_social_profile_meta_key( $social_slug ), $stored );
 			}
 		}
 
 		if ( ! empty( $errors ) ) {
 			add_filter(
-				'clanspress_save_player_settings_save_status',
+				'clanbite_save_player_settings_save_status',
 				function ( $saved ) {
 					return false;
 				}
 			);
 
 			add_filter(
-				'clanspress_save_player_settings_errors',
+				'clanbite_save_player_settings_errors',
 				function ( $known_errors ) use ( $errors ) {
 					return array_merge( $errors, $known_errors );
 				}
@@ -2315,7 +2315,7 @@ class Players extends Skeleton {
 		$errors = array();
 
 		if ( isset( $filtered_data['account_first_name'] ) ) {
-			$account_first_name = apply_filters( 'clanspress_player_settings_update_account_firstname', sanitize_text_field( $filtered_data['account_first_name'] ), $user_id );
+			$account_first_name = apply_filters( 'clanbite_player_settings_update_account_firstname', sanitize_text_field( $filtered_data['account_first_name'] ), $user_id );
 
 			if ( ! is_wp_error( $account_first_name ) ) {
 				update_user_meta( $user_id, 'cp_player_first_name', $account_first_name );
@@ -2325,7 +2325,7 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['account_last_name'] ) ) {
-			$account_last_name = apply_filters( 'clanspress_player_settings_update_account_lastname', sanitize_text_field( $filtered_data['account_last_name'] ), $user_id );
+			$account_last_name = apply_filters( 'clanbite_player_settings_update_account_lastname', sanitize_text_field( $filtered_data['account_last_name'] ), $user_id );
 
 			if ( ! is_wp_error( $account_last_name ) ) {
 				update_user_meta( $user_id, 'cp_player_last_name', $account_last_name );
@@ -2336,14 +2336,14 @@ class Players extends Skeleton {
 
 		if ( ! empty( $errors ) ) {
 			add_filter(
-				'clanspress_save_player_settings_save_status',
+				'clanbite_save_player_settings_save_status',
 				function ( $saved ) {
 					return false;
 				}
 			);
 
 			add_filter(
-				'clanspress_save_player_settings_errors',
+				'clanbite_save_player_settings_errors',
 				function ( $known_errors ) use ( $errors ) {
 					return array_merge( $errors, $known_errors );
 				}
@@ -2364,7 +2364,7 @@ class Players extends Skeleton {
 	 * @return void
 	 */
 	public function ajax_save_player_settings() {
-		check_ajax_referer( 'clanspress_profile_settings_save_action', 'nonce' );
+		check_ajax_referer( 'clanbite_profile_settings_save_action', 'nonce' );
 
 		$user_id = get_current_user_id();
 
@@ -2372,21 +2372,32 @@ class Players extends Skeleton {
 			wp_send_json_error( 'Not logged in' );
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified above.
+		$data = clanbite_sanitize_player_settings_post_array( wp_unslash( $_POST ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+
+		$files = clanbite_sanitize_player_settings_files_array();
+
 		/**
-		 * Let third-party developers hook into saving fields.
-		 * $data = $_POST, sanitized below.
-		 * $files = $_FILES.
+		 * Filter sanitized player settings POST data before save handlers run.
+		 *
+		 * @param array<string, mixed> $data    Sanitized field map (see {@see clanbite_sanitize_player_settings_post_array()}).
+		 * @param int                  $user_id Profile owner user ID.
 		 */
-		$data  = wp_unslash( $_POST );
-		$files = wp_unslash( $_FILES );
+		$filtered_data = apply_filters( 'clanbite_save_player_settings_filtered_data', $data, $user_id );
 
-		$filtered_data = apply_filters( 'clanspress_save_player_settings_filtered_data', $data, $user_id );
+		/**
+		 * Fires after player settings POST data and uploads are sanitized.
+		 *
+		 * @param array<string, mixed> $filtered_data Mutable copy from the filter above (defaults to fully sanitized POST).
+		 * @param array<string, mixed> $data          Same sanitized POST snapshot passed to the filter (immutable reference for handlers).
+		 * @param array<string, array<string, mixed>> $files Whitelisted upload fields only (`profile_avatar`, `profile_cover`).
+		 * @param int                  $user_id       Profile owner user ID.
+		 */
+		do_action( 'clanbite_save_player_settings', $filtered_data, $data, $files, $user_id );
 
-		// general hook for 3rd parties
-		do_action( 'clanspress_save_player_settings', $filtered_data, $data, $files, $user_id );
-
-		$saved  = apply_filters( 'clanspress_save_player_settings_save_status', true );
-		$errors = apply_filters( 'clanspress_save_player_settings_errors', array() );
+		$saved  = apply_filters( 'clanbite_save_player_settings_save_status', true );
+		$errors = apply_filters( 'clanbite_save_player_settings_errors', array() );
 
 		if ( ! empty( $errors ) || ! $saved ) {
 			wp_send_json_error(
@@ -2397,11 +2408,11 @@ class Players extends Skeleton {
 		}
 
 		$success_data = array();
-		if ( function_exists( 'clanspress_players_get_display_avatar' ) ) {
-			$success_data['avatarUrl'] = clanspress_players_get_display_avatar( $user_id, false, '', 'profile_settings_rest', 'large' );
+		if ( function_exists( 'clanbite_players_get_display_avatar' ) ) {
+			$success_data['avatarUrl'] = clanbite_players_get_display_avatar( $user_id, false, '', 'profile_settings_rest', 'large' );
 		}
-		if ( function_exists( 'clanspress_players_get_display_cover' ) ) {
-			$success_data['coverUrl'] = clanspress_players_get_display_cover( $user_id );
+		if ( function_exists( 'clanbite_players_get_display_cover' ) ) {
+			$success_data['coverUrl'] = clanbite_players_get_display_cover( $user_id );
 		}
 
 		wp_send_json_success( $success_data );
@@ -2498,7 +2509,7 @@ class Players extends Skeleton {
 	 * @return \WP_Block_Template|null
 	 */
 	protected function create_player_profile_header_template_part_object(): ?\WP_Block_Template {
-		$path = clanspress()->path . 'templates/players/parts/player-profile-header.html';
+		$path = clanbite()->path . 'templates/players/parts/player-profile-header.html';
 
 		if ( ! is_readable( $path ) ) {
 			return null;
@@ -2517,12 +2528,12 @@ class Players extends Skeleton {
 		$template->theme          = $theme;
 		$template->slug           = $slug;
 		$template->type           = 'wp_template_part';
-		$template->title          = __( 'Player profile header', 'clanspress' );
-		$template->description    = __( 'Shared cover, identity row, and profile navigation for Clanspress player templates.', 'clanspress' );
+		$template->title          = __( 'Player profile header', 'clanbite' );
+		$template->description    = __( 'Shared cover, identity row, and profile navigation for Clanbite player templates.', 'clanbite' );
 		$template->content        = $raw;
 		$template->source         = 'plugin';
 		$template->origin         = 'plugin';
-		$template->plugin         = 'clanspress';
+		$template->plugin         = 'clanbite';
 		$template->status         = 'publish';
 		$template->has_theme_file = true;
 		$template->is_custom      = true;

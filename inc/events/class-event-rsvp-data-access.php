@@ -2,10 +2,10 @@
 /**
  * Data access helpers for event RSVPs.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Events;
+namespace Kernowdev\Clanbite\Events;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -156,7 +156,7 @@ final class Event_Rsvp_Data_Access {
 		 * @param string      $new_status  New RSVP status.
 		 * @param string|null $old_status  Old RSVP status (null when first set).
 		 */
-		do_action( 'clanspress_event_rsvp_updated', $event_type, $event_id, $user_id, $status, $old_status );
+		do_action( 'clanbite_event_rsvp_updated', $event_type, $event_id, $user_id, $status, $old_status );
 
 		return array(
 			'status'     => $status,

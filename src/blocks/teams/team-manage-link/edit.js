@@ -9,12 +9,12 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Link text', 'clanspress' ) }>
+				<PanelBody title={ __( 'Link text', 'clanbite' ) }>
 					<TextControl
-						label={ __( 'Label', 'clanspress' ) }
+						label={ __( 'Label', 'clanbite' ) }
 						help={ __(
 							'Leave empty to use the default “Manage team” label on the front end.',
-							'clanspress'
+							'clanbite'
 						) }
 						value={ label }
 						onChange={ ( value ) =>
@@ -26,18 +26,18 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...useBlockProps() }>
-				<p className="clanspress-team-manage-link clanspress-team-manage-link--editor-preview">
+				<p className="clanbite-team-manage-link clanbite-team-manage-link--editor-preview">
 					<a
-						href="#clanspress-team-manage-link-preview"
+						href="#clanbite-team-manage-link-preview"
 						onClick={ ( e ) => e.preventDefault() }
 					>
-						{ label || __( 'Manage team', 'clanspress' ) }
+						{ label || __( 'Manage team', 'clanbite' ) }
 					</a>
 				</p>
-				<p className="clanspress-team-block-placeholder">
+				<p className="clanbite-team-block-placeholder">
 					{ __(
 						'On the site, this link only appears for users who can edit this team.',
-						'clanspress'
+						'clanbite'
 					) }
 				</p>
 			</div>

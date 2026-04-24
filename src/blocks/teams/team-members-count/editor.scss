@@ -1,5 +1,5 @@
-.wp-block-clanspress-team-members-count {
-	&.clanspress-team-stat-edit {
+.wp-block-clanbite-team-members-count {
+	&.clanbite-team-stat-edit {
 		border: 1px dashed color-mix(in srgb, currentColor 42%, transparent);
 		border-radius: 4px;
 		color: inherit;
@@ -7,15 +7,15 @@
 		line-height: 1.4;
 	}
 
-	.clanspress-team-members-count__value--editor-placeholder {
+	.clanbite-team-members-count__value--editor-placeholder {
 		color: inherit;
 		font-weight: 600;
 		opacity: 0.45;
 		user-select: none;
 	}
 
-	.clanspress-team-members-count__prefix,
-	.clanspress-team-members-count__postfix {
+	.clanbite-team-members-count__prefix,
+	.clanbite-team-members-count__postfix {
 		min-width: 0.5em;
 		color: inherit;
 

@@ -2,10 +2,10 @@
 /**
  * Default {@see Extension_Data_Store}: one WordPress option (or site option) containing all extension records.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions;
+namespace Kernowdev\Clanbite\Extensions;
 
 defined( 'ABSPATH' ) || exit;
 

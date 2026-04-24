@@ -1,13 +1,13 @@
 // Front-end: circular avatar display (no inline editing).
 
-.wp-block-clanspress-player-avatar.clanspress-player-avatar-block {
+.wp-block-clanbite-player-avatar.clanbite-player-avatar-block {
 	position: relative;
 	overflow: visible;
 	margin: 0;
 	line-height: 0;
 }
 
-.clanspress-player-avatar {
+.clanbite-player-avatar {
 	position: relative;
 	display: inline-flex;
 	flex-direction: column;
@@ -17,29 +17,29 @@
 	max-width: 100%;
 }
 
-.clanspress-player-avatar--block-aside {
+.clanbite-player-avatar--block-aside {
 	position: relative;
 	flex-direction: row;
 	align-items: flex-start;
 }
 
-.clanspress-player-avatar--block-aside .clanspress-player-avatar__media {
+.clanbite-player-avatar--block-aside .clanbite-player-avatar__media {
 	flex-shrink: 0;
 }
 
-.clanspress-player-avatar__media {
+.clanbite-player-avatar__media {
 	position: relative;
 	display: inline-block;
 	line-height: 0;
 	vertical-align: top;
 }
 
-.clanspress-player-avatar__media .clanspress-player-avatar__link {
+.clanbite-player-avatar__media .clanbite-player-avatar__link {
 	display: block;
 	line-height: 0;
 }
 
-.clanspress-player-avatar__rank-overlay {
+.clanbite-player-avatar__rank-overlay {
 	position: absolute;
 	right: -4px;
 	bottom: -6px;
@@ -55,7 +55,7 @@
 	box-sizing: border-box;
 }
 
-.clanspress-player-avatar__clip {
+.clanbite-player-avatar__clip {
 	position: relative;
 	display: inline-block;
 	line-height: 0;
@@ -66,13 +66,13 @@
 	vertical-align: top;
 }
 
-.clanspress-player-avatar__link {
+.clanbite-player-avatar__link {
 	display: block;
 	line-height: 0;
 	border-radius: inherit;
 }
 
-.clanspress-player-avatar__img {
+.clanbite-player-avatar__img {
 	display: block;
 	width: 96px;
 	height: 96px;
@@ -82,7 +82,7 @@
 	border-radius: inherit;
 }
 
-.clanspress-player-avatar__img--placeholder {
+.clanbite-player-avatar__img--placeholder {
 	box-sizing: border-box;
 	min-width: 80px;
 	min-height: 80px;

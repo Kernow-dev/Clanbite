@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/event-rsvp",
+	"name": "clanbite/event-rsvp",
 	"version": "1.0.0",
 	"title": "Event RSVP",
-	"category": "clanspress",
+	"category": "clanbite",
 	"icon": "yes",
 	"description": "Let members respond to an event (match, group event, etc.) and optionally show who is attending.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"attributes": {
 		"eventType": {
 			"type": "string",
@@ -48,9 +48,9 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-event-rsvp",
-		"color": ".wp-block-clanspress-event-rsvp",
-		"typography": ".wp-block-clanspress-event-rsvp",
-		"border": ".wp-block-clanspress-event-rsvp"
+		"root": ".wp-block-clanbite-event-rsvp",
+		"color": ".wp-block-clanbite-event-rsvp",
+		"typography": ".wp-block-clanbite-event-rsvp",
+		"border": ".wp-block-clanbite-event-rsvp"
 	}
 }

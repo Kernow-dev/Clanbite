@@ -2,18 +2,18 @@
 /**
  * Site-wide word filter (General settings): strict blocking for short identity fields, masking elsewhere.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress;
+namespace Kernowdev\Clanbite;
 
 defined( 'ABSPATH' ) || exit;
 
 use WP_Error;
-use Kernowdev\Clanspress\Admin\General_Settings;
+use Kernowdev\Clanbite\Admin\General_Settings;
 
 /**
- * Registers hooks and implements matching/masking for the Clanspress word filter.
+ * Registers hooks and implements matching/masking for the Clanbite word filter.
  */
 final class Wordban {
 
@@ -349,7 +349,7 @@ final class Wordban {
 		 * @param string $out    Masked text.
 		 * @param string $text   Original text.
 		 */
-		return (string) apply_filters( 'clanspress_wordban_masked_plain_text', $out, $text );
+		return (string) apply_filters( 'clanbite_wordban_masked_plain_text', $out, $text );
 	}
 
 	/**
@@ -368,7 +368,7 @@ final class Wordban {
 		$stripped     = (string) preg_replace_callback(
 			'#<(?:script|style)\b[^>]*>.*?</(?:script|style)>#is',
 			static function ( array $m ) use ( &$placeholders ): string {
-				$key                  = '<!--clanspress-wb-' . \wp_generate_password( 12, false, false ) . '-->';
+				$key                  = '<!--clanbite-wb-' . \wp_generate_password( 12, false, false ) . '-->';
 				$placeholders[ $key ] = $m[0];
 				return $key;
 			},
@@ -403,7 +403,7 @@ final class Wordban {
 		 * @param string $out  Masked HTML.
 		 * @param string $html Original HTML.
 		 */
-		return (string) apply_filters( 'clanspress_wordban_masked_html', $out, $html );
+		return (string) apply_filters( 'clanbite_wordban_masked_html', $out, $html );
 	}
 
 	/**
@@ -422,8 +422,8 @@ final class Wordban {
 	 */
 	private static function blocked_error(): WP_Error {
 		return new WP_Error(
-			'clanspress_wordban_blocked',
-			__( 'That text is not allowed.', 'clanspress' ),
+			'clanbite_wordban_blocked',
+			__( 'That text is not allowed.', 'clanbite' ),
 			array( 'status' => 400 )
 		);
 	}
@@ -649,7 +649,7 @@ final class Wordban {
 		 *
 		 * @param array<int, string> $merged Merged list.
 		 */
-		return (array) apply_filters( 'clanspress_wordban_merged_tokens', $merged );
+		return (array) apply_filters( 'clanbite_wordban_merged_tokens', $merged );
 	}
 
 	/**
@@ -719,7 +719,7 @@ final class Wordban {
 	 * @return array<int, string>
 	 */
 	private static function get_team_name_extra_canonical_words(): array {
-		$settings = get_option( 'clanspress_teams_settings', array() );
+		$settings = get_option( 'clanbite_teams_settings', array() );
 		$raw      = isset( $settings['team_name_wordban_custom_list'] ) ? (string) $settings['team_name_wordban_custom_list'] : '';
 		return self::parse_raw_list_to_canonical_words( $raw );
 	}
@@ -728,7 +728,7 @@ final class Wordban {
 	 * @return array<int, string>
 	 */
 	private static function get_group_name_extra_canonical_words(): array {
-		$settings = get_option( 'clanspress_groups_settings', array() );
+		$settings = get_option( 'clanbite_groups_settings', array() );
 		$raw      = isset( $settings['group_name_wordban_custom_list'] ) ? (string) $settings['group_name_wordban_custom_list'] : '';
 		return self::parse_raw_list_to_canonical_words( $raw );
 	}

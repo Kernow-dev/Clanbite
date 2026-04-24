@@ -1,11 +1,11 @@
 <?php
 /**
- * REST API collection for match resources (`clanspress/v1/matches`).
+ * REST API collection for match resources (`clanbite/v1/matches`).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Matches;
+namespace Kernowdev\Clanbite\Extensions\Matches;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,14 +22,14 @@ class Rest_Controller {
 	/**
 	 * Owning extension (for shaping response payloads).
 	 *
-	 * @var \Kernowdev\Clanspress\Extensions\Matches
+	 * @var \Kernowdev\Clanbite\Extensions\Matches
 	 */
-	protected \Kernowdev\Clanspress\Extensions\Matches $extension;
+	protected \Kernowdev\Clanbite\Extensions\Matches $extension;
 
 	/**
-	 * @param \Kernowdev\Clanspress\Extensions\Matches $extension Active Matches extension.
+	 * @param \Kernowdev\Clanbite\Extensions\Matches $extension Active Matches extension.
 	 */
-	public function __construct( \Kernowdev\Clanspress\Extensions\Matches $extension ) {
+	public function __construct( \Kernowdev\Clanbite\Extensions\Matches $extension ) {
 		$this->extension = $extension;
 	}
 
@@ -40,7 +40,7 @@ class Rest_Controller {
 	 */
 	public function register_routes(): void {
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/matches',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -48,13 +48,13 @@ class Rest_Controller {
 				'permission_callback' => array( $this, 'read_permission' ),
 				'args'                => array(
 					'team'     => array(
-						'description'       => __( 'Filter matches involving this team (post ID).', 'clanspress' ),
+						'description'       => __( 'Filter matches involving this team (post ID).', 'clanbite' ),
 						'type'              => 'integer',
 						'default'           => 0,
 						'sanitize_callback' => 'absint',
 					),
 					'status'   => array(
-						'description'       => __( 'Filter by match status slug.', 'clanspress' ),
+						'description'       => __( 'Filter by match status slug.', 'clanbite' ),
 						'type'              => 'string',
 						'default'           => '',
 						'sanitize_callback' => 'sanitize_key',
@@ -71,7 +71,7 @@ class Rest_Controller {
 						'minimum' => 1,
 					),
 					'order'    => array(
-						'description' => __( 'Sort scheduled time ascending or descending.', 'clanspress' ),
+						'description' => __( 'Sort scheduled time ascending or descending.', 'clanbite' ),
 						'type'        => 'string',
 						'enum'        => array( 'asc', 'desc' ),
 						'default'     => 'asc',
@@ -81,7 +81,7 @@ class Rest_Controller {
 		);
 
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/matches/(?P<id>\d+)',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -232,8 +232,8 @@ class Rest_Controller {
 		$post = get_post( $id );
 		if ( ! $post || 'cp_match' !== $post->post_type ) {
 			return new \WP_Error(
-				'clanspress_match_not_found',
-				__( 'Match not found.', 'clanspress' ),
+				'clanbite_match_not_found',
+				__( 'Match not found.', 'clanbite' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -241,8 +241,8 @@ class Rest_Controller {
 		$viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
 		if ( ! $this->extension->viewer_can_see_match( $post, $viewer_id ) ) {
 			return new \WP_Error(
-				'clanspress_match_forbidden',
-				__( 'You cannot view this match.', 'clanspress' ),
+				'clanbite_match_forbidden',
+				__( 'You cannot view this match.', 'clanbite' ),
 				array( 'status' => 403 )
 			);
 		}

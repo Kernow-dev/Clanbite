@@ -2,16 +2,16 @@
 /**
  * Team match challenges: persistence, REST, notifications, match/event creation.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Extensions\Teams;
+namespace Kernowdev\Clanbite\Extensions\Teams;
 
 defined( 'ABSPATH' ) || exit;
 
 
-use Kernowdev\Clanspress\Events\Event_Post_Type;
-use Kernowdev\Clanspress\Events\Event_Rsvp_Data_Access;
+use Kernowdev\Clanbite\Events\Event_Post_Type;
+use Kernowdev\Clanbite\Events\Event_Rsvp_Data_Access;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;
@@ -54,9 +54,9 @@ final class Team_Challenges {
 	/**
 	 * Cached Teams extension reference.
 	 *
-	 * @var \Kernowdev\Clanspress\Extensions\Teams|null
+	 * @var \Kernowdev\Clanbite\Extensions\Teams|null
 	 */
-	private ?\Kernowdev\Clanspress\Extensions\Teams $teams = null;
+	private ?\Kernowdev\Clanbite\Extensions\Teams $teams = null;
 
 	/**
 	 * Get singleton.
@@ -76,7 +76,7 @@ final class Team_Challenges {
 	 * @return void
 	 */
 	public function register(): void {
-		$this->teams = clanspress_teams();
+		$this->teams = clanbite_teams();
 
 		add_action( 'init', array( $this, 'register_post_type' ), 12 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
@@ -92,7 +92,7 @@ final class Team_Challenges {
 			self::POST_TYPE,
 			array(
 				'labels'             => array(
-					'name' => _x( 'Team challenges', 'post type general name', 'clanspress' ),
+					'name' => _x( 'Team challenges', 'post type general name', 'clanbite' ),
 				),
 				'public'             => false,
 				'publicly_queryable' => false,
@@ -119,7 +119,7 @@ final class Team_Challenges {
 		}
 
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/challenge-remote-team',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -146,7 +146,7 @@ final class Team_Challenges {
 		);
 
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/team-challenges',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -156,7 +156,7 @@ final class Team_Challenges {
 		);
 
 		register_rest_route(
-			'clanspress/v1',
+			'clanbite/v1',
 			'/team-challenge-media',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -172,13 +172,13 @@ final class Team_Challenges {
 	 * @return bool
 	 */
 	private function dependencies_available(): bool {
-		return $this->teams instanceof \Kernowdev\Clanspress\Extensions\Teams
-			&& function_exists( 'clanspress_matches' )
-			&& clanspress_matches() instanceof \Kernowdev\Clanspress\Extensions\Matches;
+		return $this->teams instanceof \Kernowdev\Clanbite\Extensions\Teams
+			&& function_exists( 'clanbite_matches' )
+			&& clanbite_matches() instanceof \Kernowdev\Clanbite\Extensions\Matches;
 	}
 
 	/**
-	 * Proxy: fetch discovery + public team from a remote Clanspress site (server-side).
+	 * Proxy: fetch discovery + public team from a remote Clanbite site (server-side).
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -188,9 +188,9 @@ final class Team_Challenges {
 		$url     = (string) $request->get_param( 'url' );
 		$nonce   = (string) $request->get_param( 'challenge_nonce' );
 
-		$nonce_ok = wp_verify_nonce( $nonce, 'clanspress_team_challenge_' . $team_id );
+		$nonce_ok = wp_verify_nonce( $nonce, 'clanbite_team_challenge_' . $team_id );
 		if ( ! $nonce_ok ) {
-			return new WP_Error( 'clanspress_challenge_bad_nonce', __( 'Invalid security token.', 'clanspress' ), array( 'status' => 403 ) );
+			return new WP_Error( 'clanbite_challenge_bad_nonce', __( 'Invalid security token.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		$result = $this->fetch_remote_team_bundle( $url );
@@ -202,45 +202,45 @@ final class Team_Challenges {
 	}
 
 	/**
-	 * Accept a small team logo image for manual (non–Clanspress-remote) challenges.
+	 * Accept a small team logo image for manual (non–Clanbite-remote) challenges.
 	 *
 	 * @param WP_REST_Request $request Request (`multipart/form-data`: challenge_nonce, team_id, file).
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function rest_upload_challenge_media( WP_REST_Request $request ) {
 		if ( ! $this->dependencies_available() ) {
-			return new WP_Error( 'clanspress_challenge_unavailable', __( 'Challenges are not available.', 'clanspress' ), array( 'status' => 503 ) );
+			return new WP_Error( 'clanbite_challenge_unavailable', __( 'Challenges are not available.', 'clanbite' ), array( 'status' => 503 ) );
 		}
 
 		$team_id = (int) $request->get_param( 'team_id' );
 		$nonce   = (string) $request->get_param( 'challenge_nonce' );
 
-		if ( ! wp_verify_nonce( $nonce, 'clanspress_team_challenge_' . $team_id ) ) {
-			return new WP_Error( 'clanspress_challenge_bad_nonce', __( 'Invalid security token.', 'clanspress' ), array( 'status' => 403 ) );
+		if ( ! wp_verify_nonce( $nonce, 'clanbite_team_challenge_' . $team_id ) ) {
+			return new WP_Error( 'clanbite_challenge_bad_nonce', __( 'Invalid security token.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		if ( ! $this->rate_limit_challenge_submission() ) {
-			return new WP_Error( 'clanspress_challenge_rate_limited', __( 'Too many requests. Please try again later.', 'clanspress' ), array( 'status' => 429 ) );
+			return new WP_Error( 'clanbite_challenge_rate_limited', __( 'Too many requests. Please try again later.', 'clanbite' ), array( 'status' => 429 ) );
 		}
 
 		$team_post = get_post( $team_id );
 		if ( ! ( $team_post instanceof WP_Post ) || 'cp_team' !== $team_post->post_type || 'publish' !== $team_post->post_status ) {
-			return new WP_Error( 'clanspress_challenge_bad_team', __( 'Team not found.', 'clanspress' ), array( 'status' => 404 ) );
+			return new WP_Error( 'clanbite_challenge_bad_team', __( 'Team not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` after REST nonce check; validated by `wp_handle_upload()`.
 		try {
 		if ( empty( $_FILES['file'] ) || ! is_array( $_FILES['file'] ) ) {
-			return new WP_Error( 'clanspress_challenge_no_file', __( 'No file uploaded.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_challenge_no_file', __( 'No file uploaded.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		$file = $_FILES['file'];
 		if ( ! empty( $file['error'] ) && UPLOAD_ERR_OK !== (int) $file['error'] ) {
-			return new WP_Error( 'clanspress_challenge_upload', __( 'Upload failed.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_challenge_upload', __( 'Upload failed.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		if ( ! empty( $file['size'] ) && (int) $file['size'] > 2 * MB_IN_BYTES ) {
-			return new WP_Error( 'clanspress_challenge_upload', __( 'Image must be 2MB or smaller.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_challenge_upload', __( 'Image must be 2MB or smaller.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -256,12 +256,12 @@ final class Team_Challenges {
 			),
 		);
 
-		$staging_relative = function_exists( 'clanspress_team_challenge_logo_staging_relative_dir' )
-			? clanspress_team_challenge_logo_staging_relative_dir( $team_id )
-			: 'clanspress/teams/' . $team_id . '/matches/staging';
+		$staging_relative = function_exists( 'clanbite_team_challenge_logo_staging_relative_dir' )
+			? clanbite_team_challenge_logo_staging_relative_dir( $team_id )
+			: 'clanbite/teams/' . $team_id . '/matches/staging';
 
-		$move = function_exists( 'clanspress_with_upload_subdir' )
-			? clanspress_with_upload_subdir(
+		$move = function_exists( 'clanbite_with_upload_subdir' )
+			? clanbite_with_upload_subdir(
 				$staging_relative,
 				static function () use ( $file, $overrides ) {
 					return wp_handle_upload( $file, $overrides );
@@ -269,13 +269,13 @@ final class Team_Challenges {
 			)
 			: wp_handle_upload( $file, $overrides );
 		if ( isset( $move['error'] ) ) {
-			return new WP_Error( 'clanspress_challenge_upload', sanitize_text_field( (string) $move['error'] ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_challenge_upload', sanitize_text_field( (string) $move['error'] ), array( 'status' => 400 ) );
 		}
 
 		$type = wp_check_filetype( $move['file'], null );
 		if ( empty( $type['type'] ) || 0 !== strpos( (string) $type['type'], 'image/' ) ) {
 			wp_delete_file( $move['file'] );
-			return new WP_Error( 'clanspress_challenge_upload', __( 'Only image uploads are allowed.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_challenge_upload', __( 'Only image uploads are allowed.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		$att_id = wp_insert_attachment(
@@ -291,16 +291,16 @@ final class Team_Challenges {
 
 		if ( ! is_int( $att_id ) || $att_id < 1 ) {
 			wp_delete_file( $move['file'] );
-			return new WP_Error( 'clanspress_challenge_upload', __( 'Could not save attachment.', 'clanspress' ), array( 'status' => 500 ) );
+			return new WP_Error( 'clanbite_challenge_upload', __( 'Could not save attachment.', 'clanbite' ), array( 'status' => 500 ) );
 		}
 
 		wp_update_attachment_metadata( (int) $att_id, wp_generate_attachment_metadata( (int) $att_id, $move['file'] ) );
 
-		if ( defined( 'CLANSPRESS_TEAM_CHALLENGE_LOGO_TEAM_META' ) ) {
-			update_post_meta( (int) $att_id, \CLANSPRESS_TEAM_CHALLENGE_LOGO_TEAM_META, (string) $team_id );
+		if ( defined( 'CLANBITE_TEAM_CHALLENGE_LOGO_TEAM_META' ) ) {
+			update_post_meta( (int) $att_id, \CLANBITE_TEAM_CHALLENGE_LOGO_TEAM_META, (string) $team_id );
 		}
-		if ( defined( 'CLANSPRESS_ATTACHMENT_HIDE_FROM_LIBRARY' ) ) {
-			update_post_meta( (int) $att_id, \CLANSPRESS_ATTACHMENT_HIDE_FROM_LIBRARY, '1' );
+		if ( defined( 'CLANBITE_ATTACHMENT_HIDE_FROM_LIBRARY' ) ) {
+			update_post_meta( (int) $att_id, \CLANBITE_ATTACHMENT_HIDE_FROM_LIBRARY, '1' );
 		}
 
 		$url = wp_get_attachment_image_url( (int) $att_id, 'medium' );
@@ -343,7 +343,7 @@ final class Team_Challenges {
 	 */
 	public function rest_create_challenge( WP_REST_Request $request ) {
 		if ( ! $this->dependencies_available() ) {
-			return new WP_Error( 'clanspress_challenge_unavailable', __( 'Challenges are not available.', 'clanspress' ), array( 'status' => 503 ) );
+			return new WP_Error( 'clanbite_challenge_unavailable', __( 'Challenges are not available.', 'clanbite' ), array( 'status' => 503 ) );
 		}
 
 		$params = $request->get_json_params();
@@ -357,32 +357,32 @@ final class Team_Challenges {
 		$team_id = isset( $params['team_id'] ) ? (int) $params['team_id'] : 0;
 		$nonce   = isset( $params['challenge_nonce'] ) ? sanitize_text_field( (string) $params['challenge_nonce'] ) : '';
 
-		if ( ! wp_verify_nonce( $nonce, 'clanspress_team_challenge_' . $team_id ) ) {
-			return new WP_Error( 'clanspress_challenge_bad_nonce', __( 'Invalid security token.', 'clanspress' ), array( 'status' => 403 ) );
+		if ( ! wp_verify_nonce( $nonce, 'clanbite_team_challenge_' . $team_id ) ) {
+			return new WP_Error( 'clanbite_challenge_bad_nonce', __( 'Invalid security token.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		if ( ! $this->rate_limit_challenge_submission() ) {
-			return new WP_Error( 'clanspress_challenge_rate_limited', __( 'Too many requests. Please try again later.', 'clanspress' ), array( 'status' => 429 ) );
+			return new WP_Error( 'clanbite_challenge_rate_limited', __( 'Too many requests. Please try again later.', 'clanbite' ), array( 'status' => 429 ) );
 		}
 
 		$team_post = get_post( $team_id );
 		if ( ! ( $team_post instanceof WP_Post ) || 'cp_team' !== $team_post->post_type || 'publish' !== $team_post->post_status ) {
-			return new WP_Error( 'clanspress_challenge_bad_team', __( 'Team not found.', 'clanspress' ), array( 'status' => 404 ) );
+			return new WP_Error( 'clanbite_challenge_bad_team', __( 'Team not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
-		if ( ! function_exists( 'clanspress_team_accepts_challenges' ) || ! clanspress_team_accepts_challenges( $team_id ) ) {
-			return new WP_Error( 'clanspress_challenge_not_accepting', __( 'This team is not accepting challenges.', 'clanspress' ), array( 'status' => 400 ) );
+		if ( ! function_exists( 'clanbite_team_accepts_challenges' ) || ! clanbite_team_accepts_challenges( $team_id ) ) {
+			return new WP_Error( 'clanbite_challenge_not_accepting', __( 'This team is not accepting challenges.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		$uid = is_user_logged_in() ? (int) get_current_user_id() : 0;
 
 		if ( $uid > 0 && $this->teams && $this->teams->user_can_manage_team_on_frontend( $team_id, $uid ) ) {
-			return new WP_Error( 'clanspress_challenge_own_team', __( 'You cannot challenge a team you manage.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_challenge_own_team', __( 'You cannot challenge a team you manage.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		if ( $uid > 0 ) {
-			if ( ! function_exists( 'clanspress_teams_user_manages_any_team' ) || ! clanspress_teams_user_manages_any_team( $uid ) ) {
-				return new WP_Error( 'clanspress_challenge_forbidden', __( 'You must manage a team to send a challenge.', 'clanspress' ), array( 'status' => 403 ) );
+			if ( ! function_exists( 'clanbite_teams_user_manages_any_team' ) || ! clanbite_teams_user_manages_any_team( $uid ) ) {
+				return new WP_Error( 'clanbite_challenge_forbidden', __( 'You must manage a team to send a challenge.', 'clanbite' ), array( 'status' => 403 ) );
 			}
 		}
 
@@ -403,20 +403,20 @@ final class Team_Challenges {
 		}
 
 		if ( '' === $name ) {
-			return new WP_Error( 'clanspress_challenge_name', __( 'Please enter your name.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_challenge_name', __( 'Please enter your name.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 		if ( '' === $email || ! is_email( $email ) ) {
-			return new WP_Error( 'clanspress_challenge_email', __( 'Please enter a valid email address.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_challenge_email', __( 'Please enter a valid email address.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
 		$challenger_team_id = isset( $params['challenger_team_id'] ) ? (int) $params['challenger_team_id'] : 0;
 		if ( $challenger_team_id > 0 ) {
 			if ( $uid < 1 ) {
-				return new WP_Error( 'clanspress_challenge_team', __( 'Invalid challenger team.', 'clanspress' ), array( 'status' => 400 ) );
+				return new WP_Error( 'clanbite_challenge_team', __( 'Invalid challenger team.', 'clanbite' ), array( 'status' => 400 ) );
 			}
-			$managed = function_exists( 'clanspress_teams_get_user_managed_team_ids' ) ? clanspress_teams_get_user_managed_team_ids( $uid ) : array();
+			$managed = function_exists( 'clanbite_teams_get_user_managed_team_ids' ) ? clanbite_teams_get_user_managed_team_ids( $uid ) : array();
 			if ( ! in_array( $challenger_team_id, $managed, true ) || $challenger_team_id === $team_id ) {
-				return new WP_Error( 'clanspress_challenge_team', __( 'Invalid challenger team.', 'clanspress' ), array( 'status' => 400 ) );
+				return new WP_Error( 'clanbite_challenge_team', __( 'Invalid challenger team.', 'clanbite' ), array( 'status' => 400 ) );
 			}
 		}
 
@@ -457,8 +457,8 @@ final class Team_Challenges {
 			$snapshot['source']     = 'local_team';
 			$snapshot['title']      = get_the_title( $challenger_team_id );
 			$snapshot['profileUrl'] = get_permalink( $challenger_team_id ) ?: '';
-			if ( function_exists( 'clanspress_teams_get_display_team_avatar' ) ) {
-				$snapshot['logoUrl'] = clanspress_teams_get_display_team_avatar( $challenger_team_id, false, '', 'team_challenge', 'medium' );
+			if ( function_exists( 'clanbite_teams_get_display_team_avatar' ) ) {
+				$snapshot['logoUrl'] = clanbite_teams_get_display_team_avatar( $challenger_team_id, false, '', 'team_challenge', 'medium' );
 			} else {
 				$aid = (int) get_post_meta( $challenger_team_id, 'cp_team_avatar_id', true );
 				if ( $aid ) {
@@ -473,8 +473,8 @@ final class Team_Challenges {
 
 		$stored_logo_attachment_id = 0;
 		if ( 'remote' !== ( $snapshot['source'] ?? '' ) && $logo_att_id > 0 && $this->is_valid_challenge_logo_attachment( $logo_att_id ) ) {
-			$logo_ok = function_exists( 'clanspress_team_challenge_logo_attachment_matches_team' )
-				&& clanspress_team_challenge_logo_attachment_matches_team( $logo_att_id, $team_id );
+			$logo_ok = function_exists( 'clanbite_team_challenge_logo_attachment_matches_team' )
+				&& clanbite_team_challenge_logo_attachment_matches_team( $logo_att_id, $team_id );
 			if ( $logo_ok ) {
 				$logo_src = wp_get_attachment_image_url( $logo_att_id, 'medium' );
 				if ( $logo_src ) {
@@ -486,7 +486,7 @@ final class Team_Challenges {
 
 		$scheduled_gmt = '';
 		if ( '' !== $proposed ) {
-			$matches = clanspress_matches();
+			$matches = clanbite_matches();
 			if ( $matches ) {
 				$scheduled_gmt = $matches->sanitize_scheduled_at( $proposed );
 			}
@@ -494,7 +494,7 @@ final class Team_Challenges {
 
 		$title = sprintf(
 			/* translators: %s: challenger name */
-			__( 'Challenge from %s', 'clanspress' ),
+			__( 'Challenge from %s', 'clanbite' ),
 			$name
 		);
 
@@ -534,13 +534,13 @@ final class Team_Challenges {
 		 * @param int $challenge_id Challenge post ID (`cp_team_challenge`).
 		 * @param int $challenged_team_id Challenged `cp_team` ID.
 		 */
-		do_action( 'clanspress_team_challenge_created', $challenge_id, $team_id );
+		do_action( 'clanbite_team_challenge_created', $challenge_id, $team_id );
 
 		return new WP_REST_Response(
 			array(
 				'success'      => true,
 				'challenge_id' => $challenge_id,
-				'message'      => __( 'Challenge sent. The team admins will be notified.', 'clanspress' ),
+				'message'      => __( 'Challenge sent. The team admins will be notified.', 'clanbite' ),
 			),
 			201
 		);
@@ -556,14 +556,14 @@ final class Team_Challenges {
 	 * @return void
 	 */
 	private function notify_team_admins_of_challenge( int $challenge_id, int $challenged_team_id, int $actor_id, string $challenger_name ): void {
-		if ( ! function_exists( 'clanspress_notify' ) || ! clanspress_notifications_extension_active() ) {
+		if ( ! function_exists( 'clanbite_notify' ) || ! clanbite_notifications_extension_active() ) {
 			return;
 		}
 
 		$team_title = get_the_title( $challenged_team_id );
 		$title      = sprintf(
 			/* translators: 1: challenger name, 2: team name */
-			__( '%1$s challenged %2$s', 'clanspress' ),
+			__( '%1$s challenged %2$s', 'clanbite' ),
 			$challenger_name,
 			$team_title
 		);
@@ -575,12 +575,12 @@ final class Team_Challenges {
 			if ( $user_id < 1 ) {
 				continue;
 			}
-			clanspress_notify(
+			clanbite_notify(
 				$user_id,
 				'team_challenge',
 				$title,
 				array(
-					'message'     => __( 'Review the challenge and accept or decline.', 'clanspress' ),
+					'message'     => __( 'Review the challenge and accept or decline.', 'clanbite' ),
 					'actor_id'    => $actor_id,
 					'object_type' => 'team_challenge',
 					'object_id'   => $challenge_id,
@@ -589,19 +589,19 @@ final class Team_Challenges {
 					'actions'     => array(
 						array(
 							'key'             => 'accept',
-							'label'           => __( 'Accept', 'clanspress' ),
+							'label'           => __( 'Accept', 'clanbite' ),
 							'style'           => 'primary',
 							'handler'         => 'team_challenge_accept',
 							'status'          => 'accepted',
-							'success_message' => __( 'Challenge accepted. Match and event were created.', 'clanspress' ),
+							'success_message' => __( 'Challenge accepted. Match and event were created.', 'clanbite' ),
 						),
 						array(
 							'key'             => 'decline',
-							'label'           => __( 'Decline', 'clanspress' ),
+							'label'           => __( 'Decline', 'clanbite' ),
 							'style'           => 'secondary',
 							'handler'         => 'team_challenge_decline',
 							'status'          => 'declined',
-							'success_message' => __( 'Challenge declined.', 'clanspress' ),
+							'success_message' => __( 'Challenge declined.', 'clanbite' ),
 						),
 					),
 				)
@@ -639,7 +639,7 @@ final class Team_Challenges {
 		 * @param array $out     User IDs.
 		 * @param int   $team_id Team ID.
 		 */
-		return array_values( array_unique( array_map( 'intval', (array) apply_filters( 'clanspress_team_challenge_notify_user_ids', $out, $team_id ) ) ) );
+		return array_values( array_unique( array_map( 'intval', (array) apply_filters( 'clanbite_team_challenge_notify_user_ids', $out, $team_id ) ) ) );
 	}
 
 	/**
@@ -673,14 +673,14 @@ final class Team_Challenges {
 	 */
 	private function process_accept( object $notification, int $user_id ): array {
 		if ( ! $this->teams ) {
-			$this->teams = clanspress_teams();
+			$this->teams = clanbite_teams();
 		}
 
 		$challenge_id = (int) ( $notification->object_id ?? 0 );
 		if ( $challenge_id < 1 ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Invalid challenge.', 'clanspress' ),
+				'message' => __( 'Invalid challenge.', 'clanbite' ),
 			);
 		}
 
@@ -688,7 +688,7 @@ final class Team_Challenges {
 		if ( ! ( $post instanceof WP_Post ) || self::POST_TYPE !== $post->post_type ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Challenge not found.', 'clanspress' ),
+				'message' => __( 'Challenge not found.', 'clanbite' ),
 			);
 		}
 
@@ -696,7 +696,7 @@ final class Team_Challenges {
 		if ( $challenged_team_id < 1 || ! $this->user_can_resolve_challenge( $challenged_team_id, $user_id ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'You cannot manage this challenge.', 'clanspress' ),
+				'message' => __( 'You cannot manage this challenge.', 'clanbite' ),
 			);
 		}
 
@@ -704,7 +704,7 @@ final class Team_Challenges {
 		if ( self::STATUS_PENDING !== $status ) {
 			return array(
 				'success' => false,
-				'message' => __( 'This challenge is no longer pending.', 'clanspress' ),
+				'message' => __( 'This challenge is no longer pending.', 'clanbite' ),
 			);
 		}
 
@@ -712,16 +712,16 @@ final class Team_Challenges {
 		if ( $existing_match > 0 ) {
 			return array(
 				'success'  => true,
-				'message'  => __( 'Challenge was already accepted.', 'clanspress' ),
+				'message'  => __( 'Challenge was already accepted.', 'clanbite' ),
 				'redirect' => get_permalink( $existing_match ),
 			);
 		}
 
-		$matches = clanspress_matches();
+		$matches = clanbite_matches();
 		if ( ! $matches ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Matches extension is not available.', 'clanspress' ),
+				'message' => __( 'Matches extension is not available.', 'clanbite' ),
 			);
 		}
 
@@ -764,7 +764,7 @@ final class Team_Challenges {
 		if ( is_wp_error( $match_id ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Could not create the match.', 'clanspress' ),
+				'message' => __( 'Could not create the match.', 'clanbite' ),
 			);
 		}
 
@@ -782,8 +782,8 @@ final class Team_Challenges {
 		}
 
 		$challenge_logo_id = (int) get_post_meta( $challenge_id, self::META_CHALLENGER_LOGO_ATTACHMENT_ID, true );
-		if ( $away_id < 1 && $challenge_logo_id > 0 && function_exists( 'clanspress_relocate_team_challenge_logo_to_match_dir' ) ) {
-			if ( clanspress_relocate_team_challenge_logo_to_match_dir( $challenge_logo_id, $challenged_team_id, $match_id ) ) {
+		if ( $away_id < 1 && $challenge_logo_id > 0 && function_exists( 'clanbite_relocate_team_challenge_logo_to_match_dir' ) ) {
+			if ( clanbite_relocate_team_challenge_logo_to_match_dir( $challenge_logo_id, $challenged_team_id, $match_id ) ) {
 				$new_logo = wp_get_attachment_image_url( $challenge_logo_id, 'medium' );
 				if ( $new_logo ) {
 					$new_logo = esc_url_raw( (string) $new_logo );
@@ -809,15 +809,15 @@ final class Team_Challenges {
 		 * @param int $match_id     New `cp_match` ID.
 		 * @param int $challenged_team_id Home team ID.
 		 */
-		do_action( 'clanspress_team_challenge_accepted', $challenge_id, $match_id, $challenged_team_id );
+		do_action( 'clanbite_team_challenge_accepted', $challenge_id, $match_id, $challenged_team_id );
 
-		if ( class_exists( \Kernowdev\Clanspress\Cross_Site_Match_Sync::class ) ) {
-			\Kernowdev\Clanspress\Cross_Site_Match_Sync::maybe_push_mirror_match( $challenge_id, $match_id, $challenged_team_id, $snapshot, $scheduled );
+		if ( class_exists( \Kernowdev\Clanbite\Cross_Site_Match_Sync::class ) ) {
+			\Kernowdev\Clanbite\Cross_Site_Match_Sync::maybe_push_mirror_match( $challenge_id, $match_id, $challenged_team_id, $snapshot, $scheduled );
 		}
 
 		return array(
 			'success'  => true,
-			'message'  => __( 'Challenge accepted. Match and event were created.', 'clanspress' ),
+			'message'  => __( 'Challenge accepted. Match and event were created.', 'clanbite' ),
 			'redirect' => get_permalink( $match_id ),
 		);
 	}
@@ -829,7 +829,7 @@ final class Team_Challenges {
 	 */
 	private function process_decline( object $notification, int $user_id ): array {
 		if ( ! $this->teams ) {
-			$this->teams = clanspress_teams();
+			$this->teams = clanbite_teams();
 		}
 
 		$challenge_id = (int) ( $notification->object_id ?? 0 );
@@ -837,7 +837,7 @@ final class Team_Challenges {
 		if ( ! ( $post instanceof WP_Post ) || self::POST_TYPE !== $post->post_type ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Challenge not found.', 'clanspress' ),
+				'message' => __( 'Challenge not found.', 'clanbite' ),
 			);
 		}
 
@@ -845,12 +845,12 @@ final class Team_Challenges {
 		if ( $challenged_team_id < 1 || ! $this->user_can_resolve_challenge( $challenged_team_id, $user_id ) ) {
 			return array(
 				'success' => false,
-				'message' => __( 'You cannot manage this challenge.', 'clanspress' ),
+				'message' => __( 'You cannot manage this challenge.', 'clanbite' ),
 			);
 		}
 
 		$logo_aid = (int) get_post_meta( $challenge_id, self::META_CHALLENGER_LOGO_ATTACHMENT_ID, true );
-		if ( $logo_aid > 0 && function_exists( 'clanspress_team_challenge_logo_attachment_matches_team' ) && clanspress_team_challenge_logo_attachment_matches_team( $logo_aid, $challenged_team_id ) ) {
+		if ( $logo_aid > 0 && function_exists( 'clanbite_team_challenge_logo_attachment_matches_team' ) && clanbite_team_challenge_logo_attachment_matches_team( $logo_aid, $challenged_team_id ) ) {
 			wp_delete_attachment( $logo_aid, true );
 		}
 		delete_post_meta( $challenge_id, self::META_CHALLENGER_LOGO_ATTACHMENT_ID );
@@ -859,7 +859,7 @@ final class Team_Challenges {
 
 		return array(
 			'success' => true,
-			'message' => __( 'Challenge declined.', 'clanspress' ),
+			'message' => __( 'Challenge declined.', 'clanbite' ),
 		);
 	}
 
@@ -892,13 +892,13 @@ final class Team_Challenges {
 	 * @return int Event post ID or 0.
 	 */
 	private function maybe_create_event_and_invites( int $team_id, int $match_id, string $title, string $scheduled, int $author_id ): int {
-		if ( ! function_exists( 'clanspress_events_extension_active' ) || ! clanspress_events_extension_active() ) {
+		if ( ! function_exists( 'clanbite_events_extension_active' ) || ! clanbite_events_extension_active() ) {
 			return 0;
 		}
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
 			return 0;
 		}
-		if ( ! function_exists( 'clanspress_events_are_enabled_for_team' ) || ! clanspress_events_are_enabled_for_team( $team_id ) ) {
+		if ( ! function_exists( 'clanbite_events_are_enabled_for_team' ) || ! clanbite_events_are_enabled_for_team( $team_id ) ) {
 			return 0;
 		}
 
@@ -937,16 +937,16 @@ final class Team_Challenges {
 				if ( $this->teams::TEAM_ROLE_BANNED === $role ) {
 					continue;
 				}
-				Event_Rsvp_Data_Access::set_user_rsvp( 'clanspress_event', $event_id, $member_id, Event_Rsvp_Data_Access::STATUS_TENTATIVE );
+				Event_Rsvp_Data_Access::set_user_rsvp( 'clanbite_event', $event_id, $member_id, Event_Rsvp_Data_Access::STATUS_TENTATIVE );
 
-				if ( function_exists( 'clanspress_notify' ) && clanspress_notifications_extension_active() ) {
+				if ( function_exists( 'clanbite_notify' ) && clanbite_notifications_extension_active() ) {
 					$event_url = $this->build_team_event_permalink( $team_id, $event_id );
-					clanspress_notify(
+					clanbite_notify(
 						$member_id,
 						'team_match_event',
-						__( 'New match scheduled for your team', 'clanspress' ),
+						__( 'New match scheduled for your team', 'clanbite' ),
 						array(
-							'message' => __( 'You have been added to the match event. Please confirm your attendance.', 'clanspress' ),
+							'message' => __( 'You have been added to the match event. Please confirm your attendance.', 'clanbite' ),
 							'url'     => $event_url ? $event_url : get_permalink( $match_id ),
 							'dedupe'  => false,
 						)
@@ -982,22 +982,22 @@ final class Team_Challenges {
 	 * HTTP GET discovery + public-team from a remote install.
 	 *
 	 * @param string $profile_url Team profile or site URL.
-	 * @return array{clanspress: bool, origin?: string, team?: array<string, mixed>}|WP_Error
+	 * @return array{clanbite: bool, origin?: string, team?: array<string, mixed>}|WP_Error
 	 */
 	private function fetch_remote_team_bundle( string $profile_url ): array|WP_Error {
 		$profile_url = esc_url_raw( $profile_url );
 		if ( '' === $profile_url ) {
-			return new WP_Error( 'clanspress_remote_url', __( 'Enter a valid team URL.', 'clanspress' ), array( 'status' => 400 ) );
+			return new WP_Error( 'clanbite_remote_url', __( 'Enter a valid team URL.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
-		$parsed = function_exists( 'clanspress_parse_team_profile_url' ) ? clanspress_parse_team_profile_url( $profile_url ) : null;
+		$parsed = function_exists( 'clanbite_parse_team_profile_url' ) ? clanbite_parse_team_profile_url( $profile_url ) : null;
 		$origin = is_array( $parsed ) && ! empty( $parsed['origin'] ) ? $parsed['origin'] : '';
 		$slug   = is_array( $parsed ) && ! empty( $parsed['slug'] ) ? (string) $parsed['slug'] : '';
 
 		if ( '' === $origin ) {
 			$parts = wp_parse_url( $profile_url );
 			if ( ! is_array( $parts ) || empty( $parts['host'] ) ) {
-				return new WP_Error( 'clanspress_remote_url', __( 'Could not read that URL.', 'clanspress' ), array( 'status' => 400 ) );
+				return new WP_Error( 'clanbite_remote_url', __( 'Could not read that URL.', 'clanbite' ), array( 'status' => 400 ) );
 			}
 			$scheme = isset( $parts['scheme'] ) && 'http' === strtolower( (string) $parts['scheme'] ) ? 'http' : 'https';
 			$host   = strtolower( (string) $parts['host'] );
@@ -1006,42 +1006,42 @@ final class Team_Challenges {
 		}
 
 		$discovery = wp_remote_get(
-			trailingslashit( $origin ) . 'wp-json/clanspress/v1/discovery',
+			trailingslashit( $origin ) . 'wp-json/clanbite/v1/discovery',
 			array(
 				'timeout' => 8,
 			)
 		);
 		if ( is_wp_error( $discovery ) ) {
-			return new WP_Error( 'clanspress_remote_unreachable', __( 'Could not reach the remote site.', 'clanspress' ), array( 'status' => 502 ) );
+			return new WP_Error( 'clanbite_remote_unreachable', __( 'Could not reach the remote site.', 'clanbite' ), array( 'status' => 502 ) );
 		}
 		$code = (int) wp_remote_retrieve_response_code( $discovery );
 		if ( 200 !== $code ) {
-			return new WP_Error( 'clanspress_remote_no_clanspress', __( 'That site does not appear to run Clanspress.', 'clanspress' ), array( 'status' => 404 ) );
+			return new WP_Error( 'clanbite_remote_no_clanbite', __( 'That site does not appear to run Clanbite.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 		$body = json_decode( (string) wp_remote_retrieve_body( $discovery ), true );
-		if ( ! is_array( $body ) || empty( $body['clanspress'] ) ) {
-			return new WP_Error( 'clanspress_remote_no_clanspress', __( 'That site does not appear to run Clanspress.', 'clanspress' ), array( 'status' => 404 ) );
+		if ( ! is_array( $body ) || empty( $body['clanbite'] ) ) {
+			return new WP_Error( 'clanbite_remote_no_clanbite', __( 'That site does not appear to run Clanbite.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
 		if ( '' === $slug ) {
 			return array(
-				'clanspress' => true,
+				'clanbite' => true,
 				'origin'     => $origin,
 			);
 		}
 
-		$team_url = trailingslashit( $origin ) . 'wp-json/clanspress/v1/public-team?slug=' . rawurlencode( $slug );
+		$team_url = trailingslashit( $origin ) . 'wp-json/clanbite/v1/public-team?slug=' . rawurlencode( $slug );
 		$team_res = wp_remote_get( $team_url, array( 'timeout' => 8 ) );
 		if ( is_wp_error( $team_res ) ) {
-			return new WP_Error( 'clanspress_remote_team', __( 'Could not load the remote team.', 'clanspress' ), array( 'status' => 502 ) );
+			return new WP_Error( 'clanbite_remote_team', __( 'Could not load the remote team.', 'clanbite' ), array( 'status' => 502 ) );
 		}
 		if ( 200 !== (int) wp_remote_retrieve_response_code( $team_res ) ) {
-			return new WP_Error( 'clanspress_remote_team', __( 'Remote team was not found.', 'clanspress' ), array( 'status' => 404 ) );
+			return new WP_Error( 'clanbite_remote_team', __( 'Remote team was not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 		$team_body = json_decode( (string) wp_remote_retrieve_body( $team_res ), true );
 
 		return array(
-			'clanspress' => true,
+			'clanbite' => true,
 			'origin'     => $origin,
 			'team'       => is_array( $team_body ) ? $team_body : array(),
 		);
@@ -1054,7 +1054,7 @@ final class Team_Challenges {
 	 */
 	private function rate_limit_challenge_submission(): bool {
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
-		$key = 'clanspress_ch_' . md5( $ip );
+		$key = 'clanbite_ch_' . md5( $ip );
 		$n   = (int) get_transient( $key );
 		if ( $n > 20 ) {
 			return false;

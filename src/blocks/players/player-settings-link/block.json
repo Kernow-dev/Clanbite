@@ -1,14 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-settings-link",
+	"name": "clanbite/player-settings-link",
 	"version": "1.0.0",
 	"title": "Player settings link",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "admin-settings",
 	"description": "Link to player account settings. Only shown when the viewer is the profile owner.",
-	"textdomain": "clanspress",
-	"usesContext": [ "postId", "postType", "clanspress/playerId" ],
+	"textdomain": "clanbite",
+	"usesContext": [ "postId", "postType", "clanbite/playerId" ],
 	"attributes": {
 		"label": {
 			"type": "string",
@@ -43,12 +43,12 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-settings-link",
+		"root": ".wp-block-clanbite-player-settings-link",
 		"color": {
-			"text": ".wp-block-clanspress-player-settings-link .wp-block-button__link",
-			"background": ".wp-block-clanspress-player-settings-link .wp-block-button__link"
+			"text": ".wp-block-clanbite-player-settings-link .wp-block-button__link",
+			"background": ".wp-block-clanbite-player-settings-link .wp-block-button__link"
 		},
-		"typography": ".wp-block-clanspress-player-settings-link .wp-block-button__link",
-		"border": ".wp-block-clanspress-player-settings-link"
+		"typography": ".wp-block-clanbite-player-settings-link .wp-block-button__link",
+		"border": ".wp-block-clanbite-player-settings-link"
 	}
 }

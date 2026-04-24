@@ -2,18 +2,18 @@
 /**
  * Core events system (RSVPs, visibility adapters, REST).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Events;
+namespace Kernowdev\Clanbite\Events;
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Initializes the core events/RSVP system.
  *
  * This is intentionally generic so Teams/Matches and group integrations share the same RSVP
- * storage + REST API + hooks. Group capabilities use {@see clanspress_groups_user_can_manage()}
- * and {@see clanspress_groups_user_is_member()} (extensions filter those; core does not call add-ons).
+ * storage + REST API + hooks. Group capabilities use {@see clanbite_groups_user_can_manage()}
+ * and {@see clanbite_groups_user_is_member()} (extensions filter those; core does not call add-ons).
  */
 final class Events {
 	/**
@@ -71,9 +71,9 @@ final class Events {
 		add_action( 'init', array( $this, 'register_group_events_subpage' ), 15 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ), 20 );
-		add_action( 'admin_post_clanspress_delete_event', array( $this, 'handle_frontend_delete_event' ) );
-		add_filter( 'clanspress_event_can_view_attendees', array( $this, 'filter_cp_event_attendee_list_access' ), 15, 4 );
-		add_filter( 'clanspress_profile_subpage_nav_visible', array( $this, 'filter_profile_subpage_events_nav_visible' ), 10, 5 );
+		add_action( 'admin_post_clanbite_delete_event', array( $this, 'handle_frontend_delete_event' ) );
+		add_filter( 'clanbite_event_can_view_attendees', array( $this, 'filter_cp_event_attendee_list_access' ), 15, 4 );
+		add_filter( 'clanbite_profile_subpage_nav_visible', array( $this, 'filter_profile_subpage_events_nav_visible' ), 10, 5 );
 	}
 
 	/**
@@ -92,13 +92,13 @@ final class Events {
 		}
 
 		if ( 'player' === $context ) {
-			return function_exists( '\clanspress_player_profile_events_subpage_visible_for_viewer' )
-				&& \clanspress_player_profile_events_subpage_visible_for_viewer( $object_id );
+			return function_exists( '\clanbite_player_profile_events_subpage_visible_for_viewer' )
+				&& \clanbite_player_profile_events_subpage_visible_for_viewer( $object_id );
 		}
 
 		if ( 'team' === $context ) {
-			return function_exists( '\clanspress_events_are_enabled_for_team' )
-				&& \clanspress_events_are_enabled_for_team( $object_id );
+			return function_exists( '\clanbite_events_are_enabled_for_team' )
+				&& \clanbite_events_are_enabled_for_team( $object_id );
 		}
 
 		return $visible;
@@ -110,30 +110,30 @@ final class Events {
 	 * @return void
 	 */
 	public function register_team_events_subpage(): void {
-		if ( ! function_exists( 'clanspress_register_team_subpage' ) ) {
+		if ( ! function_exists( 'clanbite_register_team_subpage' ) ) {
 			return;
 		}
 
-		if ( ! function_exists( 'clanspress_teams_get_team_mode' ) ) {
+		if ( ! function_exists( 'clanbite_teams_get_team_mode' ) ) {
 			return;
 		}
 
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
 			return;
 		}
 
-		if ( ! function_exists( '\clanspress_events_subpage_team_enabled' ) || ! \clanspress_events_subpage_team_enabled() ) {
+		if ( ! function_exists( '\clanbite_events_subpage_team_enabled' ) || ! \clanbite_events_subpage_team_enabled() ) {
 			return;
 		}
 
-		if ( 'team_directories' !== clanspress_teams_get_team_mode() ) {
+		if ( 'team_directories' !== clanbite_teams_get_team_mode() ) {
 			return;
 		}
 
-		clanspress_register_team_subpage(
+		clanbite_register_team_subpage(
 			'events',
 			array(
-				'label'    => __( 'Events', 'clanspress' ),
+				'label'    => __( 'Events', 'clanbite' ),
 				'position' => 15,
 			)
 		);
@@ -145,22 +145,22 @@ final class Events {
 	 * @return void
 	 */
 	public function register_player_events_subpage(): void {
-		if ( ! function_exists( 'clanspress_register_player_subpage' ) ) {
+		if ( ! function_exists( 'clanbite_register_player_subpage' ) ) {
 			return;
 		}
 
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
 			return;
 		}
 
-		if ( ! function_exists( '\clanspress_events_subpage_player_enabled' ) || ! \clanspress_events_subpage_player_enabled() ) {
+		if ( ! function_exists( '\clanbite_events_subpage_player_enabled' ) || ! \clanbite_events_subpage_player_enabled() ) {
 			return;
 		}
 
-		clanspress_register_player_subpage(
+		clanbite_register_player_subpage(
 			'events',
 			array(
-				'label'    => __( 'Events', 'clanspress' ),
+				'label'    => __( 'Events', 'clanbite' ),
 				'position' => 20,
 			)
 		);
@@ -172,24 +172,24 @@ final class Events {
 	 * @return void
 	 */
 	public function register_group_events_subpage(): void {
-		if ( ! function_exists( 'clanspress_register_group_subpage' ) ) {
+		if ( ! function_exists( 'clanbite_register_group_subpage' ) ) {
 			return;
 		}
 
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
 			return;
 		}
 
-		if ( ! function_exists( '\clanspress_events_subpage_group_enabled' ) || ! \clanspress_events_subpage_group_enabled() ) {
+		if ( ! function_exists( '\clanbite_events_subpage_group_enabled' ) || ! \clanbite_events_subpage_group_enabled() ) {
 			return;
 		}
 
-		clanspress_register_group_subpage(
+		clanbite_register_group_subpage(
 			'events',
 			array(
-				'label'       => __( 'Events', 'clanspress' ),
+				'label'       => __( 'Events', 'clanbite' ),
 				'position'    => 15,
-				'template_id' => 'clanspress-group-events',
+				'template_id' => 'clanbite-group-events',
 			)
 		);
 	}
@@ -200,36 +200,36 @@ final class Events {
 	 * @return void
 	 */
 	public function register_cp_players_events_template_filter(): void {
-		add_filter( 'clanspress_extension_cp_players_templates', array( $this, 'filter_cp_players_events_template' ), 10, 2 );
+		add_filter( 'clanbite_extension_cp_players_templates', array( $this, 'filter_cp_players_events_template' ), 10, 2 );
 	}
 
 	/**
 	 * Merge player events subpage template into Players templates.
 	 *
 	 * @param array<string, array<string, string>>     $templates Template definitions keyed by slug.
-	 * @param \Kernowdev\Clanspress\Extensions\Skeleton $extension Calling extension.
+	 * @param \Kernowdev\Clanbite\Extensions\Skeleton $extension Calling extension.
 	 * @return array<string, array<string, string>>
 	 */
 	public function filter_cp_players_events_template( array $templates, $extension ): array {
-		if ( ! $extension instanceof \Kernowdev\Clanspress\Extensions\Skeleton ) {
+		if ( ! $extension instanceof \Kernowdev\Clanbite\Extensions\Skeleton ) {
 			return $templates;
 		}
 
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
 			return $templates;
 		}
 
-		if ( ! function_exists( '\clanspress_events_subpage_player_enabled' ) || ! \clanspress_events_subpage_player_enabled() ) {
+		if ( ! function_exists( '\clanbite_events_subpage_player_enabled' ) || ! \clanbite_events_subpage_player_enabled() ) {
 			return $templates;
 		}
 
-		$path = \clanspress()->path . 'templates/players/player-events.html';
+		$path = \clanbite()->path . 'templates/players/player-events.html';
 		if ( ! is_readable( $path ) ) {
 			return $templates;
 		}
 
 		$templates['player-events'] = array(
-			'title' => __( 'Player events', 'clanspress' ),
+			'title' => __( 'Player events', 'clanbite' ),
 			'path'  => $path,
 		);
 
@@ -242,11 +242,11 @@ final class Events {
 	 * @return void
 	 */
 	public function register_group_events_block_template(): void {
-		if ( ! function_exists( 'clanspress_events_are_globally_enabled' ) || ! clanspress_events_are_globally_enabled() ) {
+		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
 			return;
 		}
 
-		if ( ! function_exists( '\clanspress_events_subpage_group_enabled' ) || ! \clanspress_events_subpage_group_enabled() ) {
+		if ( ! function_exists( '\clanbite_events_subpage_group_enabled' ) || ! \clanbite_events_subpage_group_enabled() ) {
 			return;
 		}
 
@@ -254,7 +254,7 @@ final class Events {
 			return;
 		}
 
-		$path = \clanspress()->path . 'templates/groups/group-events.html';
+		$path = \clanbite()->path . 'templates/groups/group-events.html';
 		if ( ! is_readable( $path ) ) {
 			return;
 		}
@@ -265,10 +265,10 @@ final class Events {
 		}
 
 		register_block_template(
-			'clanspress//clanspress-group-events',
+			'clanbite//clanbite-group-events',
 			array(
-				'title'       => __( 'Group events', 'clanspress' ),
-				'description' => __( 'Scheduled events and calendar on a group profile.', 'clanspress' ),
+				'title'       => __( 'Group events', 'clanbite' ),
+				'description' => __( 'Scheduled events and calendar on a group profile.', 'clanbite' ),
 				'content'     => $content,
 			)
 		);
@@ -284,7 +284,7 @@ final class Events {
 	 * @return bool
 	 */
 	public function filter_cp_event_attendee_list_access( bool $can_view_attendees, string $event_type, int $event_id, int $viewer_id ): bool {
-		if ( 'clanspress_event' !== $event_type ) {
+		if ( 'clanbite_event' !== $event_type ) {
 			return $can_view_attendees;
 		}
 		if ( $can_view_attendees ) {
@@ -303,7 +303,7 @@ final class Events {
 	 * @return void
 	 */
 	public function register_blocks(): void {
-		$base = \clanspress()->path . 'build/events/';
+		$base = \clanbite()->path . 'build/events/';
 		foreach ( array( 'event-rsvp', 'event-list', 'event-detail', 'event-create-form', 'event-calendar' ) as $dir ) {
 			$path = $base . $dir;
 			if ( is_dir( $path ) ) {
@@ -346,26 +346,26 @@ final class Events {
 			exit;
 		}
 
-		$event_id = isset( $_POST['clanspress_event_id'] ) ? absint( wp_unslash( $_POST['clanspress_event_id'] ) ) : 0;
+		$event_id = isset( $_POST['clanbite_event_id'] ) ? absint( wp_unslash( $_POST['clanbite_event_id'] ) ) : 0;
 		if ( $event_id < 1 ) {
-			wp_die( esc_html__( 'Invalid request.', 'clanspress' ), '', array( 'response' => 400 ) );
+			wp_die( esc_html__( 'Invalid request.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
 
-		check_admin_referer( 'clanspress_delete_event_' . $event_id );
+		check_admin_referer( 'clanbite_delete_event_' . $event_id );
 
 		if ( ! Event_Permissions::user_can_manage_event( $event_id, (int) get_current_user_id() ) ) {
-			wp_die( esc_html__( 'You cannot delete this event.', 'clanspress' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'You cannot delete this event.', 'clanbite' ), '', array( 'response' => 403 ) );
 		}
 
 		$post = get_post( $event_id );
 		if ( ! ( $post instanceof \WP_Post ) || Event_Post_Type::POST_TYPE !== $post->post_type ) {
-			wp_die( esc_html__( 'Event not found.', 'clanspress' ), '', array( 'response' => 404 ) );
+			wp_die( esc_html__( 'Event not found.', 'clanbite' ), '', array( 'response' => 404 ) );
 		}
 
 		wp_trash_post( $event_id );
 
-		$redirect = isset( $_POST['clanspress_event_delete_redirect'] )
-			? esc_url_raw( wp_unslash( $_POST['clanspress_event_delete_redirect'] ) )
+		$redirect = isset( $_POST['clanbite_event_delete_redirect'] )
+			? esc_url_raw( wp_unslash( $_POST['clanbite_event_delete_redirect'] ) )
 			: '';
 		if ( '' === $redirect ) {
 			$redirect = home_url( '/' );
@@ -396,9 +396,9 @@ final class Events {
 
 		$can = true;
 
-		if ( 'match' === $event_type && function_exists( 'clanspress_matches' ) ) {
-			$matches = clanspress_matches();
-			if ( $matches instanceof \Kernowdev\Clanspress\Extensions\Matches ) {
+		if ( 'match' === $event_type && function_exists( 'clanbite_matches' ) ) {
+			$matches = clanbite_matches();
+			if ( $matches instanceof \Kernowdev\Clanbite\Extensions\Matches ) {
 				$post = get_post( $event_id );
 				if ( $post instanceof \WP_Post ) {
 					$can = (bool) $matches->viewer_can_see_match( $post, $viewer_id );
@@ -406,7 +406,7 @@ final class Events {
 			}
 		}
 
-		if ( 'clanspress_event' === $event_type ) {
+		if ( 'clanbite_event' === $event_type ) {
 			$post = get_post( $event_id );
 			if ( $post instanceof \WP_Post && Event_Post_Type::POST_TYPE === $post->post_type ) {
 				$can = Event_Permissions::viewer_can_see( $post, $viewer_id );
@@ -425,7 +425,7 @@ final class Events {
 		 * @param int    $event_id   Event ID.
 		 * @param int    $viewer_id  Viewer user ID (0 for anon).
 		 */
-		return (bool) apply_filters( 'clanspress_event_viewer_can_see', $can, $event_type, $event_id, $viewer_id );
+		return (bool) apply_filters( 'clanbite_event_viewer_can_see', $can, $event_type, $event_id, $viewer_id );
 	}
 
 	/**
@@ -450,7 +450,7 @@ final class Events {
 			$visibility = in_array( $raw, array( 'public', 'hidden' ), true ) ? $raw : 'hidden';
 		}
 
-		if ( 'clanspress_event' === $event_type ) {
+		if ( 'clanbite_event' === $event_type ) {
 			$raw        = (string) get_post_meta( $event_id, 'cp_event_attendees_visibility', true );
 			$visibility = in_array( $raw, array( 'public', 'hidden' ), true ) ? $raw : 'hidden';
 		}
@@ -462,7 +462,7 @@ final class Events {
 		 * @param string $event_type Event type slug.
 		 * @param int    $event_id   Event ID.
 		 */
-		$visibility = (string) apply_filters( 'clanspress_event_attendees_visibility', $visibility, $event_type, $event_id );
+		$visibility = (string) apply_filters( 'clanbite_event_attendees_visibility', $visibility, $event_type, $event_id );
 
 		return in_array( $visibility, array( 'public', 'hidden' ), true ) ? $visibility : 'hidden';
 	}

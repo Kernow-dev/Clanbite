@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/player-profile-nav",
+	"name": "clanbite/player-profile-nav",
 	"title": "Player Profile Navigation",
-	"category": "clanspress-players",
+	"category": "clanbite-players",
 	"icon": "groups",
 	"description": "Displays the player profile subpage navigation.",
 	"supports": {
@@ -26,18 +26,18 @@
 		},
 		"html": false
 	},
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"editorScript": "file:./index.js",
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-player-profile-nav",
+		"root": ".wp-block-clanbite-player-profile-nav",
 		"color": {
-			"text": ".wp-block-clanspress-player-profile-nav .clanspress-player-profile-nav__link",
-			"background": ".wp-block-clanspress-player-profile-nav",
-			"link": ".wp-block-clanspress-player-profile-nav .clanspress-player-profile-nav__link"
+			"text": ".wp-block-clanbite-player-profile-nav .clanbite-player-profile-nav__link",
+			"background": ".wp-block-clanbite-player-profile-nav",
+			"link": ".wp-block-clanbite-player-profile-nav .clanbite-player-profile-nav__link"
 		},
-		"typography": ".wp-block-clanspress-player-profile-nav .clanspress-player-profile-nav__link",
-		"border": ".wp-block-clanspress-player-profile-nav"
+		"typography": ".wp-block-clanbite-player-profile-nav .clanbite-player-profile-nav__link",
+		"border": ".wp-block-clanbite-player-profile-nav"
 	}
 }

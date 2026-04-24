@@ -2,10 +2,10 @@
 /**
  * Optional roster outreach when managers create or update `cp_event` posts.
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Events;
+namespace Kernowdev\Clanbite\Events;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -16,7 +16,7 @@ use WP_Post;
  * Sends in-app notifications and/or seeds tentative RSVPs for team or group rosters.
  *
  * Third-party group plugins should supply member user IDs via
- * {@see 'clanspress_group_event_member_user_ids'}.
+ * {@see 'clanbite_group_event_member_user_ids'}.
  */
 final class Event_Member_Outreach {
 
@@ -27,7 +27,7 @@ final class Event_Member_Outreach {
 	/**
 	 * RSVP table event_type for scheduled `cp_event` posts.
 	 */
-	private const RSVP_EVENT_TYPE = 'clanspress_event';
+	private const RSVP_EVENT_TYPE = 'clanbite_event';
 
 	/**
 	 * Normalize a REST/form outreach mode.
@@ -90,7 +90,7 @@ final class Event_Member_Outreach {
 		$user_ids = array_values(
 			array_unique(
 				array_filter(
-					array_map( 'absint', (array) apply_filters( 'clanspress_event_member_outreach_user_ids', $user_ids, $event_id, $scope, $team_id, $group_id, $mode ) ),
+					array_map( 'absint', (array) apply_filters( 'clanbite_event_member_outreach_user_ids', $user_ids, $event_id, $scope, $team_id, $group_id, $mode ) ),
 					static function ( int $id ): bool {
 						return $id > 0;
 					}
@@ -117,34 +117,34 @@ final class Event_Member_Outreach {
 			}
 
 			if ( self::MODE_NOTIFY === $mode || self::MODE_RSVP_TENTATIVE === $mode ) {
-				if ( function_exists( 'clanspress_notify' ) && function_exists( 'clanspress_notifications_extension_active' ) && clanspress_notifications_extension_active() ) {
+				if ( function_exists( 'clanbite_notify' ) && function_exists( 'clanbite_notifications_extension_active' ) && clanbite_notifications_extension_active() ) {
 					$is_group = Event_Post_Type::SCOPE_GROUP === $scope;
 					if ( self::MODE_RSVP_TENTATIVE === $mode ) {
 						$title = sprintf(
 							/* translators: %s: event title */
-							__( 'You\'re invited: %s', 'clanspress' ),
+							__( 'You\'re invited: %s', 'clanbite' ),
 							$event_title
 						);
-						$message = __( 'Open the event to confirm your attendance.', 'clanspress' );
+						$message = __( 'Open the event to confirm your attendance.', 'clanbite' );
 					} elseif ( $is_group ) {
 						$title = sprintf(
 							/* translators: %s: event title */
-							__( 'New group event: %s', 'clanspress' ),
+							__( 'New group event: %s', 'clanbite' ),
 							$event_title
 						);
-						$message = __( 'A manager posted a new event for your group.', 'clanspress' );
+						$message = __( 'A manager posted a new event for your group.', 'clanbite' );
 					} else {
 						$title = sprintf(
 							/* translators: %s: event title */
-							__( 'New team event: %s', 'clanspress' ),
+							__( 'New team event: %s', 'clanbite' ),
 							$event_title
 						);
-						$message = __( 'A manager posted a new event for your roster.', 'clanspress' );
+						$message = __( 'A manager posted a new event for your roster.', 'clanbite' );
 					}
 
 					$notif_type = $is_group ? 'group_event' : 'team_event';
 
-					clanspress_notify(
+					clanbite_notify(
 						$uid,
 						$notif_type,
 						$title,
@@ -168,7 +168,7 @@ final class Event_Member_Outreach {
 		 * @param string               $mode     Outreach mode.
 		 * @param array<string, mixed> $result   `notified`, `rsvp_set`, `skipped` counts.
 		 */
-		do_action( 'clanspress_event_member_outreach_completed', $event_id, $mode, $out );
+		do_action( 'clanbite_event_member_outreach_completed', $event_id, $mode, $out );
 
 		return $out;
 	}
@@ -182,9 +182,9 @@ final class Event_Member_Outreach {
 	 * @return list<int>
 	 */
 	private static function collect_recipient_user_ids( string $scope, int $team_id, int $group_id ): array {
-		if ( Event_Post_Type::SCOPE_TEAM === $scope && $team_id > 0 && function_exists( 'clanspress_teams' ) ) {
-			$teams = clanspress_teams();
-			if ( ! $teams instanceof \Kernowdev\Clanspress\Extensions\Teams ) {
+		if ( Event_Post_Type::SCOPE_TEAM === $scope && $team_id > 0 && function_exists( 'clanbite_teams' ) ) {
+			$teams = clanbite_teams();
+			if ( ! $teams instanceof \Kernowdev\Clanbite\Extensions\Teams ) {
 				return array();
 			}
 
@@ -196,7 +196,7 @@ final class Event_Member_Outreach {
 					continue;
 				}
 				$role = isset( $map[ $uid ] ) ? (string) $map[ $uid ] : '';
-				if ( \Kernowdev\Clanspress\Extensions\Teams::TEAM_ROLE_BANNED === $role ) {
+				if ( \Kernowdev\Clanbite\Extensions\Teams::TEAM_ROLE_BANNED === $role ) {
 					continue;
 				}
 				$out[] = $uid;
@@ -214,7 +214,7 @@ final class Event_Member_Outreach {
 			 * @param int[] $user_ids Default empty.
 			 * @param int   $group_id Group object ID.
 			 */
-			$from_filter = apply_filters( 'clanspress_group_event_member_user_ids', array(), $group_id );
+			$from_filter = apply_filters( 'clanbite_group_event_member_user_ids', array(), $group_id );
 
 			return array_values(
 				array_unique(

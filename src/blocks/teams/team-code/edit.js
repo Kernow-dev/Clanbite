@@ -5,8 +5,8 @@ import './editor.scss';
 export default function Edit() {
 	return (
 		<div { ...useBlockProps() }>
-			<p className="clanspress-team-block-placeholder">
-				{ __( 'Team code (single team template)', 'clanspress' ) }
+			<p className="clanbite-team-block-placeholder">
+				{ __( 'Team code (single team template)', 'clanbite' ) }
 			</p>
 		</div>
 	);

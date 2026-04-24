@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/event-list",
+	"name": "clanbite/event-list",
 	"version": "1.0.0",
 	"title": "Event list",
-	"category": "clanspress",
+	"category": "clanbite",
 	"icon": "list-view",
 	"description": "List scheduled events for the current team or group context.",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"attributes": {
 		"scopeType": {
 			"type": "string",
@@ -51,9 +51,9 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-event-list",
-		"color": ".wp-block-clanspress-event-list",
-		"typography": ".wp-block-clanspress-event-list",
-		"border": ".wp-block-clanspress-event-list"
+		"root": ".wp-block-clanbite-event-list",
+		"color": ".wp-block-clanbite-event-list",
+		"typography": ".wp-block-clanbite-event-list",
+		"border": ".wp-block-clanbite-event-list"
 	}
 }

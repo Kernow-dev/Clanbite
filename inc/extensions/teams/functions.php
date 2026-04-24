@@ -5,22 +5,22 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Procedural API for the Teams extension (themes and third-party plugins).
  *
- * These functions wrap {@see \Kernowdev\Clanspress\Extensions\Teams} so callers do not need
+ * These functions wrap {@see \Kernowdev\Clanbite\Extensions\Teams} so callers do not need
  * to resolve the loader. When the Teams extension is not active, helpers return safe
  * defaults (`null`, empty arrays/strings, or `false`).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-use Kernowdev\Clanspress\Extensions\Teams;
+use Kernowdev\Clanbite\Extensions\Teams;
 
 /**
  * Active Teams extension instance from the loader.
  *
  * @return Teams|null Null when Teams is not registered or not the expected class.
  */
-function clanspress_teams(): ?Teams {
-	$loader = clanspress()->extensions;
+function clanbite_teams(): ?Teams {
+	$loader = clanbite()->extensions;
 	if ( null === $loader ) {
 		return null;
 	}
@@ -34,10 +34,10 @@ function clanspress_teams(): ?Teams {
  * Load a team entity by post ID (uses the active {@see Team_Data_Store}).
  *
  * @param int $id Team post ID.
- * @return \Kernowdev\Clanspress\Extensions\Teams\Team|null
+ * @return \Kernowdev\Clanbite\Extensions\Teams\Team|null
  */
-function clanspress_get_team( int $id ): ?\Kernowdev\Clanspress\Extensions\Teams\Team {
-	$t = clanspress_teams();
+function clanbite_get_team( int $id ): ?\Kernowdev\Clanbite\Extensions\Teams\Team {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team( $id ) : null;
 }
@@ -49,8 +49,8 @@ function clanspress_get_team( int $id ): ?\Kernowdev\Clanspress\Extensions\Teams
  * @param mixed|null $fallback Value when the extension is inactive or key is missing.
  * @return mixed
  */
-function clanspress_teams_get_setting( string $key, $fallback = null ) {
-	$t = clanspress_teams();
+function clanbite_teams_get_setting( string $key, $fallback = null ) {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_setting( $key, $fallback ) : $fallback;
 }
@@ -58,18 +58,21 @@ function clanspress_teams_get_setting( string $key, $fallback = null ) {
 /**
  * `cp_team` post IDs every member is added to as roster member on register / login.
  *
- * Reads {@see clanspress_teams_settings} and falls back to legacy
- * `clanspress_social_kit_global_auto_join_team_ids` when the Teams setting is unset or empty.
+ * Reads {@see clanbite_teams_settings} and falls back to legacy
+ * `clanbite_social_kit_global_auto_join_team_ids` (and legacy `clanspress_social_kit_global_auto_join_team_ids`) when the Teams setting is unset or empty.
  *
  * @return int[]
  */
-function clanspress_teams_global_auto_join_team_ids(): array {
-	$settings = get_option( 'clanspress_teams_settings', array() );
+function clanbite_teams_global_auto_join_team_ids(): array {
+	$settings = get_option( 'clanbite_teams_settings', array() );
 	$raw      = array();
 	if ( is_array( $settings ) && isset( $settings['global_auto_join_team_ids'] ) && is_array( $settings['global_auto_join_team_ids'] ) ) {
 		$raw = $settings['global_auto_join_team_ids'];
 	} else {
-		$legacy = get_option( 'clanspress_social_kit_global_auto_join_team_ids', array() );
+		$legacy = get_option( 'clanbite_social_kit_global_auto_join_team_ids', array() );
+		if ( ! is_array( $legacy ) || array() === $legacy ) {
+			$legacy = get_option( 'clanspress_social_kit_global_auto_join_team_ids', array() );
+		}
 		if ( is_array( $legacy ) ) {
 			$raw = $legacy;
 		}
@@ -81,7 +84,7 @@ function clanspress_teams_global_auto_join_team_ids(): array {
 	 *
 	 * @param int[] $ids Sanitized team post IDs.
 	 */
-	return array_values( array_unique( array_map( 'absint', (array) apply_filters( 'clanspress_teams_global_auto_join_team_ids', $ids ) ) ) );
+	return array_values( array_unique( array_map( 'absint', (array) apply_filters( 'clanbite_teams_global_auto_join_team_ids', $ids ) ) ) );
 }
 
 /**
@@ -89,8 +92,8 @@ function clanspress_teams_global_auto_join_team_ids(): array {
  *
  * @return string
  */
-function clanspress_teams_get_team_mode(): string {
-	$t = clanspress_teams();
+function clanbite_teams_get_team_mode(): string {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team_mode() : 'single_team';
 }
@@ -100,8 +103,8 @@ function clanspress_teams_get_team_mode(): string {
  *
  * @return string Absolute URL; falls back to `/teams/create/` on the home URL when the extension is off.
  */
-function clanspress_teams_get_team_create_url(): string {
-	$t = clanspress_teams();
+function clanbite_teams_get_team_create_url(): string {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team_create_url() : home_url( '/teams/create/' );
 }
@@ -112,8 +115,8 @@ function clanspress_teams_get_team_create_url(): string {
  * @param string $slug Team slug (`post_name`).
  * @return string Empty when Teams is inactive or the slug is invalid.
  */
-function clanspress_teams_get_team_profile_url_for_slug( string $slug ): string {
-	$t = clanspress_teams();
+function clanbite_teams_get_team_profile_url_for_slug( string $slug ): string {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team_profile_url_for_slug( $slug ) : '';
 }
@@ -124,8 +127,8 @@ function clanspress_teams_get_team_profile_url_for_slug( string $slug ): string 
  * @param int $team_id Team post ID.
  * @return string Empty string when the extension is inactive.
  */
-function clanspress_teams_get_team_manage_url( int $team_id ): string {
-	$t = clanspress_teams();
+function clanbite_teams_get_team_manage_url( int $team_id ): string {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team_manage_url( $team_id ) : '';
 }
@@ -137,8 +140,8 @@ function clanspress_teams_get_team_manage_url( int $team_id ): string {
  * @param string $action  Action slug registered with the Teams extension.
  * @return string Empty string when the extension is inactive.
  */
-function clanspress_teams_get_team_action_url( int $team_id, string $action ): string {
-	$t = clanspress_teams();
+function clanbite_teams_get_team_action_url( int $team_id, string $action ): string {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team_action_url( $team_id, $action ) : '';
 }
@@ -149,7 +152,7 @@ function clanspress_teams_get_team_action_url( int $team_id, string $action ): s
  * @param int $team_id Team post ID (`cp_team`).
  * @return string Empty when the team has no slug.
  */
-function clanspress_teams_get_team_events_create_url( int $team_id ): string {
+function clanbite_teams_get_team_events_create_url( int $team_id ): string {
 	$slug = (string) get_post_field( 'post_name', $team_id );
 	if ( '' === $slug ) {
 		return '';
@@ -164,7 +167,7 @@ function clanspress_teams_get_team_events_create_url( int $team_id ): string {
  * @param int $team_id Team post ID.
  * @return int `0` if the post has no author.
  */
-function clanspress_teams_get_owner_id( int $team_id ): int {
+function clanbite_teams_get_owner_id( int $team_id ): int {
 	return (int) get_post_field( 'post_author', $team_id );
 }
 
@@ -175,8 +178,8 @@ function clanspress_teams_get_owner_id( int $team_id ): int {
  * @param int $user_id User ID.
  * @return bool
  */
-function clanspress_teams_user_is_owner( int $team_id, int $user_id ): bool {
-	$owner = clanspress_teams_get_owner_id( $team_id );
+function clanbite_teams_user_is_owner( int $team_id, int $user_id ): bool {
+	$owner = clanbite_teams_get_owner_id( $team_id );
 
 	return $owner > 0 && $owner === $user_id;
 }
@@ -187,8 +190,8 @@ function clanspress_teams_user_is_owner( int $team_id, int $user_id ): bool {
  * @param int|null $user_id User ID, or `null` for the current user.
  * @return bool False when Teams is inactive.
  */
-function clanspress_teams_user_is_site_admin( ?int $user_id = null ): bool {
-	$t = clanspress_teams();
+function clanbite_teams_user_is_site_admin( ?int $user_id = null ): bool {
+	$t = clanbite_teams();
 
 	return $t ? $t->user_is_teams_site_admin( $user_id ) : false;
 }
@@ -200,8 +203,8 @@ function clanspress_teams_user_is_site_admin( ?int $user_id = null ): bool {
  * @param int|null $user_id User ID, or `null` for the current user.
  * @return bool
  */
-function clanspress_teams_user_can_manage( int $team_id, ?int $user_id = null ): bool {
-	$t = clanspress_teams();
+function clanbite_teams_user_can_manage( int $team_id, ?int $user_id = null ): bool {
+	$t = clanbite_teams();
 
 	return $t ? $t->user_can_manage_team_on_frontend( $team_id, $user_id ) : false;
 }
@@ -213,8 +216,8 @@ function clanspress_teams_user_can_manage( int $team_id, ?int $user_id = null ):
  * @param int|null $user_id User ID, or null for the current user.
  * @return bool False when Teams is inactive.
  */
-function clanspress_teams_user_can_delete_team( int $team_id, ?int $user_id = null ): bool {
-	$t = clanspress_teams();
+function clanbite_teams_user_can_delete_team( int $team_id, ?int $user_id = null ): bool {
+	$t = clanbite_teams();
 
 	return $t ? $t->user_can_delete_team_on_frontend( $team_id, $user_id ) : false;
 }
@@ -226,8 +229,8 @@ function clanspress_teams_user_can_delete_team( int $team_id, ?int $user_id = nu
  * @param int|null $user_id User ID, or `null` for the current user.
  * @return bool
  */
-function clanspress_teams_user_is_team_admin( int $team_id, ?int $user_id = null ): bool {
-	$t = clanspress_teams();
+function clanbite_teams_user_is_team_admin( int $team_id, ?int $user_id = null ): bool {
+	$t = clanbite_teams();
 
 	return $t ? $t->user_is_team_admin_on_frontend( $team_id, $user_id ) : false;
 }
@@ -239,10 +242,23 @@ function clanspress_teams_user_is_team_admin( int $team_id, ?int $user_id = null
  * @param int $user_id User ID.
  * @return string|null
  */
-function clanspress_teams_get_member_role( int $team_id, int $user_id ): ?string {
-	$t = clanspress_teams();
+function clanbite_teams_get_member_role( int $team_id, int $user_id ): ?string {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team_member_role( $team_id, $user_id ) : null;
+}
+
+/**
+ * Whether the user is on the team roster with a role other than banned.
+ *
+ * @param int $team_id Team post ID.
+ * @param int $user_id User ID.
+ * @return bool
+ */
+function clanbite_is_team_member( int $team_id, int $user_id ): bool {
+	$role = clanbite_teams_get_member_role( $team_id, $user_id );
+
+	return null !== $role && Teams::TEAM_ROLE_BANNED !== $role;
 }
 
 /**
@@ -251,8 +267,8 @@ function clanspress_teams_get_member_role( int $team_id, int $user_id ): ?string
  * @param int $team_id Team post ID.
  * @return array<int, string> User ID => role slug.
  */
-function clanspress_teams_get_member_roles_map( int $team_id ): array {
-	$t = clanspress_teams();
+function clanbite_teams_get_member_roles_map( int $team_id ): array {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team_member_roles_map( $team_id ) : array();
 }
@@ -265,12 +281,12 @@ function clanspress_teams_get_member_roles_map( int $team_id ): array {
  * @param bool $preserve_roster_order When true, keep member map iteration order; when false, sort by user ID (default).
  * @return list<int>
  */
-function clanspress_teams_get_roster_user_ids( int $team_id, bool $exclude_banned = true, bool $preserve_roster_order = false ): array {
+function clanbite_teams_get_roster_user_ids( int $team_id, bool $exclude_banned = true, bool $preserve_roster_order = false ): array {
 	if ( $team_id < 1 ) {
 		return array();
 	}
 
-	$map = clanspress_teams_get_member_roles_map( $team_id );
+	$map = clanbite_teams_get_member_roles_map( $team_id );
 	$ids = array();
 
 	foreach ( $map as $uid => $role ) {
@@ -295,17 +311,17 @@ function clanspress_teams_get_roster_user_ids( int $team_id, bool $exclude_banne
 	 * @param int       $team_id         Team post ID.
 	 * @param bool      $exclude_banned  Whether banned members were omitted.
 	 */
-	return array_values( array_map( 'intval', (array) apply_filters( 'clanspress_team_roster_user_ids', $ids, $team_id, $exclude_banned ) ) );
+	return array_values( array_map( 'intval', (array) apply_filters( 'clanbite_team_roster_user_ids', $ids, $team_id, $exclude_banned ) ) );
 }
 
 /**
  * Per-team options (join mode, invites, front-end edit, ban capability, match challenges).
  *
  * @param int $team_id Team post ID.
- * @return array<string, mixed> Shape matches {@see \Kernowdev\Clanspress\Extensions\Teams::get_team_options()}.
+ * @return array<string, mixed> Shape matches {@see \Kernowdev\Clanbite\Extensions\Teams::get_team_options()}.
  */
-function clanspress_teams_get_options( int $team_id ): array {
-	$t = clanspress_teams();
+function clanbite_teams_get_options( int $team_id ): array {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team_options( $team_id ) : array();
 }
@@ -316,12 +332,12 @@ function clanspress_teams_get_options( int $team_id ): array {
  * @param int $team_id Team post ID.
  * @return bool
  */
-function clanspress_team_accepts_challenges( int $team_id ): bool {
+function clanbite_team_accepts_challenges( int $team_id ): bool {
 	if ( $team_id < 1 ) {
 		return true;
 	}
 
-	$team = clanspress_get_team( $team_id );
+	$team = clanbite_get_team( $team_id );
 
 	return $team ? $team->get_accept_challenges() : true;
 }
@@ -332,7 +348,7 @@ function clanspress_team_accepts_challenges( int $team_id ): bool {
  * @param string $url Full HTTP(S) URL.
  * @return array{origin: string, slug: string}|null Null when the pattern does not match.
  */
-function clanspress_parse_team_profile_url( string $url ): ?array {
+function clanbite_parse_team_profile_url( string $url ): ?array {
 	$url = trim( $url );
 	if ( '' === $url ) {
 		return null;
@@ -374,8 +390,8 @@ function clanspress_parse_team_profile_url( string $url ): ?array {
  * @param int $user_id User ID.
  * @return array<int, int> Unique team post IDs.
  */
-function clanspress_teams_get_user_managed_team_ids( int $user_id ): array {
-	$t = clanspress_teams();
+function clanbite_teams_get_user_managed_team_ids( int $user_id ): array {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_user_managed_team_ids( $user_id ) : array();
 }
@@ -386,18 +402,18 @@ function clanspress_teams_get_user_managed_team_ids( int $user_id ): array {
  * @param int|null $user_id User ID or null for the current user.
  * @return bool
  */
-function clanspress_teams_user_manages_any_team( ?int $user_id = null ): bool {
+function clanbite_teams_user_manages_any_team( ?int $user_id = null ): bool {
 	$uid = (int) ( $user_id ?? get_current_user_id() );
 	if ( $uid < 1 ) {
 		return false;
 	}
 
-	$t = clanspress_teams();
+	$t = clanbite_teams();
 	if ( $t && $t->user_is_teams_site_admin( $uid ) ) {
 		return true;
 	}
 
-	return array() !== clanspress_teams_get_user_managed_team_ids( $uid );
+	return array() !== clanbite_teams_get_user_managed_team_ids( $uid );
 }
 
 /**
@@ -406,16 +422,16 @@ function clanspress_teams_user_manages_any_team( ?int $user_id = null ): bool {
  * @param string $slug Unique slug (used in the URL).
  * @param array  $args {
  *     @type string $label          Human-readable label.
- *     @type string $template_id    FSE template identifier (defaults to "clanspress-team-{$slug}").
+ *     @type string $template_id    FSE template identifier (defaults to "clanbite-team-{$slug}").
  *     @type string $default_blocks Optional default block markup.
  *     @type string $capability     Capability required to view (default "read").
  *     @type int    $position       Sort order (lower first).
  * }
  * @return void
  */
-function clanspress_register_team_subpage( string $slug, array $args = array() ): void {
-	if ( function_exists( 'clanspress_register_profile_subpage' ) ) {
-		clanspress_register_profile_subpage( 'team', $slug, $args );
+function clanbite_register_team_subpage( string $slug, array $args = array() ): void {
+	if ( function_exists( 'clanbite_register_profile_subpage' ) ) {
+		clanbite_register_profile_subpage( 'team', $slug, $args );
 	}
 }
 
@@ -424,8 +440,8 @@ function clanspress_register_team_subpage( string $slug, array $args = array() )
  *
  * @return array<string,array>
  */
-function clanspress_get_team_subpages(): array {
-	return function_exists( 'clanspress_get_profile_subpages' ) ? clanspress_get_profile_subpages( 'team' ) : array();
+function clanbite_get_team_subpages(): array {
+	return function_exists( 'clanbite_get_profile_subpages' ) ? clanbite_get_profile_subpages( 'team' ) : array();
 }
 
 /**
@@ -434,8 +450,8 @@ function clanspress_get_team_subpages(): array {
  * @param string $slug Subpage slug.
  * @return array<string,mixed>|null
  */
-function clanspress_get_team_subpage( string $slug ): ?array {
-	return function_exists( 'clanspress_get_profile_subpage' ) ? clanspress_get_profile_subpage( 'team', $slug ) : null;
+function clanbite_get_team_subpage( string $slug ): ?array {
+	return function_exists( 'clanbite_get_profile_subpage' ) ? clanbite_get_profile_subpage( 'team', $slug ) : null;
 }
 
 /**
@@ -444,7 +460,7 @@ function clanspress_get_team_subpage( string $slug ): ?array {
  * @param string $preset One of `large`, `medium`, `small`.
  * @return string Registered size name or `full`.
  */
-function clanspress_teams_resolve_team_avatar_image_size( string $preset ): string {
+function clanbite_teams_resolve_team_avatar_image_size( string $preset ): string {
 	$preset = sanitize_key( $preset );
 	$keys   = array(
 		'large'  => 'team_avatar_image_size_large',
@@ -452,17 +468,17 @@ function clanspress_teams_resolve_team_avatar_image_size( string $preset ): stri
 		'small'  => 'team_avatar_image_size_small',
 	);
 	$defaults = array(
-		'large'  => 'clanspress-team-avatar-large',
-		'medium' => 'clanspress-team-avatar-medium',
-		'small'  => 'clanspress-team-avatar-small',
+		'large'  => 'clanbite-team-avatar-large',
+		'medium' => 'clanbite-team-avatar-medium',
+		'small'  => 'clanbite-team-avatar-small',
 	);
 
 	$setting_key = $keys[ $preset ] ?? $keys['large'];
 	$fallback    = $defaults[ $preset ] ?? $defaults['large'];
-	$raw         = (string) clanspress_teams_get_setting( $setting_key, $fallback );
+	$raw         = (string) clanbite_teams_get_setting( $setting_key, $fallback );
 
-	if ( function_exists( 'clanspress_players_sanitize_image_size_setting_value' ) ) {
-		$sanitized = clanspress_players_sanitize_image_size_setting_value( $raw, $fallback );
+	if ( function_exists( 'clanbite_players_sanitize_image_size_setting_value' ) ) {
+		$sanitized = clanbite_players_sanitize_image_size_setting_value( $raw, $fallback );
 	} else {
 		$sanitized = $fallback;
 	}
@@ -475,7 +491,7 @@ function clanspress_teams_resolve_team_avatar_image_size( string $preset ): stri
 	 * @param string $raw      Value from settings before sanitization.
 	 * @param string $fallback Default slug for this preset.
 	 */
-	return (string) apply_filters( 'clanspress_teams_resolve_team_avatar_image_size', $sanitized, $preset, $raw, $fallback );
+	return (string) apply_filters( 'clanbite_teams_resolve_team_avatar_image_size', $sanitized, $preset, $raw, $fallback );
 }
 
 /**
@@ -485,13 +501,13 @@ function clanspress_teams_resolve_team_avatar_image_size( string $preset ): stri
  * so output follows Teams → avatar image size settings.
  *
  * @param int          $team_id          Team post ID (`cp_team`).
- * @param bool         $suppress_filters When true, skips {@see 'clanspress_teams_get_display_team_avatar'}.
+ * @param bool         $suppress_filters When true, skips {@see 'clanbite_teams_get_display_team_avatar'}.
  * @param string|array $size             Explicit WP image size; ignored when {@see $avatar_preset} is set.
  * @param string       $context          Optional surface key for filters (e.g. `team_avatar_block`, `public_rest`).
  * @param string       $avatar_preset    Optional `large`, `medium`, or `small`.
  * @return string
  */
-function clanspress_teams_get_display_team_avatar( int $team_id, bool $suppress_filters = false, string|array $size = '', string $context = '', string $avatar_preset = '' ): string {
+function clanbite_teams_get_display_team_avatar( int $team_id, bool $suppress_filters = false, string|array $size = '', string $context = '', string $avatar_preset = '' ): string {
 	if ( $team_id < 1 ) {
 		return '';
 	}
@@ -500,10 +516,10 @@ function clanspress_teams_get_display_team_avatar( int $team_id, bool $suppress_
 	$preset_for_filter = '';
 
 	if ( in_array( $preset_key, array( 'large', 'medium', 'small' ), true ) ) {
-		$size              = clanspress_teams_resolve_team_avatar_image_size( $preset_key );
+		$size              = clanbite_teams_resolve_team_avatar_image_size( $preset_key );
 		$preset_for_filter = $preset_key;
 	} elseif ( '' === $size || ( is_array( $size ) && empty( $size ) ) ) {
-		$size              = clanspress_teams_resolve_team_avatar_image_size( 'large' );
+		$size              = clanbite_teams_resolve_team_avatar_image_size( 'large' );
 		$preset_for_filter = 'large';
 	}
 
@@ -511,7 +527,7 @@ function clanspress_teams_get_display_team_avatar( int $team_id, bool $suppress_
 	$url       = $avatar_id ? (string) wp_get_attachment_image_url( $avatar_id, $size ) : '';
 
 	if ( '' === $url ) {
-		$url = clanspress_teams_get_default_avatar_url( $team_id );
+		$url = clanbite_teams_get_default_avatar_url( $team_id );
 	}
 
 	$url = trim( (string) $url );
@@ -529,20 +545,20 @@ function clanspress_teams_get_display_team_avatar( int $team_id, bool $suppress_
 	 * @param string       $context          Surface key.
 	 * @param string       $avatar_preset    `large`, `medium`, `small`, or empty when an explicit size was used.
 	 */
-	return (string) apply_filters( 'clanspress_teams_get_display_team_avatar', $url, $team_id, $size, $context, $preset_for_filter );
+	return (string) apply_filters( 'clanbite_teams_get_display_team_avatar', $url, $team_id, $size, $context, $preset_for_filter );
 }
 
 /**
  * URL of the plugin-bundled default team avatar (used when Teams -> default avatar is unset).
  *
- * @return string Empty when `clanspress()` is unavailable.
+ * @return string Empty when `clanbite()` is unavailable.
  */
-function clanspress_teams_get_bundled_default_avatar_url(): string {
-	if ( ! function_exists( 'clanspress' ) ) {
+function clanbite_teams_get_bundled_default_avatar_url(): string {
+	if ( ! function_exists( 'clanbite' ) ) {
 		return '';
 	}
 
-	return clanspress()->url . 'assets/img/avatars/default-team-avatar.png';
+	return clanbite()->url . 'assets/img/avatars/default-team-avatar.png';
 }
 
 /**
@@ -551,13 +567,13 @@ function clanspress_teams_get_bundled_default_avatar_url(): string {
  * @param int $team_id Team post ID for filters.
  * @return string
  */
-function clanspress_teams_get_default_avatar_url( int $team_id = 0 ): string {
-	$t   = clanspress_teams();
+function clanbite_teams_get_default_avatar_url( int $team_id = 0 ): string {
+	$t   = clanbite_teams();
 	$url = $t ? (string) $t->get_setting( 'default_team_avatar', '' ) : '';
 	$url = trim( $url );
 
 	if ( '' === $url ) {
-		$url = clanspress_teams_get_bundled_default_avatar_url();
+		$url = clanbite_teams_get_bundled_default_avatar_url();
 	}
 
 	/**
@@ -566,20 +582,20 @@ function clanspress_teams_get_default_avatar_url( int $team_id = 0 ): string {
 	 * @param string $url     Resolved URL.
 	 * @param int    $team_id Team post ID (0 if unknown).
 	 */
-	return (string) apply_filters( 'clanspress_teams_default_avatar_url', $url, $team_id );
+	return (string) apply_filters( 'clanbite_teams_default_avatar_url', $url, $team_id );
 }
 
 /**
  * URL of the plugin-bundled default team cover (used when Teams → default cover is unset).
  *
- * @return string Empty when `clanspress()` is unavailable.
+ * @return string Empty when `clanbite()` is unavailable.
  */
-function clanspress_teams_get_bundled_default_cover_url(): string {
-	if ( ! function_exists( 'clanspress' ) ) {
+function clanbite_teams_get_bundled_default_cover_url(): string {
+	if ( ! function_exists( 'clanbite' ) ) {
 		return '';
 	}
 
-	return clanspress()->url . 'assets/img/covers/default-team-cover-image.png';
+	return clanbite()->url . 'assets/img/covers/default-team-cover-image.png';
 }
 
 /**
@@ -588,13 +604,13 @@ function clanspress_teams_get_bundled_default_cover_url(): string {
  * @param int $team_id Team post ID for filters.
  * @return string
  */
-function clanspress_teams_get_default_cover_url( int $team_id = 0 ): string {
-	$t   = clanspress_teams();
+function clanbite_teams_get_default_cover_url( int $team_id = 0 ): string {
+	$t   = clanbite_teams();
 	$url = $t ? (string) $t->get_setting( 'default_team_cover', '' ) : '';
 	$url = trim( $url );
 
 	if ( '' === $url ) {
-		$url = clanspress_teams_get_bundled_default_cover_url();
+		$url = clanbite_teams_get_bundled_default_cover_url();
 	}
 
 	/**
@@ -603,7 +619,7 @@ function clanspress_teams_get_default_cover_url( int $team_id = 0 ): string {
 	 * @param string $url     Resolved URL.
 	 * @param int    $team_id Team post ID (0 if unknown).
 	 */
-	return (string) apply_filters( 'clanspress_teams_default_cover_url', $url, $team_id );
+	return (string) apply_filters( 'clanbite_teams_default_cover_url', $url, $team_id );
 }
 
 /**
@@ -615,7 +631,7 @@ function clanspress_teams_get_default_cover_url( int $team_id = 0 ): string {
  * @param array<string, mixed> $block_context Block context (`$block->context`).
  * @return int Team post ID or 0 when none applies.
  */
-function clanspress_team_block_resolve_team_id( array $block_context = array() ): int {
+function clanbite_team_block_resolve_team_id( array $block_context = array() ): int {
 	// 1. Block context: Query Loop and parents pass `postId` (and often `postType`).
 	if ( ! empty( $block_context['postId'] ) ) {
 		$pid = (int) $block_context['postId'];
@@ -664,7 +680,7 @@ function clanspress_team_block_resolve_team_id( array $block_context = array() )
 		return (int) $qo->ID;
 	}
 
-	$virtual_id = clanspress_team_virtual_route_team_id();
+	$virtual_id = clanbite_team_virtual_route_team_id();
 	if ( $virtual_id > 0 ) {
 		return $virtual_id;
 	}
@@ -677,13 +693,13 @@ function clanspress_team_block_resolve_team_id( array $block_context = array() )
  *
  * @return int
  */
-function clanspress_team_virtual_route_team_id(): int {
-	$action = sanitize_key( (string) get_query_var( 'clanspress_team_action' ) );
-	if ( (int) get_query_var( 'clanspress_events_team_id' ) > 0 && 'events' === $action ) {
-		return (int) get_query_var( 'clanspress_events_team_id' );
+function clanbite_team_virtual_route_team_id(): int {
+	$action = sanitize_key( (string) get_query_var( 'clanbite_team_action' ) );
+	if ( (int) get_query_var( 'clanbite_events_team_id' ) > 0 && 'events' === $action ) {
+		return (int) get_query_var( 'clanbite_events_team_id' );
 	}
-	if ( (int) get_query_var( 'clanspress_manage_team_id' ) > 0 && 'manage' === $action ) {
-		return (int) get_query_var( 'clanspress_manage_team_id' );
+	if ( (int) get_query_var( 'clanbite_manage_team_id' ) > 0 && 'manage' === $action ) {
+		return (int) get_query_var( 'clanbite_manage_team_id' );
 	}
 
 	return 0;
@@ -694,7 +710,7 @@ function clanspress_team_virtual_route_team_id(): int {
  *
  * @return int
  */
-function clanspress_team_profile_context_team_id(): int {
+function clanbite_team_profile_context_team_id(): int {
 	if ( is_singular( 'cp_team' ) ) {
 		$qid = (int) get_queried_object_id();
 		if ( $qid > 0 ) {
@@ -702,7 +718,7 @@ function clanspress_team_profile_context_team_id(): int {
 		}
 	}
 
-	return clanspress_team_virtual_route_team_id();
+	return clanbite_team_virtual_route_team_id();
 }
 
 /**
@@ -710,12 +726,12 @@ function clanspress_team_profile_context_team_id(): int {
  *
  * @return string
  */
-function clanspress_team_profile_route_current_slug(): string {
+function clanbite_team_profile_route_current_slug(): string {
 	if ( is_singular( 'cp_team' ) ) {
 		return sanitize_key( (string) get_query_var( 'cp_team_subpage' ) );
 	}
 
-	$action = sanitize_key( (string) get_query_var( 'clanspress_team_action' ) );
+	$action = sanitize_key( (string) get_query_var( 'clanbite_team_action' ) );
 	if ( 'events' === $action ) {
 		return 'events';
 	}
@@ -732,8 +748,8 @@ function clanspress_team_profile_route_current_slug(): string {
  * @param \WP_Block $block Current block instance.
  * @return int Team post ID or 0 when unknown.
  */
-function clanspress_team_single_block_team_id( \WP_Block $block ): int {
-	return clanspress_team_block_resolve_team_id( isset( $block->context ) ? (array) $block->context : array() );
+function clanbite_team_single_block_team_id( \WP_Block $block ): int {
+	return clanbite_team_block_resolve_team_id( isset( $block->context ) ? (array) $block->context : array() );
 }
 
 /**
@@ -742,14 +758,14 @@ function clanspress_team_single_block_team_id( \WP_Block $block ): int {
  * @param string $code ISO code or empty.
  * @return string
  */
-function clanspress_team_country_label( string $code ): string {
+function clanbite_team_country_label( string $code ): string {
 	$code = sanitize_text_field( $code );
 	if ( '' === $code ) {
 		return '';
 	}
 
-	if ( function_exists( 'clanspress_players_get_countries' ) ) {
-		$countries = clanspress_players_get_countries();
+	if ( function_exists( 'clanbite_players_get_countries' ) ) {
+		$countries = clanbite_players_get_countries();
 		if ( isset( $countries[ $code ] ) ) {
 			return (string) $countries[ $code ];
 		}
@@ -764,8 +780,8 @@ function clanspress_team_country_label( string $code ): string {
  * @param int $team_id Team post ID.
  * @return int
  */
-function clanspress_team_get_member_count( int $team_id ): int {
-	$t = clanspress_teams();
+function clanbite_team_get_member_count( int $team_id ): int {
+	$t = clanbite_teams();
 
 	return $t ? $t->get_team_member_count( $team_id ) : 0;
 }

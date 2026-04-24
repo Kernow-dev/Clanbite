@@ -1,13 +1,13 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/team-members-count",
+	"name": "clanbite/team-members-count",
 	"version": "1.0.0",
 	"title": "Team members count",
-	"category": "clanspress-teams",
+	"category": "clanbite-teams",
 	"icon": "groups",
 	"description": "Displays the number of roster members (excluding banned).",
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"postTypes": [ "cp_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"attributes": {
@@ -59,9 +59,9 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-team-members-count",
-		"color": ".wp-block-clanspress-team-members-count",
-		"typography": ".wp-block-clanspress-team-members-count",
-		"border": ".wp-block-clanspress-team-members-count"
+		"root": ".wp-block-clanbite-team-members-count",
+		"color": ".wp-block-clanbite-team-members-count",
+		"typography": ".wp-block-clanbite-team-members-count",
+		"border": ".wp-block-clanbite-team-members-count"
 	}
 }

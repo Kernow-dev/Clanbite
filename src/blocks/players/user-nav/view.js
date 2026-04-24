@@ -3,7 +3,7 @@
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
-store( 'clanspress/user-nav', {
+store( 'clanbite/user-nav', {
 	state: {},
 
 	actions: {

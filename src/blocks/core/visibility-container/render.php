@@ -5,12 +5,12 @@
  * WordPress loads this via `ob_start(); require; return ob_get_clean();` — output must be echoed
  * (or printed), not returned from this file; a top-level `return` value is discarded.
  *
- * @package clanspress
+ * @package clanbite
  */
 
 defined( 'ABSPATH' ) || exit;
 
-use Kernowdev\Clanspress\Blocks\Visibility_Container;
+use Kernowdev\Clanbite\Blocks\Visibility_Container;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render scope: $attributes, $content, $block.
 if ( ! class_exists( Visibility_Container::class ) ) {
@@ -32,7 +32,7 @@ if ( '' === trim( $inner_html ) && $block instanceof \WP_Block && is_countable( 
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(
-		'class' => 'clanspress-visibility-container',
+		'class' => 'clanbite-visibility-container',
 	),
 	$block
 );

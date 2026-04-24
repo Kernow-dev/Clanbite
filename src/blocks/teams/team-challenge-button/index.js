@@ -13,10 +13,10 @@ function Edit() {
 		<div { ...useBlockProps() }>
 			<Placeholder
 				icon="flag"
-				label={ __( 'Team challenge button', 'clanspress' ) }
+				label={ __( 'Team challenge button', 'clanbite' ) }
 				instructions={ __(
 					'On the team profile, this shows a Challenge button when the team accepts challenges and the Matches extension is enabled.',
-					'clanspress'
+					'clanbite'
 				) }
 			/>
 		</div>

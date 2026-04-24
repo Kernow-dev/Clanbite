@@ -2,10 +2,10 @@
 /**
  * Registers the `cp_event` CPT and post meta for scheduled events (teams / groups).
  *
- * @package clanspress
+ * @package clanbite
  */
 
-namespace Kernowdev\Clanspress\Events;
+namespace Kernowdev\Clanbite\Events;
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -43,18 +43,18 @@ final class Event_Post_Type {
 	 */
 	public function register_cpt(): void {
 		$labels = array(
-			'name'          => _x( 'Events', 'post type general name', 'clanspress' ),
-			'singular_name' => _x( 'Event', 'post type singular name', 'clanspress' ),
-			'add_new'       => __( 'Add New', 'clanspress' ),
-			'add_new_item'  => __( 'Add New Event', 'clanspress' ),
-			'edit_item'     => __( 'Edit Event', 'clanspress' ),
+			'name'          => _x( 'Events', 'post type general name', 'clanbite' ),
+			'singular_name' => _x( 'Event', 'post type singular name', 'clanbite' ),
+			'add_new'       => __( 'Add New', 'clanbite' ),
+			'add_new_item'  => __( 'Add New Event', 'clanbite' ),
+			'edit_item'     => __( 'Edit Event', 'clanbite' ),
 		);
 
 		register_post_type(
 			self::POST_TYPE,
 			array(
 				'labels'              => $labels,
-				'description'         => __( 'Clanspress scheduled events.', 'clanspress' ),
+				'description'         => __( 'Clanbite scheduled events.', 'clanbite' ),
 				'public'              => false,
 				'publicly_queryable'  => false,
 				'show_ui'             => true,

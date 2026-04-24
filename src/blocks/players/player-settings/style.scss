@@ -1,7 +1,7 @@
 /**
  * Align with Social feed / composer surfaces (see clanspress-social-kit social-feed).
  */
-.wp-block-clanspress-player-settings {
+.wp-block-clanbite-player-settings {
 	--feed-surface: color-mix(in srgb, currentColor 6%, transparent);
 	--feed-border: color-mix(in srgb, currentColor 14%, transparent);
 	--feed-muted: color-mix(in srgb, currentColor 55%, transparent);
@@ -86,11 +86,11 @@
 				padding: 0.85rem 1rem;
 				text-align: left;
 				background-color: var(
-					--wp--custom--clanspress--player--settings--nav-item-header--background-color,
+					--wp--custom--clanbite--player--settings--nav-item-header--background-color,
 					transparent
 				);
 				color: var(
-					--wp--custom--clanspress--player--settings--nav-item-header--color,
+					--wp--custom--clanbite--player--settings--nav-item-header--color,
 					inherit
 				);
 				cursor: pointer;
@@ -129,7 +129,7 @@
 				}
 
 				.description {
-					font-size: var(--wp--custom--clanspress--player--settings--nav-item-header--description--font-size, 0.875rem);
+					font-size: var(--wp--custom--clanbite--player--settings--nav-item-header--description--font-size, 0.875rem);
 					color: var(--feed-muted);
 					line-height: 1.4;
 				}
@@ -143,7 +143,7 @@
 				max-height: 0;
 				overflow: hidden;
 				background-color: var(
-					--wp--custom--clanspress--player--settings--nav-sub-items--background-color,
+					--wp--custom--clanbite--player--settings--nav-sub-items--background-color,
 					color-mix(in srgb, currentColor 3%, transparent)
 				);
 				padding: 0 1rem;
@@ -155,10 +155,10 @@
 				.nav-sub-item {
 					all: unset;
 					color: var(
-						--wp--custom--clanspress--player--settings--nav-sub-item--color,
+						--wp--custom--clanbite--player--settings--nav-sub-item--color,
 						inherit
 					);
-					font-size: var(--wp--custom--clanspress--player--settings--nav-sub-item--font-size, 0.9rem);
+					font-size: var(--wp--custom--clanbite--player--settings--nav-sub-item--font-size, 0.9rem);
 					line-height: 1.4;
 					cursor: pointer;
 					padding: 0.35rem 0;

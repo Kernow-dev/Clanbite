@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Country flag assets (Flagpack) and filterable markup for country blocks.
  *
- * @package clanspress
+ * @package clanbite
  */
 
 /**
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  * @param string $code Raw code from post meta or user meta.
  * @return string Uppercase letters, digits, and hyphens only (e.g. GB, GB-ENG).
  */
-function clanspress_normalize_country_code( string $code ): string {
+function clanbite_normalize_country_code( string $code ): string {
 	$code = strtoupper( preg_replace( '/[^a-zA-Z0-9\-]/', '', $code ) );
 
 	return $code;
@@ -25,16 +25,16 @@ function clanspress_normalize_country_code( string $code ): string {
  *
  * Flagpack omits some alpha-2 files (e.g. `GB` uses `gb-ukm`). Third parties may filter aliases or slug.
  *
- * @param string               $normalized_code {@see clanspress_normalize_country_code()}.
+ * @param string               $normalized_code {@see clanbite_normalize_country_code()}.
  * @param array<string, mixed> $context         Optional context for filters.
  * @return string Lowercase slug or empty.
  */
-function clanspress_country_flag_asset_slug( string $normalized_code, array $context = array() ): string {
-	if ( '' === $normalized_code || ! function_exists( 'clanspress' ) ) {
+function clanbite_country_flag_asset_slug( string $normalized_code, array $context = array() ): string {
+	if ( '' === $normalized_code || ! function_exists( 'clanbite' ) ) {
 		return '';
 	}
 
-	$main = clanspress();
+	$main = clanbite();
 	if ( ! is_object( $main ) || ! isset( $main->path ) ) {
 		return '';
 	}
@@ -43,7 +43,7 @@ function clanspress_country_flag_asset_slug( string $normalized_code, array $con
 	$slug = strtolower( $normalized_code );
 
 	if ( is_readable( $dir . $slug . '.svg' ) ) {
-		return (string) apply_filters( 'clanspress_country_flag_asset_slug', $slug, $normalized_code, $context );
+		return (string) apply_filters( 'clanbite_country_flag_asset_slug', $slug, $normalized_code, $context );
 	}
 
 	/**
@@ -54,7 +54,7 @@ function clanspress_country_flag_asset_slug( string $normalized_code, array $con
 	 * @param array<string, mixed>  $context         Optional context.
 	 */
 	$aliases = (array) apply_filters(
-		'clanspress_country_flag_slug_aliases',
+		'clanbite_country_flag_slug_aliases',
 		array(
 			'GB' => 'gb-ukm',
 			'UK' => 'gb-ukm',
@@ -70,27 +70,27 @@ function clanspress_country_flag_asset_slug( string $normalized_code, array $con
 		}
 	}
 
-	return (string) apply_filters( 'clanspress_country_flag_asset_slug', $slug, $normalized_code, $context );
+	return (string) apply_filters( 'clanbite_country_flag_asset_slug', $slug, $normalized_code, $context );
 }
 
 /**
  * Absolute filesystem path to a bundled Flagpack SVG, when present.
  *
- * @param string               $normalized_code {@see clanspress_normalize_country_code()}.
+ * @param string               $normalized_code {@see clanbite_normalize_country_code()}.
  * @param array<string, mixed> $context         Optional context for filters.
  * @return string Path or empty when missing.
  */
-function clanspress_country_flag_file_path( string $normalized_code, array $context = array() ): string {
-	if ( '' === $normalized_code || ! function_exists( 'clanspress' ) ) {
+function clanbite_country_flag_file_path( string $normalized_code, array $context = array() ): string {
+	if ( '' === $normalized_code || ! function_exists( 'clanbite' ) ) {
 		return '';
 	}
 
-	$main = clanspress();
+	$main = clanbite();
 	if ( ! is_object( $main ) || ! isset( $main->path ) ) {
 		return '';
 	}
 
-	$slug = clanspress_country_flag_asset_slug( $normalized_code, $context );
+	$slug = clanbite_country_flag_asset_slug( $normalized_code, $context );
 	if ( '' === $slug ) {
 		return '';
 	}
@@ -104,7 +104,7 @@ function clanspress_country_flag_file_path( string $normalized_code, array $cont
 	 * @param string $normalized_code Normalized country code.
 	 * @param array  $context         Arbitrary context: `entity`, `block_name`, `block`, etc.
 	 */
-	$path = (string) apply_filters( 'clanspress_country_flag_file_path', $path, $normalized_code, $context );
+	$path = (string) apply_filters( 'clanbite_country_flag_file_path', $path, $normalized_code, $context );
 
 	return is_string( $path ) && is_readable( $path ) ? $path : '';
 }
@@ -112,21 +112,21 @@ function clanspress_country_flag_file_path( string $normalized_code, array $cont
 /**
  * Public URL for a country flag asset (bundled SVG or overridden).
  *
- * @param string               $normalized_code {@see clanspress_normalize_country_code()}.
+ * @param string               $normalized_code {@see clanbite_normalize_country_code()}.
  * @param array<string, mixed> $context         Optional context for filters.
  * @return string URL or empty.
  */
-function clanspress_country_flag_url( string $normalized_code, array $context = array() ): string {
-	if ( '' === $normalized_code || ! function_exists( 'clanspress' ) ) {
+function clanbite_country_flag_url( string $normalized_code, array $context = array() ): string {
+	if ( '' === $normalized_code || ! function_exists( 'clanbite' ) ) {
 		return '';
 	}
 
-	$main = clanspress();
+	$main = clanbite();
 	if ( ! is_object( $main ) || ! isset( $main->url, $main->path ) ) {
 		return '';
 	}
 
-	$slug = clanspress_country_flag_asset_slug( $normalized_code, $context );
+	$slug = clanbite_country_flag_asset_slug( $normalized_code, $context );
 	$url  = '';
 	if ( '' !== $slug && is_readable( trailingslashit( $main->path ) . 'assets/flags/' . $slug . '.svg' ) ) {
 		$url = trailingslashit( $main->url ) . 'assets/flags/' . $slug . '.svg';
@@ -141,7 +141,7 @@ function clanspress_country_flag_url( string $normalized_code, array $context = 
 	 * @param string $normalized_code Normalized country code.
 	 * @param array  $url_context     Includes `slug` plus `entity`, `block_name`, `block`, `attributes`.
 	 */
-	return (string) apply_filters( 'clanspress_country_flag_url', $url, $normalized_code, $url_context );
+	return (string) apply_filters( 'clanbite_country_flag_url', $url, $normalized_code, $url_context );
 }
 
 /**
@@ -152,7 +152,7 @@ function clanspress_country_flag_url( string $normalized_code, array $context = 
  * @param array<string, mixed> $context         Merged with code/alt; may include `class`, `width`, `height`, `entity`, `block_name`, `block`, `attributes`.
  * @return string Safe HTML fragment or empty.
  */
-function clanspress_country_flag_img_html( string $normalized_code, string $alt, array $context = array() ): string {
+function clanbite_country_flag_img_html( string $normalized_code, string $alt, array $context = array() ): string {
 	$context = array_merge(
 		array(
 			'code' => $normalized_code,
@@ -167,17 +167,17 @@ function clanspress_country_flag_img_html( string $normalized_code, string $alt,
 	 * @param string $html    Empty string by default.
 	 * @param array  $context Keys: `code`, `alt`, plus passthrough from the caller.
 	 */
-	$custom = (string) apply_filters( 'clanspress_country_flag_html', '', $context );
+	$custom = (string) apply_filters( 'clanbite_country_flag_html', '', $context );
 	if ( '' !== trim( $custom ) ) {
 		return $custom;
 	}
 
-	$url = clanspress_country_flag_url( $normalized_code, $context );
+	$url = clanbite_country_flag_url( $normalized_code, $context );
 	if ( '' === $url ) {
 		return '';
 	}
 
-	$class  = isset( $context['class'] ) ? sanitize_html_class( (string) $context['class'] ) : 'clanspress-country-flag__img';
+	$class  = isset( $context['class'] ) ? sanitize_html_class( (string) $context['class'] ) : 'clanbite-country-flag__img';
 	$width  = isset( $context['width'] ) ? max( 1, (int) $context['width'] ) : 24;
 	$height = isset( $context['height'] ) ? max( 1, (int) $context['height'] ) : 18;
 
@@ -206,9 +206,9 @@ function clanspress_country_flag_img_html( string $normalized_code, string $alt,
 	 * Filter the default flag &lt;img&gt; HTML after it is built.
 	 *
 	 * @param string $img     Full img element string.
-	 * @param array  $context Same as {@see clanspress_country_flag_html}.
+	 * @param array  $context Same as {@see clanbite_country_flag_html}.
 	 */
-	return (string) apply_filters( 'clanspress_country_flag_img_html', $img, $context );
+	return (string) apply_filters( 'clanbite_country_flag_img_html', $img, $context );
 }
 
 /**
@@ -218,11 +218,11 @@ function clanspress_country_flag_img_html( string $normalized_code, string $alt,
  * @param string               $code            Raw country code from storage.
  * @param string               $label           Human-readable country name.
  * @param string               $entity          `team` or `player`.
- * @param string               $block_name      Block name, e.g. `clanspress/team-country`.
+ * @param string               $block_name      Block name, e.g. `clanbite/team-country`.
  * @param \WP_Block|null       $block           Block instance.
  * @return string HTML fragment (escaped); empty when nothing to show.
  */
-function clanspress_country_block_inner_html( array $attributes, string $code, string $label, string $entity, string $block_name, $block = null ): string {
+function clanbite_country_block_inner_html( array $attributes, string $code, string $label, string $entity, string $block_name, $block = null ): string {
 	$display = isset( $attributes['countryDisplay'] ) ? sanitize_key( (string) $attributes['countryDisplay'] ) : 'both';
 	if ( ! in_array( $display, array( 'both', 'flag', 'text' ), true ) ) {
 		$display = 'both';
@@ -231,7 +231,7 @@ function clanspress_country_block_inner_html( array $attributes, string $code, s
 	$flag_first = ! isset( $attributes['flagFirst'] ) || (bool) $attributes['flagFirst'];
 	$show_code  = ! empty( $attributes['showCode'] );
 
-	$norm = clanspress_normalize_country_code( $code );
+	$norm = clanbite_normalize_country_code( $code );
 	$ctx  = array(
 		'entity'      => $entity,
 		'block_name'  => $block_name,
@@ -245,18 +245,18 @@ function clanspress_country_block_inner_html( array $attributes, string $code, s
 	if ( '' !== $label ) {
 		$text_inner = esc_html( $label );
 		if ( $show_code && '' !== trim( $code ) && $label !== $code ) {
-			$text_inner .= ' <span class="clanspress-country-display__code">(' . esc_html( $norm ) . ')</span>';
+			$text_inner .= ' <span class="clanbite-country-display__code">(' . esc_html( $norm ) . ')</span>';
 		}
 	} elseif ( '' !== $norm && 'text' === $display ) {
 		$text_inner = esc_html( $norm );
 	}
 
-	$alt = '' !== $label ? $label : ( '' !== $norm ? $norm : __( 'Country', 'clanspress' ) );
+	$alt = '' !== $label ? $label : ( '' !== $norm ? $norm : __( 'Country', 'clanbite' ) );
 
 	$flag_ctx = array_merge(
 		$ctx,
 		array(
-			'class'  => 'clanspress-country-flag__img',
+			'class'  => 'clanbite-country-flag__img',
 			'width'  => 24,
 			'height' => 18,
 		)
@@ -264,7 +264,7 @@ function clanspress_country_block_inner_html( array $attributes, string $code, s
 
 	$text_html = '';
 	if ( 'flag' !== $display && '' !== $text_inner ) {
-		$text_html = '<span class="clanspress-country-display__label">' . $text_inner . '</span>';
+		$text_html = '<span class="clanbite-country-display__label">' . $text_inner . '</span>';
 	}
 
 	$flag_html = '';
@@ -273,14 +273,14 @@ function clanspress_country_block_inner_html( array $attributes, string $code, s
 		if ( 'both' === $display && '' !== $text_html ) {
 			$flag_render_ctx['decorative'] = true;
 		}
-		$flag_html = clanspress_country_flag_img_html( $norm, $alt, $flag_render_ctx );
+		$flag_html = clanbite_country_flag_img_html( $norm, $alt, $flag_render_ctx );
 	}
 
 	$parts = array();
 	if ( 'both' === $display ) {
 		if ( $flag_first ) {
 			if ( '' !== $flag_html ) {
-				$parts[] = '<span class="clanspress-country-flag">' . $flag_html . '</span>';
+				$parts[] = '<span class="clanbite-country-flag">' . $flag_html . '</span>';
 			}
 			if ( '' !== $text_html ) {
 				$parts[] = $text_html;
@@ -290,12 +290,12 @@ function clanspress_country_block_inner_html( array $attributes, string $code, s
 				$parts[] = $text_html;
 			}
 			if ( '' !== $flag_html ) {
-				$parts[] = '<span class="clanspress-country-flag">' . $flag_html . '</span>';
+				$parts[] = '<span class="clanbite-country-flag">' . $flag_html . '</span>';
 			}
 		}
 	} elseif ( 'flag' === $display ) {
 		if ( '' !== $flag_html ) {
-			$parts[] = '<span class="clanspress-country-flag">' . $flag_html . '</span>';
+			$parts[] = '<span class="clanbite-country-flag">' . $flag_html . '</span>';
 		}
 	} else {
 		if ( '' !== $text_html ) {
@@ -307,7 +307,7 @@ function clanspress_country_block_inner_html( array $attributes, string $code, s
 
 	if ( '' === $inner && 'flag' === $display && '' !== $norm ) {
 		// Missing asset: show code as fallback text.
-		$inner = '<span class="clanspress-country-display__label clanspress-country-display__label--fallback">' . esc_html( $norm ) . '</span>';
+		$inner = '<span class="clanbite-country-display__label clanbite-country-display__label--fallback">' . esc_html( $norm ) . '</span>';
 	}
 
 	/**
@@ -321,5 +321,7 @@ function clanspress_country_block_inner_html( array $attributes, string $code, s
 	 * @param string               $block_name Block name.
 	 * @param \WP_Block|null       $block      Block instance.
 	 */
-	return (string) apply_filters( 'clanspress_country_display_html', $inner, $attributes, $code, $label, $entity, $block_name, $block );
+	$inner = (string) apply_filters( 'clanbite_country_display_html', $inner, $attributes, $code, $label, $entity, $block_name, $block );
+
+	return wp_kses_post( $inner );
 }

@@ -9,13 +9,13 @@ export default function Edit( { attributes, setAttributes } ) {
 			<EntityLinkInspector
 				attributes={ attributes }
 				setAttributes={ setAttributes }
-				toggleLabel={ __( 'Link to player profile', 'clanspress' ) }
+				toggleLabel={ __( 'Link to player profile', 'clanbite' ) }
 			/>
 			<div { ...useBlockProps() }>
-				<p className="clanspress-player-block-placeholder">
+				<p className="clanbite-player-block-placeholder">
 					{ __(
 						'Player display name (profile template)',
-						'clanspress'
+						'clanbite'
 					) }
 				</p>
 			</div>

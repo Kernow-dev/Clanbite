@@ -2,32 +2,32 @@
 /**
  * Server-side first paint for event list and calendar blocks (matches REST list semantics).
  *
- * @package clanspress
+ * @package clanbite
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Run the same collection query as `GET clanspress/v1/event-posts` for block SSR.
+ * Run the same collection query as `GET clanbite/v1/event-posts` for block SSR.
  *
  * @param array<string, mixed> $params Request params: team_id, group_id, player_user_id, page, per_page, time_scope, order, starts_after, starts_before, search.
  * @return array{items: array<int, array<string, mixed>>, total: int}|WP_Error
  */
-function clanspress_events_block_query_collection( array $params ) {
-	if ( ! class_exists( \Kernowdev\Clanspress\Events\Event_Entity_Rest_Controller::class ) ) {
+function clanbite_events_block_query_collection( array $params ) {
+	if ( ! class_exists( \Kernowdev\Clanbite\Events\Event_Entity_Rest_Controller::class ) ) {
 		return new \WP_Error(
-			'clanspress_events_rest_unavailable',
-			__( 'The events REST API is not available.', 'clanspress' ),
+			'clanbite_events_rest_unavailable',
+			__( 'The events REST API is not available.', 'clanbite' ),
 			array( 'status' => 503 )
 		);
 	}
 
-	$request = new \WP_REST_Request( 'GET', '/clanspress/v1/event-posts' );
+	$request = new \WP_REST_Request( 'GET', '/clanbite/v1/event-posts' );
 	foreach ( $params as $key => $value ) {
 		$request->set_param( $key, $value );
 	}
 
-	$controller = new \Kernowdev\Clanspress\Events\Event_Entity_Rest_Controller();
+	$controller = new \Kernowdev\Clanbite\Events\Event_Entity_Rest_Controller();
 	$response   = $controller->get_items( $request );
 
 	if ( $response instanceof WP_Error ) {
@@ -59,7 +59,7 @@ function clanspress_events_block_query_collection( array $params ) {
  * @param string $anchor_ymd Y-m-d in site timezone.
  * @return array{starts_after: string, starts_before: string}
  */
-function clanspress_events_calendar_range_iso_for_view( string $view, string $anchor_ymd ): array {
+function clanbite_events_calendar_range_iso_for_view( string $view, string $anchor_ymd ): array {
 	$tz = wp_timezone();
 
 	try {
@@ -99,7 +99,7 @@ function clanspress_events_calendar_range_iso_for_view( string $view, string $an
  * @param string $anchor_ymd Y-m-d.
  * @return string
  */
-function clanspress_events_calendar_heading_for_view( string $view, string $anchor_ymd ): string {
+function clanbite_events_calendar_heading_for_view( string $view, string $anchor_ymd ): string {
 	$tz = wp_timezone();
 
 	try {
@@ -130,7 +130,7 @@ function clanspress_events_calendar_heading_for_view( string $view, string $anch
  * @param string               $starts_at Event starts_at meta (MySQL / ISO fragment).
  * @return \DateTimeImmutable|null UTC.
  */
-function clanspress_events_parse_starts_at_utc( string $starts_at ): ?\DateTimeImmutable {
+function clanbite_events_parse_starts_at_utc( string $starts_at ): ?\DateTimeImmutable {
 	$starts_at = trim( $starts_at );
 	if ( '' === $starts_at ) {
 		return null;
@@ -148,8 +148,8 @@ function clanspress_events_parse_starts_at_utc( string $starts_at ): ?\DateTimeI
  * @param array<string, mixed> $ev REST item.
  * @return array{startYmd: string, endYmd: string, ev: array<string, mixed>}|null
  */
-function clanspress_events_event_ymd_range_site( array $ev ): ?array {
-	$s = clanspress_events_parse_starts_at_utc( (string) ( $ev['startsAt'] ?? '' ) );
+function clanbite_events_event_ymd_range_site( array $ev ): ?array {
+	$s = clanbite_events_parse_starts_at_utc( (string) ( $ev['startsAt'] ?? '' ) );
 	if ( ! $s ) {
 		return null;
 	}
@@ -185,13 +185,13 @@ function clanspress_events_event_ymd_range_site( array $ev ): ?array {
  * @param string                           $ymd   Cell date Y-m-d (site TZ).
  * @return array<int, array{startYmd: string, endYmd: string, ev: array<string, mixed>}>
  */
-function clanspress_events_touching_ymd( array $items, string $ymd ): array {
+function clanbite_events_touching_ymd( array $items, string $ymd ): array {
 	$out = array();
 	foreach ( $items as $row ) {
 		if ( ! is_array( $row ) ) {
 			continue;
 		}
-		$r = clanspress_events_event_ymd_range_site( $row );
+		$r = clanbite_events_event_ymd_range_site( $row );
 		if ( ! $r || $ymd < $r['startYmd'] || $ymd > $r['endYmd'] ) {
 			continue;
 		}
@@ -201,8 +201,8 @@ function clanspress_events_touching_ymd( array $items, string $ymd ): array {
 	usort(
 		$out,
 		static function ( array $a, array $b ): int {
-			$ta = clanspress_events_parse_starts_at_utc( (string) ( $a['ev']['startsAt'] ?? '' ) );
-			$tb = clanspress_events_parse_starts_at_utc( (string) ( $b['ev']['startsAt'] ?? '' ) );
+			$ta = clanbite_events_parse_starts_at_utc( (string) ( $a['ev']['startsAt'] ?? '' ) );
+			$tb = clanbite_events_parse_starts_at_utc( (string) ( $b['ev']['startsAt'] ?? '' ) );
 			$ua = $ta ? $ta->getTimestamp() : 0;
 			$ub = $tb ? $tb->getTimestamp() : 0;
 
@@ -218,7 +218,7 @@ function clanspress_events_touching_ymd( array $items, string $ymd ): array {
  * @param string                                                            $ymd   Cell Y-m-d.
  * @return string start|end|mid|single
  */
-function clanspress_events_segment_kind( array $range, string $ymd ): string {
+function clanbite_events_segment_kind( array $range, string $ymd ): string {
 	if ( $range['startYmd'] === $range['endYmd'] ) {
 		return 'single';
 	}
@@ -238,8 +238,8 @@ function clanspress_events_segment_kind( array $range, string $ymd ): string {
  * @param string $starts_at Raw startsAt.
  * @return string
  */
-function clanspress_events_format_time_for_calendar( string $starts_at ): string {
-	$dt = clanspress_events_parse_starts_at_utc( $starts_at );
+function clanbite_events_format_time_for_calendar( string $starts_at ): string {
+	$dt = clanbite_events_parse_starts_at_utc( $starts_at );
 	if ( ! $dt ) {
 		return '';
 	}
@@ -254,7 +254,7 @@ function clanspress_events_format_time_for_calendar( string $starts_at ): string
  * @param int                                                                           $max_items Max segments in cell.
  * @return string HTML fragment (cells inside ul).
  */
-function clanspress_events_render_month_cell_events_html( array $ranges, string $cell_ymd, array $i18n, int $max_items = 3 ): string {
+function clanbite_events_render_month_cell_events_html( array $ranges, string $cell_ymd, array $i18n, int $max_items = 3 ): string {
 	$untitled = isset( $i18n['untitled'] ) ? (string) $i18n['untitled'] : '';
 	$html     = '';
 	$n        = 0;
@@ -263,26 +263,26 @@ function clanspress_events_render_month_cell_events_html( array $ranges, string 
 		if ( $n >= $max_items ) {
 			break;
 		}
-		$kind = clanspress_events_segment_kind( $r, $cell_ymd );
+		$kind = clanbite_events_segment_kind( $r, $cell_ymd );
 		$ev   = $r['ev'];
 		$t    = isset( $ev['title'] ) && is_string( $ev['title'] ) && '' !== $ev['title'] ? $ev['title'] : $untitled;
 		$u    = isset( $ev['permalink'] ) ? (string) $ev['permalink'] : '';
 		$st   = isset( $ev['startsAt'] ) ? (string) $ev['startsAt'] : '';
-		$time = ( 'start' === $kind || 'single' === $kind ) ? clanspress_events_format_time_for_calendar( $st ) : '';
+		$time = ( 'start' === $kind || 'single' === $kind ) ? clanbite_events_format_time_for_calendar( $st ) : '';
 
 		if ( 'mid' === $kind || 'end' === $kind ) {
-			$html .= '<li class="clanspress-event-calendar__ev-seg clanspress-event-calendar__ev-seg--span" title="' . esc_attr( $t ) . '"><span class="clanspress-event-calendar__ev-bar" aria-hidden="true"></span><span class="clanspress-event-calendar__sr-only">' . esc_html( $t ) . '</span></li>';
+			$html .= '<li class="clanbite-event-calendar__ev-seg clanbite-event-calendar__ev-seg--span" title="' . esc_attr( $t ) . '"><span class="clanbite-event-calendar__ev-bar" aria-hidden="true"></span><span class="clanbite-event-calendar__sr-only">' . esc_html( $t ) . '</span></li>';
 		} elseif ( '' !== $u ) {
-			$html .= '<li class="clanspress-event-calendar__ev-seg"><a href="' . esc_url( $u ) . '"><span class="clanspress-event-calendar__ev-time">' . esc_html( $time ) . '</span> ' . esc_html( $t ) . '</a></li>';
+			$html .= '<li class="clanbite-event-calendar__ev-seg"><a href="' . esc_url( $u ) . '"><span class="clanbite-event-calendar__ev-time">' . esc_html( $time ) . '</span> ' . esc_html( $t ) . '</a></li>';
 		} else {
-			$html .= '<li class="clanspress-event-calendar__ev-seg"><span class="clanspress-event-calendar__ev-time">' . esc_html( $time ) . '</span> ' . esc_html( $t ) . '</li>';
+			$html .= '<li class="clanbite-event-calendar__ev-seg"><span class="clanbite-event-calendar__ev-time">' . esc_html( $time ) . '</span> ' . esc_html( $t ) . '</li>';
 		}
 		++$n;
 	}
 
 	$extra = count( $ranges ) - $max_items;
 	if ( $extra > 0 ) {
-		$html .= '<li class="clanspress-event-calendar__more">+' . esc_html( (string) $extra ) . '</li>';
+		$html .= '<li class="clanbite-event-calendar__more">+' . esc_html( (string) $extra ) . '</li>';
 	}
 
 	return $html;
@@ -298,7 +298,7 @@ function clanspress_events_render_month_cell_events_html( array $ranges, string 
  * @param array<string, string>               $i18n           untitled, noEvents.
  * @return string
  */
-function clanspress_event_calendar_render_month_surface_html( string $anchor_ymd, array $items, array $weekday_labels, string $today_ymd, array $i18n ): string {
+function clanbite_event_calendar_render_month_surface_html( string $anchor_ymd, array $items, array $weekday_labels, string $today_ymd, array $i18n ): string {
 	$tz = wp_timezone();
 
 	try {
@@ -311,13 +311,13 @@ function clanspress_event_calendar_render_month_surface_html( string $anchor_ymd
 	$dow            = (int) $first_of_month->format( 'w' );
 	$start_grid     = $first_of_month->modify( '-' . $dow . ' days' );
 
-	$html  = '<div class="clanspress-event-calendar__month">';
-	$html .= '<div class="clanspress-event-calendar__dow">';
+	$html  = '<div class="clanbite-event-calendar__month">';
+	$html .= '<div class="clanbite-event-calendar__dow">';
 	for ( $i = 0; $i < 7; $i++ ) {
 		$lab = isset( $weekday_labels[ $i ] ) ? (string) $weekday_labels[ $i ] : '';
-		$html .= '<div class="clanspress-event-calendar__dow-cell">' . esc_html( $lab ) . '</div>';
+		$html .= '<div class="clanbite-event-calendar__dow-cell">' . esc_html( $lab ) . '</div>';
 	}
-	$html .= '</div><div class="clanspress-event-calendar__grid">';
+	$html .= '</div><div class="clanbite-event-calendar__grid">';
 
 	$cursor = clone $start_grid;
 	for ( $w = 0; $w < 6; $w++ ) {
@@ -325,8 +325,8 @@ function clanspress_event_calendar_render_month_surface_html( string $anchor_ymd
 			$ymd       = $cursor->format( 'Y-m-d' );
 			$in_month  = (int) $cursor->format( 'n' ) === (int) $anchor->format( 'n' );
 			$is_today  = ( $ymd === $today_ymd );
-			$ranges    = clanspress_events_touching_ymd( $items, $ymd );
-			$cell_cls  = 'clanspress-event-calendar__cell';
+			$ranges    = clanbite_events_touching_ymd( $items, $ymd );
+			$cell_cls  = 'clanbite-event-calendar__cell';
 			if ( ! $in_month ) {
 				$cell_cls .= ' is-muted';
 			}
@@ -334,8 +334,8 @@ function clanspress_event_calendar_render_month_surface_html( string $anchor_ymd
 				$cell_cls .= ' is-today';
 			}
 			$day_num = (int) $cursor->format( 'j' );
-			$html   .= '<div class="' . esc_attr( $cell_cls ) . '"><div class="clanspress-event-calendar__cell-num">' . esc_html( (string) $day_num ) . '</div><ul class="clanspress-event-calendar__cell-events">';
-			$html   .= clanspress_events_render_month_cell_events_html( $ranges, $ymd, $i18n, 3 );
+			$html   .= '<div class="' . esc_attr( $cell_cls ) . '"><div class="clanbite-event-calendar__cell-num">' . esc_html( (string) $day_num ) . '</div><ul class="clanbite-event-calendar__cell-events">';
+			$html   .= clanbite_events_render_month_cell_events_html( $ranges, $ymd, $i18n, 3 );
 			$html   .= '</ul></div>';
 			$cursor  = $cursor->modify( '+1 day' );
 		}
@@ -351,7 +351,7 @@ function clanspress_event_calendar_render_month_surface_html( string $anchor_ymd
  * @param array<string, string>          $i18n  untitled, noEvents.
  * @return string
  */
-function clanspress_event_calendar_render_week_surface_html( string $anchor_ymd, array $items, array $i18n ): string {
+function clanbite_event_calendar_render_week_surface_html( string $anchor_ymd, array $items, array $i18n ): string {
 	$tz = wp_timezone();
 
 	try {
@@ -366,23 +366,23 @@ function clanspress_event_calendar_render_week_surface_html( string $anchor_ymd,
 	$no_events = isset( $i18n['noEvents'] ) ? (string) $i18n['noEvents'] : '';
 	$untitled  = isset( $i18n['untitled'] ) ? (string) $i18n['untitled'] : '';
 
-	$html = '<div class="clanspress-event-calendar__week">';
+	$html = '<div class="clanbite-event-calendar__week">';
 	for ( $i = 0; $i < 7; $i++ ) {
 		$day = $start->modify( '+' . $i . ' days' );
 		$ymd = $day->format( 'Y-m-d' );
-		$html .= '<div class="clanspress-event-calendar__week-day">';
-		$html .= '<div class="clanspress-event-calendar__week-day-head">' . esc_html( wp_date( 'D, M j', $day->getTimestamp() ) ) . '</div><ul>';
-		$ranges = clanspress_events_touching_ymd( $items, $ymd );
+		$html .= '<div class="clanbite-event-calendar__week-day">';
+		$html .= '<div class="clanbite-event-calendar__week-day-head">' . esc_html( wp_date( 'D, M j', $day->getTimestamp() ) ) . '</div><ul>';
+		$ranges = clanbite_events_touching_ymd( $items, $ymd );
 		if ( array() === $ranges ) {
-			$html .= '<li class="clanspress-event-calendar__empty">' . esc_html( $no_events ) . '</li>';
+			$html .= '<li class="clanbite-event-calendar__empty">' . esc_html( $no_events ) . '</li>';
 		} else {
 			foreach ( $ranges as $r ) {
 				$ev      = $r['ev'];
-				$kind    = clanspress_events_segment_kind( $r, $ymd );
+				$kind    = clanbite_events_segment_kind( $r, $ymd );
 				$t       = isset( $ev['title'] ) && '' !== (string) $ev['title'] ? (string) $ev['title'] : $untitled;
 				$u       = isset( $ev['permalink'] ) ? (string) $ev['permalink'] : '';
 				$st      = isset( $ev['startsAt'] ) ? (string) $ev['startsAt'] : '';
-				$time_lbl = ( 'start' === $kind || 'single' === $kind ) ? clanspress_events_format_time_for_calendar( $st ) : '···';
+				$time_lbl = ( 'start' === $kind || 'single' === $kind ) ? clanbite_events_format_time_for_calendar( $st ) : '···';
 				if ( '' !== $u ) {
 					$html .= '<li><a href="' . esc_url( $u ) . '">' . esc_html( $time_lbl ) . ' — ' . esc_html( $t ) . '</a></li>';
 				} else {
@@ -402,22 +402,22 @@ function clanspress_event_calendar_render_week_surface_html( string $anchor_ymd,
  * @param array<string, string>          $i18n  untitled, noEvents.
  * @return string
  */
-function clanspress_event_calendar_render_day_surface_html( string $anchor_ymd, array $items, array $i18n ): string {
+function clanbite_event_calendar_render_day_surface_html( string $anchor_ymd, array $items, array $i18n ): string {
 	$no_events = isset( $i18n['noEvents'] ) ? (string) $i18n['noEvents'] : '';
 	$untitled  = isset( $i18n['untitled'] ) ? (string) $i18n['untitled'] : '';
 
-	$ranges = clanspress_events_touching_ymd( $items, $anchor_ymd );
-	$html   = '<div class="clanspress-event-calendar__day"><ul>';
+	$ranges = clanbite_events_touching_ymd( $items, $anchor_ymd );
+	$html   = '<div class="clanbite-event-calendar__day"><ul>';
 	if ( array() === $ranges ) {
-		$html .= '<li class="clanspress-event-calendar__empty">' . esc_html( $no_events ) . '</li>';
+		$html .= '<li class="clanbite-event-calendar__empty">' . esc_html( $no_events ) . '</li>';
 	} else {
 		foreach ( $ranges as $r ) {
 			$ev       = $r['ev'];
-			$kind     = clanspress_events_segment_kind( $r, $anchor_ymd );
+			$kind     = clanbite_events_segment_kind( $r, $anchor_ymd );
 			$t        = isset( $ev['title'] ) && '' !== (string) $ev['title'] ? (string) $ev['title'] : $untitled;
 			$u        = isset( $ev['permalink'] ) ? (string) $ev['permalink'] : '';
 			$st       = isset( $ev['startsAt'] ) ? (string) $ev['startsAt'] : '';
-			$time_lbl = ( 'start' === $kind || 'single' === $kind ) ? clanspress_events_format_time_for_calendar( $st ) : '···';
+			$time_lbl = ( 'start' === $kind || 'single' === $kind ) ? clanbite_events_format_time_for_calendar( $st ) : '···';
 			if ( '' !== $u ) {
 				$html .= '<li><a href="' . esc_url( $u ) . '">' . esc_html( $time_lbl ) . ' — ' . esc_html( $t ) . '</a></li>';
 			} else {
@@ -435,7 +435,7 @@ function clanspress_event_calendar_render_day_surface_html( string $anchor_ymd, 
  * @param array<string, string>          $i18n  untitled, noEvents.
  * @return string
  */
-function clanspress_event_calendar_render_list_surface_html( array $items, array $i18n ): string {
+function clanbite_event_calendar_render_list_surface_html( array $items, array $i18n ): string {
 	$no_events = isset( $i18n['noEvents'] ) ? (string) $i18n['noEvents'] : '';
 	$untitled  = isset( $i18n['untitled'] ) ? (string) $i18n['untitled'] : '';
 
@@ -449,8 +449,8 @@ function clanspress_event_calendar_render_list_surface_html( array $items, array
 	usort(
 		$sorted,
 		static function ( array $a, array $b ): int {
-			$ta = clanspress_events_parse_starts_at_utc( (string) ( $a['startsAt'] ?? '' ) );
-			$tb = clanspress_events_parse_starts_at_utc( (string) ( $b['startsAt'] ?? '' ) );
+			$ta = clanbite_events_parse_starts_at_utc( (string) ( $a['startsAt'] ?? '' ) );
+			$tb = clanbite_events_parse_starts_at_utc( (string) ( $b['startsAt'] ?? '' ) );
 			$ua = $ta ? $ta->getTimestamp() : 0;
 			$ub = $tb ? $tb->getTimestamp() : 0;
 
@@ -458,15 +458,15 @@ function clanspress_event_calendar_render_list_surface_html( array $items, array
 		}
 	);
 
-	$html = '<div class="clanspress-event-calendar__list-view"><ul class="clanspress-event-calendar__list">';
+	$html = '<div class="clanbite-event-calendar__list-view"><ul class="clanbite-event-calendar__list">';
 	if ( array() === $sorted ) {
-		$html .= '<li class="clanspress-event-calendar__empty">' . esc_html( $no_events ) . '</li>';
+		$html .= '<li class="clanbite-event-calendar__empty">' . esc_html( $no_events ) . '</li>';
 	} else {
 		foreach ( $sorted as $ev ) {
 			$t = isset( $ev['title'] ) && '' !== (string) $ev['title'] ? (string) $ev['title'] : $untitled;
 			$u = isset( $ev['permalink'] ) ? (string) $ev['permalink'] : '';
-			$s = clanspress_events_parse_starts_at_utc( (string) ( $ev['startsAt'] ?? '' ) );
-			$e = clanspress_events_parse_starts_at_utc( (string) ( $ev['endsAt'] ?? '' ) );
+			$s = clanbite_events_parse_starts_at_utc( (string) ( $ev['startsAt'] ?? '' ) );
+			$e = clanbite_events_parse_starts_at_utc( (string) ( $ev['endsAt'] ?? '' ) );
 
 			$when = '';
 			if ( $s ) {
@@ -486,12 +486,12 @@ function clanspress_event_calendar_render_list_surface_html( array $items, array
 				}
 			}
 
-			$html .= '<li class="clanspress-event-calendar__list-item">';
-			$html .= '<span class="clanspress-event-calendar__list-when">' . esc_html( $when ) . '</span>';
+			$html .= '<li class="clanbite-event-calendar__list-item">';
+			$html .= '<span class="clanbite-event-calendar__list-when">' . esc_html( $when ) . '</span>';
 			if ( '' !== $u ) {
-				$html .= '<a class="clanspress-event-calendar__list-title" href="' . esc_url( $u ) . '">' . esc_html( $t ) . '</a>';
+				$html .= '<a class="clanbite-event-calendar__list-title" href="' . esc_url( $u ) . '">' . esc_html( $t ) . '</a>';
 			} else {
-				$html .= '<span class="clanspress-event-calendar__list-title">' . esc_html( $t ) . '</span>';
+				$html .= '<span class="clanbite-event-calendar__list-title">' . esc_html( $t ) . '</span>';
 			}
 			$html .= '</li>';
 		}
@@ -502,7 +502,7 @@ function clanspress_event_calendar_render_list_surface_html( array $items, array
 }
 
 /**
- * Inner HTML for `.clanspress-event-calendar__surface`.
+ * Inner HTML for `.clanbite-event-calendar__surface`.
  *
  * @param string                           $view       month|week|day|list.
  * @param string                           $anchor_ymd Y-m-d.
@@ -512,19 +512,19 @@ function clanspress_event_calendar_render_list_surface_html( array $items, array
  * @param array<string, string>            $i18n       Block i18n subset.
  * @return string
  */
-function clanspress_event_calendar_render_surface_html( string $view, string $anchor_ymd, array $items, array $weekdays, string $today_ymd, array $i18n ): string {
+function clanbite_event_calendar_render_surface_html( string $view, string $anchor_ymd, array $items, array $weekdays, string $today_ymd, array $i18n ): string {
 	$view = sanitize_key( $view );
 	if ( 'month' === $view ) {
-		return clanspress_event_calendar_render_month_surface_html( $anchor_ymd, $items, $weekdays, $today_ymd, $i18n );
+		return clanbite_event_calendar_render_month_surface_html( $anchor_ymd, $items, $weekdays, $today_ymd, $i18n );
 	}
 	if ( 'week' === $view ) {
-		return clanspress_event_calendar_render_week_surface_html( $anchor_ymd, $items, $i18n );
+		return clanbite_event_calendar_render_week_surface_html( $anchor_ymd, $items, $i18n );
 	}
 	if ( 'day' === $view ) {
-		return clanspress_event_calendar_render_day_surface_html( $anchor_ymd, $items, $i18n );
+		return clanbite_event_calendar_render_day_surface_html( $anchor_ymd, $items, $i18n );
 	}
 	if ( 'list' === $view ) {
-		return clanspress_event_calendar_render_list_surface_html( $items, $i18n );
+		return clanbite_event_calendar_render_list_surface_html( $items, $i18n );
 	}
 
 	return '';
@@ -536,8 +536,8 @@ function clanspress_event_calendar_render_surface_html( string $view, string $an
  * @param string $starts_at Raw meta / REST value.
  * @return string
  */
-function clanspress_events_format_list_row_starts_at( string $starts_at ): string {
-	$dt = clanspress_events_parse_starts_at_utc( $starts_at );
+function clanbite_events_format_list_row_starts_at( string $starts_at ): string {
+	$dt = clanbite_events_parse_starts_at_utc( $starts_at );
 	if ( ! $dt ) {
 		return '';
 	}
@@ -555,12 +555,12 @@ function clanspress_events_format_list_row_starts_at( string $starts_at ): strin
  * @param array<string, string>          $i18n  untitled, noEvents.
  * @return string HTML (no `<ul>` wrapper).
  */
-function clanspress_events_render_event_list_rows_html( array $items, array $i18n ): string {
+function clanbite_events_render_event_list_rows_html( array $items, array $i18n ): string {
 	$untitled  = isset( $i18n['untitled'] ) ? (string) $i18n['untitled'] : '';
 	$no_events = isset( $i18n['noEvents'] ) ? (string) $i18n['noEvents'] : '';
 
 	if ( array() === $items ) {
-		return '<li class="clanspress-event-list__empty">' . esc_html( $no_events ) . '</li>';
+		return '<li class="clanbite-event-list__empty">' . esc_html( $no_events ) . '</li>';
 	}
 
 	$html = '';
@@ -570,16 +570,16 @@ function clanspress_events_render_event_list_rows_html( array $items, array $i18
 		}
 		$title = isset( $row['title'] ) && is_string( $row['title'] ) && '' !== $row['title'] ? $row['title'] : $untitled;
 		$url   = isset( $row['permalink'] ) ? (string) $row['permalink'] : '';
-		$label = isset( $row['startsAt'] ) ? clanspress_events_format_list_row_starts_at( (string) $row['startsAt'] ) : '';
+		$label = isset( $row['startsAt'] ) ? clanbite_events_format_list_row_starts_at( (string) $row['startsAt'] ) : '';
 
-		$html .= '<li class="clanspress-event-list__item">';
+		$html .= '<li class="clanbite-event-list__item">';
 		if ( '' !== $url ) {
-			$html .= '<a class="clanspress-event-list__title" href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a>';
+			$html .= '<a class="clanbite-event-list__title" href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a>';
 		} else {
-			$html .= '<span class="clanspress-event-list__title">' . esc_html( $title ) . '</span>';
+			$html .= '<span class="clanbite-event-list__title">' . esc_html( $title ) . '</span>';
 		}
 		if ( '' !== $label ) {
-			$html .= '<p class="clanspress-event-list__meta">' . esc_html( $label ) . '</p>';
+			$html .= '<p class="clanbite-event-list__meta">' . esc_html( $label ) . '</p>';
 		}
 		$html .= '</li>';
 	}

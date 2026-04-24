@@ -1,9 +1,9 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "clanspress/team-profile-nav",
+	"name": "clanbite/team-profile-nav",
 	"title": "Team Profile Navigation",
-	"category": "clanspress-teams",
+	"category": "clanbite-teams",
 	"icon": "groups",
 	"description": "Displays the team profile subpage navigation.",
 	"supports": {
@@ -26,18 +26,18 @@
 		},
 		"html": false
 	},
-	"textdomain": "clanspress",
+	"textdomain": "clanbite",
 	"editorScript": "file:./index.js",
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"selectors": {
-		"root": ".wp-block-clanspress-team-profile-nav",
+		"root": ".wp-block-clanbite-team-profile-nav",
 		"color": {
-			"text": ".wp-block-clanspress-team-profile-nav .clanspress-team-profile-nav__link",
-			"background": ".wp-block-clanspress-team-profile-nav",
-			"link": ".wp-block-clanspress-team-profile-nav .clanspress-team-profile-nav__link"
+			"text": ".wp-block-clanbite-team-profile-nav .clanbite-team-profile-nav__link",
+			"background": ".wp-block-clanbite-team-profile-nav",
+			"link": ".wp-block-clanbite-team-profile-nav .clanbite-team-profile-nav__link"
 		},
-		"typography": ".wp-block-clanspress-team-profile-nav .clanspress-team-profile-nav__link",
-		"border": ".wp-block-clanspress-team-profile-nav"
+		"typography": ".wp-block-clanbite-team-profile-nav .clanbite-team-profile-nav__link",
+		"border": ".wp-block-clanbite-team-profile-nav"
 	}
 }

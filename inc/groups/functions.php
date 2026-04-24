@@ -8,10 +8,10 @@ defined( 'ABSPATH' ) || exit;
  * A separate plugin may register `cp_group`, group blocks, templates, and virtual template parts;
  * it should use these helpers and filters so the Events extension and shared front-end patterns stay aligned.
  *
- * Core loads this file on every request so `clanspress_register_group_subpage()` and related helpers exist
+ * Core loads this file on every request so `clanbite_register_group_subpage()` and related helpers exist
  * even when no groups plugin is active (they no-op or return safe defaults).
  *
- * @package clanspress
+ * @package clanbite
  */
 
 /**
@@ -24,16 +24,16 @@ defined( 'ABSPATH' ) || exit;
  *     Optional. Subpage arguments.
  *
  *     @type string $label        Human-readable nav label.
- *     @type string $template_id  FSE template id (default `clanspress-group-{slug}`).
+ *     @type string $template_id  FSE template id (default `clanbite-group-{slug}`).
  *     @type string $default_blocks Optional default block markup for the template.
  *     @type string $capability   Capability required to see the tab in nav (default `read`).
  *     @type int    $position     Sort order (lower first).
  * }
  * @return void
  */
-function clanspress_register_group_subpage( string $slug, array $args = array() ): void {
-	if ( function_exists( 'clanspress_register_profile_subpage' ) ) {
-		clanspress_register_profile_subpage( 'group', $slug, $args );
+function clanbite_register_group_subpage( string $slug, array $args = array() ): void {
+	if ( function_exists( 'clanbite_register_profile_subpage' ) ) {
+		clanbite_register_profile_subpage( 'group', $slug, $args );
 	}
 }
 
@@ -42,8 +42,8 @@ function clanspress_register_group_subpage( string $slug, array $args = array() 
  *
  * @return array<string, array<string, mixed>>
  */
-function clanspress_get_group_subpages(): array {
-	return function_exists( 'clanspress_get_profile_subpages' ) ? clanspress_get_profile_subpages( 'group' ) : array();
+function clanbite_get_group_subpages(): array {
+	return function_exists( 'clanbite_get_profile_subpages' ) ? clanbite_get_profile_subpages( 'group' ) : array();
 }
 
 /**
@@ -52,8 +52,8 @@ function clanspress_get_group_subpages(): array {
  * @param string $slug Subpage slug.
  * @return array<string, mixed>|null
  */
-function clanspress_get_group_subpage( string $slug ): ?array {
-	return function_exists( 'clanspress_get_profile_subpage' ) ? clanspress_get_profile_subpage( 'group', $slug ) : null;
+function clanbite_get_group_subpage( string $slug ): ?array {
+	return function_exists( 'clanbite_get_profile_subpage' ) ? clanbite_get_profile_subpage( 'group', $slug ) : null;
 }
 
 /**
@@ -62,7 +62,7 @@ function clanspress_get_group_subpage( string $slug ): ?array {
  * @param int $group_id Group object ID (meaning defined by the extension).
  * @return string Empty string when no extension provides a URL.
  */
-function clanspress_groups_get_manage_url( int $group_id ): string {
+function clanbite_groups_get_manage_url( int $group_id ): string {
 	if ( $group_id < 1 ) {
 		return '';
 	}
@@ -73,7 +73,7 @@ function clanspress_groups_get_manage_url( int $group_id ): string {
 	 * @param string $url      URL or empty string.
 	 * @param int    $group_id Group ID.
 	 */
-	return (string) apply_filters( 'clanspress_groups_manage_url', '', $group_id );
+	return (string) apply_filters( 'clanbite_groups_manage_url', '', $group_id );
 }
 
 /**
@@ -85,7 +85,7 @@ function clanspress_groups_get_manage_url( int $group_id ): string {
  * @param int|null $user_id  User ID or null for the current user.
  * @return bool
  */
-function clanspress_groups_user_can_manage( int $group_id, ?int $user_id = null ): bool {
+function clanbite_groups_user_can_manage( int $group_id, ?int $user_id = null ): bool {
 	if ( $group_id < 1 ) {
 		return false;
 	}
@@ -102,7 +102,7 @@ function clanspress_groups_user_can_manage( int $group_id, ?int $user_id = null 
 	 * @param int  $group_id Group ID.
 	 * @param int  $user_id  User ID.
 	 */
-	return (bool) apply_filters( 'clanspress_groups_user_can_manage', false, $group_id, $user_id );
+	return (bool) apply_filters( 'clanbite_groups_user_can_manage', false, $group_id, $user_id );
 }
 
 /**
@@ -114,7 +114,7 @@ function clanspress_groups_user_can_manage( int $group_id, ?int $user_id = null 
  * @param int|null $user_id  User ID or null for the current user.
  * @return bool
  */
-function clanspress_groups_user_is_member( int $group_id, ?int $user_id = null ): bool {
+function clanbite_groups_user_is_member( int $group_id, ?int $user_id = null ): bool {
 	if ( $group_id < 1 ) {
 		return false;
 	}
@@ -131,21 +131,21 @@ function clanspress_groups_user_is_member( int $group_id, ?int $user_id = null )
 	 * @param int  $group_id  Group ID.
 	 * @param int  $user_id   User ID.
 	 */
-	return (bool) apply_filters( 'clanspress_groups_user_is_member', false, $group_id, $user_id );
+	return (bool) apply_filters( 'clanbite_groups_user_is_member', false, $group_id, $user_id );
 }
 
 /**
- * Group ID for profile header/nav (singular `cp_group` or `clanspress_group_profile_nav_context`).
+ * Group ID for profile header/nav (singular `cp_group` or `clanbite_group_profile_nav_context`).
  *
  * @return int
  */
-function clanspress_group_profile_context_group_id(): int {
+function clanbite_group_profile_context_group_id(): int {
 	/**
 	 * Virtual group profile context when not on a singular `cp_group` post.
 	 *
 	 * @param array<string, mixed>|null $context Context or null.
 	 */
-	$virtual = apply_filters( 'clanspress_group_profile_nav_context', null );
+	$virtual = apply_filters( 'clanbite_group_profile_nav_context', null );
 	if ( is_array( $virtual ) && isset( $virtual['group_id'] ) && (int) $virtual['group_id'] > 0 ) {
 		return (int) $virtual['group_id'];
 	}
@@ -165,13 +165,13 @@ function clanspress_group_profile_context_group_id(): int {
  *
  * @return string
  */
-function clanspress_group_profile_route_current_slug(): string {
+function clanbite_group_profile_route_current_slug(): string {
 	/**
 	 * Virtual group profile context when not on a singular `cp_group` post.
 	 *
 	 * @param array<string, mixed>|null $context Context or null.
 	 */
-	$virtual = apply_filters( 'clanspress_group_profile_nav_context', null );
+	$virtual = apply_filters( 'clanbite_group_profile_nav_context', null );
 	if ( is_array( $virtual ) && isset( $virtual['current_slug'] ) ) {
 		return sanitize_key( (string) $virtual['current_slug'] );
 	}
