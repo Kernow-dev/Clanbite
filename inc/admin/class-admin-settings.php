@@ -100,7 +100,7 @@ class Settings {
 			'manage_options',
 			'clanbite',
 			array( $this, 'render_main_page' ),
-			'dashicons-groups',
+			\clanbite()->url . 'assets/img/logos/clanbite-icon.svg',
 			56
 		);
 
@@ -178,7 +178,7 @@ class Settings {
 			array(
 				'restUrl'        => esc_url_raw( rest_url( 'clanbite/v1/' ) ),
 				'nonce'          => wp_create_nonce( 'wp_rest' ),
-				'logoUrl'        => \clanbite()->url . 'assets/img/logos/clanbite-logo-small.svg',
+				'logoUrl'        => \clanbite()->url . 'assets/img/logos/clanbite-logo.svg',
 				'iconPacks'      => Admin_Rest::get_unified_icon_packs(),
 				'iconPickerI18n' => Admin_Rest::get_default_icon_picker_i18n(),
 			)
