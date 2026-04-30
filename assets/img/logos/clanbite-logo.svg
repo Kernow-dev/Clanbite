@@ -16,7 +16,7 @@
       }
 
       .st1, .st3, .st4, .st5 {
-        stroke: #000;
+        stroke: #1F2128;
       }
 
       .st1, .st5 {
@@ -40,7 +40,7 @@
       }
 
       .st2, .st6 {
-        stroke: #1f2128;
+        stroke: #292B31;
       }
 
       .st3 {
