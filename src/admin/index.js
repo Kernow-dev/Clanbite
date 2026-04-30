@@ -1855,7 +1855,7 @@ function App() {
 								/>
 								<span className="clanbite-admin-brand-title">
 									{ __(
-										'Clanbite: Team Management System',
+										'Clanbite: Team Management Software',
 										'clanbite'
 									) }
 								</span>
