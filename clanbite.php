@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Clanbite
+ * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
  * Version: 1.0.0
