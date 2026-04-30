@@ -1853,6 +1853,12 @@ function App() {
 									alt=""
 									className="clanbite-admin-logo"
 								/>
+								<span className="clanbite-admin-brand-title">
+									{ __(
+										'Clanbite: Team Management System',
+										'clanbite'
+									) }
+								</span>
 							</span>
 							{ versionLabel ? (
 								<div className="clanbite-admin-version">

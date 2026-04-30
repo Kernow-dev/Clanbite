@@ -32,12 +32,27 @@
 .clanbite-admin-logo-wrap {
 	display: inline-flex;
 	align-items: center;
+	gap: 12px;
 }
 
 .clanbite-admin-logo {
-	height: 60px;
+	height: 64px;
 	width: auto;
 	display: block;
+	image-rendering: auto;
+	transform: translateZ(0);
+	backface-visibility: hidden;
+	will-change: transform;
+	shape-rendering: geometricPrecision;
+	text-rendering: geometricPrecision;
+}
+
+.clanbite-admin-brand-title {
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 1.2;
+	letter-spacing: 0.01em;
+	color: #f5f5f7;
 }
 
 .clanbite-admin-header-actions {
