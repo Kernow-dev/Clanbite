@@ -58,8 +58,8 @@ function clanbite_teams_get_setting( string $key, $fallback = null ) {
 /**
  * `cp_team` post IDs every member is added to as roster member on register / login.
  *
- * Reads {@see clanbite_teams_settings} and falls back to legacy
- * `clanbite_social_kit_global_auto_join_team_ids` (and legacy `clanspress_social_kit_global_auto_join_team_ids`) when the Teams setting is unset or empty.
+ * Reads {@see clanbite_teams_settings} and falls back to
+ * `clanbite_social_kit_global_auto_join_team_ids` when the Teams setting is unset or empty.
  *
  * @return int[]
  */
@@ -70,9 +70,6 @@ function clanbite_teams_global_auto_join_team_ids(): array {
 		$raw = $settings['global_auto_join_team_ids'];
 	} else {
 		$legacy = get_option( 'clanbite_social_kit_global_auto_join_team_ids', array() );
-		if ( ! is_array( $legacy ) || array() === $legacy ) {
-			$legacy = get_option( 'clanspress_social_kit_global_auto_join_team_ids', array() );
-		}
 		if ( is_array( $legacy ) ) {
 			$raw = $legacy;
 		}

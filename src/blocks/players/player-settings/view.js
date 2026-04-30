@@ -20,7 +20,7 @@ const parseMaybeJson = ( value, fallback = {} ) => {
 };
 
 const getPlayerSettingsConfig = () =>
-	typeof window !== 'undefined' ? window.CLANSPRESSPLAYERSETTINGS || {} : {};
+	typeof window !== 'undefined' ? window.CLANBITEPLAYERSETTINGS || {} : {};
 
 /**
  * Re-apply values to the settings form after save. Interactivity/Preact can reconcile the
@@ -438,7 +438,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 				'input[name="_clanbite_profile_settings_save_nonce"]'
 			);
 
-			if ( ! nonceInput || ! window.CLANSPRESSPLAYERSETTINGS?.ajax_url ) {
+			if ( ! nonceInput || ! window.CLANBITEPLAYERSETTINGS?.ajax_url ) {
 				ref.classList.remove( 'saving' );
 				ref.classList.add( 'error' );
 				return;
@@ -503,7 +503,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 			ref.classList.add( 'saving' );
 
 			try {
-				const res = await fetch( CLANSPRESSPLAYERSETTINGS.ajax_url, {
+				const res = await fetch( CLANBITEPLAYERSETTINGS.ajax_url, {
 					method: 'POST',
 					credentials: 'same-origin',
 					body: formData,
@@ -605,7 +605,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 			const removeSelector =
 				ref.getAttribute( 'data-cp-action-remove-closest' ) || '';
 
-			const restNonce = window.CLANSPRESSPLAYERSETTINGS?.rest_nonce || '';
+			const restNonce = window.CLANBITEPLAYERSETTINGS?.rest_nonce || '';
 			ref.disabled = true;
 			try {
 				const response = await fetch( actionUrl, {

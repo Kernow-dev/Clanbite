@@ -1449,7 +1449,7 @@ class Players extends Skeleton {
 	}
 
 	/**
-	 * Whether to print `CLANSPRESSPLAYERSETTINGS` for this front request.
+	 * Whether to print `CLANBITEPLAYERSETTINGS` for this front request.
 	 *
 	 * Defaults avoid per-request nonce generation and inline script output on pages that
 	 * never mount player settings (most cached views).
@@ -1488,7 +1488,7 @@ class Players extends Skeleton {
 		}
 
 		/**
-		 * Whether to enqueue the inline script that defines `CLANSPRESSPLAYERSETTINGS`.
+		 * Whether to enqueue the inline script that defines `CLANBITEPLAYERSETTINGS`.
 		 *
 		 * Return true if a custom template or block needs REST/ajax nonces outside the
 		 * default routes (player settings URL, author profile, or singular posts that
@@ -1528,7 +1528,7 @@ class Players extends Skeleton {
 
 		wp_localize_script(
 			'clanbite-player-settings-localize',
-			'CLANSPRESSPLAYERSETTINGS',
+			'CLANBITEPLAYERSETTINGS',
 			apply_filters(
 				'clanbite_player_settings_frontend_config',
 				$config
