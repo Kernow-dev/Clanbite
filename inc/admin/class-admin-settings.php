@@ -100,7 +100,7 @@ class Settings {
 			'manage_options',
 			'clanbite',
 			array( $this, 'render_main_page' ),
-			\clanbite()->url . 'assets/img/logos/clanbite-icon.svg',
+			$this->get_admin_menu_icon_data_uri(),
 			56
 		);
 
@@ -191,5 +191,27 @@ class Settings {
 		}
 
 		echo '<div class="wrap"><div id="clanbite-admin-root"></div></div>';
+	}
+
+	/**
+	 * Resolve the top-level wp-admin menu icon in the format recommended by core docs.
+	 *
+	 * WordPress supports SVG icons in {@see add_menu_page()} when passed as a
+	 * `data:image/svg+xml;base64,...` URI.
+	 *
+	 * @return string
+	 */
+	protected function get_admin_menu_icon_data_uri(): string {
+		$icon_path = \clanbite()->path . 'assets/img/logos/clanbite-icon.svg';
+		if ( ! is_readable( $icon_path ) ) {
+			return 'dashicons-admin-generic';
+		}
+
+		$svg = file_get_contents( $icon_path );
+		if ( false === $svg || '' === trim( $svg ) ) {
+			return 'dashicons-admin-generic';
+		}
+
+		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
 }
