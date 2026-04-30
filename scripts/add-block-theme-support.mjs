@@ -59,18 +59,18 @@ const DEFAULT_SUPPORTS_BASE = {
 };
 
 const NO_BACKGROUND = new Set( [
-	'clanspress/player-cover',
-	'clanspress/team-cover',
+	'clanbite/player-cover',
+	'clanbite/team-cover',
 ] );
 
 const COLOR_LINK = new Set( [
-	'clanspress/team-name',
-	'clanspress/player-display-name',
-	'clanspress/team-profile-nav',
-	'clanspress/player-profile-nav',
-	'clanspress/user-nav',
-	'clanspress/match-card',
-	'clanspress/match-list',
+	'clanbite/team-name',
+	'clanbite/player-display-name',
+	'clanbite/team-profile-nav',
+	'clanbite/player-profile-nav',
+	'clanbite/user-nav',
+	'clanbite/match-card',
+	'clanbite/match-list',
 ] );
 
 /**
@@ -80,103 +80,103 @@ const COLOR_LINK = new Set( [
 function buildSelectors( name ) {
 	const wp = wpBlockClass( name );
 	const table = {
-		'clanspress/team-motto': {
+		'clanbite/team-motto': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-team-motto__text`,
+				text: `${ wp } .clanbite-team-motto__text`,
 				background: wp,
 			},
-			typography: `${ wp } .clanspress-team-motto__text`,
+			typography: `${ wp } .clanbite-team-motto__text`,
 			border: wp,
 		},
-		'clanspress/team-name': {
+		'clanbite/team-name': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-team-name__heading, ${ wp } .clanspress-team-name__link`,
+				text: `${ wp } .clanbite-team-name__heading, ${ wp } .clanbite-team-name__link`,
 				background: wp,
-				link: `${ wp } .clanspress-team-name__link`,
+				link: `${ wp } .clanbite-team-name__link`,
 			},
-			typography: `${ wp } .clanspress-team-name__heading`,
+			typography: `${ wp } .clanbite-team-name__heading`,
 			border: wp,
 		},
-		'clanspress/player-display-name': {
+		'clanbite/player-display-name': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-player-display-name__text, ${ wp } .clanspress-player-display-name__link`,
+				text: `${ wp } .clanbite-player-display-name__text, ${ wp } .clanbite-player-display-name__link`,
 				background: wp,
-				link: `${ wp } .clanspress-player-display-name__link`,
+				link: `${ wp } .clanbite-player-display-name__link`,
 			},
 			// Wrapper only: matches editor useBlockProps() and render.php wrapper. Inner __text/__link use font:inherit (style.scss).
 			typography: wp,
 			border: wp,
 		},
-		'clanspress/team-description': {
+		'clanbite/team-description': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-team-description__content`,
+				text: `${ wp } .clanbite-team-description__content`,
 				background: wp,
 			},
-			typography: `${ wp } .clanspress-team-description__content`,
+			typography: `${ wp } .clanbite-team-description__content`,
 			border: wp,
 		},
-		'clanspress/team-code': {
+		'clanbite/team-code': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-team-code__value`,
+				text: `${ wp } .clanbite-team-code__value`,
 				background: wp,
 			},
-			typography: `${ wp } .clanspress-team-code__value`,
+			typography: `${ wp } .clanbite-team-code__value`,
 			border: wp,
 		},
-		'clanspress/team-country': {
+		'clanbite/team-country': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-country-display__label, ${ wp } .clanspress-country-display__flag`,
+				text: `${ wp } .clanbite-country-display__label, ${ wp } .clanbite-country-display__flag`,
 				background: wp,
 			},
-			typography: `${ wp } .clanspress-country-display__label`,
+			typography: `${ wp } .clanbite-country-display__label`,
 			border: wp,
 		},
-		'clanspress/player-country': {
+		'clanbite/player-country': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-country-display__label, ${ wp } .clanspress-country-display__flag`,
+				text: `${ wp } .clanbite-country-display__label, ${ wp } .clanbite-country-display__flag`,
 				background: wp,
 			},
-			typography: `${ wp } .clanspress-country-display__label`,
+			typography: `${ wp } .clanbite-country-display__label`,
 			border: wp,
 		},
-		'clanspress/team-profile-nav': {
+		'clanbite/team-profile-nav': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-team-profile-nav__link`,
+				text: `${ wp } .clanbite-team-profile-nav__link`,
 				background: wp,
-				link: `${ wp } .clanspress-team-profile-nav__link`,
+				link: `${ wp } .clanbite-team-profile-nav__link`,
 			},
-			typography: `${ wp } .clanspress-team-profile-nav__link`,
+			typography: `${ wp } .clanbite-team-profile-nav__link`,
 			border: wp,
 		},
-		'clanspress/player-profile-nav': {
+		'clanbite/player-profile-nav': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-player-profile-nav__link`,
+				text: `${ wp } .clanbite-player-profile-nav__link`,
 				background: wp,
-				link: `${ wp } .clanspress-player-profile-nav__link`,
+				link: `${ wp } .clanbite-player-profile-nav__link`,
 			},
-			typography: `${ wp } .clanspress-player-profile-nav__link`,
+			typography: `${ wp } .clanbite-player-profile-nav__link`,
 			border: wp,
 		},
-		'clanspress/user-nav': {
+		'clanbite/user-nav': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-user-nav__link`,
+				text: `${ wp } .clanbite-user-nav__link`,
 				background: wp,
-				link: `${ wp } .clanspress-user-nav__link`,
+				link: `${ wp } .clanbite-user-nav__link`,
 			},
-			typography: `${ wp } .clanspress-user-nav__link`,
+			typography: `${ wp } .clanbite-user-nav__link`,
 			border: wp,
 		},
-		'clanspress/team-manage-link': {
+		'clanbite/team-manage-link': {
 			root: wp,
 			color: {
 				text: `${ wp } .wp-block-button__link`,
@@ -185,7 +185,7 @@ function buildSelectors( name ) {
 			typography: `${ wp } .wp-block-button__link`,
 			border: wp,
 		},
-		'clanspress/player-settings-link': {
+		'clanbite/player-settings-link': {
 			root: wp,
 			color: {
 				text: `${ wp } .wp-block-button__link`,
@@ -194,7 +194,7 @@ function buildSelectors( name ) {
 			typography: `${ wp } .wp-block-button__link`,
 			border: wp,
 		},
-		'clanspress/team-challenge-button': {
+		'clanbite/team-challenge-button': {
 			root: wp,
 			color: {
 				text: `${ wp } .wp-block-button__link, ${ wp } button`,
@@ -203,27 +203,27 @@ function buildSelectors( name ) {
 			typography: `${ wp } .wp-block-button__link`,
 			border: wp,
 		},
-		'clanspress/match-card': {
+		'clanbite/match-card': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-match-card, ${ wp } .clanspress-match-card a`,
+				text: `${ wp } .clanbite-match-card, ${ wp } .clanbite-match-card a`,
 				background: wp,
-				link: `${ wp } .clanspress-match-card a`,
+				link: `${ wp } .clanbite-match-card a`,
 			},
-			typography: `${ wp } .clanspress-match-card`,
+			typography: `${ wp } .clanbite-match-card`,
 			border: wp,
 		},
-		'clanspress/match-list': {
+		'clanbite/match-list': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-match-list, ${ wp } .clanspress-match-list__link`,
+				text: `${ wp } .clanbite-match-list, ${ wp } .clanbite-match-list__link`,
 				background: wp,
-				link: `${ wp } .clanspress-match-list__link`,
+				link: `${ wp } .clanbite-match-list__link`,
 			},
-			typography: `${ wp } .clanspress-match-list`,
+			typography: `${ wp } .clanbite-match-list`,
 			border: wp,
 		},
-		'clanspress/player-template': {
+		'clanbite/player-template': {
 			root: wp,
 			color: {
 				text: wp,
@@ -233,7 +233,7 @@ function buildSelectors( name ) {
 			typography: wp,
 			border: wp,
 		},
-		'clanspress/player-cover': {
+		'clanbite/player-cover': {
 			root: wp,
 			color: {
 				text: `${ wp } .player-cover__content-container`,
@@ -242,7 +242,7 @@ function buildSelectors( name ) {
 			typography: `${ wp } .player-cover__content-container`,
 			border: wp,
 		},
-		'clanspress/team-cover': {
+		'clanbite/team-cover': {
 			root: wp,
 			color: {
 				text: `${ wp } .team-cover__content-container`,
@@ -251,23 +251,23 @@ function buildSelectors( name ) {
 			typography: `${ wp } .team-cover__content-container`,
 			border: wp,
 		},
-		'clanspress/player-avatar': {
+		'clanbite/player-avatar': {
 			root: wp,
 			color: { background: wp },
-			border: `${ wp } .clanspress-player-avatar`,
+			border: `${ wp } .clanbite-player-avatar`,
 		},
-		'clanspress/team-avatar': {
+		'clanbite/team-avatar': {
 			root: wp,
 			color: { background: wp },
-			border: `${ wp } .clanspress-team-avatar`,
+			border: `${ wp } .clanbite-team-avatar`,
 		},
-		'clanspress/notification-bell': {
+		'clanbite/notification-bell': {
 			root: wp,
 			color: {
-				text: `${ wp } .clanspress-notification-bell__trigger, ${ wp } .clanspress-notification-bell__dropdown`,
+				text: `${ wp } .clanbite-notification-bell__trigger, ${ wp } .clanbite-notification-bell__dropdown`,
 				background: wp,
 			},
-			typography: `${ wp } .clanspress-notification-bell__trigger`,
+			typography: `${ wp } .clanbite-notification-bell__trigger`,
 			border: wp,
 		},
 	};

@@ -587,7 +587,7 @@ Extensions can and should register their own FSE templates, so template availabi
 
 The **Player settings** block (`clanbite/player-settings`) uses the Interactivity API store `clanbite-player-settings`. Core exposes a generic **`actions.runPluginAction`** handler so extensions can add buttons or links inside player settings panels **without** inline scripts: the click runs `fetch()` against your URL, sends the WordPress REST nonce, and shows the block’s existing success/error toast.
 
-**Localized config** is attached as `window.CLANSPRESSPLAYERSETTINGS` when the Players extension enqueues scripts. Default keys:
+**Localized config** is attached as `window.CLANBITEPLAYERSETTINGS` when the Players extension enqueues scripts. Default keys:
 
 | Key | Purpose |
 |-----|---------|
@@ -664,9 +664,9 @@ Official extensions that ship outside the main package register on **`clanbite_o
 
 **Example — Clanbite Social Kit (`cp_social_kit`):** the separate plugin registers the extension and may mirror domain events (matches, RSVPs, team actions) into an activity feed using the same hooks documented for third-party integrations (`clanbite_match_*`, `clanbite_event_rsvp_updated`, team lifecycle actions, etc.). There is no second registration API — only `clanbite_official_registered_extensions` plus the whitelist entry in `Loader::get_official_extensions()`.
 
-**Example — Clanbite Points (`cp_points`):** the separate plugin adds configurable point types, per-action earning rules with caps, rank ladders, and a `clanspress-points/points-balance` block. Companion features award points via `clanbite_points_award()` and may register action labels through `clanbite_points_actions`.
+**Example — Clanbite Points (`cp_points`):** the separate plugin adds configurable point types, per-action earning rules with caps, rank ladders, and a `clanbite-points/points-balance` block. Companion features award points via `clanbite_points_award()` and may register action labels through `clanbite_points_actions`.
 
-**Example — Clanbite Ranks (`cp_ranks`):** the separate plugin adds configurable rank ladders (optional Points tie-in), team ranks, and the `clanspress-ranks/rank-progress` block. Use `clanbite_ranks_extension_active()` before relying on rank helpers.
+**Example — Clanbite Ranks (`cp_ranks`):** the separate plugin adds configurable rank ladders (optional Points tie-in), team ranks, and the `clanbite-ranks/rank-progress` block. Use `clanbite_ranks_extension_active()` before relying on rank helpers.
 
 ### Community extensions
 

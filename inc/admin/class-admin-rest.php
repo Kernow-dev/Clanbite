@@ -110,15 +110,15 @@ class Admin_Rest {
 	 */
 	protected static function require_companion_icon_pack_classes(): void {
 		if ( ! class_exists( \Kernowdev\ClanbitePoints\Points\Icon_Packs::class, false )
-			&& defined( 'CLANSPRESS_POINTS_PATH' ) ) {
-			$file = \CLANSPRESS_POINTS_PATH . 'inc/Points/Icon_Packs.php';
+			&& defined( 'CLANBITE_POINTS_PATH' ) ) {
+			$file = \CLANBITE_POINTS_PATH . 'inc/Points/Icon_Packs.php';
 			if ( is_readable( $file ) ) {
 				require_once $file;
 			}
 		}
 		if ( ! class_exists( \Kernowdev\ClanbiteRanks\Ranks\Icon_Packs::class, false )
-			&& defined( 'CLANSPRESS_RANKS_PATH' ) ) {
-			$file = \CLANSPRESS_RANKS_PATH . 'inc/Ranks/Icon_Packs.php';
+			&& defined( 'CLANBITE_RANKS_PATH' ) ) {
+			$file = \CLANBITE_RANKS_PATH . 'inc/Ranks/Icon_Packs.php';
 			if ( is_readable( $file ) ) {
 				require_once $file;
 			}
@@ -223,10 +223,10 @@ class Admin_Rest {
 	protected static function get_emergency_starter_packs_normalized(): array {
 		$raw = array();
 
-		if ( defined( 'CLANSPRESS_POINTS_FILE' ) ) {
-			$check = dirname( CLANSPRESS_POINTS_FILE ) . '/assets/point-icons/starter/coin-bronze.svg';
+		if ( defined( 'CLANBITE_POINTS_FILE' ) ) {
+			$check = dirname( CLANBITE_POINTS_FILE ) . '/assets/point-icons/starter/coin-bronze.svg';
 			if ( is_readable( $check ) ) {
-				$base = trailingslashit( plugins_url( 'assets/point-icons/starter', CLANSPRESS_POINTS_FILE ) );
+				$base = trailingslashit( plugins_url( 'assets/point-icons/starter', CLANBITE_POINTS_FILE ) );
 				$raw[] = array(
 					'id'    => 'clanbite-points-starter',
 					'label' => __( 'Clanbite Points Starter', 'clanbite' ),
@@ -266,10 +266,10 @@ class Admin_Rest {
 			}
 		}
 
-		if ( defined( 'CLANSPRESS_RANKS_FILE' ) ) {
-			$check = dirname( CLANSPRESS_RANKS_FILE ) . '/assets/rank-icons/starter/wood.svg';
+		if ( defined( 'CLANBITE_RANKS_FILE' ) ) {
+			$check = dirname( CLANBITE_RANKS_FILE ) . '/assets/rank-icons/starter/wood.svg';
 			if ( is_readable( $check ) ) {
-				$base = trailingslashit( plugins_url( 'assets/rank-icons/starter', CLANSPRESS_RANKS_FILE ) );
+				$base = trailingslashit( plugins_url( 'assets/rank-icons/starter', CLANBITE_RANKS_FILE ) );
 				$raw[] = array(
 					'id'    => 'clanbite-starter',
 					'label' => __( 'Clanbite Starter', 'clanbite' ),
