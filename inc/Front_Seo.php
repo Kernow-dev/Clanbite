@@ -798,17 +798,19 @@ final class Front_Seo {
 		/*
 		 * Do not use wp_add_inline_script(): WordPress wraps that payload as executable JS. A JSON object
 		 * beginning with `{` is parsed as a JS block → `Uncaught SyntaxError: Unexpected token ':'`.
-		 * Emit a dedicated `application/ld+json` script element instead (same placement: wp_head).
+		 *
+		 * Use wp_print_inline_script_tag() so the tag gets wp_sanitize_script_attributes(), the
+		 * wp_inline_script_attributes filter, and consistent formatting while the body stays non-executable JSON.
 		 */
 		$element_id = 'clanbite-json-ld-' . self::$json_ld_sequence++;
 
-		printf(
-			'<script type="application/ld+json" id="%s">',
-			esc_attr( $element_id )
+		wp_print_inline_script_tag(
+			$json,
+			array(
+				'type' => 'application/ld+json',
+				'id'   => $element_id,
+			)
 		);
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON-LD body from wp_json_encode() + JSON_HEX_*; must not pass through HTML escapers.
-		echo $json;
-		echo "</script>\n";
 	}
 
 	/**
