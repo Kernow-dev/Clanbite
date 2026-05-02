@@ -136,40 +136,37 @@ class Admin_Rest {
 	}
 
 	/**
-	 * Guess which extension a pack belongs to (used when `scope` is not set on the pack).
-	 *
 	 * @param string $id Sanitized pack id.
-	 * @return string `points`, `ranks`, or `all`.
+	 * @return string
 	 */
 	protected static function infer_icon_pack_scope_from_id( string $id ): string {
 		$id = sanitize_key( $id );
 		if ( '' === $id ) {
 			return 'all';
 		}
-		if ( 'clanbite-points-starter' === $id || str_starts_with( $id, 'clanbite-points-' ) ) {
-			return 'points';
-		}
-		if ( 'clanbite-ranks-starter' === $id || str_starts_with( $id, 'clanbite-ranks-' ) ) {
-			return 'ranks';
-		}
-		// Ranks companion starter pack id (Points uses `clanbite-points-starter`).
-		if ( 'clanbite-starter' === $id ) {
-			return 'ranks';
-		}
 
-		return 'all';
+		/**
+		 * Filter: `clanbite_admin_infer_icon_pack_scope` — default `all` when a pack row has no `scope`.
+		 *
+		 * @param string $scope Default scope.
+		 * @param string $id    Sanitized pack id.
+		 */
+		$scope = apply_filters( 'clanbite_admin_infer_icon_pack_scope', 'all', $id );
+		$scope = is_string( $scope ) ? sanitize_key( $scope ) : '';
+
+		return '' !== $scope ? $scope : 'all';
 	}
 
 	/**
-	 * Ensure each pack has a `scope` key for the React admin (`points` | `ranks` | `all`).
+	 * Ensure each pack has a non-empty sanitized `scope` for the React admin.
 	 *
-	 * @param array<string, mixed> $pack Normalized pack row.
+	 * @param array<string, mixed> $pack Normalized pack row (`id`, `label`, `icons`, optional `scope`).
 	 * @return array<string, mixed>
 	 */
 	protected static function attach_icon_pack_scope( array $pack ): array {
 		if ( isset( $pack['scope'] ) && is_string( $pack['scope'] ) ) {
 			$candidate = sanitize_key( $pack['scope'] );
-			if ( in_array( $candidate, array( 'points', 'ranks', 'all' ), true ) ) {
+			if ( '' !== $candidate ) {
 				$pack['scope'] = $candidate;
 				return $pack;
 			}
@@ -218,11 +215,18 @@ class Admin_Rest {
 			if ( array() === $normalized_icons ) {
 				continue;
 			}
-			$out[] = array(
+			$row = array(
 				'id'    => $id,
 				'label' => $label,
 				'icons' => $normalized_icons,
 			);
+			if ( isset( $pack['scope'] ) && is_string( $pack['scope'] ) ) {
+				$scope = sanitize_key( $pack['scope'] );
+				if ( '' !== $scope ) {
+					$row['scope'] = $scope;
+				}
+			}
+			$out[] = $row;
 		}
 		return $out;
 	}
@@ -244,6 +248,7 @@ class Admin_Rest {
 				$raw[] = array(
 					'id'    => 'clanbite-points-starter',
 					'label' => __( 'Clanbite Points Starter', 'clanbite' ),
+					'scope' => 'points',
 					'icons' => array(
 						array(
 							'id'    => 'coin-bronze',
@@ -287,6 +292,7 @@ class Admin_Rest {
 				$raw[] = array(
 					'id'    => 'clanbite-starter',
 					'label' => __( 'Clanbite Starter', 'clanbite' ),
+					'scope' => 'ranks',
 					'icons' => array(
 						array(
 							'id'    => 'wood',
@@ -556,7 +562,19 @@ class Admin_Rest {
 			$added[ $slug ] = true;
 		}
 
-		return $tabs;
+		/**
+		 * Filter: `clanbite_admin_rest_tabs`.
+		 *
+		 * @param array<int, array<string, mixed>> $tabs   Tab descriptors (`type`: `general`|`extensions`|`extension`|`integration`).
+		 * @param Loader                           $loader Extension loader.
+		 */
+		$filtered_tabs = apply_filters( 'clanbite_admin_rest_tabs', $tabs, $loader );
+
+		if ( ! is_array( $filtered_tabs ) ) {
+			return $tabs;
+		}
+
+		return array_values( array_filter( $filtered_tabs, 'is_array' ) );
 	}
 
 	/**

@@ -365,7 +365,7 @@ abstract class Abstract_Settings {
 
 		if ( isset( $field['icon_pack_scope'] ) && is_string( $field['icon_pack_scope'] ) ) {
 			$scope = sanitize_key( $field['icon_pack_scope'] );
-			if ( in_array( $scope, array( 'points', 'ranks', 'all' ), true ) ) {
+			if ( '' !== $scope ) {
 				$row['iconPackScope'] = $scope;
 			}
 		}

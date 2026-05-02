@@ -1528,14 +1528,6 @@ function ExtensionRequiresCell( {
 	);
 }
 
-/**
- * Whether an extension may be switched on given the current checkbox/toggle state (not yet saved).
- * Respects server `canInstall` (core version, extension dependencies, and custom filters) as well as pending dependency toggles.
- *
- * @param {Object}   ext                   Extension row from bootstrap.
- * @param {string[]} pendingInstalledSlugs Slugs currently toggled on in the UI.
- * @return {boolean}
- */
 function extensionCanBeTurnedOn( ext, pendingInstalledSlugs ) {
 	const depsOk =
 		! ext.requires?.length ||
@@ -1545,14 +1537,40 @@ function extensionCanBeTurnedOn( ext, pendingInstalledSlugs ) {
 	return depsOk && ext.canInstall;
 }
 
-/**
- * Help text when an extension toggle is disabled.
- *
- * @param {Object}  ext                  Extension row from bootstrap.
- * @param {boolean} isRequired           Whether the extension cannot be turned off.
- * @param {boolean} versionBlocksInstall Core version below `requiresClanbite`.
- * @return {string} Localized message.
- */
+/** Integration tab mount point: fires `clanbite:admin-integration-mount` / `unmount` on this element. */
+function IntegrationSlot( { slotId, bootstrap } ) {
+	const ref = useRef( null );
+
+	useEffect( () => {
+		const el = ref.current;
+		if ( ! slotId || ! el ) {
+			return;
+		}
+		el.dispatchEvent(
+			new CustomEvent( 'clanbite:admin-integration-mount', {
+				bubbles: true,
+				detail: { slotId, bootstrap },
+			} )
+		);
+		return () => {
+			el.dispatchEvent(
+				new CustomEvent( 'clanbite:admin-integration-unmount', {
+					bubbles: true,
+					detail: { slotId },
+				} )
+			);
+		};
+	}, [ slotId, bootstrap ] );
+
+	return (
+		<div
+			ref={ ref }
+			className="clanbite-admin-integration-slot"
+			data-clanbite-admin-slot={ slotId }
+		/>
+	);
+}
+
 function getExtensionToggleDisabledMessage(
 	ext,
 	isRequired,
@@ -1628,6 +1646,19 @@ function App() {
 		setupApiFetch();
 		load();
 	}, [ load ] );
+
+	useEffect( () => {
+		if ( ! bootstrap || typeof window === 'undefined' ) {
+			return;
+		}
+		if (
+			window.clanbiteAdmin &&
+			typeof window.clanbiteAdmin === 'object'
+		) {
+			// Optional; scripts on `toplevel_page_clanbite` may read bootstrap without REST.
+			window.clanbiteAdmin.bootstrap = bootstrap;
+		}
+	}, [ bootstrap ] );
 
 	// Capture WP admin title once, resolve tab from URL, canonicalize invalid ?tab=.
 	useEffect( () => {
@@ -2200,6 +2231,30 @@ function App() {
 												'clanbite'
 											) }
 										</Button>
+									</div>
+								);
+							}
+							if ( meta.type === 'integration' ) {
+								const slotId =
+									meta.slotId || meta.slot_id || '';
+								if ( ! slotId ) {
+									return (
+										<div className="clanbite-admin-section-inner">
+											<p className="description">
+												{ __(
+													'This integration tab is misconfigured (missing slot identifier).',
+													'clanbite'
+												) }
+											</p>
+										</div>
+									);
+								}
+								return (
+									<div className="clanbite-admin-section-inner">
+										<IntegrationSlot
+											slotId={ slotId }
+											bootstrap={ bootstrap }
+										/>
 									</div>
 								);
 							}
