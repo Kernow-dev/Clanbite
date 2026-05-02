@@ -157,26 +157,55 @@ class Rest_Controller {
 			$args['meta_query'] = $meta_query;
 		}
 
+		/**
+		 * Filter: `clanbite_matches_rest_query_args` — arguments passed to `WP_Query` for the matches collection route.
+		 *
+		 * @param array<string, mixed> $args    Query arguments (invalid combinations may trigger SQL errors).
+		 * @param WP_REST_Request      $request REST request instance.
+		 */
+		$args = (array) apply_filters( 'clanbite_matches_rest_query_args', $args, $request );
+
 		$query = new \WP_Query( $args );
 		// phpcs:enable WordPress.DB.SlowDBQuery
-		$items = array();
+
+		$this->extension->prime_team_post_cache_for_match_posts( $query->posts );
+
+		$items     = array();
 		$viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
 		foreach ( $query->posts as $post ) {
 			if ( $post instanceof WP_Post ) {
 				if ( ! $this->extension->viewer_can_see_match( $post, $viewer_id ) ) {
 					continue;
 				}
-				$items[] = $this->extension->match_to_rest_array( $post );
+				$item = $this->extension->match_to_rest_array( $post );
+				/**
+				 * Filter: `clanbite_match_rest_prepare` — shaped match row for REST (`collection` or `single`).
+				 *
+				 * @param array<string, mixed> $item    Row data.
+				 * @param WP_Post              $post    Match post.
+				 * @param WP_REST_Request      $request Request instance.
+				 * @param string               $context `collection` or `single`.
+				 */
+				$item    = (array) apply_filters( 'clanbite_match_rest_prepare', $item, $post, $request, 'collection' );
+				$items[] = $item;
 			}
 		}
 
-		return rest_ensure_response(
-			array(
-				'matches' => $items,
-				'total'   => (int) $query->found_posts,
-				'pages'   => (int) $query->max_num_pages,
-			)
+		$body = array(
+			'matches' => $items,
+			'total'   => (int) $query->found_posts,
+			'pages'   => (int) $query->max_num_pages,
 		);
+
+		/**
+		 * Filter: `clanbite_matches_rest_collection_data` — JSON body for `GET clanbite/v1/matches` before encoding.
+		 *
+		 * @param array<string, mixed> $body    Keys: `matches`, `total`, `pages`.
+		 * @param WP_REST_Request      $request REST request instance.
+		 */
+		$body = (array) apply_filters( 'clanbite_matches_rest_collection_data', $body, $request );
+
+		return rest_ensure_response( $body );
 	}
 
 	/**
@@ -247,6 +276,20 @@ class Rest_Controller {
 			);
 		}
 
-		return rest_ensure_response( $this->extension->match_to_rest_array( $post ) );
+		$this->extension->prime_team_post_cache_for_match_posts( array( $post ) );
+
+		$item = $this->extension->match_to_rest_array( $post );
+
+		/**
+		 * Filter: `clanbite_match_rest_prepare` — shaped match row for REST (`collection` or `single`).
+		 *
+		 * @param array<string, mixed> $item    Row data.
+		 * @param WP_Post              $post    Match post.
+		 * @param WP_REST_Request      $request Request instance.
+		 * @param string               $context `collection` or `single`.
+		 */
+		$item = (array) apply_filters( 'clanbite_match_rest_prepare', $item, $post, $request, 'single' );
+
+		return rest_ensure_response( $item );
 	}
 }

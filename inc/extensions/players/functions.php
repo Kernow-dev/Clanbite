@@ -726,6 +726,7 @@ function clanbite_players_get_display_avatar_id( int $player_id = 0, bool $suppr
  *     @type string       $decoding         `decoding` attribute. Default `async`. Use empty string to omit.
  *     @type int          $width            If positive, output width attribute.
  *     @type int          $height           If positive, output height attribute.
+ *     @type bool         $presentational   When true, `alt=""` and `aria-hidden="true"` (e.g. avatar inside a named button or link with visible text).
  * }
  * @return string HTML fragment or empty string when no URL resolves.
  */
@@ -745,9 +746,12 @@ function clanbite_players_get_player_avatar_img_html( int $user_id, array $args 
 		'decoding'         => 'async',
 		'width'            => 0,
 		'height'           => 0,
+		'presentational'   => false,
 	);
 
 	$args = wp_parse_args( $args, $defaults );
+
+	$presentational = (bool) $args['presentational'];
 
 	$preset_arg = sanitize_key( (string) $args['preset'] );
 	if ( in_array( $preset_arg, array( 'large', 'medium', 'small' ), true ) ) {
@@ -764,7 +768,7 @@ function clanbite_players_get_player_avatar_img_html( int $user_id, array $args 
 		return '';
 	}
 
-	if ( '' === $args['alt'] && function_exists( 'clanbite_players_get_display_name' ) ) {
+	if ( ! $presentational && '' === $args['alt'] && function_exists( 'clanbite_players_get_display_name' ) ) {
 		$args['alt'] = sprintf(
 			/* translators: %s: Player display name. */
 			__( '%s player avatar', 'clanbite' ),
@@ -807,6 +811,11 @@ function clanbite_players_get_player_avatar_img_html( int $user_id, array $args 
 	 * @param string $url     Avatar URL.
 	 */
 	$attr = apply_filters( 'clanbite_players_player_avatar_img_attributes', $attr, $user_id, $args, $url );
+
+	if ( $presentational ) {
+		$attr['alt']          = '';
+		$attr['aria-hidden'] = 'true';
+	}
 
 	$parts = array();
 	foreach ( $attr as $name => $value ) {

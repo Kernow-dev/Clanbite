@@ -73,7 +73,17 @@ class Admin_Rest {
 	}
 
 	public function can_manage(): bool {
-		return current_user_can( 'manage_options' );
+		/**
+		 * Filter: `clanbite_admin_rest_manage_capability` — primitive capability required for `clanbite/v1/admin/*` routes.
+		 *
+		 * @param string $capability Default `manage_options`.
+		 */
+		$capability = apply_filters( 'clanbite_admin_rest_manage_capability', 'manage_options' );
+		if ( ! is_string( $capability ) || '' === $capability ) {
+			$capability = 'manage_options';
+		}
+
+		return current_user_can( $capability );
 	}
 
 	/**
@@ -397,20 +407,28 @@ class Admin_Rest {
 			$schemas[ $key ] = $handler->export_rest_schema();
 		}
 
-		return rest_ensure_response(
-			array(
-				'tabs'             => $this->build_tabs( $extensions ),
-				'values'           => $values,
-				'optionSchemas'    => $schemas,
-				'extensions'       => $this->build_extensions_payload( $loader, $extensions ),
-				'generalOptionKey' => General_Settings::OPTION_KEY,
-				'iconPacks'        => self::get_unified_icon_packs(),
-				'iconPickerI18n'   => self::get_default_icon_picker_i18n(),
-				'plugin'           => array(
-					'version' => (string) \clanbite()->get_version(),
-				),
-			)
+		$data = array(
+			'tabs'             => $this->build_tabs( $extensions ),
+			'values'           => $values,
+			'optionSchemas'    => $schemas,
+			'extensions'       => $this->build_extensions_payload( $loader, $extensions ),
+			'generalOptionKey' => General_Settings::OPTION_KEY,
+			'iconPacks'        => self::get_unified_icon_packs(),
+			'iconPickerI18n'   => self::get_default_icon_picker_i18n(),
+			'plugin'           => array(
+				'version' => (string) \clanbite()->get_version(),
+			),
 		);
+
+		/**
+		 * Filter: `clanbite_admin_rest_bootstrap` — full payload for `GET clanbite/v1/admin/bootstrap`.
+		 *
+		 * @param array<string, mixed> $data   Bootstrap body (`tabs`, `values`, `extensions`, …).
+		 * @param Loader               $loader Extension loader instance.
+		 */
+		$data = (array) apply_filters( 'clanbite_admin_rest_bootstrap', $data, $loader );
+
+		return rest_ensure_response( $data );
 	}
 
 	/**
@@ -612,22 +630,35 @@ class Admin_Rest {
 			if ( ! $ext instanceof Skeleton ) {
 				continue;
 			}
-			$out[] = array(
-				'slug'                    => $slug,
-				'name'                    => $ext->name,
-				'description'             => $ext->description,
-				'version'                 => $ext->version,
-				'type'                    => $ext->type,
-				'parentSlug'              => (string) ( $ext->parent_slug ?? '' ),
-				'requires'                => array_values( $ext->requires ),
-				'requiresClanbite'      => $ext->get_requires_clanbite_version(),
-				'meetsClanbiteVersion'  => $ext->meets_clanbite_version_requirement(),
-				'isOfficial'              => isset( $official[ $slug ] ),
-				'isCoreBundled'           => in_array( $slug, $core_bundle, true ),
-				'isInstalled'             => isset( $installed[ $slug ] ),
-				'canInstall'              => $ext->can_install(),
-				'isRequired'              => in_array( $slug, $required, true ),
+			$row = array(
+				'slug'                   => $slug,
+				'name'                   => $ext->name,
+				'description'            => $ext->description,
+				'version'                => $ext->version,
+				'type'                   => $ext->type,
+				'parentSlug'             => (string) ( $ext->parent_slug ?? '' ),
+				'requires'               => array_values( $ext->requires ),
+				'requiresClanbite'       => $ext->get_requires_clanbite_version(),
+				'meetsClanbiteVersion'   => $ext->meets_clanbite_version_requirement(),
+				'isOfficial'             => isset( $official[ $slug ] ),
+				'isCoreBundled'          => in_array( $slug, $core_bundle, true ),
+				'isInstalled'            => isset( $installed[ $slug ] ),
+				'canInstall'             => $ext->can_install(),
+				'isRequired'             => in_array( $slug, $required, true ),
 			);
+
+			/**
+			 * Filter: `clanbite_extension_capabilities` — optional capability hints for an extension row in admin bootstrap JSON.
+			 *
+			 * Use associative keys meaningful to your integration (e.g. `manage`, `configure`).
+			 *
+			 * @param array<string, mixed> $capabilities Default empty; merged keys surface on the extension row as `capabilities`.
+			 * @param string               $slug           Extension slug.
+			 * @param Skeleton             $extension      Extension instance.
+			 */
+			$row['capabilities'] = (array) apply_filters( 'clanbite_extension_capabilities', array(), $slug, $ext );
+
+			$out[] = $row;
 		}
 
 		return $out;

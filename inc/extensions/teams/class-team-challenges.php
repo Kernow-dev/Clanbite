@@ -109,6 +109,30 @@ final class Team_Challenges {
 	}
 
 	/**
+	 * Allow third parties to mutate JSON bodies returned from challenge REST routes.
+	 *
+	 * @param array<string, mixed> $payload   Response body.
+	 * @param string               $route_key Stable key: `remote_team`, `upload_media`, or `create_challenge`.
+	 * @param WP_REST_Request      $request   Request instance.
+	 * @return array<string, mixed>
+	 */
+	private function filter_challenge_rest_payload( array $payload, string $route_key, WP_REST_Request $request ): array {
+		/**
+		 * Filter: `clanbite_team_challenge_rest_response` — JSON payload for challenge REST endpoints before encoding.
+		 *
+		 * @param array<string, mixed> $payload   Body array.
+		 * @param string               $route_key `remote_team`, `upload_media`, or `create_challenge`.
+		 * @param WP_REST_Request      $request   Request instance.
+		 */
+		return (array) apply_filters(
+			'clanbite_team_challenge_rest_response',
+			$payload,
+			$route_key,
+			$request
+		);
+	}
+
+	/**
 	 * REST routes for challenge flow (same-origin proxy + create).
 	 *
 	 * @return void
@@ -197,6 +221,8 @@ final class Team_Challenges {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
+
+		$result = $this->filter_challenge_rest_payload( $result, 'remote_team', $request );
 
 		return new WP_REST_Response( $result, 200 );
 	}
@@ -307,13 +333,16 @@ final class Team_Challenges {
 
 		$url = wp_get_attachment_image_url( (int) $att_id, 'medium' );
 
-		return new WP_REST_Response(
+		$data = $this->filter_challenge_rest_payload(
 			array(
 				'id'  => (int) $att_id,
 				'url' => $url ? (string) $url : '',
 			),
-			201
+			'upload_media',
+			$request
 		);
+
+		return new WP_REST_Response( $data, 201 );
 		} finally {
 			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing
 		}
@@ -538,14 +567,17 @@ final class Team_Challenges {
 		 */
 		do_action( 'clanbite_team_challenge_created', $challenge_id, $team_id );
 
-		return new WP_REST_Response(
+		$data = $this->filter_challenge_rest_payload(
 			array(
 				'success'      => true,
 				'challenge_id' => $challenge_id,
 				'message'      => __( 'Challenge sent. The team admins will be notified.', 'clanbite' ),
 			),
-			201
+			'create_challenge',
+			$request
 		);
+
+		return new WP_REST_Response( $data, 201 );
 	}
 
 	/**
@@ -858,6 +890,15 @@ final class Team_Challenges {
 		delete_post_meta( $challenge_id, self::META_CHALLENGER_LOGO_ATTACHMENT_ID );
 
 		update_post_meta( $challenge_id, self::META_STATUS, self::STATUS_DECLINED );
+
+		/**
+		 * Fires after a pending team challenge is declined by an authorised team representative.
+		 *
+		 * @param int $challenge_id       Challenge post ID (`clanbite_team_challenge`).
+		 * @param int $challenged_team_id Challenged team ID.
+		 * @param int $user_id            Acting user ID.
+		 */
+		do_action( 'clanbite_team_challenge_declined', $challenge_id, $challenged_team_id, $user_id );
 
 		return array(
 			'success' => true,

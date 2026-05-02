@@ -27,6 +27,22 @@ function clanbite_render_block_markup_file( string $markup_file ): void {
 		return;
 	}
 
+	/**
+	 * Filter serialized block markup before {@see do_blocks()} runs for a Clanbite template file.
+	 *
+	 * @param string $markup      Raw markup read from `$markup_file`.
+	 * @param string $markup_file Absolute path to the template source file.
+	 */
+	$markup = (string) apply_filters( 'clanbite_block_markup_before_do_blocks', $markup, $markup_file );
+
+	/**
+	 * Fires before Clanbite echoes template markup through {@see do_blocks()}.
+	 *
+	 * @param string $markup_file Absolute path to the template source file.
+	 * @param string $markup      Markup after {@see clanbite_block_markup_before_do_blocks}.
+	 */
+	do_action( 'clanbite_render_block_markup_file', $markup_file, $markup );
+
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo do_blocks( $markup );
 }

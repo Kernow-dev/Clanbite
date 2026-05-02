@@ -51,11 +51,11 @@ npm run build:production   # admin + blocks + manifests + match editor
 # or: npm run plugin-zip   # production build then clanbite.zip
 ```
 
-**REST API** (authenticated, `manage_options`):
+**REST API** (authenticated; default capability `manage_options`, filterable via `clanbite_admin_rest_manage_capability`):
 
 | Method | Route | Purpose |
 |--------|--------|---------|
-| `GET` | `/wp-json/clanbite/v1/admin/bootstrap` | Tabs, `optionSchemas`, current `values`, extensions list. |
+| `GET` | `/wp-json/clanbite/v1/admin/bootstrap` | Tabs, `optionSchemas`, current `values`, extensions list (`clanbite_admin_rest_bootstrap`). |
 | `PUT` | `/wp-json/clanbite/v1/admin/settings/{option_key}` | JSON body: field map; uses each `Abstract_Settings::sanitize()`. |
 | `PUT` | `/wp-json/clanbite/v1/admin/extensions` | JSON `{ "installed": ["cp_players", ...] }`; uninstalls removed slugs then saves the list. |
 
@@ -77,7 +77,7 @@ These routes are **unauthenticated** (defense in depth: nonces, rate limits, and
 
 **Cross-site mirror (two-way listings):** Each install generates an **Ed25519** keypair (PHP **sodium** extension required) stored in the `clanbite_match_sync_site_keys` option. When a challenge is accepted, if the snapshot came from another Clanbite site (`source: remote`, with `origin` + `remoteTeamId` from `public-team`), the challenged site POSTs to `{origin}/wp-json/clanbite/v1/sync-peer-match` with `X-Clanbite-Sync: v1:{timestamp}:{base64url_signature}` (detached Ed25519 over `{timestamp}\n{json body}`). The receiving site fetches the sender’s public key from `{source_site}wp-json/clanbite/v1/site-sync-public-key` (HTTPS), verifies the signature, then creates the mirror match. **No shared manual secret** — only Clanbite installs that expose the public-key route and accept verified requests participate. For legacy integrations, the `clanbite_cross_site_sync_key` filter can force the older `timestamp:hmac` header using a shared secret. Without sodium and without that filter, mirror push is skipped (the local match on the challenged site still works).
 
-**Filters / actions:** `clanbite_team_challenge_button_visible`, `clanbite_team_challenge_notify_user_ids`, `clanbite_team_challenge_created`, `clanbite_team_challenge_accepted`, `clanbite_cross_site_sync_key`, `clanbite_cross_site_sync_outbound_payload`, `clanbite_cross_site_sync_incoming_payload`, `clanbite_cross_site_sync_verify_source`, `clanbite_cross_site_sync_push_succeeded`, `clanbite_cross_site_sync_push_failed`, `clanbite_cross_site_sync_push_rejected`, `clanbite_cross_site_sync_incoming_created`. See `AGENTS.md` for the hook table.
+**Filters / actions:** `clanbite_team_challenge_button_visible`, `clanbite_team_challenge_notify_user_ids`, `clanbite_team_challenge_created`, `clanbite_team_challenge_accepted`, `clanbite_team_challenge_declined`, `clanbite_team_challenge_rest_response`, `clanbite_cross_site_sync_key`, `clanbite_cross_site_sync_outbound_payload`, `clanbite_cross_site_sync_incoming_payload`, `clanbite_cross_site_sync_verify_source`, `clanbite_cross_site_sync_push_succeeded`, `clanbite_cross_site_sync_push_failed`, `clanbite_cross_site_sync_push_rejected`, `clanbite_cross_site_sync_incoming_created`. See `AGENTS.md` for the hook table.
 
 ## Extension System
 Extensions are registered through filter-based discovery and loaded by the extension loader.
@@ -629,7 +629,7 @@ Core registers **Clanbite player** sizes (`clanbite-avatar-large` 512², `clanbi
 **Player API**
 
 1. **`clanbite_players_get_display_avatar( $user_id, $suppress_filters, $size, $context, $avatar_preset )`** — Returns the URL. Pass **`$avatar_preset`** as `large`, `medium`, or `small` to use the sizes from Players settings (overrides `$size`). When `$avatar_preset` is empty and `$size` is empty, **large** is used. Pass **`$context`** so filters can branch (`player_avatar_block`, `user_nav`, `notifications`, `profile_settings_rest`, etc.). The filter receives the fifth argument **`$avatar_preset`** (`''` when you passed an explicit `$size` only).
-2. **`clanbite_players_get_player_avatar_img_html( $user_id, $args )`** — Builds the `<img>`; `$args` may include **`preset`** (`large`/`medium`/`small`) or **`size`** when no preset.
+2. **`clanbite_players_get_player_avatar_img_html( $user_id, $args )`** — Builds the `<img>`; `$args` may include **`preset`** (`large`/`medium`/`small`) or **`size`** when no preset. Pass **`presentational` => true** when the image sits inside a control that already has an accessible name (e.g. `aria-label` on a menu button); core then emits **`alt=""`** and **`aria-hidden="true"`** after attribute filters run.
 3. **`clanbite_players_apply_player_avatar_display_markup( $inner_html, $user_id, $args )`** — Wrap/augment inner markup (`clanbite_players_player_avatar_display_markup`).
 
 **Team API** — **`clanbite_teams_get_display_team_avatar( $team_id, $suppress_filters, $size, $context, $avatar_preset )`** mirrors the player helper and uses **Teams → Team avatar image sizes**. Filter: **`clanbite_teams_get_display_team_avatar`**.
@@ -1052,6 +1052,48 @@ add_action(
 - `clanbite_team_can_ban_players`
   - Filter ban capability.
   - Args: `bool $allowed`, `int $team_id`, `array $options`, `Teams $extension`
+- `clanbite_matches_rest_query_args`
+  - Filter `WP_Query` arguments for `GET /wp-json/clanbite/v1/matches`.
+  - Args: `array $args`, `\WP_REST_Request $request`
+- `clanbite_match_rest_prepare`
+  - Filter each match row for REST collection and single routes.
+  - Args: `array $item`, `\WP_Post $post`, `\WP_REST_Request $request`, `string $context` (`collection`|`single`)
+- `clanbite_matches_rest_collection_data`
+  - Filter the full JSON body for the matches collection route (`matches`, `total`, `pages`).
+  - Args: `array $body`, `\WP_REST_Request $request`
+- `clanbite_viewer_can_see_match`
+  - Filter whether a viewer may see a match (blocks, REST, templates).
+  - Args: `bool $can`, `\WP_Post $post`, `int $viewer_id`
+- `clanbite_match_card_block_inner_markup` / `clanbite_match_list_block_inner_markup`
+  - Filter inner SSR markup for Match Card / Match List blocks (inside the wrapper div).
+  - Args: `string $markup`, `array $attributes`, `\WP_Block $block`
+- `clanbite_match_block_wrapper_attributes`
+  - Filter attributes passed to `get_block_wrapper_attributes()` for Match blocks.
+  - Args: `array $wrapper_attrs`, `string $block_name`, `\WP_Block $block`
+- `clanbite_block_markup_before_do_blocks`
+  - Filter serialized block markup loaded by `clanbite_render_block_markup_file()` before `do_blocks()`.
+  - Args: `string $markup`, `string $markup_file`
+- `clanbite_render_block_markup_file` *(action)*
+  - After markup is filtered; before `do_blocks()` output.
+  - Args: `string $markup_file`, `string $markup`
+- `clanbite_block_fragment_allowed_html`
+  - Filter the tag allow-list for `wp_kses()` on Clanbite block fragments (return a copy; avoid mutating the base array in place).
+  - Args: `array $allowed`
+- `clanbite_team_challenge_rest_response`
+  - Filter JSON payloads from challenge REST routes (`remote_team`, `upload_media`, `create_challenge`).
+  - Args: `array $payload`, `string $route_key`, `\WP_REST_Request $request`
+- `clanbite_team_challenge_declined` *(action)*
+  - After a challenge is marked declined by an authorised user.
+  - Args: `int $challenge_id`, `int $challenged_team_id`, `int $user_id`
+- `clanbite_admin_rest_manage_capability`
+  - Primitive capability required for `clanbite/v1/admin/*` REST routes (default `manage_options`).
+  - Args: `string $capability`
+- `clanbite_extension_capabilities`
+  - Attach optional capability hints to each extension row in admin bootstrap (`capabilities` key).
+  - Args: `array $capabilities`, `string $slug`, `Skeleton $extension`
+- `clanbite_admin_rest_bootstrap`
+  - Filter the full `GET clanbite/v1/admin/bootstrap` payload.
+  - Args: `array $data`, `Loader $loader`
 
 ## Notifications System
 
