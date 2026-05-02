@@ -164,7 +164,11 @@ These items recur in **Plugin Check** / **PHPCS** runs. Prefer fixing **errors**
 - `clanbite_block_fragment_allowed_html` — Extend {@see wp_kses()} allow-list for block fragments (return a modified copy): `(array $allowed)`.
 - `clanbite_admin_rest_manage_capability` — Capability checked by `clanbite/v1/admin/*` REST routes (default `manage_options`): `(string $capability)`.
 - `clanbite_extension_capabilities` — Optional hints merged into each extension row as `capabilities` in admin bootstrap JSON: `(array $capabilities, string $slug, Skeleton $extension)`.
-- `clanbite_admin_rest_bootstrap` — Full payload for `GET clanbite/v1/admin/bootstrap`: `(array $data, Loader $loader)`.
+- `clanbite_admin_rest_settings_registry` — Extra `Abstract_Settings` handlers after core registration: `(array<string, Abstract_Settings> $registry, Loader $loader)`. Invalid entries ignored.
+- `clanbite_admin_rest_tabs` — Tab list for the React shell: `(array<int, array<string, mixed>> $tabs, Loader $loader)`. Types: `general`, `extensions`, `extension`, `integration`.
+- `clanbite_admin_rest_bootstrap` — `GET clanbite/v1/admin/bootstrap` payload: `(array $data, Loader $loader)`. React mirrors into `window.clanbiteAdmin.bootstrap` after fetch.
+- `clanbite_admin_icon_packs` — Bootstrap `iconPacks`; companions merge normalized rows here (Points/Ranks source filters **`clanbite_points_icon_packs`**, **`clanbite_ranks_icon_packs`**).
+- `clanbite_admin_infer_icon_pack_scope` — When a pack row has no valid `scope`, infer from sanitized pack id (default `all`): `(string $scope, string $pack_id)`.
 - `clanbite_cross_site_sync_key` — Legacy shared HMAC secret (optional): `(string $key)` non-empty forces legacy `timestamp:hmac` headers instead of Ed25519 `v1:…` (for old integrations only).
 - `clanbite_cross_site_sync_outbound_payload` — Mutate signed body before push to peer: `(array $body, int $challenge_id, int $match_id, int $challenged_team_id, array $snapshot)`.
 - `clanbite_cross_site_sync_incoming_payload` — Mutate decoded JSON after signature check: `(array $body, string $source_host)`.

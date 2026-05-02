@@ -61,6 +61,8 @@ npm run build:production   # admin + blocks + manifests + match editor
 
 To restore a **standalone** PHP submenu for an extension settings class, filter `clanbite_extension_settings_register_submenu` to `true` for that `Abstract_Settings` instance.
 
+**Extending unified admin:** bundled extensions use `Skeleton` + `get_settings_admin()` (or `clanbite_registered_extensions` for community add-ons). Other integration points: **`clanbite_admin_rest_settings_registry`**, **`clanbite_admin_rest_tabs`** (tab `type` `integration` dispatches DOM events `clanbite:admin-integration-mount` / `unmount` on the tab container), **`clanbite_admin_rest_bootstrap`**, and **`window.clanbiteAdmin.bootstrap`** after load. Point/rank icons: filters **`clanbite_points_icon_packs`** / **`clanbite_ranks_icon_packs`** merged into **`clanbite_admin_icon_packs`**. See **`AGENTS.md`** for hook arguments.
+
 ### Public REST, team challenges, and cross-site match sync
 
 These routes are **unauthenticated** (defense in depth: nonces, rate limits, and/or HMAC as documented). They exist so other Clanbite installs and the **Team challenge** block can interoperate.

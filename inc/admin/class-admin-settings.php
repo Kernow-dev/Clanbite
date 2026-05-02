@@ -63,6 +63,26 @@ class Settings {
 			}
 		}
 
+		/**
+		 * Filter: `clanbite_admin_rest_settings_registry`.
+		 *
+		 * @param array<string, Abstract_Settings> $registry Option key => handler.
+		 * @param Loader                           $loader    Extension loader.
+		 */
+		$filtered = apply_filters( 'clanbite_admin_rest_settings_registry', $this->settings_registry, $loader );
+		if ( is_array( $filtered ) ) {
+			$this->settings_registry = array();
+			foreach ( $filtered as $key => $handler ) {
+				if ( ! is_string( $key ) || '' === $key ) {
+					continue;
+				}
+				if ( ! $handler instanceof Abstract_Settings ) {
+					continue;
+				}
+				$this->settings_registry[ $key ] = $handler;
+			}
+		}
+
 		$this->rest = new Admin_Rest( $this->settings_registry );
 
 		add_action( 'rest_api_init', array( $this->rest, 'register_routes' ) );
