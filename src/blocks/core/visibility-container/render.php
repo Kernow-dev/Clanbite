@@ -37,10 +37,10 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo clanbite_esc_block_fragment_html(
+echo wp_kses(
 	sprintf(
 		'<div %1$s>%2$s</div>',
 		$wrapper_attributes,
 		$inner_html
-	)
+	), clanbite_block_fragment_allowed_html()
 );

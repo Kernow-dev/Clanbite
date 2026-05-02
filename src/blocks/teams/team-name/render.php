@@ -18,7 +18,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span>' . esc_html__( 'Team name', 'clanbite' ) . '</span></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><span>' . esc_html__( 'Team name', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -56,12 +56,12 @@ if ( ! empty( $attributes['isLink'] ) && function_exists( 'clanbite_block_entity
 
 $wrapper_attributes = get_block_wrapper_attributes( array(), $block );
 
-echo clanbite_esc_block_fragment_html(
+echo wp_kses(
 	sprintf(
 		'<div %1$s><%2$s class="%3$s">%4$s</%2$s></div>',
 		$wrapper_attributes,
 		esc_attr( $tag ),
 		esc_attr( implode( ' ', $class ) ),
 		$inner
-	)
+	), clanbite_block_fragment_allowed_html()
 );

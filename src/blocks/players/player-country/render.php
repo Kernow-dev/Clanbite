@@ -21,7 +21,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span class="clanbite-country-display__label">' . esc_html__( 'Player country', 'clanbite' ) . '</span></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><span class="clanbite-country-display__label">' . esc_html__( 'Player country', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -44,7 +44,7 @@ if ( ! function_exists( 'clanbite_country_block_inner_html' ) ) {
 	} else {
 		$inner = '<span class="clanbite-country-display__label">' . esc_html( $label ) . '</span>';
 	}
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '>' . $inner . '</div>' );
+	echo wp_kses( '<div ' . $wrapper_attributes . '>' . $inner . '</div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -65,4 +65,4 @@ if ( '' === $inner && '' !== $code ) {
 	$inner = '<span class="clanbite-country-display__label">' . esc_html__( '—', 'clanbite' ) . '</span>';
 }
 
-echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '>' . $inner . '</div>' );
+echo wp_kses( '<div ' . $wrapper_attributes . '>' . $inner . '</div>', clanbite_block_fragment_allowed_html());

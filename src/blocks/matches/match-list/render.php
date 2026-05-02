@@ -30,4 +30,4 @@ if ( 0 === (int) ( $attributes['teamId'] ?? 0 ) && $team_qv > 0 ) {
 
 $markup  = $extension->render_list_block_markup( $attributes );
 $wrapper = get_block_wrapper_attributes( array(), $block );
-echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '>' . $markup . '</div>' );
+echo wp_kses( '<div ' . $wrapper . '>' . $markup . '</div>', clanbite_block_fragment_allowed_html());

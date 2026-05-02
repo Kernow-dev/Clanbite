@@ -79,4 +79,4 @@ $wrapper = get_block_wrapper_attributes(
 	$block
 );
 
-echo clanbite_esc_block_fragment_html( '<ul ' . $wrapper . '>' . $items_html . '</ul>' );
+echo wp_kses( '<ul ' . $wrapper . '>' . $items_html . '</ul>', clanbite_block_fragment_allowed_html());

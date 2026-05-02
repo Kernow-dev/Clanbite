@@ -116,7 +116,7 @@ if ( '' !== $avatar_extra_classes ) {
 
 ob_start();
 ?>
-<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer is passed through clanbite_esc_block_fragment_html() below. ?>>
+<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer is passed through wp_kses(, clanbite_block_fragment_allowed_html()) below. ?>>
 	<div class="<?php echo esc_attr( $avatar_classes ); ?>">
 		<?php if ( $use_avatar_media ) : ?>
 			<div class="clanbite-player-avatar__media">
@@ -137,5 +137,5 @@ ob_start();
 	</div>
 </div>
 <?php
-echo clanbite_esc_block_fragment_html( (string) ob_get_clean() );
+echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html());
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

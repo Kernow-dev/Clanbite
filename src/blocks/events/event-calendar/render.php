@@ -51,7 +51,7 @@ if ( 'player' === $scope ) {
 } elseif ( 'team' === $scope ) {
 	if ( $team_id < 1 ) {
 		$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-calendar clanbite-event-calendar--placeholder' ), $block );
-		echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>' );
+		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
 		return;
 	}
 
@@ -63,7 +63,7 @@ if ( 'player' === $scope ) {
 } elseif ( 'group' === $scope ) {
 	if ( $group_id < 1 ) {
 		$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-calendar clanbite-event-calendar--placeholder' ), $block );
-		echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>' );
+		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
 		return;
 	}
 
@@ -205,7 +205,7 @@ $wrapper = get_block_wrapper_attributes(
 ?>
 <?php ob_start(); ?>
 <div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
+	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
 	data-wp-interactive="clanbite-event-calendar"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
 	data-wp-init="callbacks.init"
@@ -233,4 +233,4 @@ $wrapper = get_block_wrapper_attributes(
 	<p class="clanbite-event-calendar__error" hidden data-wp-bind--hidden="!context.fetchError" data-wp-text="context.fetchError" role="alert"></p>
 	<div class="clanbite-event-calendar__surface"><?php echo $calendar_surface ? $calendar_surface : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; calendar HTML from clanbite_event_calendar_render_surface_html() / grid helpers using esc_html/esc_attr. ?></div>
 </div>
-<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>

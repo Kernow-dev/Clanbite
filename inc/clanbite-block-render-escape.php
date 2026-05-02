@@ -12,7 +12,8 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Allowed HTML tags for {@see clanbite_esc_block_fragment_html()} (post-like rules plus SVG primitives).
+ * Allowed HTML tags for block fragments passed through {@see wp_kses()} /
+ * {@see clanbite_esc_block_fragment_html()} (post-like rules plus SVG primitives).
  *
  * @return array<string, array<string, bool>>
  */
@@ -78,7 +79,9 @@ function clanbite_block_fragment_allowed_html(): array {
 }
 
 /**
- * Escape an HTML fragment built from block markup / helpers for safe front-end output.
+ * Escape an HTML fragment built from block markup / helpers for safe storage or composition.
+ *
+ * Block `render.php` files echo via {@see wp_kses()} directly so static analysis recognizes escaping.
  *
  * @param string $html Assembled markup (balanced fragment recommended).
  * @return string

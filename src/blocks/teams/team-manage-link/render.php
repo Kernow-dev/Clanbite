@@ -33,4 +33,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></div></div>' );
+echo wp_kses( '<div ' . $wrapper_attributes . '><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></div></div>', clanbite_block_fragment_allowed_html());

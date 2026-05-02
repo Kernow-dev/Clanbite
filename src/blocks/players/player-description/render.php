@@ -23,7 +23,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><div class="clanbite-player-description__content">' . esc_html__( 'Player description', 'clanbite' ) . '</div></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><div class="clanbite-player-description__content">' . esc_html__( 'Player description', 'clanbite' ) . '</div></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -44,11 +44,11 @@ if ( $align && in_array( $align, array( 'left', 'center', 'right', 'justify' ), 
 $wrapper_attributes = get_block_wrapper_attributes( array(), $block );
 $content            = wp_kses_post( $bio );
 
-echo clanbite_esc_block_fragment_html(
+echo wp_kses(
 	sprintf(
 		'<div %1$s><div class="%2$s">%3$s</div></div>',
 		$wrapper_attributes,
 		esc_attr( implode( ' ', $class ) ),
 		$content
-	)
+	), clanbite_block_fragment_allowed_html()
 );

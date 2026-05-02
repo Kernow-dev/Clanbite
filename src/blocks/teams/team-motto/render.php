@@ -18,7 +18,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span>' . esc_html__( 'Team motto', 'clanbite' ) . '</span></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><span>' . esc_html__( 'Team motto', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -33,4 +33,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 
 $display = '' === $motto ? __( 'No motto set.', 'clanbite' ) : $motto;
 
-echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><p class="clanbite-team-motto__text">' . esc_html( $display ) . '</p></div>' );
+echo wp_kses( '<div ' . $wrapper_attributes . '><p class="clanbite-team-motto__text">' . esc_html( $display ) . '</p></div>', clanbite_block_fragment_allowed_html());
