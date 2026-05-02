@@ -118,7 +118,7 @@ class Matches extends Skeleton {
 	public function run_uninstaller(): void {
 		$ids = get_posts(
 			array(
-				'post_type'      => 'cp_match',
+				'post_type'      => 'clanbite_match',
 				'post_status'    => 'any',
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
@@ -158,7 +158,7 @@ class Matches extends Skeleton {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_match_editor' ) );
 		add_filter( 'manage_cp_match_posts_columns', array( $this, 'match_admin_columns' ) );
 		add_action( 'manage_cp_match_posts_custom_column', array( $this, 'render_match_admin_column' ), 10, 2 );
-		add_action( 'save_post_cp_match', array( $this, 'validate_match_on_save' ), 10, 2 );
+		add_action( 'save_post_clanbite_match', array( $this, 'validate_match_on_save' ), 10, 2 );
 		add_filter( 'single_template', array( $this, 'maybe_single_match_template' ) );
 		add_filter( 'clanbite_team_create_form_steps', array( $this, 'register_team_create_matches_step' ), 25 );
 	}
@@ -413,7 +413,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_type(
-			'cp_match',
+			'clanbite_match',
 			array(
 				'labels'          => $labels,
 				'description'     => __( 'Scheduled or completed matches between teams.', 'clanbite' ),
@@ -458,7 +458,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_home_team_id',
 			array(
 				'type'              => 'integer',
@@ -471,7 +471,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_away_team_id',
 			array(
 				'type'              => 'integer',
@@ -484,7 +484,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_away_external_label',
 			array(
 				'type'              => 'string',
@@ -497,7 +497,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_away_external_logo_url',
 			array(
 				'type'              => 'string',
@@ -510,7 +510,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_away_external_profile_url',
 			array(
 				'type'              => 'string',
@@ -523,7 +523,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_scheduled_at',
 			array(
 				'type'              => 'string',
@@ -536,7 +536,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_status',
 			array(
 				'type'              => 'string',
@@ -551,7 +551,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_home_score',
 			array(
 				'type'              => 'integer',
@@ -564,7 +564,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_away_score',
 			array(
 				'type'              => 'integer',
@@ -577,7 +577,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_venue',
 			array(
 				'type'              => 'string',
@@ -590,7 +590,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_visibility',
 			array(
 				'type'              => 'string',
@@ -610,7 +610,7 @@ class Matches extends Skeleton {
 		);
 
 		register_post_meta(
-			'cp_match',
+			'clanbite_match',
 			'cp_match_attendees_visibility',
 			array(
 				'type'              => 'string',
@@ -775,7 +775,7 @@ class Matches extends Skeleton {
 		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) ) {
 			return;
 		}
-		if ( 'cp_match' !== $post->post_type ) {
+		if ( 'clanbite_match' !== $post->post_type ) {
 			return;
 		}
 
@@ -784,13 +784,13 @@ class Matches extends Skeleton {
 
 		if ( $home > 0 ) {
 			$h_post = get_post( $home );
-			if ( ! $h_post || 'cp_team' !== $h_post->post_type ) {
+			if ( ! $h_post || 'clanbite_team' !== $h_post->post_type ) {
 				delete_post_meta( $post_id, 'cp_match_home_team_id' );
 			}
 		}
 		if ( $away > 0 ) {
 			$a_post = get_post( $away );
-			if ( ! $a_post || 'cp_team' !== $a_post->post_type ) {
+			if ( ! $a_post || 'clanbite_team' !== $a_post->post_type ) {
 				delete_post_meta( $post_id, 'cp_match_away_team_id' );
 				delete_post_meta( $post_id, 'cp_match_away_external_label' );
 				delete_post_meta( $post_id, 'cp_match_away_external_logo_url' );
@@ -854,7 +854,7 @@ class Matches extends Skeleton {
 		if ( 'edit-cp_match' === $screen->id ) {
 			$relevant = true;
 		}
-		if ( 'post' === $screen->base && 'cp_match' === $screen->post_type ) {
+		if ( 'post' === $screen->base && 'clanbite_match' === $screen->post_type ) {
 			$relevant = true;
 		}
 		if ( 'toplevel_page_clanbite' === $screen->id ) {
@@ -958,7 +958,7 @@ class Matches extends Skeleton {
 
 		// phpcs:disable WordPress.DB.SlowDBQuery -- Block list sorts by `cp_match_scheduled_at`; optional `meta_query` scopes by team/status.
 		$args = array(
-			'post_type'              => 'cp_match',
+			'post_type'              => 'clanbite_match',
 			'post_status'            => 'publish',
 			'posts_per_page'         => $limit,
 			'orderby'                => 'meta_value',
@@ -1050,7 +1050,7 @@ class Matches extends Skeleton {
 		}
 
 		$post = get_post( $match_id );
-		if ( ! $post || 'cp_match' !== $post->post_type || 'publish' !== $post->post_status ) {
+		if ( ! $post || 'clanbite_match' !== $post->post_type || 'publish' !== $post->post_status ) {
 			return '<div class="clanbite-match-card clanbite-match-card--missing"><p>' . esc_html__( 'Match not found.', 'clanbite' ) . '</p></div>';
 		}
 
@@ -1114,11 +1114,11 @@ class Matches extends Skeleton {
 	 * @return string Template path to load.
 	 */
 	public function maybe_single_match_template( string $template ): string {
-		if ( ! is_singular( 'cp_match' ) ) {
+		if ( ! is_singular( 'clanbite_match' ) ) {
 			return $template;
 		}
 
-		$plugin = clanbite()->path . 'templates/matches/single-cp_match.php';
+		$plugin = clanbite()->path . 'templates/matches/single-clanbite_match.php';
 		if ( is_readable( $plugin ) ) {
 			return $plugin;
 		}

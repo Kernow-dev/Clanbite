@@ -23,7 +23,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><div class="clanbite-player-description__content">' . esc_html__( 'Player description', 'clanbite' ) . '</div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><div class="clanbite-player-description__content">' . esc_html__( 'Player description', 'clanbite' ) . '</div></div>' );
 	return;
 }
 
@@ -44,9 +44,11 @@ if ( $align && in_array( $align, array( 'left', 'center', 'right', 'justify' ), 
 $wrapper_attributes = get_block_wrapper_attributes( array(), $block );
 $content            = wp_kses_post( $bio );
 
-printf(
-	'<div %1$s><div class="%2$s">%3$s</div></div>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
-	esc_attr( implode( ' ', $class ) ),
-	$content // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_kses_post().
+echo clanbite_esc_block_fragment_html(
+	sprintf(
+		'<div %1$s><div class="%2$s">%3$s</div></div>',
+		$wrapper_attributes,
+		esc_attr( implode( ' ', $class ) ),
+		$content
+	)
 );

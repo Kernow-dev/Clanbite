@@ -8,7 +8,7 @@
 	"icon": "format-quote",
 	"description": "Displays the team motto.",
 	"textdomain": "clanbite",
-	"postTypes": [ "cp_team" ],
+	"postTypes": [ "clanbite_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"supports": {
 		"spacing": {

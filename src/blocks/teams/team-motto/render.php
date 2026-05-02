@@ -18,7 +18,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><span>' . esc_html__( 'Team motto', 'clanbite' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span>' . esc_html__( 'Team motto', 'clanbite' ) . '</span></div>' );
 	return;
 }
 
@@ -33,4 +33,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 
 $display = '' === $motto ? __( 'No motto set.', 'clanbite' ) : $motto;
 
-echo '<div ' . $wrapper_attributes . '><p class="clanbite-team-motto__text">' . esc_html( $display ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><p class="clanbite-team-motto__text">' . esc_html( $display ) . '</p></div>' );

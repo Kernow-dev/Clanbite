@@ -24,7 +24,7 @@ use WP_User;
  */
 final class Team_Challenges {
 
-	public const POST_TYPE = 'cp_team_challenge';
+	public const POST_TYPE = 'clanbite_team_challenge';
 
 	public const STATUS_PENDING  = 'pending';
 	public const STATUS_ACCEPTED = 'accepted';
@@ -224,17 +224,20 @@ final class Team_Challenges {
 		}
 
 		$team_post = get_post( $team_id );
-		if ( ! ( $team_post instanceof WP_Post ) || 'cp_team' !== $team_post->post_type || 'publish' !== $team_post->post_status ) {
+		if ( ! ( $team_post instanceof WP_Post ) || 'clanbite_team' !== $team_post->post_type || 'publish' !== $team_post->post_status ) {
 			return new WP_Error( 'clanbite_challenge_bad_team', __( 'Team not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` after REST nonce check; validated by `wp_handle_upload()`.
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` after REST nonce check; normalized via {@see clanbite_sanitize_files_array_entry()}.
 		try {
 		if ( empty( $_FILES['file'] ) || ! is_array( $_FILES['file'] ) ) {
 			return new WP_Error( 'clanbite_challenge_no_file', __( 'No file uploaded.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
-		$file = $_FILES['file'];
+		$file = \clanbite_sanitize_files_array_entry( wp_unslash( $_FILES['file'] ) );
+		if ( null === $file ) {
+			return new WP_Error( 'clanbite_challenge_no_file', __( 'No file uploaded.', 'clanbite' ), array( 'status' => 400 ) );
+		}
 		if ( ! empty( $file['error'] ) && UPLOAD_ERR_OK !== (int) $file['error'] ) {
 			return new WP_Error( 'clanbite_challenge_upload', __( 'Upload failed.', 'clanbite' ), array( 'status' => 400 ) );
 		}
@@ -243,8 +246,7 @@ final class Team_Challenges {
 			return new WP_Error( 'clanbite_challenge_upload', __( 'Image must be 2MB or smaller.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/image.php';
+		\clanbite_require_wp_admin_image_includes();
 
 		$overrides = array(
 			'test_form' => false,
@@ -366,7 +368,7 @@ final class Team_Challenges {
 		}
 
 		$team_post = get_post( $team_id );
-		if ( ! ( $team_post instanceof WP_Post ) || 'cp_team' !== $team_post->post_type || 'publish' !== $team_post->post_status ) {
+		if ( ! ( $team_post instanceof WP_Post ) || 'clanbite_team' !== $team_post->post_type || 'publish' !== $team_post->post_status ) {
 			return new WP_Error( 'clanbite_challenge_bad_team', __( 'Team not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
@@ -531,7 +533,7 @@ final class Team_Challenges {
 		/**
 		 * Fires after a team challenge is stored and notifications are queued.
 		 *
-		 * @param int $challenge_id Challenge post ID (`cp_team_challenge`).
+		 * @param int $challenge_id Challenge post ID (`clanbite_team_challenge`).
 		 * @param int $challenged_team_id Challenged `cp_team` ID.
 		 */
 		do_action( 'clanbite_team_challenge_created', $challenge_id, $team_id );
@@ -753,7 +755,7 @@ final class Team_Challenges {
 		$match_id = $this->insert_match_post_for_user(
 			$user_id,
 			array(
-				'post_type'    => 'cp_match',
+				'post_type'    => 'clanbite_match',
 				'post_status'  => 'publish',
 				'post_title'   => $title,
 				'post_author'  => $user_id,
@@ -967,7 +969,7 @@ final class Team_Challenges {
 	 */
 	private function build_team_event_permalink( int $team_id, int $event_id ): string {
 		$team_post = get_post( $team_id );
-		if ( ! ( $team_post instanceof WP_Post ) || 'cp_team' !== $team_post->post_type ) {
+		if ( ! ( $team_post instanceof WP_Post ) || 'clanbite_team' !== $team_post->post_type ) {
 			return '';
 		}
 		$slug = (string) $team_post->post_name;
@@ -1102,9 +1104,15 @@ final class Team_Challenges {
 	 * @return int|WP_Error
 	 */
 	private function insert_post_with_grant( array $postarr, int $user_id = 0 ): int|WP_Error {
-		$prev = (int) get_current_user_id();
-		if ( $user_id > 0 ) {
-			wp_set_current_user( $user_id );
+		// Do not call `wp_set_current_user()`. Match/event rows are created during authenticated
+		// notification actions where `get_current_user_id()` already equals `$user_id`; challenge
+		// rows use `$user_id === 0` with a cap grant for the real visitor (guest or logged-in).
+		if ( $user_id > 0 && (int) get_current_user_id() !== $user_id ) {
+			return new WP_Error(
+				'clanbite_insert_post_user_context',
+				__( 'Your session does not match the user required to create this content.', 'clanbite' ),
+				array( 'status' => 403 )
+			);
 		}
 
 		$filter = static function ( $allcaps, $caps ) {
@@ -1122,8 +1130,6 @@ final class Team_Challenges {
 		add_filter( 'user_has_cap', $filter, 999, 2 );
 		$result = wp_insert_post( $postarr, true );
 		remove_filter( 'user_has_cap', $filter, 999 );
-
-		wp_set_current_user( $prev );
 
 		return $result;
 	}

@@ -24,7 +24,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><p class="clanbite-player-display-name__text">' . esc_html__( 'Player name', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p class="clanbite-player-display-name__text">' . esc_html__( 'Player name', 'clanbite' ) . '</p></div>' );
 	return;
 }
 
@@ -67,9 +67,11 @@ if ( ! empty( $attributes['isLink'] ) && function_exists( 'clanbite_block_player
 
 $wrapper_attributes = get_block_wrapper_attributes( array(), $block );
 
-printf(
-	'<div %1$s><p class="%2$s">%3$s</p></div>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
-	esc_attr( implode( ' ', $class ) ),
-	$inner // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $inner built with esc_html and esc_url.
+echo clanbite_esc_block_fragment_html(
+	sprintf(
+		'<div %1$s><p class="%2$s">%3$s</p></div>',
+		$wrapper_attributes,
+		esc_attr( implode( ' ', $class ) ),
+		$inner
+	)
 );

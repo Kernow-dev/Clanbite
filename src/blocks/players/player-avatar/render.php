@@ -114,28 +114,28 @@ if ( '' !== $avatar_extra_classes ) {
 	$avatar_classes .= ' ' . trim( $avatar_extra_classes );
 }
 
+ob_start();
 ?>
-<div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
->
+<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer is passed through clanbite_esc_block_fragment_html() below. ?>>
 	<div class="<?php echo esc_attr( $avatar_classes ); ?>">
 		<?php if ( $use_avatar_media ) : ?>
 			<div class="clanbite-player-avatar__media">
-				<?php echo $link_open; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built with esc_url/esc_attr. ?>
-				<div class="clanbite-player-avatar__clip"><?php echo $clip_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built with esc_url/esc_attr/esc_html. ?></div>
-				<?php echo $link_close; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<?php echo $rank_overlay_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- extension HTML. ?>
+				<?php echo $link_open; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
+				<div class="clanbite-player-avatar__clip"><?php echo $clip_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?></div>
+				<?php echo $link_close; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
+				<?php echo $rank_overlay_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
 			</div>
 			<?php if ( '' !== $after_clip ) : ?>
-				<?php echo $after_clip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- extension HTML. ?>
+				<?php echo $after_clip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
 			<?php endif; ?>
 		<?php else : ?>
-			<div class="clanbite-player-avatar__clip"><?php echo $clip_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built with esc_url/esc_attr/esc_html. ?></div>
+			<div class="clanbite-player-avatar__clip"><?php echo $clip_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?></div>
 			<?php if ( '' !== $after_clip ) : ?>
-				<?php echo $after_clip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- extension HTML. ?>
+				<?php echo $after_clip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
 			<?php endif; ?>
 		<?php endif; ?>
 	</div>
 </div>
 <?php
+echo clanbite_esc_block_fragment_html( (string) ob_get_clean() );
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

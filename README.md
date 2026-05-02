@@ -11,7 +11,7 @@ Clanbite is a community management plugin for gaming teams, clans, and competiti
 
 Some Clanbite surfaces load **remote images** for convenience:
 
-- **Gravatar (Automattic):** When a notification includes an actor without a custom Clanbite player avatar, the UI may resolve a portrait via WordPress’s `get_avatar_url()` data source (Gravatar). That request is initiated by the visitor’s browser when the notification row is rendered (typical `<img src="…">` load). No account passwords are sent. Terms: [https://automattic.com/terms/](https://automattic.com/terms/) · Privacy: [https://automattic.com/privacy/](https://automattic.com/privacy/).
+- **Gravatar (Automattic):** When a notification includes an actor without a custom Clanbite player avatar, the UI may resolve a portrait via WordPress’s `get_avatar_url()` data source (Gravatar). That request is initiated by the visitor’s browser when the notification row is rendered (typical `<img src="…">` load). No account passwords are sent. Terms: [https://wordpress.com/tos/](https://wordpress.com/tos/) · Privacy: [https://automattic.com/privacy/](https://automattic.com/privacy/).
 
 ## Static analysis and compatibility checks
 
@@ -71,7 +71,7 @@ These routes are **unauthenticated** (defense in depth: nonces, rate limits, and
 | `GET` | `/wp-json/clanbite/v1/site-sync-public-key` | Returns `{ clanbite, algorithm: ed25519, public_key }` (base64) so peer installs can verify signed `sync-peer-match` requests. |
 | `GET` | `/wp-json/clanbite/v1/public-team` | Query args `slug` or `url` — public metadata for a published `cp_team` (title, permalink, logo, motto, country, short description). |
 | `GET` | `/wp-json/clanbite/v1/challenge-remote-team` | Same-site proxy: `team_id`, `url`, `challenge_nonce` — server fetches discovery + `public-team` on the remote host (avoids browser CORS). |
-| `POST` | `/wp-json/clanbite/v1/team-challenges` | JSON body: `team_id`, `challenge_nonce`, contact fields, optional `opponent_team_url`, `challenger_team_id`, `challenger_team_name`, `challenger_team_logo_id`, `proposed_scheduled_at`, `message`. Creates `cp_team_challenge` and notifies challenged team admins (`team_challenge` + accept/decline handlers). Requires **Matches** + **Teams**. |
+| `POST` | `/wp-json/clanbite/v1/team-challenges` | JSON body: `team_id`, `challenge_nonce`, contact fields, optional `opponent_team_url`, `challenger_team_id`, `challenger_team_name`, `challenger_team_logo_id`, `proposed_scheduled_at`, `message`. Creates `clanbite_team_challenge` and notifies challenged team admins (`team_challenge` + accept/decline handlers). Requires **Matches** + **Teams**. |
 | `POST` | `/wp-json/clanbite/v1/team-challenge-media` | `multipart/form-data`: `team_id`, `challenge_nonce`, `file` — optional logo (image, max 2MB) for manual challengers; returns `{ id, url }` attachment reference for `challenger_team_logo_id`. |
 | `POST` | `/wp-json/clanbite/v1/sync-peer-match` | Signed JSON body (see below). Creates a **mirror** `cp_match` on the **challenger’s** site when the challenged site accepts a remote Clanbite challenge. |
 

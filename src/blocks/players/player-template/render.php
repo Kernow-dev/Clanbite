@@ -79,4 +79,4 @@ $wrapper = get_block_wrapper_attributes(
 	$block
 );
 
-echo '<ul ' . $wrapper . '>' . $items_html . '</ul>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $wrapper from get_block_wrapper_attributes(); $items_html built from block render output.
+echo clanbite_esc_block_fragment_html( '<ul ' . $wrapper . '>' . $items_html . '</ul>' );

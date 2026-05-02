@@ -178,7 +178,7 @@ final class Front_Seo {
 		$team_id = function_exists( 'clanbite_team_profile_context_team_id' ) ? (int) clanbite_team_profile_context_team_id() : 0;
 		if ( $team_id > 0 ) {
 			$post = get_post( $team_id );
-			if ( $post instanceof \WP_Post && 'cp_team' === $post->post_type ) {
+			if ( $post instanceof \WP_Post && 'clanbite_team' === $post->post_type ) {
 				$base = get_the_title( $post );
 				$sub  = function_exists( 'clanbite_team_profile_route_current_slug' ) ? clanbite_team_profile_route_current_slug() : '';
 				if ( 'events' === $sub ) {
@@ -256,7 +256,7 @@ final class Front_Seo {
 		$team_id = function_exists( 'clanbite_team_profile_context_team_id' ) ? (int) clanbite_team_profile_context_team_id() : 0;
 		if ( $team_id > 0 ) {
 			$post = get_post( $team_id );
-			if ( $post instanceof \WP_Post && 'cp_team' === $post->post_type ) {
+			if ( $post instanceof \WP_Post && 'clanbite_team' === $post->post_type ) {
 				if ( 'settings' === ( function_exists( 'clanbite_team_profile_route_current_slug' ) ? clanbite_team_profile_route_current_slug() : '' ) ) {
 					return;
 				}
@@ -265,7 +265,7 @@ final class Front_Seo {
 			return;
 		}
 
-		if ( is_singular( 'cp_match' ) ) {
+		if ( is_singular( 'clanbite_match' ) ) {
 			self::print_match_seo();
 			return;
 		}
@@ -659,7 +659,7 @@ final class Front_Seo {
 	}
 
 	private static function print_match_seo(): void {
-		if ( ! is_singular( 'cp_match' ) ) {
+		if ( ! is_singular( 'clanbite_match' ) ) {
 			return;
 		}
 
@@ -789,6 +789,7 @@ final class Front_Seo {
 	 * @return void
 	 */
 	private static function print_json_ld_script( array $data ): void {
+		// JSON_HEX_* flags mitigate closing-script breakouts; wp_json_encode is the correct API for inline JSON-LD.
 		$json = wp_json_encode( $data, self::JSON_LD_FLAGS );
 		if ( false === $json || '' === $json ) {
 			return;

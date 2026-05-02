@@ -18,7 +18,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><span class="clanbite-team-code__value">' . esc_html__( 'Team code', 'clanbite' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span class="clanbite-team-code__value">' . esc_html__( 'Team code', 'clanbite' ) . '</span></div>' );
 	return;
 }
 
@@ -33,4 +33,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 
 $display = '' === $code ? __( '—', 'clanbite' ) : $code;
 
-echo '<div ' . $wrapper_attributes . '><span class="clanbite-team-code__value">' . esc_html( $display ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><span class="clanbite-team-code__value">' . esc_html( $display ) . '</span></div>' );

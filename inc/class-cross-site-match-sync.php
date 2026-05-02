@@ -282,7 +282,7 @@ final class Cross_Site_Match_Sync {
 	/**
 	 * After a challenge is accepted on the challenged site, create the same match on the challenger’s Clanbite site when the snapshot came from a remote install.
 	 *
-	 * @param int    $challenge_id       `cp_team_challenge` post ID.
+	 * @param int    $challenge_id       `clanbite_team_challenge` post ID.
 	 * @param int    $match_id           New `cp_match` ID on this site.
 	 * @param int    $challenged_team_id Home team on this site.
 	 * @param array  $snapshot           Decoded remote snapshot JSON from the challenge record.
@@ -312,7 +312,7 @@ final class Cross_Site_Match_Sync {
 		$matches = clanbite_matches();
 
 		$home_team_post = get_post( $challenged_team_id );
-		if ( ! ( $home_team_post instanceof \WP_Post ) || 'cp_team' !== $home_team_post->post_type ) {
+		if ( ! ( $home_team_post instanceof \WP_Post ) || 'clanbite_team' !== $home_team_post->post_type ) {
 			return;
 		}
 
@@ -645,7 +645,7 @@ final class Cross_Site_Match_Sync {
 		$matches = clanbite_matches();
 
 		$team_post = get_post( $home_team_id );
-		if ( ! ( $team_post instanceof \WP_Post ) || 'cp_team' !== $team_post->post_type || 'publish' !== $team_post->post_status ) {
+		if ( ! ( $team_post instanceof \WP_Post ) || 'clanbite_team' !== $team_post->post_type || 'publish' !== $team_post->post_status ) {
 			return new WP_Error(
 				'clanbite_sync_team',
 				__( 'Home team not found.', 'clanbite' ),
@@ -655,7 +655,7 @@ final class Cross_Site_Match_Sync {
 
 		$existing = get_posts(
 			array(
-				'post_type'              => 'cp_match',
+				'post_type'              => 'clanbite_match',
 				'post_status'            => 'any',
 				'posts_per_page'         => 1,
 				'fields'                 => 'ids',
@@ -716,7 +716,7 @@ final class Cross_Site_Match_Sync {
 		add_filter( 'user_has_cap', $filter, 999, 2 );
 		$match_id = wp_insert_post(
 			array(
-				'post_type'    => 'cp_match',
+				'post_type'    => 'clanbite_match',
 				'post_status'  => 'publish',
 				'post_title'   => $title,
 				'post_author'  => (int) $team_post->post_author,

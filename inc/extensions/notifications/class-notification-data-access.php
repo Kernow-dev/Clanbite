@@ -179,23 +179,23 @@ final class Notification_Data_Access {
 
 		if ( $unread_only ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
-			$sql_base = $wpdb->prepare(
-				"SELECT * FROM {$table} WHERE user_id = %d AND is_read = 0 ORDER BY created_at DESC",
-				$user_id
+			$sql = $wpdb->prepare(
+				"SELECT * FROM {$table} WHERE user_id = %d AND is_read = 0 ORDER BY created_at DESC LIMIT %d OFFSET %d",
+				$user_id,
+				$limit,
+				$offset
 			);
 		} else {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
-			$sql_base = $wpdb->prepare(
-				"SELECT * FROM {$table} WHERE user_id = %d ORDER BY created_at DESC",
-				$user_id
+			$sql = $wpdb->prepare(
+				"SELECT * FROM {$table} WHERE user_id = %d ORDER BY created_at DESC LIMIT %d OFFSET %d",
+				$user_id,
+				$limit,
+				$offset
 			);
 		}
 
-		// Append LIMIT/OFFSET as integers only (no placeholders): some DB drivers / wpdb::prepare combinations mishandle %d in LIMIT.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql_base is from $wpdb->prepare(); LIMIT/OFFSET are non-negative ints.
-		$sql = $sql_base . sprintf( ' LIMIT %d OFFSET %d', $limit, $offset );
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Hybrid query: $sql_base from prepare() + integer-cast LIMIT/OFFSET.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Full statement from $wpdb->prepare() above.
 		$rows = $wpdb->get_results( $sql );
 
 		$notifications = array_map( array( self::class, 'hydrate_row' ), $rows ?: array() );

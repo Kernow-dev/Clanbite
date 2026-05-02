@@ -18,11 +18,11 @@ $show_attendees = ! empty( $attributes['showAttendees'] );
 
 if ( $event_id < 1 && isset( $block->context['postId'] ) ) {
 	$pt = (string) ( $block->context['postType'] ?? '' );
-	if ( 'match' === $event_type && 'cp_match' === $pt ) {
+	if ( 'match' === $event_type && 'clanbite_match' === $pt ) {
 		$event_id = (int) $block->context['postId'];
 	} elseif ( 'group' === $event_type && 'cp_group' === $pt ) {
 		$event_id = (int) $block->context['postId'];
-	} elseif ( 'clanbite_event' === $event_type && 'cp_event' === $pt ) {
+	} elseif ( 'clanbite_event' === $event_type && 'clanbite_event' === $pt ) {
 		$event_id = (int) $block->context['postId'];
 	}
 }
@@ -42,7 +42,7 @@ if ( $event_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><p>' . esc_html__( 'Select an event or place this block on a match or group template.', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'Select an event or place this block on a match or group template.', 'clanbite' ) . '</p></div>' );
 	return;
 }
 
@@ -55,7 +55,7 @@ if ( ! $can_view ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><p>' . esc_html__( 'This event is not available.', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'This event is not available.', 'clanbite' ) . '</p></div>' );
 	return;
 }
 
@@ -93,8 +93,9 @@ $wrapper = get_block_wrapper_attributes(
 	$block
 );
 ?>
+<?php ob_start(); ?>
 <div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
+	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
 	data-wp-interactive="clanbite-event-rsvp"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
 	data-wp-init="callbacks.init"
@@ -129,3 +130,4 @@ $wrapper = get_block_wrapper_attributes(
 		</div>
 	<?php endif; ?>
 </div>
+<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>

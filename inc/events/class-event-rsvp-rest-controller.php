@@ -47,12 +47,12 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_my_rsvp' ),
-					'permission_callback' => array( $this, 'check_logged_in_and_visible' ),
+					'permission_callback' => array( $this, 'rsvp_item_permissions_check' ),
 				),
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'set_my_rsvp' ),
-					'permission_callback' => array( $this, 'check_logged_in_and_visible' ),
+					'permission_callback' => array( $this, 'rsvp_item_permissions_check' ),
 					'args'                => array(
 						'status' => array(
 							'type'              => 'string',
@@ -71,7 +71,7 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_attendees' ),
-					'permission_callback' => array( $this, 'check_event_visible' ),
+					'permission_callback' => array( $this, 'event_visibility_permissions_check' ),
 					'args'                => array(
 						'status' => array(
 							'type'              => 'string',
@@ -95,13 +95,13 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission: logged-in and can view event.
+	 * Permission callback: must be authenticated and able to read core content, then event must be visible.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return bool|WP_Error
 	 */
-	public function check_logged_in_and_visible( WP_REST_Request $request ) {
-		if ( ! is_user_logged_in() ) {
+	public function rsvp_item_permissions_check( WP_REST_Request $request ) {
+		if ( ! current_user_can( 'read' ) ) {
 			return new WP_Error(
 				'clanbite_not_logged_in',
 				__( 'You must be logged in.', 'clanbite' ),
@@ -109,16 +109,26 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		return $this->check_event_visible( $request );
+		return $this->event_visibility_permissions_check( $request );
 	}
 
 	/**
-	 * Permission: can view event (anon allowed for public events).
+	 * Core visibility check (shared). Uses {@see current_user_can()} when a session exists.
+	 *
+	 * Must be public so `register_rest_route()` can invoke it as a permission callback.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return bool|WP_Error
 	 */
-	public function check_event_visible( WP_REST_Request $request ) {
+	public function event_visibility_permissions_check( WP_REST_Request $request ) {
+		if ( is_user_logged_in() && ! current_user_can( 'read' ) ) {
+			return new WP_Error(
+				'clanbite_forbidden',
+				__( 'You do not have permission to access this content.', 'clanbite' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$event_type = sanitize_key( (string) $request['event_type'] );
 		$event_id   = absint( $request['event_id'] );
 		$viewer_id  = is_user_logged_in() ? (int) get_current_user_id() : 0;

@@ -100,18 +100,22 @@ function clanbite_request_post_html( string $key, string $default = '' ): string
 /**
  * Read a `$_POST` field as a non-negative integer.
  *
+ * Use only after the request’s nonce (or other auth gate) has been verified in the same handler
+ * (e.g. `check_admin_referer`, `check_ajax_referer`, `wp_verify_nonce` for REST). This helper
+ * does not know the form’s nonce action name.
+ *
  * @param string $key     Field name.
  * @param int    $default Default when missing or invalid.
  * @return int
  */
 function clanbite_request_post_absint( string $key, int $default = 0 ): int {
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- Caller verified nonce/caps; see file header.
+	// phpcs:disable WordPress.Security.NonceVerification.Missing,PluginCheck.Security.VerifyNonce -- Caller verifies nonce before POST reads; cannot embed nonce action inside generic helper.
 	if ( ! isset( $_POST[ $key ] ) ) {
 		return $default;
 	}
 
 	return absint( wp_unslash( $_POST[ $key ] ) );
-	// phpcs:enable WordPress.Security.NonceVerification.Missing
+	// phpcs:enable WordPress.Security.NonceVerification.Missing,PluginCheck.Security.VerifyNonce
 }
 
 /**
@@ -199,6 +203,38 @@ function clanbite_sanitize_player_settings_post_array( array $post ): array {
 }
 
 /**
+ * Normalize one PHP `$_FILES` row for `wp_handle_upload()` / `media_handle_upload()`.
+ *
+ * Does not validate `tmp_name` against `is_uploaded_file()` (callers / WordPress core do).
+ *
+ * @param array<string, mixed> $file Raw upload row (typically `wp_unslash( $_FILES['field'] )`).
+ * @return array{name: string, type: string, tmp_name: string, error: int, size: int}|null Null if structure invalid.
+ */
+function clanbite_sanitize_files_array_entry( array $file ): ?array {
+	if ( ! isset( $file['name'], $file['type'], $file['tmp_name'], $file['error'], $file['size'] ) ) {
+		return null;
+	}
+
+	$name = sanitize_file_name( (string) $file['name'] );
+	if ( '' === $name ) {
+		return null;
+	}
+
+	$tmp = (string) $file['tmp_name'];
+	if ( '' === $tmp ) {
+		return null;
+	}
+
+	return array(
+		'name'     => $name,
+		'type'     => sanitize_mime_type( (string) $file['type'] ),
+		'tmp_name' => $tmp,
+		'error'    => (int) $file['error'],
+		'size'     => (int) $file['size'],
+	);
+}
+
+/**
  * Whitelist and normalize upload payloads for the player settings save flow.
  *
  * @return array<string, array<string, mixed>> Map of field name to PHP file array shape.
@@ -212,21 +248,14 @@ function clanbite_sanitize_player_settings_files_array(): array {
 		if ( empty( $_FILES[ $field ] ) || ! is_array( $_FILES[ $field ] ) ) {
 			continue;
 		}
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Normalized below; structure validated.
-		$file = wp_unslash( $_FILES[ $field ] );
+		$file = clanbite_sanitize_files_array_entry( wp_unslash( $_FILES[ $field ] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 
-		if ( ! isset( $file['name'], $file['type'], $file['tmp_name'], $file['error'], $file['size'] ) ) {
+		if ( null === $file ) {
 			continue;
 		}
 
-		$out[ $field ] = array(
-			'name'     => sanitize_file_name( (string) $file['name'] ),
-			'type'     => sanitize_mime_type( (string) $file['type'] ),
-			'tmp_name' => (string) $file['tmp_name'],
-			'error'    => (int) $file['error'],
-			'size'     => (int) $file['size'],
-		);
+		$out[ $field ] = $file;
 	}
 
 	return $out;

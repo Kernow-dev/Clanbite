@@ -58,9 +58,10 @@ if ( ! $has_cover ) {
 		$block
 	);
 	$cover_placeholder = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+	ob_start();
 	?>
 <div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
+	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
 >
 	<div class="clanbite-player-cover__media-clip">
 		<img
@@ -76,6 +77,7 @@ if ( ! $has_cover ) {
 	</div>
 </div>
 	<?php
+	echo clanbite_esc_block_fragment_html( (string) ob_get_clean() );
 	return;
 }
 
@@ -86,9 +88,10 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
+ob_start();
 ?>
 <div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
+	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
 >
 	<div class="clanbite-player-cover__media-clip">
 		<img
@@ -105,4 +108,5 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	</div>
 </div>
 <?php
+echo clanbite_esc_block_fragment_html( (string) ob_get_clean() );
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

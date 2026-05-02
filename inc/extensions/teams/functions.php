@@ -634,7 +634,7 @@ function clanbite_team_block_resolve_team_id( array $block_context = array() ): 
 		$pid = (int) $block_context['postId'];
 		if ( $pid > 0 ) {
 			$ptype = isset( $block_context['postType'] ) ? (string) $block_context['postType'] : '';
-			if ( 'cp_team' === $ptype || 'cp_team' === get_post_type( $pid ) ) {
+			if ( 'clanbite_team' === $ptype || 'clanbite_team' === get_post_type( $pid ) ) {
 				return $pid;
 			}
 		}
@@ -642,30 +642,30 @@ function clanbite_team_block_resolve_team_id( array $block_context = array() ): 
 
 	// 2. Main query singular team (plugin block templates may skip the_post(); queried object / posts[0] still valid).
 	global $wp_query;
-	if ( empty( $block_context['postId'] ) && $wp_query instanceof \WP_Query && $wp_query->is_singular( 'cp_team' ) ) {
+	if ( empty( $block_context['postId'] ) && $wp_query instanceof \WP_Query && $wp_query->is_singular( 'clanbite_team' ) ) {
 		$qid = (int) $wp_query->get_queried_object_id();
 		if ( $qid > 0 ) {
 			return $qid;
 		}
-		if ( isset( $wp_query->posts[0] ) && $wp_query->posts[0] instanceof \WP_Post && 'cp_team' === $wp_query->posts[0]->post_type ) {
+		if ( isset( $wp_query->posts[0] ) && $wp_query->posts[0] instanceof \WP_Post && 'clanbite_team' === $wp_query->posts[0]->post_type ) {
 			return (int) $wp_query->posts[0]->ID;
 		}
 	}
 
 	// 3. Current post in the main loop or a Query Loop (`the_post` / iteration).
 	$current_id = (int) get_the_ID();
-	if ( $current_id > 0 && 'cp_team' === get_post_type( $current_id ) ) {
+	if ( $current_id > 0 && 'clanbite_team' === get_post_type( $current_id ) ) {
 		return $current_id;
 	}
 
 	// 4. Global post (set during template / before inner blocks run).
 	global $post;
-	if ( $post instanceof \WP_Post && 'cp_team' === $post->post_type ) {
+	if ( $post instanceof \WP_Post && 'clanbite_team' === $post->post_type ) {
 		return (int) $post->ID;
 	}
 
 	// 5. Singular team views (block themes may render before the loop in edge cases).
-	if ( is_singular( 'cp_team' ) ) {
+	if ( is_singular( 'clanbite_team' ) ) {
 		$qid = (int) get_queried_object_id();
 		if ( $qid > 0 ) {
 			return $qid;
@@ -673,7 +673,7 @@ function clanbite_team_block_resolve_team_id( array $block_context = array() ): 
 	}
 
 	$qo = get_queried_object();
-	if ( $qo instanceof \WP_Post && 'cp_team' === $qo->post_type ) {
+	if ( $qo instanceof \WP_Post && 'clanbite_team' === $qo->post_type ) {
 		return (int) $qo->ID;
 	}
 
@@ -708,7 +708,7 @@ function clanbite_team_virtual_route_team_id(): int {
  * @return int
  */
 function clanbite_team_profile_context_team_id(): int {
-	if ( is_singular( 'cp_team' ) ) {
+	if ( is_singular( 'clanbite_team' ) ) {
 		$qid = (int) get_queried_object_id();
 		if ( $qid > 0 ) {
 			return $qid;
@@ -724,8 +724,8 @@ function clanbite_team_profile_context_team_id(): int {
  * @return string
  */
 function clanbite_team_profile_route_current_slug(): string {
-	if ( is_singular( 'cp_team' ) ) {
-		return sanitize_key( (string) get_query_var( 'cp_team_subpage' ) );
+	if ( is_singular( 'clanbite_team' ) ) {
+		return sanitize_key( (string) get_query_var( 'clanbite_team_subpage' ) );
 	}
 
 	$action = sanitize_key( (string) get_query_var( 'clanbite_team_action' ) );

@@ -32,7 +32,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><span>' . esc_html__( 'Team avatar', 'clanbite' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span>' . esc_html__( 'Team avatar', 'clanbite' ) . '</span></div>' );
 	return;
 }
 
@@ -90,13 +90,5 @@ $avatar_clip_open  = '<div class="clanbite-team-avatar__clip">';
 $avatar_clip_close = '</div>';
 $avatar_media      = $avatar_clip_open . $img_inner . $avatar_clip_close;
 
-?>
-<div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
->
-	<div class="clanbite-team-avatar">
-		<?php echo $avatar_media; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built with esc_url/esc_attr/esc_html. ?>
-	</div>
-</div>
-<?php
+echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><div class="clanbite-team-avatar">' . $avatar_media . '</div></div>' );
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

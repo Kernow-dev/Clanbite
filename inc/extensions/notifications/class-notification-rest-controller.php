@@ -65,7 +65,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_items' ),
-					'permission_callback' => array( $this, 'check_logged_in' ),
+					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 					'args'                => array(
 						'page'        => array(
 							'type'              => 'integer',
@@ -95,7 +95,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'poll_updates' ),
-					'permission_callback' => array( $this, 'check_logged_in' ),
+					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 					'args'                => array(
 						'since'    => array(
 							'type'              => 'string',
@@ -125,7 +125,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_count' ),
-					'permission_callback' => array( $this, 'check_logged_in' ),
+					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 				),
 			)
 		);
@@ -138,7 +138,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_item' ),
-					'permission_callback' => array( $this, 'check_logged_in' ),
+					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 					'args'                => array(
 						'id' => array(
 							'type'              => 'integer',
@@ -150,7 +150,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_item' ),
-					'permission_callback' => array( $this, 'check_logged_in' ),
+					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 					'args'                => array(
 						'id' => array(
 							'type'              => 'integer',
@@ -170,7 +170,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'mark_read' ),
-					'permission_callback' => array( $this, 'check_logged_in' ),
+					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 					'args'                => array(
 						'id' => array(
 							'type'              => 'integer',
@@ -190,7 +190,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'execute_action' ),
-					'permission_callback' => array( $this, 'check_logged_in' ),
+					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 					'args'                => array(
 						'id'     => array(
 							'type'              => 'integer',
@@ -215,7 +215,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'mark_all_read' ),
-					'permission_callback' => array( $this, 'check_logged_in' ),
+					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 				),
 			)
 		);
@@ -228,21 +228,26 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_transport_config' ),
-					'permission_callback' => array( $this, 'check_logged_in' ),
+					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 				),
 			)
 		);
 	}
 
 	/**
-	 * Check if user is logged in.
+	 * Permission callback: authenticated users only (REST cookie/nonce or Application Passwords).
 	 *
+	 * Uses {@see current_user_can()} per WordPress REST API guidance; `read` is granted to all standard roles.
+	 *
+	 * @param \WP_REST_Request|null $request Request instance (unused).
 	 * @return bool|WP_Error
 	 */
-	public function check_logged_in() {
-		if ( ! is_user_logged_in() ) {
+	public function notifications_access_permissions_check( $request = null ) {
+		unset( $request );
+		if ( ! current_user_can( 'read' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'You must be logged in.', 'clanbite' ), array( 'status' => 401 ) );
 		}
+
 		return true;
 	}
 

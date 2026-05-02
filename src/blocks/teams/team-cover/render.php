@@ -35,12 +35,13 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
-	echo '<div class="clanbite-team-cover__media clanbite-team-cover__media--placeholder" aria-hidden="true"></div>';
-	echo '<div class="team-cover__content-container">';
-	echo wp_kses_post( $content );
-	echo '</div>';
-	echo '</div>';
+	echo clanbite_esc_block_fragment_html(
+		'<div ' . $wrapper . '>'
+		. '<div class="clanbite-team-cover__media clanbite-team-cover__media--placeholder" aria-hidden="true"></div>'
+		. '<div class="team-cover__content-container">'
+		. wp_kses_post( $content )
+		. '</div></div>'
+	);
 	return;
 }
 
@@ -59,12 +60,13 @@ if ( ! $url ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
-	echo '<img class="clanbite-team-cover__media clanbite-team-cover__media--empty" src="' . esc_url( $cover_placeholder ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" />';
-	echo '<div class="team-cover__content-container">';
-	echo wp_kses_post( $content );
-	echo '</div>';
-	echo '</div>';
+	echo clanbite_esc_block_fragment_html(
+		'<div ' . $wrapper . '>'
+		. '<img class="clanbite-team-cover__media clanbite-team-cover__media--empty" src="' . esc_url( $cover_placeholder ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" />'
+		. '<div class="team-cover__content-container">'
+		. wp_kses_post( $content )
+		. '</div></div>'
+	);
 	return;
 }
 
@@ -76,10 +78,11 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo '<div ' . $wrapper_attributes . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
-echo '<img class="clanbite-team-cover__media" src="' . esc_url( $url ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" />';
-echo '<div class="team-cover__content-container">';
-echo wp_kses_post( $content );
-echo '</div>';
-echo '</div>';
+echo clanbite_esc_block_fragment_html(
+	'<div ' . $wrapper_attributes . '>'
+	. '<img class="clanbite-team-cover__media" src="' . esc_url( $url ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" />'
+	. '<div class="team-cover__content-container">'
+	. wp_kses_post( $content )
+	. '</div></div>'
+);
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

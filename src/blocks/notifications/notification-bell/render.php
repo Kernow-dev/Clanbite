@@ -56,8 +56,9 @@ $wrapper_attributes = get_block_wrapper_attributes(
 );
 $dropdown_id = wp_unique_id( 'clanbite-notification-bell-dropdown-' );
 ?>
+<?php ob_start(); ?>
 <div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
+	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
 	data-wp-interactive="clanbite/notification-bell"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
 	data-wp-init="callbacks.init"
@@ -132,7 +133,7 @@ $dropdown_id = wp_unique_id( 'clanbite-notification-bell-dropdown-' );
 						</p>
 					<?php else : ?>
 						<?php foreach ( $notifications as $notification ) : ?>
-							<?php echo clanbite_render_notification( $notification, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- clanbite_render_notification() returns escaped HTML. ?>
+							<?php echo clanbite_render_notification( $notification, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</div>
@@ -153,3 +154,4 @@ $dropdown_id = wp_unique_id( 'clanbite-notification-bell-dropdown-' );
 		</div>
 	<?php endif; ?>
 </div>
+<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>

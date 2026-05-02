@@ -23,7 +23,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><p class="clanbite-player-tagline__text">' . esc_html__( 'Player tagline', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p class="clanbite-player-tagline__text">' . esc_html__( 'Player tagline', 'clanbite' ) . '</p></div>' );
 	return;
 }
 
@@ -43,9 +43,11 @@ if ( $align && in_array( $align, array( 'left', 'center', 'right', 'justify' ), 
 
 $wrapper_attributes = get_block_wrapper_attributes( array(), $block );
 
-printf(
-	'<div %1$s><p class="%2$s">%3$s</p></div>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
-	esc_attr( implode( ' ', $class ) ),
-	esc_html( $tagline )
+echo clanbite_esc_block_fragment_html(
+	sprintf(
+		'<div %1$s><p class="%2$s">%3$s</p></div>',
+		$wrapper_attributes,
+		esc_attr( implode( ' ', $class ) ),
+		esc_html( $tagline )
+	)
 );
