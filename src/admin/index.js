@@ -1537,19 +1537,26 @@ function extensionCanBeTurnedOn( ext, pendingInstalledSlugs ) {
 	return depsOk && ext.canInstall;
 }
 
-/** Integration tab mount point: fires `clanbite:admin-integration-mount` / `unmount` on this element. */
-function IntegrationSlot( { slotId, bootstrap } ) {
+/**
+ * Integration tab mount point: fires `clanbite:admin-integration-mount` / `unmount` on this element.
+ *
+ * Depends on `bootstrapRevision` (not `bootstrap` identity) so re-renders that reuse state do not re-dispatch DOM events.
+ */
+function IntegrationSlot( { slotId, bootstrap, bootstrapRevision } ) {
 	const ref = useRef( null );
+	const bootstrapRef = useRef( bootstrap );
+	bootstrapRef.current = bootstrap;
 
 	useEffect( () => {
 		const el = ref.current;
 		if ( ! slotId || ! el ) {
 			return;
 		}
+		const payload = bootstrapRef.current;
 		el.dispatchEvent(
 			new CustomEvent( 'clanbite:admin-integration-mount', {
 				bubbles: true,
-				detail: { slotId, bootstrap },
+				detail: { slotId, bootstrap: payload },
 			} )
 		);
 		return () => {
@@ -1560,7 +1567,7 @@ function IntegrationSlot( { slotId, bootstrap } ) {
 				} )
 			);
 		};
-	}, [ slotId, bootstrap ] );
+	}, [ slotId, bootstrapRevision ] );
 
 	return (
 		<div
@@ -1605,6 +1612,8 @@ function App() {
 	} );
 
 	const [ bootstrap, setBootstrap ] = useState( null );
+	/** Bumped only after `load()` replaces bootstrap so integration tabs avoid redundant mount/unmount on unrelated renders. */
+	const [ bootstrapRevision, setBootstrapRevision ] = useState( 0 );
 	const [ values, setValues ] = useState( {} );
 	const [ installed, setInstalled ] = useState( [] );
 	const [ error, setError ] = useState( null );
@@ -1621,6 +1630,7 @@ function App() {
 				path: 'clanbite/v1/admin/bootstrap',
 			} );
 			setBootstrap( data );
+			setBootstrapRevision( ( r ) => r + 1 );
 			setValues( { ...data.values } );
 			const slugs = ( data.extensions || [] )
 				.filter( ( e ) => e.isInstalled )
@@ -2254,6 +2264,9 @@ function App() {
 										<IntegrationSlot
 											slotId={ slotId }
 											bootstrap={ bootstrap }
+											bootstrapRevision={
+												bootstrapRevision
+											}
 										/>
 									</div>
 								);

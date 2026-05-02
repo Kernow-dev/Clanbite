@@ -220,13 +220,10 @@ class Admin_Rest {
 				'label' => $label,
 				'icons' => $normalized_icons,
 			);
-			if ( isset( $pack['scope'] ) && is_string( $pack['scope'] ) ) {
-				$scope = sanitize_key( $pack['scope'] );
-				if ( '' !== $scope ) {
-					$row['scope'] = $scope;
-				}
+			if ( isset( $pack['scope'] ) ) {
+				$row['scope'] = $pack['scope'];
 			}
-			$out[] = $row;
+			$out[] = self::attach_icon_pack_scope( $row );
 		}
 		return $out;
 	}
@@ -377,10 +374,8 @@ class Admin_Rest {
 				\Kernowdev\ClanbiteRanks\Ranks\Icon_Packs::get_icon_packs()
 			);
 		}
-		foreach ( $fallback as $pack ) {
-			if ( ! is_array( $pack ) ) {
-				continue;
-			}
+		$fallback_rows = array_values( array_filter( $fallback, 'is_array' ) );
+		foreach ( self::normalize_bootstrap_icon_packs( $fallback_rows ) as $pack ) {
 			$id = sanitize_key( (string) ( $pack['id'] ?? '' ) );
 			if ( '' === $id || isset( $seen[ $id ] ) ) {
 				continue;
@@ -393,14 +388,7 @@ class Admin_Rest {
 			$merged = self::get_emergency_starter_packs_normalized();
 		}
 
-		$scoped = array();
-		foreach ( $merged as $pack ) {
-			if ( is_array( $pack ) ) {
-				$scoped[] = self::attach_icon_pack_scope( $pack );
-			}
-		}
-
-		return $scoped;
+		return $merged;
 	}
 
 	/**
