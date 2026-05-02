@@ -82,7 +82,7 @@ $visible_subpages = function_exists( 'clanbite_profile_subpages_visible_for_nav'
 	: array();
 
 // Omit the nav when only the home link would appear (matches team profile nav).
-if ( array() === $visible_subpages && ! $show_settings_link ) {
+if ( empty( $visible_subpages ) && ! $show_settings_link ) {
 	return;
 }
 

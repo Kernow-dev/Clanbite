@@ -1,7 +1,7 @@
 {
 	"name": "clanbite",
 	"version": "1.0.0",
-	"description": "Community management system for gamers and sports teams plugin for Wordpress.",
+	"description": "Community management system for gamers and sports teams plugin for WordPress.",
 	"keywords": [
 		"gaming",
 		"community",
@@ -21,7 +21,6 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Kernow.dev",
-	"type": "Wordpress Plugin",
 	"main": "clanbite.php",
 	"files": [
 		"clanbite.php",
