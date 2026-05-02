@@ -15,8 +15,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # plugin-check-action copies this directory into wp-env; vendor/ is gitignored so we must
-      # generate Composer autoload here (there are no runtime Composer packages — only autoload maps).
+      # plugin-check-action scans the entire build-dir tree; GitHub copies (.git, .github),
+      # dotfiles (e.g. .gitignore), and repo-only markdown trip Plugin Check policy checks.
+      # Mirror the paths excluded by `.distignore`, then point Plugin Check at that staging folder.
+      #
+      # Build artefacts (`build/`, `assets/dist/`) are gitignored locally but required for a
+      # faithful distribution scan — generate them before staging.
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -26,10 +31,52 @@ jobs:
       - name: Composer install (autoload only, no dev tools)
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install npm dependencies and build production assets
+        run: |
+          npm ci
+          npm run build:production
+
+      - name: Stage plugin directory for Plugin Check
+        run: |
+          mkdir -p plugin-check-staging/clanbite
+          rsync -a \
+            --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='node_modules/' \
+            --exclude='plugin-check-staging/' \
+            --exclude='src/' \
+            --exclude='scripts/' \
+            --exclude='tests/' \
+            --exclude='*.zip' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='webpack.config.cjs' \
+            --exclude='.eslintrc*' \
+            --exclude='.prettier*' \
+            --exclude='phpcs.xml' \
+            --exclude='phpcs.xml.dist' \
+            --exclude='phpstan.neon' \
+            --exclude='phpstan.neon.dist' \
+            --exclude='phpstan-bootstrap.php' \
+            --exclude='.editorconfig' \
+            --exclude='AGENTS.md' \
+            --exclude='.gitignore' \
+            --exclude='.distignore' \
+            --exclude='.cursor/' \
+            --exclude='.idea/' \
+            ./ plugin-check-staging/clanbite/
+
       - name: Run Plugin Check
         uses: wordpress/plugin-check-action@v1
         with:
-          build-dir: ./
+          build-dir: ./plugin-check-staging/clanbite
           slug: clanbite
           exclude-directories: |
             node_modules
