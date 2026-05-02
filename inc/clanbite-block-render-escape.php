@@ -71,6 +71,65 @@ function clanbite_block_fragment_allowed_html(): array {
 		}
 
 		$base_allowed = $allowed;
+
+		/*
+		 * Front-end blocks (player settings, etc.) emit native form controls. Core `post` KSES allows
+		 * `textarea` but omits `input`, `select`, and `option`, so wp_kses would strip fields entirely.
+		 */
+		if ( function_exists( '_wp_add_global_attributes' ) ) {
+			$base_allowed['input'] = _wp_add_global_attributes(
+				array(
+					'type'             => true,
+					'name'             => true,
+					'value'            => true,
+					'placeholder'      => true,
+					'checked'          => true,
+					'disabled'         => true,
+					'readonly'         => true,
+					'required'         => true,
+					'maxlength'        => true,
+					'minlength'        => true,
+					'min'              => true,
+					'max'              => true,
+					'step'             => true,
+					'pattern'          => true,
+					'accept'           => true,
+					'multiple'         => true,
+					'autocomplete'     => true,
+					'size'             => true,
+					'inputmode'        => true,
+					'list'             => true,
+					'tabindex'         => true,
+					'aria-valuenow'    => true,
+					'aria-valuemin'    => true,
+					'aria-valuemax'    => true,
+				)
+			);
+
+			$base_allowed['select'] = _wp_add_global_attributes(
+				array(
+					'name'         => true,
+					'autocomplete' => true,
+					'required'     => true,
+					'multiple'     => true,
+					'size'         => true,
+					'tabindex'     => true,
+				)
+			);
+
+			$base_allowed['option'] = _wp_add_global_attributes(
+				array(
+					'value'    => true,
+					'selected' => true,
+					'disabled' => true,
+				)
+			);
+		}
+
+		if ( isset( $base_allowed['textarea'] ) && is_array( $base_allowed['textarea'] ) ) {
+			$base_allowed['textarea']['placeholder'] = true;
+			$base_allowed['textarea']['maxlength']   = true;
+		}
 	}
 
 	/**

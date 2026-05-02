@@ -503,7 +503,8 @@ const { state, actions } = store( 'clanbite-player-settings', {
 			ref.classList.add( 'saving' );
 
 			try {
-				const res = await fetch( CLANBITEPLAYERSETTINGS.ajax_url, {
+				const ajaxUrl = getPlayerSettingsConfig().ajax_url;
+				const res = await fetch( ajaxUrl, {
 					method: 'POST',
 					credentials: 'same-origin',
 					body: formData,
