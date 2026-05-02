@@ -33,7 +33,7 @@ final class Front_Seo {
 	private const JSON_LD_FLAGS = \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_HEX_TAG | \JSON_HEX_AMP | \JSON_HEX_APOS | \JSON_HEX_QUOT;
 
 	/**
-	 * Sequence for unique JSON-LD script handles when multiple graphs print on one response.
+	 * Sequence for unique JSON-LD `<script>` element ids when multiple graphs print on one response.
 	 *
 	 * @var int
 	 */
@@ -795,21 +795,20 @@ final class Front_Seo {
 			return;
 		}
 
-		$handle = 'clanbite-json-ld-' . self::$json_ld_sequence++;
+		/*
+		 * Do not use wp_add_inline_script(): WordPress wraps that payload as executable JS. A JSON object
+		 * beginning with `{` is parsed as a JS block → `Uncaught SyntaxError: Unexpected token ':'`.
+		 * Emit a dedicated `application/ld+json` script element instead (same placement: wp_head).
+		 */
+		$element_id = 'clanbite-json-ld-' . self::$json_ld_sequence++;
 
-		wp_register_script(
-			$handle,
-			false,
-			array(),
-			Main::VERSION,
-			array(
-				'in_footer' => false,
-			)
+		printf(
+			'<script type="application/ld+json" id="%s">',
+			esc_attr( $element_id )
 		);
-
-		wp_script_add_data( $handle, 'type', 'application/ld+json' );
-		wp_enqueue_script( $handle );
-		wp_add_inline_script( $handle, $json, 'after' );
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON-LD body from wp_json_encode() + JSON_HEX_*; must not pass through HTML escapers.
+		echo $json;
+		echo "</script>\n";
 	}
 
 	/**
