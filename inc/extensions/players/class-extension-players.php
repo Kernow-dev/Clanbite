@@ -1952,7 +1952,7 @@ class Players extends Skeleton {
 								<?php endforeach; ?>
 							<?php endif; ?>
 						</select>
-						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="display_name" data-wp-text="state.errorMessage"></div>
+						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="profile_country" data-wp-text="state.errorMessage"></div>
 					</div>
 				</div>
 				<div class="form-item">

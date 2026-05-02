@@ -23,6 +23,40 @@ const getPlayerSettingsConfig = () =>
 	typeof window !== 'undefined' ? window.CLANBITEPLAYERSETTINGS || {} : {};
 
 /**
+ * Resolve admin-ajax URL from localized config; guards missing or malformed values.
+ *
+ * @return {string} Absolute or root-relative URL, or empty string when unusable.
+ */
+const resolvePlayerSettingsAjaxUrl = () => {
+	const cfg = getPlayerSettingsConfig();
+	if ( ! cfg || typeof cfg !== 'object' ) {
+		return '';
+	}
+	const raw = cfg.ajax_url;
+	if ( typeof raw !== 'string' ) {
+		return '';
+	}
+	const trimmed = raw.trim();
+	if ( ! trimmed ) {
+		return '';
+	}
+	try {
+		new URL( trimmed );
+		return trimmed;
+	} catch {
+		try {
+			if ( typeof window === 'undefined' || ! window.location?.origin ) {
+				return '';
+			}
+			new URL( trimmed, window.location.origin );
+			return trimmed;
+		} catch {
+			return '';
+		}
+	}
+};
+
+/**
  * Re-apply values to the settings form after save. Interactivity/Preact can reconcile the
  * hydrated tree when store state changes (isSaving, errors, toast) and reset controls to a
  * stale snapshot, which makes fields look empty even though the server persisted the payload.
@@ -438,9 +472,17 @@ const { state, actions } = store( 'clanbite-player-settings', {
 				'input[name="_clanbite_profile_settings_save_nonce"]'
 			);
 
-			if ( ! nonceInput || ! window.CLANBITEPLAYERSETTINGS?.ajax_url ) {
+			const ajaxUrl = resolvePlayerSettingsAjaxUrl();
+
+			if ( ! nonceInput || ! ajaxUrl ) {
 				ref.classList.remove( 'saving' );
 				ref.classList.add( 'error' );
+				actions.showToast( {
+					type: 'error',
+					heading: 'Error',
+					message:
+						'Could not resolve a valid save URL. Try reloading the page.',
+				} );
 				return;
 			}
 
@@ -503,7 +545,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 			ref.classList.add( 'saving' );
 
 			try {
-				const res = await fetch( CLANBITEPLAYERSETTINGS.ajax_url, {
+				const res = await fetch( ajaxUrl, {
 					method: 'POST',
 					credentials: 'same-origin',
 					body: formData,

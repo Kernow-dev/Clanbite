@@ -12,6 +12,48 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Global HTML attributes aligned with WordPress core post-tag behaviour
+ * ({@see _wp_add_global_attributes()} in `wp-includes/kses.php`), kept locally so Clanbite does not
+ * depend on Core’s underscore-prefixed helper.
+ *
+ * @return array<string, bool>
+ */
+function clanbite_block_fragment_global_attributes(): array {
+	return array(
+		'aria-controls'    => true,
+		'aria-current'     => true,
+		'aria-describedby' => true,
+		'aria-details'     => true,
+		'aria-expanded'    => true,
+		'aria-hidden'      => true,
+		'aria-label'       => true,
+		'aria-labelledby'  => true,
+		'aria-live'        => true,
+		'class'            => true,
+		'data-*'           => true,
+		'dir'              => true,
+		'hidden'           => true,
+		'id'               => true,
+		'lang'             => true,
+		'style'            => true,
+		'title'            => true,
+		'role'             => true,
+		'xml:lang'         => true,
+	);
+}
+
+/**
+ * Merge tag-specific allow-list entries with {@see clanbite_block_fragment_global_attributes()},
+ * matching Core precedence: `array_merge( $specific, $globals )`.
+ *
+ * @param array<string, bool> $specific Allowed attributes for one tag.
+ * @return array<string, bool>
+ */
+function clanbite_block_fragment_merge_global_attrs( array $specific ): array {
+	return array_merge( $specific, clanbite_block_fragment_global_attributes() );
+}
+
+/**
  * Allowed HTML tags for block fragments passed through {@see wp_kses()} /
  * {@see clanbite_esc_block_fragment_html()} (post-like rules plus SVG primitives).
  *
@@ -71,6 +113,63 @@ function clanbite_block_fragment_allowed_html(): array {
 		}
 
 		$base_allowed = $allowed;
+
+		/*
+		 * Front-end blocks (player settings, etc.) emit native form controls. Core `post` KSES allows
+		 * `textarea` but omits `input`, `select`, and `option`, so wp_kses would strip fields entirely.
+		 */
+		$base_allowed['input'] = clanbite_block_fragment_merge_global_attrs(
+			array(
+				'type'             => true,
+				'name'             => true,
+				'value'            => true,
+				'placeholder'      => true,
+				'checked'          => true,
+				'disabled'         => true,
+				'readonly'         => true,
+				'required'         => true,
+				'maxlength'        => true,
+				'minlength'        => true,
+				'min'              => true,
+				'max'              => true,
+				'step'             => true,
+				'pattern'          => true,
+				'accept'           => true,
+				'multiple'         => true,
+				'autocomplete'     => true,
+				'size'             => true,
+				'inputmode'        => true,
+				'list'             => true,
+				'tabindex'         => true,
+				'aria-valuenow'    => true,
+				'aria-valuemin'    => true,
+				'aria-valuemax'    => true,
+			)
+		);
+
+		$base_allowed['select'] = clanbite_block_fragment_merge_global_attrs(
+			array(
+				'name'         => true,
+				'autocomplete' => true,
+				'required'     => true,
+				'multiple'     => true,
+				'size'         => true,
+				'tabindex'     => true,
+			)
+		);
+
+		$base_allowed['option'] = clanbite_block_fragment_merge_global_attrs(
+			array(
+				'value'    => true,
+				'selected' => true,
+				'disabled' => true,
+			)
+		);
+
+		if ( isset( $base_allowed['textarea'] ) && is_array( $base_allowed['textarea'] ) ) {
+			$base_allowed['textarea']['placeholder'] = true;
+			$base_allowed['textarea']['maxlength']   = true;
+		}
 	}
 
 	/**
