@@ -248,6 +248,7 @@ function clanbite_sanitize_player_settings_files_array(): array {
 		if ( empty( $_FILES[ $field ] ) || ! is_array( $_FILES[ $field ] ) ) {
 			continue;
 		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Normalized immediately via clanbite_sanitize_files_array_entry().
 		$file = clanbite_sanitize_files_array_entry( wp_unslash( $_FILES[ $field ] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 

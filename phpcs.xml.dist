@@ -3,18 +3,30 @@
 	<description>
 		PHPCS: PHP 8.2 / WordPress runtime compatibility. Full WPCS style rules are not enforced yet
 		(to avoid large no-op formatting churn); run PHPCBF with WordPress-Core locally if desired.
+		Block render callbacks echo markup via wp_kses( ..., clanbite_block_fragment_allowed_html() ).
+		{@see clanbite_esc_block_fragment_html()} remains a string helper for non-echo contexts.
 	</description>
 
 	<file>clanbite.php</file>
 	<file>shortcut-function.php</file>
 	<file>inc</file>
+	<file>templates</file>
+	<file>build</file>
 
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
-	<exclude-pattern>*/build/*</exclude-pattern>
+	<!-- Built assets are scanned only when PHP (e.g. block render.php); skip binaries/text bundles. -->
+	<exclude-pattern>*/build/**/*.js</exclude-pattern>
+	<exclude-pattern>*/build/**/*.css</exclude-pattern>
+	<exclude-pattern>*/build/**/*.scss</exclude-pattern>
+	<exclude-pattern>*/build/**/*.svg</exclude-pattern>
+	<exclude-pattern>*/build/**/*.json</exclude-pattern>
+	<exclude-pattern>*/build/**/*.txt</exclude-pattern>
 
 	<config name="minimum_supported_wp_version" value="6.4"/>
 	<config name="testVersion" value="8.2-"/>
 
 	<rule ref="PHPCompatibilityWP"/>
+
+	<rule ref="WordPress.Security.EscapeOutput"/>
 </ruleset>

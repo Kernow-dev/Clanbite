@@ -28,7 +28,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'Player social links', 'clanbite' ) . '</p></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Player social links', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -84,7 +84,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 
 ?>
 <?php ob_start(); ?>
-<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() after markup. ?>>
+<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after markup. ?>>
 	<ul class="clanbite-player-social-links" role="list">
 		<?php foreach ( $items as $row ) : ?>
 			<?php
@@ -104,12 +104,12 @@ $wrapper_attributes = get_block_wrapper_attributes(
 					rel="noopener noreferrer"
 					aria-label="<?php echo esc_attr( $label ); ?>"
 				>
-					<?php echo $icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() after markup. ?>
+					<?php echo $icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after markup. ?>
 				</a>
 			</li>
 		<?php endforeach; ?>
 	</ul>
 </div>
 <?php
-echo clanbite_esc_block_fragment_html( (string) ob_get_clean() );
+echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html());
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

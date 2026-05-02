@@ -26,20 +26,20 @@ $viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
 
 if ( $event_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detail clanbite-event-detail--placeholder' ), $block );
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'No event selected.', 'clanbite' ) . '</p></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No event selected.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
 $post = get_post( $event_id );
 if ( ! ( $post instanceof \WP_Post ) || Event_Post_Type::POST_TYPE !== $post->post_type ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detail clanbite-event-detail--placeholder' ), $block );
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'Event not found.', 'clanbite' ) . '</p></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Event not found.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
 if ( ! Event_Permissions::viewer_can_see( $post, $viewer_id ) ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detail clanbite-event-detail--forbidden' ), $block );
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'This event is not available.', 'clanbite' ) . '</p></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'This event is not available.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -84,7 +84,7 @@ $wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detai
 
 ob_start();
 ?>
-<div <?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; fragment escaped via clanbite_esc_block_fragment_html() after capture. ?>>
+<div <?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; fragment escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after capture. ?>>
 	<h1 class="clanbite-event-detail__title"><?php echo esc_html( get_the_title( $post ) ); ?></h1>
 	<?php if ( $start_label ) : ?>
 	<p class="clanbite-event-detail__meta">
@@ -98,7 +98,7 @@ ob_start();
 	</p>
 	<?php endif; ?>
 	<div class="clanbite-event-detail__content entry-content">
-		<?php echo apply_filters( 'the_content', $post->post_content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() after capture. ?>
+		<?php echo apply_filters( 'the_content', $post->post_content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after capture. ?>
 	</div>
 	<?php if ( Event_Post_Type::MODE_VIRTUAL === $mode ) : ?>
 		<h2 class="clanbite-event-detail__section-title"><?php esc_html_e( 'Virtual', 'clanbite' ); ?></h2>
@@ -136,7 +136,7 @@ ob_start();
 			<summary class="clanbite-event-detail__edit-summary"><?php esc_html_e( 'Edit this event', 'clanbite' ); ?></summary>
 			<div class="clanbite-event-detail__edit-panel-inner">
 				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() after capture.
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after capture.
 				echo render_block(
 					array(
 						'blockName' => 'clanbite/event-create-form',
@@ -167,10 +167,10 @@ ob_start();
 </div>
 <?php
 $html = (string) ob_get_clean();
-echo clanbite_esc_block_fragment_html( $html );
+echo wp_kses( $html, clanbite_block_fragment_allowed_html());
 
 $rsvp_markup = sprintf(
 	'<!-- wp:clanbite/event-rsvp {"eventType":"clanbite_event","eventId":%d,"showAttendees":true} /-->',
 	$event_id
 );
-echo clanbite_esc_block_fragment_html( do_blocks( $rsvp_markup ) );
+echo wp_kses( do_blocks( $rsvp_markup ), clanbite_block_fragment_allowed_html());

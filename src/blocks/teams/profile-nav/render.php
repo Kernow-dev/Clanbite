@@ -82,7 +82,7 @@ $wrapper = get_block_wrapper_attributes(
 );
 ?>
 <?php ob_start(); ?>
-<nav <?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered markup is escaped via clanbite_esc_block_fragment_html() before output. ?>>
+<nav <?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered markup is escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>>
 	<ul class="clanbite-team-profile-nav__list">
 		<li class="clanbite-team-profile-nav__item<?php echo empty( $current_slug ) ? ' is-active' : ''; ?>">
 			<a
@@ -122,5 +122,5 @@ $wrapper = get_block_wrapper_attributes(
 		<?php endif; ?>
 	</ul>
 </nav>
-<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
 

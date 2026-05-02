@@ -35,13 +35,13 @@ if ( $group_id < 1 && 'group' === $scope && function_exists( 'clanbite_group_pro
 
 if ( 'team' === $scope && $team_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-list clanbite-event-list--placeholder' ), $block );
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
 if ( 'group' === $scope && $group_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-list clanbite-event-list--placeholder' ), $block );
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -115,7 +115,7 @@ $wrapper = get_block_wrapper_attributes(
 ?>
 <?php ob_start(); ?>
 <div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
+	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
 	data-wp-interactive="clanbite-event-list"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
 	data-wp-init="callbacks.init"
@@ -143,4 +143,4 @@ $wrapper = get_block_wrapper_attributes(
 		</button>
 	</nav>
 </div>
-<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>

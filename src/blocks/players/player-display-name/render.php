@@ -24,7 +24,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p class="clanbite-player-display-name__text">' . esc_html__( 'Player name', 'clanbite' ) . '</p></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><p class="clanbite-player-display-name__text">' . esc_html__( 'Player name', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -67,11 +67,11 @@ if ( ! empty( $attributes['isLink'] ) && function_exists( 'clanbite_block_player
 
 $wrapper_attributes = get_block_wrapper_attributes( array(), $block );
 
-echo clanbite_esc_block_fragment_html(
+echo wp_kses(
 	sprintf(
 		'<div %1$s><p class="%2$s">%3$s</p></div>',
 		$wrapper_attributes,
 		esc_attr( implode( ' ', $class ) ),
 		$inner
-	)
+	), clanbite_block_fragment_allowed_html()
 );

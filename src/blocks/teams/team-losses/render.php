@@ -18,7 +18,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span>' . esc_html__( 'Losses', 'clanbite' ) . '</span></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><span>' . esc_html__( 'Losses', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -46,4 +46,4 @@ if ( '' !== $postfix_plain ) {
 	$parts[] = '<span class="clanbite-team-stat__postfix">' . wp_kses_post( $postfix_raw ) . '</span>';
 }
 
-echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '>' . implode( '', $parts ) . '</div>' );
+echo wp_kses( '<div ' . $wrapper_attributes . '>' . implode( '', $parts ) . '</div>', clanbite_block_fragment_allowed_html());

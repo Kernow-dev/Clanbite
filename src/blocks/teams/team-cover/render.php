@@ -35,12 +35,13 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html(
+	echo wp_kses(
 		'<div ' . $wrapper . '>'
 		. '<div class="clanbite-team-cover__media clanbite-team-cover__media--placeholder" aria-hidden="true"></div>'
 		. '<div class="team-cover__content-container">'
 		. wp_kses_post( $content )
-		. '</div></div>'
+		. '</div></div>',
+		clanbite_block_fragment_allowed_html()
 	);
 	return;
 }
@@ -60,12 +61,13 @@ if ( ! $url ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html(
+	echo wp_kses(
 		'<div ' . $wrapper . '>'
 		. '<img class="clanbite-team-cover__media clanbite-team-cover__media--empty" src="' . esc_url( $cover_placeholder ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" />'
 		. '<div class="team-cover__content-container">'
 		. wp_kses_post( $content )
-		. '</div></div>'
+		. '</div></div>',
+		clanbite_block_fragment_allowed_html()
 	);
 	return;
 }
@@ -78,11 +80,12 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo clanbite_esc_block_fragment_html(
+echo wp_kses(
 	'<div ' . $wrapper_attributes . '>'
 	. '<img class="clanbite-team-cover__media" src="' . esc_url( $url ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" />'
 	. '<div class="team-cover__content-container">'
 	. wp_kses_post( $content )
-	. '</div></div>'
+	. '</div></div>',
+	clanbite_block_fragment_allowed_html()
 );
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

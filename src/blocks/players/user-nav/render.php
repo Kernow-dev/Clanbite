@@ -119,7 +119,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 ?>
 <?php ob_start(); ?>
 <div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered below with clanbite_esc_block_fragment_html(). ?>
+	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered below with wp_kses(, clanbite_block_fragment_allowed_html()). ?>
 	data-wp-interactive="clanbite/user-nav"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
 	data-wp-on-document--click="actions.handleOutsideClick"
@@ -137,7 +137,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 			data-wp-on--click="actions.toggleDropdown"
 			data-wp-bind--aria-expanded="context.isOpen"
 		>
-			<?php echo $avatar_trigger; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() after template. ?>
+			<?php echo $avatar_trigger; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after template. ?>
 			<?php if ( $show_username ) : ?>
 				<span class="clanbite-user-nav__username"><?php echo esc_html( $display_name ); ?></span>
 			<?php endif; ?>
@@ -164,7 +164,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		>
 			<div class="clanbite-user-nav__dropdown-header">
 				<a href="<?php echo esc_url( $profile_url ); ?>" class="clanbite-user-nav__profile-link">
-					<?php echo $avatar_dropdown; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() after template. ?>
+					<?php echo $avatar_dropdown; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after template. ?>
 					<div class="clanbite-user-nav__profile-info">
 						<span class="clanbite-user-nav__profile-name"><?php echo esc_html( $display_name ); ?></span>
 						<span class="clanbite-user-nav__profile-label"><?php esc_html_e( 'View Profile', 'clanbite' ); ?></span>
@@ -226,4 +226,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		</div>
 	<?php endif; ?>
 </div>
-<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>

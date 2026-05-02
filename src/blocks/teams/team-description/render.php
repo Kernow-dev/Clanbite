@@ -18,7 +18,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -30,7 +30,7 @@ if ( ! $post || 'clanbite_team' !== $post->post_type ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>' );
+	echo wp_kses( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -42,7 +42,7 @@ if ( '' === trim( $content ) ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content"><p>' . esc_html__( 'No description yet.', 'clanbite' ) . '</p></div></div>' );
+	echo wp_kses( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content"><p>' . esc_html__( 'No description yet.', 'clanbite' ) . '</p></div></div>', clanbite_block_fragment_allowed_html());
 	return;
 }
 
@@ -56,4 +56,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content">' . $html . '</div></div>' );
+echo wp_kses( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content">' . $html . '</div></div>', clanbite_block_fragment_allowed_html());

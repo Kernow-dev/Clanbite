@@ -16,8 +16,9 @@ if ( 'team_directories' !== clanbite_teams_get_team_mode() ) {
 		),
 		$block
 	);
-	echo clanbite_esc_block_fragment_html(
-		'<div ' . $wrapper_attributes . '><p>' . esc_html__( 'Team creation is only available when Teams is set to "team directories" mode.', 'clanbite' ) . '</p></div>'
+	echo wp_kses(
+		'<div ' . $wrapper_attributes . '><p>' . esc_html__( 'Team creation is only available when Teams is set to "team directories" mode.', 'clanbite' ) . '</p></div>',
+		clanbite_block_fragment_allowed_html()
 	);
 	return;
 }
@@ -78,7 +79,7 @@ $context             = array(
 ?>
 <?php ob_start(); ?>
 <div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() after markup. ?>
+	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after markup. ?>
 	data-wp-interactive="clanbite-team-create-form"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
 	data-wp-init="callbacks.init"
@@ -292,4 +293,4 @@ $context             = array(
 	</form>
 	<?php do_action( 'clanbite_after_team_create_form' ); ?>
 </div>
-<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
