@@ -152,6 +152,10 @@ class Admin_Rest {
 		if ( 'clanbite-ranks-starter' === $id || str_starts_with( $id, 'clanbite-ranks-' ) ) {
 			return 'ranks';
 		}
+		// Ranks companion starter pack id (Points uses `clanbite-points-starter`).
+		if ( 'clanbite-starter' === $id ) {
+			return 'ranks';
+		}
 
 		return 'all';
 	}

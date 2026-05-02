@@ -57,7 +57,10 @@ function filterIconPacksByFieldScope( field, packs ) {
 	if ( ! scope || scope === 'all' ) {
 		return packs;
 	}
-	return packs.filter( ( p ) => String( p.scope || '' ) === scope );
+	return packs.filter( ( p ) => {
+		const packScope = String( p.scope || '' );
+		return packScope === scope || packScope === 'all';
+	} );
 }
 
 const IconPickerBootstrapContext = createContext( {
