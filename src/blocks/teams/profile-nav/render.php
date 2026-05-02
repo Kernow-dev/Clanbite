@@ -67,8 +67,9 @@ $settings_active = ( 'settings' === $current_slug );
 $visible_subpages = function_exists( 'clanbite_profile_subpages_visible_for_nav' )
 	? clanbite_profile_subpages_visible_for_nav( 'team', $team_id, $subpages )
 	: array();
+$visible_subpages = is_array( $visible_subpages ) ? $visible_subpages : array();
 
-if ( empty( $visible_subpages ) && ! $show_settings_link ) {
+if ( array() === $visible_subpages && ! $show_settings_link ) {
 	return;
 }
 
