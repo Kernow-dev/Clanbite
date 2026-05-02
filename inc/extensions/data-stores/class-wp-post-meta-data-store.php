@@ -112,11 +112,8 @@ abstract class WP_Post_Meta_Data_Store {
 			$trusted['object_id_field']
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Shell from allow-listed identifiers only; values bound below.
-		$sql = $wpdb->prepare( $query, $object_id );
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- $sql from $wpdb->prepare(); no bulk raw-meta API in core.
-		$rows = $wpdb->get_results( $sql );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Identifier shell allow-listed; values bound via prepare(); no bulk raw-meta API in core.
+		$rows = $wpdb->get_results( $wpdb->prepare( $query, $object_id ) );
 		if ( ! is_array( $rows ) ) {
 			return array();
 		}
