@@ -33,7 +33,7 @@ final class Front_Seo {
 	private const JSON_LD_FLAGS = \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_HEX_TAG | \JSON_HEX_AMP | \JSON_HEX_APOS | \JSON_HEX_QUOT;
 
 	/**
-	 * Sequence for unique JSON-LD script handles when multiple graphs print on one response.
+	 * Sequence for unique JSON-LD `<script>` element ids when multiple graphs print on one response.
 	 *
 	 * @var int
 	 */
@@ -795,21 +795,22 @@ final class Front_Seo {
 			return;
 		}
 
-		$handle = 'clanbite-json-ld-' . self::$json_ld_sequence++;
+		/*
+		 * Do not use wp_add_inline_script(): WordPress wraps that payload as executable JS. A JSON object
+		 * beginning with `{` is parsed as a JS block → `Uncaught SyntaxError: Unexpected token ':'`.
+		 *
+		 * Use wp_print_inline_script_tag() so the tag gets wp_sanitize_script_attributes(), the
+		 * wp_inline_script_attributes filter, and consistent formatting while the body stays non-executable JSON.
+		 */
+		$element_id = 'clanbite-json-ld-' . self::$json_ld_sequence++;
 
-		wp_register_script(
-			$handle,
-			false,
-			array(),
-			Main::VERSION,
+		wp_print_inline_script_tag(
+			$json,
 			array(
-				'in_footer' => false,
+				'type' => 'application/ld+json',
+				'id'   => $element_id,
 			)
 		);
-
-		wp_script_add_data( $handle, 'type', 'application/ld+json' );
-		wp_enqueue_script( $handle );
-		wp_add_inline_script( $handle, $json, 'after' );
 	}
 
 	/**
