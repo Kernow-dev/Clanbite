@@ -1003,7 +1003,6 @@ class Matches extends Skeleton {
 				'posts_per_page'         => count( $ids ),
 				'post_status'            => 'any',
 				'orderby'                => 'post__in',
-				'suppress_filters'       => true,
 				'ignore_sticky_posts'    => true,
 				'no_found_rows'          => true,
 				'update_post_term_cache' => false,
