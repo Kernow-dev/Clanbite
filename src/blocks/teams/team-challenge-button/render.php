@@ -172,7 +172,7 @@ $wrapper = get_block_wrapper_attributes(
 				</div>
 
 				<div class="clanbite-team-challenge__preview" hidden data-wp-bind--hidden="!context.previewTitle">
-					<img data-wp-bind--src="context.previewLogo" data-wp-bind--hidden="!context.previewLogo" alt="" width="48" height="48" hidden />
+					<img data-wp-bind--src="context.previewLogo" data-wp-bind--hidden="!context.previewLogo" alt="" width="48" height="48" aria-hidden="true" hidden />
 					<div>
 						<strong data-wp-text="context.previewTitle"></strong>
 						<div class="clanbite-team-challenge__preview-link" hidden data-wp-bind--hidden="!context.previewPermalink">

@@ -334,6 +334,26 @@ class Matches extends Skeleton {
 	 * @return bool
 	 */
 	public function viewer_can_see_match( WP_Post $post, int $viewer_id = 0 ): bool {
+		$can = $this->resolve_viewer_can_see_match( $post, $viewer_id );
+
+		/**
+		 * Filter whether a viewer may see a match (REST, blocks, templates).
+		 *
+		 * @param bool    $can       Default decision from Clanbite visibility rules.
+		 * @param WP_Post $post      Match post.
+		 * @param int     $viewer_id Viewer user ID (0 for guests).
+		 */
+		return (bool) apply_filters( 'clanbite_viewer_can_see_match', $can, $post, $viewer_id );
+	}
+
+	/**
+	 * Core visibility logic before {@see clanbite_viewer_can_see_match}.
+	 *
+	 * @param WP_Post $post      Match post.
+	 * @param int     $viewer_id Viewer user ID (0 for guests).
+	 * @return bool
+	 */
+	private function resolve_viewer_can_see_match( WP_Post $post, int $viewer_id = 0 ): bool {
 		// Draft/pending/private matches are admin-only unless the viewer can read the post.
 		if ( 'publish' !== $post->post_status ) {
 			return $viewer_id > 0 && current_user_can( 'read_post', (int) $post->ID );
@@ -937,6 +957,72 @@ class Matches extends Skeleton {
 	}
 
 	/**
+	 * Collect referenced `clanbite_team` IDs from match posts for cache priming.
+	 *
+	 * @param array<int, \WP_Post> $match_posts Match posts (any status handled by callers).
+	 * @return array<int, int>
+	 */
+	protected function collect_team_ids_from_match_posts( array $match_posts ): array {
+		$ids = array();
+		foreach ( $match_posts as $post ) {
+			if ( ! $post instanceof \WP_Post ) {
+				continue;
+			}
+			$ids[] = (int) get_post_meta( $post->ID, 'cp_match_home_team_id', true );
+			$ids[] = (int) get_post_meta( $post->ID, 'cp_match_away_team_id', true );
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Prime WordPress post cache for team rows referenced by matches (reduces per-row `get_post()` overhead).
+	 *
+	 * @param array<int, int|string> $team_ids Team post IDs (non-positive values ignored).
+	 * @return void
+	 */
+	protected function prime_team_post_cache( array $team_ids ): void {
+		$ids = array_values(
+			array_unique(
+				array_filter(
+					array_map( 'absint', $team_ids ),
+					static function ( int $id ): bool {
+						return $id > 0;
+					}
+				)
+			)
+		);
+		if ( array() === $ids ) {
+			return;
+		}
+
+		get_posts(
+			array(
+				'post_type'              => 'clanbite_team',
+				'post__in'               => $ids,
+				'posts_per_page'         => count( $ids ),
+				'post_status'            => 'any',
+				'orderby'                => 'post__in',
+				'suppress_filters'       => true,
+				'ignore_sticky_posts'    => true,
+				'no_found_rows'          => true,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+			)
+		);
+	}
+
+	/**
+	 * Prime team post cache for all matches in a batch (SSR lists, REST collections).
+	 *
+	 * @param array<int, \WP_Post> $match_posts Match posts from `WP_Query`.
+	 * @return void
+	 */
+	public function prime_team_post_cache_for_match_posts( array $match_posts ): void {
+		$this->prime_team_post_cache( $this->collect_team_ids_from_match_posts( $match_posts ) );
+	}
+
+	/**
 	 * HTML for the Match list block (`render.php` entry point).
 	 *
 	 * @param array<string, mixed> $attributes Block attributes (`teamId`, `limit`, `statusFilter`, `order`).
@@ -983,6 +1069,8 @@ class Matches extends Skeleton {
 			echo '<div class="clanbite-match-list clanbite-match-list--empty"><p>' . esc_html__( 'No matches to show.', 'clanbite' ) . '</p></div>';
 			return (string) ob_get_clean();
 		}
+
+		$this->prime_team_post_cache_for_match_posts( $q->posts );
 
 		echo '<ul class="clanbite-match-list">';
 		while ( $q->have_posts() ) {
@@ -1059,10 +1147,21 @@ class Matches extends Skeleton {
 			return '<div class="clanbite-match-card clanbite-match-card--forbidden"><p>' . esc_html__( 'This match is not available.', 'clanbite' ) . '</p></div>';
 		}
 
+		$this->prime_team_post_cache_for_match_posts( array( $post ) );
+
 		$data        = $this->match_to_rest_array( $post );
 		$show_scores = (bool) $this->admin->get( 'show_scores', true );
 		$choices     = $this->get_status_choices();
 		$st_lbl      = $choices[ $data['status'] ] ?? $data['status'];
+
+		$away_team_title = isset( $data['awayTeamTitle'] ) ? trim( wp_strip_all_tags( (string) $data['awayTeamTitle'] ) ) : '';
+		$away_logo_alt   = '' !== $away_team_title
+			? sprintf(
+				/* translators: %s: opposing team name. */
+				__( 'Logo for %s', 'clanbite' ),
+				$away_team_title
+			)
+			: __( 'Away team logo', 'clanbite' );
 
 		ob_start();
 		?>
@@ -1079,7 +1178,7 @@ class Matches extends Skeleton {
 					$logo = isset( $ext['logoUrl'] ) ? esc_url( (string) $ext['logoUrl'] ) : '';
 					if ( '' !== $logo ) :
 						?>
-					<img src="<?php echo esc_url( $logo ); ?>" alt="" class="clanbite-match-card__away-logo" width="32" height="32" loading="lazy" decoding="async" />
+					<img src="<?php echo esc_url( $logo ); ?>" alt="<?php echo esc_attr( $away_logo_alt ); ?>" class="clanbite-match-card__away-logo" width="32" height="32" loading="lazy" decoding="async" />
 					<?php endif; ?>
 					<?php
 					$away_link = isset( $ext['profileUrl'] ) ? esc_url( (string) $ext['profileUrl'] ) : '';

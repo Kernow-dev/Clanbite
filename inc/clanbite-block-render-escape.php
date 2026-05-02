@@ -18,64 +18,69 @@ defined( 'ABSPATH' ) || exit;
  * @return array<string, array<string, bool>>
  */
 function clanbite_block_fragment_allowed_html(): array {
-	static $cached = null;
-	if ( null !== $cached ) {
-		return $cached;
-	}
+	static $base_allowed = null;
+	if ( null === $base_allowed ) {
+		$allowed = wp_kses_allowed_html( 'post' );
 
-	$allowed = wp_kses_allowed_html( 'post' );
-
-	// Inline SVG used by Clanbite blocks (caret icons, social glyphs). Core post lists omit svg/path.
-	$svg_shared = array(
-		'class'       => true,
-		'aria-hidden' => true,
-		'aria-label'  => true,
-		'role'        => true,
-		'id'          => true,
-		'style'       => true,
-		'title'       => true,
-		'lang'        => true,
-		'dir'         => true,
-		'focusable'   => true,
-		'data-*'      => true,
-	);
-
-	if ( empty( $allowed['svg'] ) ) {
-		$allowed['svg'] = array_merge(
-			array(
-				'xmlns'   => true,
-				'viewbox' => true,
-				'width'   => true,
-				'height'  => true,
-				'fill'    => true,
-				'stroke'  => true,
-				'version' => true,
-			),
-			$svg_shared
+		// Inline SVG used by Clanbite blocks (caret icons, social glyphs). Core post lists omit svg/path.
+		$svg_shared = array(
+			'class'       => true,
+			'aria-hidden' => true,
+			'aria-label'  => true,
+			'role'        => true,
+			'id'          => true,
+			'style'       => true,
+			'title'       => true,
+			'lang'        => true,
+			'dir'         => true,
+			'focusable'   => true,
+			'data-*'      => true,
 		);
+
+		if ( empty( $allowed['svg'] ) ) {
+			$allowed['svg'] = array_merge(
+				array(
+					'xmlns'   => true,
+					'viewbox' => true,
+					'width'   => true,
+					'height'  => true,
+					'fill'    => true,
+					'stroke'  => true,
+					'version' => true,
+				),
+				$svg_shared
+			);
+		}
+
+		if ( empty( $allowed['path'] ) ) {
+			$allowed['path'] = array_merge(
+				array(
+					'd'               => true,
+					'fill'            => true,
+					'stroke'          => true,
+					'stroke-width'    => true,
+					'stroke-linecap'  => true,
+					'stroke-linejoin' => true,
+					'opacity'         => true,
+					'fill-rule'       => true,
+					'clip-rule'       => true,
+					'transform'       => true,
+				),
+				$svg_shared
+			);
+		}
+
+		$base_allowed = $allowed;
 	}
 
-	if ( empty( $allowed['path'] ) ) {
-		$allowed['path'] = array_merge(
-			array(
-				'd'               => true,
-				'fill'            => true,
-				'stroke'          => true,
-				'stroke-width'    => true,
-				'stroke-linecap'  => true,
-				'stroke-linejoin' => true,
-				'opacity'         => true,
-				'fill-rule'       => true,
-				'clip-rule'       => true,
-				'transform'       => true,
-			),
-			$svg_shared
-		);
-	}
-
-	$cached = $allowed;
-
-	return $cached;
+	/**
+	 * Filter: `clanbite_block_fragment_allowed_html` — extend safe tags/attributes for {@see wp_kses()} on block fragments.
+	 *
+	 * Do not mutate the passed array in place; return an altered copy when adding keys.
+	 *
+	 * @param array<string, array<string, bool>> $allowed Base allow-list (post rules plus Clanbite SVG tags).
+	 */
+	return (array) apply_filters( 'clanbite_block_fragment_allowed_html', $base_allowed );
 }
 
 /**

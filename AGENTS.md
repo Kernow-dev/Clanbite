@@ -152,6 +152,19 @@ These items recur in **Plugin Check** / **PHPCS** runs. Prefer fixing **errors**
 - `clanbite_players_player_avatar_placeholder_markup` — Text placeholder when the user has no avatar and inline upload is off: `(string $html, int $user_id, array $args)`.
 - `clanbite_team_challenge_button_visible` — Show the **Team challenge** block UI: `(bool $visible, int $team_id, \WP_Block $block)`.
 - `clanbite_team_challenge_notify_user_ids` — Recipients for new challenge notifications: `(array $user_ids, int $team_id)`.
+- `clanbite_team_challenge_rest_response` — Mutate JSON bodies from challenge REST routes before encoding: `(array $payload, string $route_key, \WP_REST_Request $request)` (`route_key`: `remote_team`, `upload_media`, `create_challenge`).
+- `clanbite_matches_rest_query_args` — `WP_Query` arguments for `GET clanbite/v1/matches`: `(array $args, \WP_REST_Request $request)`.
+- `clanbite_match_rest_prepare` — Match row for REST list/detail: `(array $item, \WP_Post $post, \WP_REST_Request $request, string $context)` (`collection`|`single`).
+- `clanbite_matches_rest_collection_data` — Full collection response body (`matches`, `total`, `pages`): `(array $body, \WP_REST_Request $request)`.
+- `clanbite_viewer_can_see_match` — Final visibility for a match post: `(bool $can, \WP_Post $post, int $viewer_id)`.
+- `clanbite_match_card_block_inner_markup` — Inner SSR markup for **Match card**: `(string $markup, array $attributes, \WP_Block $block)`.
+- `clanbite_match_list_block_inner_markup` — Inner SSR markup for **Match list**: `(string $markup, array $attributes, \WP_Block $block)`.
+- `clanbite_match_block_wrapper_attributes` — Attribute map for {@see get_block_wrapper_attributes()} on Match blocks: `(array $wrapper_attrs, string $block_name, \WP_Block $block)`.
+- `clanbite_block_markup_before_do_blocks` — Template file markup before {@see do_blocks()} in {@see clanbite_render_block_markup_file()}: `(string $markup, string $markup_file)`.
+- `clanbite_block_fragment_allowed_html` — Extend {@see wp_kses()} allow-list for block fragments (return a modified copy): `(array $allowed)`.
+- `clanbite_admin_rest_manage_capability` — Capability checked by `clanbite/v1/admin/*` REST routes (default `manage_options`): `(string $capability)`.
+- `clanbite_extension_capabilities` — Optional hints merged into each extension row as `capabilities` in admin bootstrap JSON: `(array $capabilities, string $slug, Skeleton $extension)`.
+- `clanbite_admin_rest_bootstrap` — Full payload for `GET clanbite/v1/admin/bootstrap`: `(array $data, Loader $loader)`.
 - `clanbite_cross_site_sync_key` — Legacy shared HMAC secret (optional): `(string $key)` non-empty forces legacy `timestamp:hmac` headers instead of Ed25519 `v1:…` (for old integrations only).
 - `clanbite_cross_site_sync_outbound_payload` — Mutate signed body before push to peer: `(array $body, int $challenge_id, int $match_id, int $challenged_team_id, array $snapshot)`.
 - `clanbite_cross_site_sync_incoming_payload` — Mutate decoded JSON after signature check: `(array $body, string $source_host)`.
@@ -182,6 +195,8 @@ These items recur in **Plugin Check** / **PHPCS** runs. Prefer fixing **errors**
 **Actions**
 - `clanbite_team_challenge_created` — `(int $challenge_id, int $challenged_team_id)`.
 - `clanbite_team_challenge_accepted` — `(int $challenge_id, int $match_id, int $challenged_team_id)`.
+- `clanbite_team_challenge_declined` — `(int $challenge_id, int $challenged_team_id, int $user_id)` after status set to declined.
+- `clanbite_render_block_markup_file` — `(string $markup_file, string $markup)` immediately before {@see do_blocks()} output from {@see clanbite_render_block_markup_file()}.
 - `clanbite_cross_site_sync_push_succeeded` — `(int $challenge_id, int $local_match_id, int $peer_match_id, string $peer_origin, array $body)`.
 - `clanbite_cross_site_sync_push_failed` — `(\WP_Error $error, string $url, array $body)`.
 - `clanbite_cross_site_sync_push_rejected` — `(int $http_code, array $data, string $url, array $body)`.

@@ -29,9 +29,9 @@ if ( $is_logged_in ) {
 
 	if ( function_exists( 'clanbite_players_get_player_avatar_img_html' ) && function_exists( 'clanbite_players_apply_player_avatar_display_markup' ) ) {
 		$nav_avatar_base = array(
-			'context' => 'user_nav',
-			'preset'  => 'small',
-			'alt'     => '',
+			'context'        => 'user_nav',
+			'preset'         => 'small',
+			'presentational' => true,
 		);
 
 		$trigger_inner = clanbite_players_get_player_avatar_img_html(
@@ -48,7 +48,7 @@ if ( $is_logged_in ) {
 
 		if ( '' === $trigger_inner ) {
 			$trigger_inner = sprintf(
-				'<img src="%1$s" alt="" class="clanbite-user-nav__avatar" width="%2$d" height="%2$d" loading="lazy" decoding="async" />',
+				'<img src="%1$s" alt="" class="clanbite-user-nav__avatar" width="%2$d" height="%2$d" loading="lazy" decoding="async" aria-hidden="true" />',
 				esc_url( $avatar_url_fallback ),
 				(int) $avatar_size
 			);
@@ -74,7 +74,7 @@ if ( $is_logged_in ) {
 
 		if ( '' === $dropdown_inner ) {
 			$dropdown_inner = sprintf(
-				'<img src="%s" alt="" class="clanbite-user-nav__dropdown-avatar" width="40" height="40" loading="lazy" decoding="async" />',
+				'<img src="%s" alt="" class="clanbite-user-nav__dropdown-avatar" width="40" height="40" loading="lazy" decoding="async" aria-hidden="true" />',
 				esc_url( $avatar_url_fallback )
 			);
 		}
@@ -86,12 +86,12 @@ if ( $is_logged_in ) {
 		);
 	} else {
 		$avatar_trigger = sprintf(
-			'<img src="%1$s" alt="" class="clanbite-user-nav__avatar" width="%2$d" height="%2$d" loading="lazy" decoding="async" />',
+			'<img src="%1$s" alt="" class="clanbite-user-nav__avatar" width="%2$d" height="%2$d" loading="lazy" decoding="async" aria-hidden="true" />',
 			esc_url( $avatar_url_fallback ),
 			(int) $avatar_size
 		);
 		$avatar_dropdown = sprintf(
-			'<img src="%s" alt="" class="clanbite-user-nav__dropdown-avatar" width="40" height="40" loading="lazy" decoding="async" />',
+			'<img src="%s" alt="" class="clanbite-user-nav__dropdown-avatar" width="40" height="40" loading="lazy" decoding="async" aria-hidden="true" />',
 			esc_url( $avatar_url_fallback )
 		);
 	}
