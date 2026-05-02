@@ -129,6 +129,11 @@ function clanbite_relocate_team_challenge_logo_to_match_dir( int $attachment_id,
 		return true;
 	}
 
+	$basedir_root = trailingslashit( wp_normalize_path( $uploads['basedir'] ) );
+	if ( 0 !== strpos( $old_norm, $basedir_root ) || 0 !== strpos( $dest_norm, $basedir_root ) ) {
+		return false;
+	}
+
 	$meta = wp_get_attachment_metadata( $attachment_id );
 	if ( is_array( $meta ) && ! empty( $meta['sizes'] ) && is_array( $meta['sizes'] ) ) {
 		$old_dir = dirname( $old_path );
@@ -157,32 +162,14 @@ function clanbite_relocate_team_challenge_logo_to_match_dir( int $attachment_id,
 		return false;
 	}
 
-	global $wp_filesystem;
-	if ( ! function_exists( 'WP_Filesystem' ) ) {
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-	}
+	clanbite_require_wp_admin_file_includes();
 
-	$filesystem_ok = WP_Filesystem() && $wp_filesystem;
-	$moved           = false;
-
-	if ( $filesystem_ok ) {
-		// Third argument true: mirror PHP rename() overwrite when the destination already exists.
-		$moved = $wp_filesystem->move( $old_path, $dest_path, true );
-		if ( ! $moved ) {
-			if ( $wp_filesystem->copy( $old_path, $dest_path, true ) && $wp_filesystem->delete( $old_path, false ) ) {
-				$moved = true;
-			}
-		}
-	} else {
-		// When credentials are not configured, direct PHP IO often still works on the same host.
-		// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.WP.AlternativeFunctions.rename_rename,WordPress.WP.AlternativeFunctions.file_system_operations_copy -- Fallback only when WP_Filesystem cannot initialize; prefer $wp_filesystem->move() above.
-		if ( @rename( $old_path, $dest_path ) ) {
-			$moved = true;
-		} elseif ( @copy( $old_path, $dest_path ) ) {
-			wp_delete_file( $old_path );
-			$moved = true;
-		}
-		// phpcs:enable
+	// Use WordPress filesystem classes (not bare `rename()` / `copy()`). Paths are confined to
+	// `wp_upload_dir()['basedir']` above — never the plugin directory.
+	$fs    = clanbite_wp_filesystem_direct();
+	$moved = $fs->move( $old_path, $dest_path, true );
+	if ( ! $moved ) {
+		$moved = ( $fs->copy( $old_path, $dest_path, true ) && $fs->delete( $old_path, false ) );
 	}
 
 	if ( ! $moved ) {
@@ -191,6 +178,7 @@ function clanbite_relocate_team_challenge_logo_to_match_dir( int $attachment_id,
 
 	$relative_file = $relative_dir . '/' . wp_basename( $dest_path );
 	wp_update_attached_file( $attachment_id, $relative_file );
+	clanbite_require_wp_admin_image_includes();
 	wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $dest_path ) );
 
 	return true;

@@ -34,11 +34,13 @@ use Kernowdev\Clanbite\Wordban;
 
 // Use composer autoload.
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/inc/clanbite-wp-admin-includes.php';
 require_once __DIR__ . '/inc/class-block-patterns.php';
 require_once __DIR__ . '/inc/clanbite-private-media.php';
 require_once __DIR__ . '/inc/clanbite-team-challenge-uploads.php';
 require_once __DIR__ . '/inc/functions-block-templates.php';
 require_once __DIR__ . '/inc/functions-request-input.php';
+require_once __DIR__ . '/inc/clanbite-block-render-escape.php';
 require_once __DIR__ . '/inc/functions-country-flags.php';
 require_once __DIR__ . '/inc/functions-block-entity-link.php';
 require_once __DIR__ . '/inc/profile-subpages.php';
@@ -157,8 +159,11 @@ final class Main {
 	}
 
 	/**
-	 * Check if the plugin meets requirements and
-	 * disable it if they are not present.
+	 * Check if the plugin meets requirements before bootstrapping.
+	 *
+	 * When requirements fail, an admin notice is shown and {@see init()} does not run.
+	 * The plugin file stays loaded; the site owner fixes the environment or deactivates
+	 * Clanbite manually from **Plugins** (WordPress.org discourages calling `deactivate_plugins()`).
 	 *
 	 * @return boolean True if requirements met, false if not.
 	 */
@@ -168,28 +173,15 @@ final class Main {
 			return true;
 		}
 
-		// Add a dashboard notice.
+		// Per WordPress.org guidelines, plugins must not programmatically change activation
+		// state (including self-deactivation). Surface the failure in admin and skip bootstrapping
+		// until requirements are fixed or the site owner deactivates Clanbite from Plugins.
 		add_action(
 			'all_admin_notices',
 			array( $this, 'requirements_not_met_notice' )
 		);
 
-		// Deactivate our plugin.
-		add_action( 'admin_init', array( $this, 'deactivate_me' ) );
-
-		// Didn't meet the requirements.
 		return false;
-	}
-
-	/**
-	 * Deactivates this plugin, hook this function on admin_init.
-	 */
-	public function deactivate_me(): void {
-		// We do a check for deactivate_plugins before calling it to protect
-		// any developers from accidentally calling it too early and breaking things.
-		if ( function_exists( 'deactivate_plugins' ) ) {
-			deactivate_plugins( $this->basename );
-		}
 	}
 
 	/**
@@ -209,7 +201,7 @@ final class Main {
 		$default_message = sprintf(
 			/* translators: %s: URL to the Plugins admin screen. */
 			__(
-				'Clanbite Plugin is missing requirements and has been <a href="%s">deactivated</a>. Please make sure all requirements are available.',
+				'Clanbite cannot run until requirements are met. Fix the issues below, or deactivate Clanbite on the <a href="%s">Plugins</a> screen if you need to continue without it.',
 				'clanbite'
 			),
 			esc_url( admin_url( 'plugins.php' ) )
@@ -489,6 +481,10 @@ final class Main {
 		return self::VERSION;
 	}
 }
+
+require_once __DIR__ . '/inc/clanbite-cpt-identifier-migration.php';
+// Before {@see Main::early_hooks} (priority 0): CPT rows must match registered slugs before first queries/hooks run.
+add_action( 'plugins_loaded', 'clanbite_maybe_migrate_cpt_identifiers', -1 );
 
 // Kick it off.
 add_action( 'plugins_loaded', array( clanbite(), 'early_hooks' ), 0 );

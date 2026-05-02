@@ -37,8 +37,10 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-printf(
-	'<div %1$s>%2$s</div>',
-	$wrapper_attributes, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped attributes.
-	$inner_html // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inner blocks HTML from core serializer or WP_Block::render().
+echo clanbite_esc_block_fragment_html(
+	sprintf(
+		'<div %1$s>%2$s</div>',
+		$wrapper_attributes,
+		$inner_html
+	)
 );

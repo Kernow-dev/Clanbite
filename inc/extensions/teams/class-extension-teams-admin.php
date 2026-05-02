@@ -67,7 +67,7 @@ class Admin extends Abstract_Settings {
 						'global_auto_join_team_ids' => array(
 							'label'              => __( 'Default team joins', 'clanbite' ),
 							'type'               => 'post_id_list',
-							'post_search_path'   => 'wp/v2/cp_team',
+							'post_search_path'   => 'wp/v2/clanbite_team',
 							'description'        => __( 'Every player is added to these team rosters as a member when they register or log in.', 'clanbite' ),
 							'default'            => array(),
 							'sanitize'           => static function ( $value ): array {

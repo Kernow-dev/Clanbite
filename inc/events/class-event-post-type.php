@@ -1,6 +1,6 @@
 <?php
 /**
- * Registers the `cp_event` CPT and post meta for scheduled events (teams / groups).
+ * Registers the `clanbite_event` CPT and post meta for scheduled events (teams / groups).
  *
  * @package clanbite
  */
@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Event_Post_Type {
 
-	public const POST_TYPE = 'cp_event';
+	public const POST_TYPE = 'clanbite_event';
 
 	public const SCOPE_TEAM  = 'team';
 	public const SCOPE_GROUP = 'group';
@@ -60,7 +60,7 @@ final class Event_Post_Type {
 				'show_ui'             => true,
 				'show_in_menu'        => false,
 				'show_in_rest'        => true,
-				'rest_base'           => 'cp_event',
+				'rest_base'           => 'clanbite_event',
 				'rest_controller_class' => 'WP_REST_Posts_Controller',
 				'supports'            => array( 'title', 'editor', 'excerpt', 'author' ),
 				'capability_type'     => 'post',

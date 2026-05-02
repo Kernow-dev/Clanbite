@@ -58,7 +58,7 @@ class Team_Data_Store_CPT extends WP_Post_Meta_Data_Store implements Team_Data_S
 		}
 
 		$post = get_post( $id );
-		if ( ! $post || 'cp_team' !== $post->post_type ) {
+		if ( ! $post || 'clanbite_team' !== $post->post_type ) {
 			return null;
 		}
 
@@ -106,7 +106,7 @@ class Team_Data_Store_CPT extends WP_Post_Meta_Data_Store implements Team_Data_S
 	public function create( Team $team ): void {
 		$post_id = wp_insert_post(
 			array(
-				'post_type'    => 'cp_team',
+				'post_type'    => 'clanbite_team',
 				'post_title'   => $team->get_name(),
 				'post_name'    => $team->get_slug(),
 				'post_content' => $team->get_description(),

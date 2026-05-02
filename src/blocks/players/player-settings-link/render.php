@@ -65,4 +65,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo '<div ' . $wrapper_attributes . '><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $settings_url ) . '">' . esc_html( $label ) . '</a></div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $settings_url ) . '">' . esc_html( $label ) . '</a></div></div>' );

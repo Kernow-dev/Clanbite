@@ -164,13 +164,13 @@ class Teams extends Skeleton {
 		add_action( 'template_redirect', array( $this, 'maybe_fix_team_events_route_404' ), 0 );
 		add_action( 'template_redirect', array( $this, 'maybe_redirect_disallowed_team_virtual_actions' ), 3 );
 		add_action( 'template_redirect', array( $this, 'maybe_block_banned_team_access' ), 5 );
-		add_filter( 'pre_render_block', array( $this, 'prime_cp_team_single_loop_for_plugin_template' ), 0, 3 );
+		add_filter( 'pre_render_block', array( $this, 'prime_clanbite_team_single_loop_for_plugin_template' ), 0, 3 );
 		add_filter( 'render_block_context', array( $this, 'filter_team_singular_block_context' ), 10, 3 );
-		add_filter( 'get_block_templates', array( $this, 'prefer_plugin_single_cp_team_block_template' ), 100, 3 );
+		add_filter( 'get_block_templates', array( $this, 'prefer_plugin_single_clanbite_team_block_template' ), 100, 3 );
 		add_filter( 'single_template', array( $this, 'maybe_single_team_template' ) );
-		add_filter( 'rest_prepare_cp_team', array( $this, 'rest_prepare_cp_team_merge_meta' ), 10, 3 );
+		add_filter( 'rest_prepare_clanbite_team', array( $this, 'rest_prepare_clanbite_team_merge_meta' ), 10, 3 );
 		add_action( 'add_meta_boxes', array( $this, 'add_team_events_meta_box' ) );
-		add_action( 'save_post_cp_team', array( $this, 'save_team_events_meta_box' ), 10, 2 );
+		add_action( 'save_post_clanbite_team', array( $this, 'save_team_events_meta_box' ), 10, 2 );
 		add_filter( 'map_meta_cap', array( $this, 'map_team_front_edit_meta_cap' ), 10, 4 );
 		add_filter( 'wp_unique_post_slug', array( $this, 'reserve_team_route_slugs' ), 10, 6 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_team_manage_form_assets' ), 20 );
@@ -235,7 +235,7 @@ class Teams extends Skeleton {
 				continue;
 			}
 			$post = get_post( $team_id );
-			if ( ! $post instanceof \WP_Post || 'cp_team' !== $post->post_type || 'publish' !== $post->post_status ) {
+			if ( ! $post instanceof \WP_Post || 'clanbite_team' !== $post->post_type || 'publish' !== $post->post_status ) {
 				continue;
 			}
 
@@ -305,7 +305,7 @@ class Teams extends Skeleton {
 		$user_id = (int) $user_id;
 		$post_id = (int) $args[0];
 		$post    = get_post( $post_id );
-		if ( ! $post || 'cp_team' !== $post->post_type ) {
+		if ( ! $post || 'clanbite_team' !== $post->post_type ) {
 			return $caps;
 		}
 
@@ -333,7 +333,7 @@ class Teams extends Skeleton {
 	 */
 	public function reserve_team_route_slugs( string $slug, $post_id, $post_status, $post_type, $post_parent, $original ): string {
 		unset( $post_status, $post_parent, $original );
-		if ( 'cp_team' !== $post_type ) {
+		if ( 'clanbite_team' !== $post_type ) {
 			return $slug;
 		}
 
@@ -501,7 +501,7 @@ class Teams extends Skeleton {
 				}
 			}
 		} else {
-			$count = (int) count_user_posts( $user_id, 'cp_team', true );
+			$count = (int) count_user_posts( $user_id, 'clanbite_team', true );
 		}
 
 		/**
@@ -679,7 +679,7 @@ class Teams extends Skeleton {
 		$vars[] = 'clanbite_team_events_sub';
 		$vars[] = 'clanbite_events_team_id';
 		$vars[] = 'clanbite_matches_team_id';
-		$vars[] = 'cp_team_subpage';
+		$vars[] = 'clanbite_team_subpage';
 		return $vars;
 	}
 
@@ -699,7 +699,7 @@ class Teams extends Skeleton {
 	 * @return array<string, mixed>
 	 */
 	protected function strip_conflicting_query_vars_for_team_virtual_routes( array $query_vars ): array {
-		foreach ( array( 'pagename', 'name', 'page_id', 'p', 'attachment', 'attachment_id', 'year', 'monthnum', 'day', 'feed', 'post_type', 'cp_team', 'error' ) as $key ) {
+		foreach ( array( 'pagename', 'name', 'page_id', 'p', 'attachment', 'attachment_id', 'year', 'monthnum', 'day', 'feed', 'post_type', 'clanbite_team', 'error' ) as $key ) {
 			unset( $query_vars[ $key ] );
 		}
 
@@ -944,12 +944,12 @@ class Teams extends Skeleton {
 			return '';
 		}
 
-		$post = get_page_by_path( $slug, OBJECT, 'cp_team' );
+		$post = get_page_by_path( $slug, OBJECT, 'clanbite_team' );
 		if ( $post instanceof \WP_Post ) {
 			$permalink = get_permalink( $post );
 			$url       = is_string( $permalink ) ? $permalink : '';
 		} else {
-			$pto = get_post_type_object( 'cp_team' );
+			$pto = get_post_type_object( 'clanbite_team' );
 			$base = ( $pto && is_array( $pto->rewrite ) && ! empty( $pto->rewrite['slug'] ) )
 				? (string) $pto->rewrite['slug']
 				: 'teams';
@@ -1038,8 +1038,8 @@ class Teams extends Skeleton {
 		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Core global `$_wp_current_template_id` for block theme / Site Editor resolution.
 		global $_wp_current_template_id;
 
-		if ( is_singular( 'cp_team' ) ) {
-			$_wp_current_template_id = 'clanbite//single-cp_team';
+		if ( is_singular( 'clanbite_team' ) ) {
+			$_wp_current_template_id = 'clanbite//single-clanbite_team';
 		} elseif ( $this->is_team_directories_mode() ) {
 			if ( (int) get_query_var( 'clanbite_team_create' ) ) {
 				$_wp_current_template_id = 'clanbite//teams-create';
@@ -1114,7 +1114,7 @@ class Teams extends Skeleton {
 			$team = get_posts(
 				array(
 					'name'           => $slug,
-					'post_type'      => 'cp_team',
+					'post_type'      => 'clanbite_team',
 					'post_status'    => array( 'publish', 'draft', 'pending' ),
 					'posts_per_page' => 1,
 					'fields'         => 'ids',
@@ -1306,7 +1306,7 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function maybe_block_banned_team_access(): void {
-		if ( ! is_singular( 'cp_team' ) ) {
+		if ( ! is_singular( 'clanbite_team' ) ) {
 			return;
 		}
 
@@ -2482,7 +2482,7 @@ class Teams extends Skeleton {
 		}
 
 		$post = get_post( $team_id );
-		if ( ! $post || 'cp_team' !== $post->post_type ) {
+		if ( ! $post || 'clanbite_team' !== $post->post_type ) {
 			return;
 		}
 
@@ -2782,7 +2782,8 @@ class Teams extends Skeleton {
 			exit;
 		}
 
-		$team_id = clanbite_request_post_absint( 'clanbite_team_id', 0 );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Team ID seeds the scoped nonce action; verified immediately below via `check_admin_referer()`.
+		$team_id = isset( $_POST['clanbite_team_id'] ) ? absint( wp_unslash( $_POST['clanbite_team_id'] ) ) : 0;
 		if ( $team_id < 1 ) {
 			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
@@ -2795,7 +2796,7 @@ class Teams extends Skeleton {
 		}
 
 		$post = get_post( $team_id );
-		if ( ! $post || 'cp_team' !== $post->post_type ) {
+		if ( ! $post || 'clanbite_team' !== $post->post_type ) {
 			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
 
@@ -2944,7 +2945,8 @@ class Teams extends Skeleton {
 			exit;
 		}
 
-		$team_id = clanbite_request_post_absint( 'clanbite_team_id', 0 );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Team ID seeds the scoped delete nonce; verified on the next line.
+		$team_id = isset( $_POST['clanbite_team_id'] ) ? absint( wp_unslash( $_POST['clanbite_team_id'] ) ) : 0;
 		if ( $team_id < 1 ) {
 			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
@@ -2968,7 +2970,7 @@ class Teams extends Skeleton {
 		}
 
 		$post = get_post( $team_id );
-		if ( ! $post instanceof \WP_Post || 'cp_team' !== $post->post_type ) {
+		if ( ! $post instanceof \WP_Post || 'clanbite_team' !== $post->post_type ) {
 			wp_die( esc_html__( 'Invalid team.', 'clanbite' ), '', array( 'response' => 400 ) );
 		}
 
@@ -3011,7 +3013,7 @@ class Teams extends Skeleton {
 		 */
 		do_action( 'clanbite_team_deleted', $team_id, $user_id, $this );
 
-		$archive = get_post_type_archive_link( 'cp_team' );
+		$archive = get_post_type_archive_link( 'clanbite_team' );
 		$target  = is_string( $archive ) && '' !== $archive ? $archive : home_url( '/' );
 
 		/**
@@ -3081,7 +3083,7 @@ class Teams extends Skeleton {
 		$labels = $this->get_team_post_type_labels();
 
 		register_post_type(
-			'cp_team',
+			'clanbite_team',
 			array(
 				'label'           => $labels['name'],
 				'labels'          => $labels,
@@ -3288,7 +3290,7 @@ class Teams extends Skeleton {
 			'clanbite_team_events',
 			__( 'Events', 'clanbite' ),
 			array( $this, 'render_team_events_meta_box' ),
-			'cp_team',
+			'clanbite_team',
 			'side',
 			'default'
 		);
@@ -3335,7 +3337,7 @@ class Teams extends Skeleton {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
-		if ( 'cp_team' !== $post->post_type ) {
+		if ( 'clanbite_team' !== $post->post_type ) {
 			return;
 		}
 
@@ -3352,7 +3354,7 @@ class Teams extends Skeleton {
 	 */
 	protected function register_cp_team_meta_key( string $meta_key, array $args ): void {
 		$args['auth_callback'] = array( $this, 'team_meta_auth_callback' );
-		register_post_meta( 'cp_team', $meta_key, $args );
+		register_post_meta( 'clanbite_team', $meta_key, $args );
 	}
 
 	/**
@@ -3366,7 +3368,7 @@ class Teams extends Skeleton {
 	public function team_meta_auth_callback( ...$args ): bool {
 		$object_id = isset( $args[2] ) ? (int) $args[2] : 0;
 
-		if ( $object_id < 1 || 'cp_team' !== get_post_type( $object_id ) ) {
+		if ( $object_id < 1 || 'clanbite_team' !== get_post_type( $object_id ) ) {
 			return false;
 		}
 
@@ -3389,10 +3391,10 @@ class Teams extends Skeleton {
 	 * @param \WP_REST_Request    $request  Request.
 	 * @return \WP_REST_Response
 	 */
-	public function rest_prepare_cp_team_merge_meta( $response, $post, $request ) {
+	public function rest_prepare_clanbite_team_merge_meta( $response, $post, $request ) {
 		unset( $request );
 
-		if ( ! $response instanceof \WP_REST_Response || ! $post instanceof \WP_Post || 'cp_team' !== $post->post_type ) {
+		if ( ! $response instanceof \WP_REST_Response || ! $post instanceof \WP_Post || 'clanbite_team' !== $post->post_type ) {
 			return $response;
 		}
 
@@ -3491,7 +3493,7 @@ class Teams extends Skeleton {
 	 */
 	public function enqueue_team_editor_assets(): void {
 		$screen = get_current_screen();
-		if ( ! $screen || 'cp_team' !== $screen->post_type ) {
+		if ( ! $screen || 'clanbite_team' !== $screen->post_type ) {
 			return;
 		}
 
@@ -3953,8 +3955,8 @@ class Teams extends Skeleton {
 			);
 		}
 
-		// Team id from POST; file fields stay on `$_FILES` and are validated in `team_manage_form_has_image_upload()` / `maybe_handle_team_media_upload()`.
-		$team_id = clanbite_request_post_absint( 'clanbite_team_id' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Team ID seeds the scoped AJAX nonce; verified immediately below via `wp_verify_nonce()`.
+		$team_id = isset( $_POST['clanbite_team_id'] ) ? absint( wp_unslash( $_POST['clanbite_team_id'] ) ) : 0;
 		if ( $team_id < 1 ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Invalid team.', 'clanbite' ) ),
@@ -3962,7 +3964,14 @@ class Teams extends Skeleton {
 			);
 		}
 
-		check_ajax_referer( 'clanbite_team_media_' . $team_id, '_clanbite_team_media_nonce' );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce token; verified, not displayed.
+		$nonce = isset( $_POST['_clanbite_team_media_nonce'] ) ? (string) wp_unslash( $_POST['_clanbite_team_media_nonce'] ) : '';
+		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'clanbite_team_media_' . $team_id ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid security token.', 'clanbite' ) ),
+				403
+			);
+		}
 
 		$user_id = get_current_user_id();
 		if ( ! $this->user_can_manage_team_on_frontend( $team_id, $user_id ) ) {
@@ -3973,7 +3982,7 @@ class Teams extends Skeleton {
 		}
 
 		$post = get_post( $team_id );
-		if ( ! $post instanceof \WP_Post || 'cp_team' !== $post->post_type ) {
+		if ( ! $post instanceof \WP_Post || 'clanbite_team' !== $post->post_type ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Invalid team.', 'clanbite' ) ),
 				400
@@ -4112,19 +4121,19 @@ class Teams extends Skeleton {
 	}
 
 	/**
-	 * Use the plugin Single Team block template when the theme also defines single-cp_team (often Post Content only).
+	 * Use the plugin Single Team block template when the theme also defines single-clanbite_team (often Post Content only).
 	 *
 	 * @param \WP_Block_Template[] $query_result Block templates.
 	 * @param array<string, mixed> $query        Query args.
 	 * @param string               $template_type Template type.
 	 * @return \WP_Block_Template[]
 	 */
-	public function prefer_plugin_single_cp_team_block_template( $query_result, $query, $template_type ) {
-		if ( 'wp_template' !== $template_type || empty( $query['slug__in'] ) || ! in_array( 'single-cp_team', $query['slug__in'], true ) ) {
+	public function prefer_plugin_single_clanbite_team_block_template( $query_result, $query, $template_type ) {
+		if ( 'wp_template' !== $template_type || empty( $query['slug__in'] ) || ! in_array( 'single-clanbite_team', $query['slug__in'], true ) ) {
 			return $query_result;
 		}
 
-		if ( ! is_singular( 'cp_team' ) ) {
+		if ( ! is_singular( 'clanbite_team' ) ) {
 			return $query_result;
 		}
 
@@ -4137,7 +4146,7 @@ class Teams extends Skeleton {
 			if ( ! $t instanceof \WP_Block_Template ) {
 				continue;
 			}
-			if ( 'single-cp_team' !== $t->slug ) {
+			if ( 'single-clanbite_team' !== $t->slug ) {
 				$filtered[] = $t;
 				continue;
 			}
@@ -4145,18 +4154,18 @@ class Teams extends Skeleton {
 				$filtered[] = $t;
 				continue;
 			}
-			if ( isset( $t->id ) && 'clanbite//single-cp_team' === $t->id ) {
+			if ( isset( $t->id ) && 'clanbite//single-clanbite_team' === $t->id ) {
 				$filtered[] = $t;
 			}
 		}
 
 		foreach ( $filtered as $t ) {
-			if ( $t instanceof \WP_Block_Template && 'single-cp_team' === $t->slug ) {
+			if ( $t instanceof \WP_Block_Template && 'single-clanbite_team' === $t->slug ) {
 				return $filtered;
 			}
 		}
 
-		$plugin = \get_block_template( 'clanbite//single-cp_team' );
+		$plugin = \get_block_template( 'clanbite//single-clanbite_team' );
 		if ( $plugin instanceof \WP_Block_Template ) {
 			$filtered[] = $plugin;
 		}
@@ -4177,7 +4186,7 @@ class Teams extends Skeleton {
 
 		if ( $success && $team_id > 0 ) {
 			$post = get_post( $team_id );
-			if ( ! $post instanceof \WP_Post || 'cp_team' !== $post->post_type ) {
+			if ( ! $post instanceof \WP_Post || 'clanbite_team' !== $post->post_type ) {
 				$success = false;
 				$code    = 'missing_post';
 				$team_id = 0;
@@ -4187,7 +4196,7 @@ class Teams extends Skeleton {
 					$redirect = '';
 				}
 
-				$archive = get_post_type_archive_link( 'cp_team' );
+				$archive = get_post_type_archive_link( 'clanbite_team' );
 				$slug    = (string) $post->post_name;
 
 				// Avoid the teams archive or empty permalinks: single-team URL only.
@@ -4220,8 +4229,9 @@ class Teams extends Skeleton {
 		}
 
 		$args = array(
-			'clanbite_team_status' => 'error',
-			'clanbite_team_code'   => $code,
+			'clanbite_team_status'  => 'error',
+			'clanbite_team_code'    => $code,
+			'_clanbite_team_notice' => wp_create_nonce( 'clanbite_team_create_notice' ),
 		);
 
 		wp_safe_redirect( add_query_arg( $args, $fallback ) );
@@ -4362,7 +4372,7 @@ class Teams extends Skeleton {
 	 * @param \WP_Block|null       $parent_block Parent block.
 	 * @return mixed|null
 	 */
-	public function prime_cp_team_single_loop_for_plugin_template( $pre_render, $parsed_block, $parent_block ) {
+	public function prime_clanbite_team_single_loop_for_plugin_template( $pre_render, $parsed_block, $parent_block ) {
 		unset( $parsed_block, $parent_block );
 
 		static $done = false;
@@ -4373,7 +4383,7 @@ class Teams extends Skeleton {
 		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Core `$wp_query` / `$_wp_current_template_id` for singular team template priming.
 		global $wp_query, $_wp_current_template_id;
 
-		if ( ! $wp_query instanceof \WP_Query || ! $wp_query->is_singular( 'cp_team' ) || in_the_loop() ) {
+		if ( ! $wp_query instanceof \WP_Query || ! $wp_query->is_singular( 'clanbite_team' ) || in_the_loop() ) {
 			// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 			return null;
 		}
@@ -4421,7 +4431,7 @@ class Teams extends Skeleton {
 			$pid = (int) $context['postId'];
 			if ( $pid > 0 ) {
 				$ptype = isset( $context['postType'] ) ? (string) $context['postType'] : '';
-				if ( 'cp_team' === $ptype || 'cp_team' === get_post_type( $pid ) ) {
+				if ( 'clanbite_team' === $ptype || 'clanbite_team' === get_post_type( $pid ) ) {
 					return $context;
 				}
 			}
@@ -4433,7 +4443,7 @@ class Teams extends Skeleton {
 
 		if ( $team_id > 0 ) {
 			$context['postId']   = $team_id;
-			$context['postType'] = 'cp_team';
+			$context['postType'] = 'clanbite_team';
 		}
 
 		return $context;
@@ -4478,14 +4488,14 @@ class Teams extends Skeleton {
 	/**
 	 * Load the team block template on classic themes (block markup is not in post_content).
 	 *
-	 * Block themes resolve `clanbite//single-cp_team` via {@see register_block_template()} when
+	 * Block themes resolve `clanbite//single-clanbite_team` via {@see register_block_template()} when
 	 * `post_types` includes `cp_team`. PHP themes need `do_blocks()` here.
 	 *
 	 * @param string $template Path from {@see locate_template()}.
 	 * @return string
 	 */
 	public function maybe_single_team_template( string $template ): string {
-		if ( ! is_singular( 'cp_team' ) ) {
+		if ( ! is_singular( 'clanbite_team' ) ) {
 			return $template;
 		}
 
@@ -4493,7 +4503,7 @@ class Teams extends Skeleton {
 			return $template;
 		}
 
-		$plugin = clanbite()->path . 'templates/teams/single-cp_team-classic.php';
+		$plugin = clanbite()->path . 'templates/teams/single-clanbite_team-classic.php';
 
 		return is_readable( $plugin ) ? $plugin : $template;
 	}
@@ -4504,14 +4514,14 @@ class Teams extends Skeleton {
 	 * @return array<string, array<string, string>>
 	 */
 	protected function get_team_templates(): array {
-		// Slug must be `single-cp_team` so it matches the singular template hierarchy for this CPT.
+		// Slug must be `single-clanbite_team` so it matches the singular template hierarchy for this CPT.
 		$templates = array(
-			'single-cp_team' => array(
+			'single-clanbite_team' => array(
 				'title'       => __( 'Single Team', 'clanbite' ),
 				'description' => __( 'Team profile with cover, avatar, record, motto, and description.', 'clanbite' ),
-				'path'        => clanbite()->path . 'templates/teams/single-cp_team.html',
+				'path'        => clanbite()->path . 'templates/teams/single-clanbite_team.html',
 				// WP 6.7+: tie the plugin template to this CPT so singular views use it in the Site Editor hierarchy.
-				'post_types'  => array( 'cp_team' ),
+				'post_types'  => array( 'clanbite_team' ),
 			),
 			// Virtual routes (create / manage / events) stay gated by `is_team_directories_mode()` in rewrites
 			// and template loaders; templates are always registered so they remain editable in the Site Editor.

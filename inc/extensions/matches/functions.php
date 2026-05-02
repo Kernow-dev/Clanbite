@@ -59,7 +59,7 @@ function clanbite_matches_team_title( int $team_id ): string {
 		return '';
 	}
 	$post = get_post( $team_id );
-	if ( ! $post || 'cp_team' !== $post->post_type ) {
+	if ( ! $post || 'clanbite_team' !== $post->post_type ) {
 		return '';
 	}
 

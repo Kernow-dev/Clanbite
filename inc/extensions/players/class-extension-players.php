@@ -393,7 +393,7 @@ class Players extends Skeleton {
 	 * @return array<string, mixed>
 	 */
 	protected function strip_conflicting_query_vars_for_players_virtual_routes( array $query_vars ): array {
-		foreach ( array( 'pagename', 'name', 'page_id', 'p', 'attachment', 'attachment_id', 'year', 'monthnum', 'day', 'feed', 'post_type', 'error', 'cp_team' ) as $key ) {
+		foreach ( array( 'pagename', 'name', 'page_id', 'p', 'attachment', 'attachment_id', 'year', 'monthnum', 'day', 'feed', 'post_type', 'error', 'clanbite_team' ) as $key ) {
 			unset( $query_vars[ $key ] );
 		}
 
@@ -482,7 +482,7 @@ class Players extends Skeleton {
 		$query->set( 'feed', '' );
 		$query->set( 'post_type', '' );
 		$query->set( 'error', '' );
-		$query->set( 'cp_team', '' );
+		$query->set( 'clanbite_team', '' );
 	}
 
 	/**
@@ -2195,12 +2195,27 @@ class Players extends Skeleton {
 			$display_name = apply_filters( 'clanbite_player_settings_update_display_name', sanitize_user( $filtered_data['display_name'] ), $user_id );
 
 			if ( ! is_wp_error( $display_name ) ) {
-				$result = wp_update_user(
-					array(
-						'ID'           => $user_id,
-						'display_name' => $display_name,
-					)
-				);
+				$old_user = get_userdata( $user_id );
+				if ( ! $old_user instanceof \WP_User ) {
+					$errors['display_name'] = __( 'Could not load your profile.', 'clanbite' );
+				} else {
+					global $wpdb;
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Single-field update to `display_name` for the authenticated profile owner; fires `profile_update` below (not `wp_login` / session APIs).
+					$updated = $wpdb->update(
+						$wpdb->users,
+						array( 'display_name' => $display_name ),
+						array( 'ID' => $user_id ),
+						array( '%s' ),
+						array( '%d' )
+					);
+					if ( false === $updated ) {
+						$errors['display_name'] = __( 'Could not update profile name.', 'clanbite' );
+					} else {
+						clean_user_cache( $user_id );
+						/** This action is documented in wp-includes/user.php */
+						do_action( 'profile_update', $user_id, $old_user, array( 'ID' => $user_id, 'display_name' => $display_name ) );
+					}
+				}
 			} else {
 				$errors['display_name'] = $display_name->get_error_message();
 			}

@@ -18,19 +18,19 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>' );
 	return;
 }
 
 $post = get_post( $team_id );
-if ( ! $post || 'cp_team' !== $post->post_type ) {
+if ( ! $post || 'clanbite_team' !== $post->post_type ) {
 	$wrapper = get_block_wrapper_attributes(
 		array(
 			'class' => 'clanbite-team-description clanbite-team-description--placeholder',
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>' );
 	return;
 }
 
@@ -42,7 +42,7 @@ if ( '' === trim( $content ) ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content"><p>' . esc_html__( 'No description yet.', 'clanbite' ) . '</p></div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content"><p>' . esc_html__( 'No description yet.', 'clanbite' ) . '</p></div></div>' );
 	return;
 }
 
@@ -56,4 +56,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content">' . $html . '</div></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes; $html from the_content filter.
+echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content">' . $html . '</div></div>' );

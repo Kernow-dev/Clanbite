@@ -8,7 +8,7 @@
 	"icon": "groups",
 	"description": "Displays the number of roster members (excluding banned).",
 	"textdomain": "clanbite",
-	"postTypes": [ "cp_team" ],
+	"postTypes": [ "clanbite_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"attributes": {
 		"label": {

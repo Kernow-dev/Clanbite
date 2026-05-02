@@ -8,7 +8,7 @@
 	"icon": "text-page",
 	"description": "Displays the team description (post content).",
 	"textdomain": "clanbite",
-	"postTypes": [ "cp_team" ],
+	"postTypes": [ "clanbite_team" ],
 	"usesContext": [ "postId", "postType" ],
 	"supports": {
 		"spacing": {

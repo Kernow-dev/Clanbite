@@ -41,7 +41,7 @@ function clanbite_private_media_mark_team_attachment( $meta_id, $object_id, $met
 	if ( ! in_array( $meta_key, array( 'cp_team_avatar_id', 'cp_team_cover_id' ), true ) ) {
 		return;
 	}
-	if ( 'cp_team' !== get_post_type( (int) $object_id ) ) {
+	if ( 'clanbite_team' !== get_post_type( (int) $object_id ) ) {
 		return;
 	}
 	$aid = absint( $meta_value );
@@ -150,17 +150,22 @@ function clanbite_private_media_filter_upload_admin_list( $query ): void {
  * @return int|\WP_Error Attachment ID or error.
  */
 function clanbite_handle_isolated_image_upload( string $files_key, int $post_parent, string $subdir, string $filename_base ) {
-	require_once ABSPATH . 'wp-admin/includes/file.php';
-	require_once ABSPATH . 'wp-admin/includes/media.php';
-	require_once ABSPATH . 'wp-admin/includes/image.php';
+	clanbite_require_wp_admin_media_includes();
 
-	// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` / `media_handle_upload()`; callers verify auth and nonces.
+	// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` normalized before `media_handle_upload()`; callers verify auth and nonces.
 	try {
-		if ( empty( $_FILES[ $files_key ] ) ) {
+		if ( empty( $_FILES[ $files_key ] ) || ! is_array( $_FILES[ $files_key ] ) ) {
 			return new \WP_Error( 'clanbite_no_file', __( 'No file was uploaded.', 'clanbite' ) );
 		}
 
-		$file = $_FILES[ $files_key ];
+		$file = clanbite_sanitize_files_array_entry( wp_unslash( $_FILES[ $files_key ] ) );
+		if ( null === $file ) {
+			return new \WP_Error( 'clanbite_no_file', __( 'No file was uploaded.', 'clanbite' ) );
+		}
+
+		// `media_handle_upload()` reads `$_FILES[ $field ]`; replace with the sanitized row.
+		$_FILES[ $files_key ] = $file;
+
 		if ( ! empty( $file['error'] ) && UPLOAD_ERR_OK !== (int) $file['error'] ) {
 			return new \WP_Error( 'clanbite_upload_err', __( 'File upload failed.', 'clanbite' ) );
 		}

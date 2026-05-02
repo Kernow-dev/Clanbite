@@ -18,7 +18,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><span class="clanbite-country-display__label">' . esc_html__( 'Team country', 'clanbite' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span class="clanbite-country-display__label">' . esc_html__( 'Team country', 'clanbite' ) . '</span></div>' );
 	return;
 }
 
@@ -41,7 +41,7 @@ if ( ! function_exists( 'clanbite_country_block_inner_html' ) ) {
 	} else {
 		$inner = '<span class="clanbite-country-display__label">' . esc_html( $label ) . '</span>';
 	}
-	echo '<div ' . $wrapper_attributes . '>' . $inner . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $wrapper_attributes from get_block_wrapper_attributes(); $inner escaped.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '>' . $inner . '</div>' );
 	return;
 }
 
@@ -62,4 +62,4 @@ if ( '' === $inner && '' !== $code ) {
 	$inner = '<span class="clanbite-country-display__label">' . esc_html__( '—', 'clanbite' ) . '</span>';
 }
 
-echo '<div ' . $wrapper_attributes . '>' . $inner . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $wrapper_attributes from get_block_wrapper_attributes(); $inner built via esc_html / filters.
+echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '>' . $inner . '</div>' );

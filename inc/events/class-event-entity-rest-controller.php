@@ -933,7 +933,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 				return '';
 			}
 			$team_post = get_post( $team_id );
-			if ( ! ( $team_post instanceof \WP_Post ) || 'cp_team' !== $team_post->post_type ) {
+			if ( ! ( $team_post instanceof \WP_Post ) || 'clanbite_team' !== $team_post->post_type ) {
 				return '';
 			}
 			$slug = $team_post->post_name;

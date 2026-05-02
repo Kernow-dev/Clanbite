@@ -18,7 +18,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper . '><span>' . esc_html__( 'Wins', 'clanbite' ) . '</span></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><span>' . esc_html__( 'Wins', 'clanbite' ) . '</span></div>' );
 	return;
 }
 
@@ -46,4 +46,4 @@ if ( '' !== $postfix_plain ) {
 	$parts[] = '<span class="clanbite-team-stat__postfix">' . wp_kses_post( $postfix_raw ) . '</span>';
 }
 
-echo '<div ' . $wrapper_attributes . '>' . implode( '', $parts ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+echo clanbite_esc_block_fragment_html( '<div ' . $wrapper_attributes . '>' . implode( '', $parts ) . '</div>' );

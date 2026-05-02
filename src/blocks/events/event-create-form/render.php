@@ -46,7 +46,7 @@ if ( $is_edit ) {
 	}
 	if ( ! Event_Permissions::user_can_manage_event( $edit_event_id, $viewer_id ) ) {
 		$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-create-form clanbite-event-create-form--locked' ), $block );
-		echo '<div ' . $wrapper . '><p>' . esc_html__( 'You cannot edit this event.', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+		echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'You cannot edit this event.', 'clanbite' ) . '</p></div>' );
 		return;
 	}
 
@@ -132,7 +132,7 @@ if ( $is_edit ) {
 
 	if ( ! $can ) {
 		$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-create-form clanbite-event-create-form--locked' ), $block );
-		echo '<div ' . $wrapper . '><p>' . esc_html__( 'Only team or group managers can create events.', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+		echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'Only team or group managers can create events.', 'clanbite' ) . '</p></div>' );
 		return;
 	}
 }
@@ -173,8 +173,9 @@ if ( $is_edit ) {
 }
 $wrapper = get_block_wrapper_attributes( array( 'class' => implode( ' ', $wrapper_classes ) ), $block );
 ?>
+<?php ob_start(); ?>
 <div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
+	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
 	data-wp-interactive="clanbite-event-create-form"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
 	data-wp-init="callbacks.init"
@@ -358,3 +359,4 @@ $wrapper = get_block_wrapper_attributes( array( 'class' => implode( ' ', $wrappe
 		</p>
 	</div>
 </div>
+<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>

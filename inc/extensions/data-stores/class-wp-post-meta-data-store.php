@@ -99,17 +99,22 @@ abstract class WP_Post_Meta_Data_Store {
 		global $wpdb;
 		$db = $this->get_db_info();
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table/column names from trusted get_db_info().
-		$sql = $wpdb->prepare(
-			"SELECT {$db['meta_id_field']} AS meta_id, meta_key, meta_value
-			FROM {$db['table']}
-			WHERE {$db['object_id_field']} = %d
-			ORDER BY {$db['meta_id_field']}",
-			$object_id
-		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$trusted = self::trusted_meta_sql_identifiers( $db );
+		if ( null === $trusted ) {
+			return array();
+		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- $sql is from $wpdb->prepare(); meta table has no dedicated WP API for bulk raw rows.
+		// Identifiers are allow-listed; object_id is the only variable bound via prepare().
+		$query = sprintf(
+			'SELECT `%1$s` AS meta_id, meta_key, meta_value FROM `%2$s` WHERE `%3$s` = %%d ORDER BY `%1$s`',
+			$trusted['meta_id_field'],
+			$trusted['table'],
+			$trusted['object_id_field']
+		);
+
+		$sql = $wpdb->prepare( $query, $object_id );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- $sql from $wpdb->prepare(); no bulk raw-meta API in core.
 		$rows = $wpdb->get_results( $sql );
 		if ( ! is_array( $rows ) ) {
 			return array();
@@ -232,5 +237,33 @@ abstract class WP_Post_Meta_Data_Store {
 		}
 
 		return $props_to_update;
+	}
+
+	/**
+	 * Allow only core meta tables and known ID columns (identifiers cannot use prepare() placeholders).
+	 *
+	 * @param array{table: string, object_id_field: string, meta_id_field: string} $db Output of get_db_info().
+	 * @return array{table: string, object_id_field: string, meta_id_field: string}|null
+	 */
+	private static function trusted_meta_sql_identifiers( array $db ): ?array {
+		global $wpdb;
+
+		$allowed_tables = array( $wpdb->postmeta, $wpdb->usermeta );
+		if ( ! in_array( $db['table'], $allowed_tables, true ) ) {
+			return null;
+		}
+
+		$allowed_meta_id = array( 'meta_id', 'umeta_id' );
+		$allowed_object  = array( 'post_id', 'user_id' );
+		if ( ! in_array( $db['meta_id_field'], $allowed_meta_id, true )
+			|| ! in_array( $db['object_id_field'], $allowed_object, true ) ) {
+			return null;
+		}
+
+		return array(
+			'table'           => $db['table'],
+			'object_id_field' => $db['object_id_field'],
+			'meta_id_field'   => $db['meta_id_field'],
+		);
 	}
 }

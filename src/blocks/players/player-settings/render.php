@@ -17,9 +17,10 @@ defined( 'ABSPATH' ) || exit;
 ?>
 <?php
 $nav_items = (array) apply_filters( 'clanbite_players_settings_nav_items', array() );
+ob_start();
 ?>
 <div
-	<?php echo get_block_wrapper_attributes( array(), $block ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
+	<?php echo get_block_wrapper_attributes( array(), $block ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
 	data-wp-interactive="clanbite-player-settings"
 	data-wp-init="callbacks.init"
 >
@@ -122,3 +123,4 @@ $nav_items = (array) apply_filters( 'clanbite_players_settings_nav_items', array
 		</div>
 	</div>
 </div>
+<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>

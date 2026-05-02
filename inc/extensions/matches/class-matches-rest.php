@@ -131,7 +131,7 @@ class Rest_Controller {
 
 		// phpcs:disable WordPress.DB.SlowDBQuery -- REST list sorts by scheduled datetime; `meta_query` filters by team/status.
 		$args = array(
-			'post_type'      => 'cp_match',
+			'post_type'      => 'clanbite_match',
 			'post_status'    => array( 'publish' ),
 			'posts_per_page' => $per_page,
 			'paged'          => $page,
@@ -230,7 +230,7 @@ class Rest_Controller {
 	public function get_match( WP_REST_Request $request ) {
 		$id   = (int) $request->get_param( 'id' );
 		$post = get_post( $id );
-		if ( ! $post || 'cp_match' !== $post->post_type ) {
+		if ( ! $post || 'clanbite_match' !== $post->post_type ) {
 			return new \WP_Error(
 				'clanbite_match_not_found',
 				__( 'Match not found.', 'clanbite' ),

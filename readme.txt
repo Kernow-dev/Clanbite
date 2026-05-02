@@ -1,4 +1,4 @@
-=== Clanbite ===
+=== Clanbite: Team Management System ===
 Contributors: kernowdev
 Tags: community, teams, esports, gaming
 Requires at least: 6.7
@@ -25,7 +25,17 @@ The plugin follows modern WordPress APIs (blocks, REST where used, block themes)
 
 == External services ==
 
-* **Gravatar (Automattic):** In-site notifications can show an actor portrait using WordPress `get_avatar_url()`, which may resolve to Gravatar when the user has no local Clanbite player avatar. The visitor's browser loads that image URL (standard `<img>` request). No passwords are transmitted to Gravatar. Terms: https://automattic.com/terms/ — Privacy: https://automattic.com/privacy/
+* **Gravatar (Automattic):** In-site notifications can show an actor portrait using WordPress `get_avatar_url()`, which may resolve to Gravatar when the user has no local Clanbite player avatar. The visitor's browser loads that image URL (standard `<img>` request). No passwords are transmitted to Gravatar. Terms: https://wordpress.com/tos/ — Privacy: https://automattic.com/privacy/
+
+== Source code ==
+
+JavaScript and CSS distributed with this plugin (for example under the `build/` directory) are **compiled** from human-readable sources. The WordPress.org download does not include those development sources, to keep the install package smaller.
+
+The full, reviewable source—including block sources, the admin settings bundle, and build configuration—is maintained in this public repository:
+
+* https://github.com/Kernow-dev/Clanbite
+
+In that repository, non-compiled code lives mainly under `src/blocks/` (Gutenberg blocks and front-end assets), `src/admin/` (unified admin UI), and `src/cp-match-editor/` (match document sidebar). See the `package.json` file there for npm dependencies and scripts used to produce the production assets (`npm ci`, `npm run build`).
 
 == Installation ==
 

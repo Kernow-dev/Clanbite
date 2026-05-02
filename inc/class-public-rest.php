@@ -151,7 +151,7 @@ final class Public_Rest {
 		$posts = get_posts(
 			array(
 				'name'                   => $slug,
-				'post_type'              => 'cp_team',
+				'post_type'              => 'clanbite_team',
 				'post_status'            => 'publish',
 				'posts_per_page'         => 1,
 				'no_found_rows'          => true,

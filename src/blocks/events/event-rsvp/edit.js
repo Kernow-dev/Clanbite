@@ -16,10 +16,10 @@ export default function Edit( { attributes, setAttributes, context } ) {
 		eventId > 0
 			? eventId
 			: postId > 0 &&
-			  ( ( eventType === 'match' && postType === 'cp_match' ) ||
+			  ( ( eventType === 'match' && postType === 'clanbite_match' ) ||
 					( eventType === 'group' && postType === 'cp_group' ) ||
 					( eventType === 'clanbite_event' &&
-						postType === 'cp_event' ) )
+						postType === 'clanbite_event' ) )
 			? postId
 			: 0;
 

@@ -30,4 +30,4 @@ if ( 0 === (int) ( $attributes['teamId'] ?? 0 ) && $team_qv > 0 ) {
 
 $markup  = $extension->render_list_block_markup( $attributes );
 $wrapper = get_block_wrapper_attributes( array(), $block );
-echo '<div ' . $wrapper . '>' . $markup . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $wrapper from get_block_wrapper_attributes(); inner HTML escaped in Matches::render_list_block_markup().
+echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '>' . $markup . '</div>' );

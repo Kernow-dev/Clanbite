@@ -104,8 +104,9 @@ $wrapper = get_block_wrapper_attributes(
 	$block
 );
 ?>
+<?php ob_start(); ?>
 <div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
+	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
 	data-wp-interactive="clanbite-team-challenge-button"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
 >
@@ -219,3 +220,4 @@ $wrapper = get_block_wrapper_attributes(
 		</div>
 	</div>
 </div>
+<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>

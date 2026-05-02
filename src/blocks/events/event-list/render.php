@@ -35,13 +35,13 @@ if ( $group_id < 1 && 'group' === $scope && function_exists( 'clanbite_group_pro
 
 if ( 'team' === $scope && $team_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-list clanbite-event-list--placeholder' ), $block );
-	echo '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>' );
 	return;
 }
 
 if ( 'group' === $scope && $group_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-list clanbite-event-list--placeholder' ), $block );
-	echo '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
+	echo clanbite_esc_block_fragment_html( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>' );
 	return;
 }
 
@@ -113,8 +113,9 @@ $wrapper = get_block_wrapper_attributes(
 	$block
 );
 ?>
+<?php ob_start(); ?>
 <div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
+	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() before output. ?>
 	data-wp-interactive="clanbite-event-list"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
 	data-wp-init="callbacks.init"
@@ -129,7 +130,7 @@ $wrapper = get_block_wrapper_attributes(
 	</div>
 	<p class="clanbite-event-list__loading" hidden data-wp-bind--hidden="!state.isLoading()" aria-live="polite"><?php echo esc_html( $config['i18n']['loading'] ); ?></p>
 	<p class="clanbite-event-list__error" hidden data-wp-bind--hidden="!state.errorMessage" data-wp-text="state.errorMessage" role="alert"></p>
-	<ul class="clanbite-event-list"><?php echo $list_ssr_hydrated ? $list_ssr_rows : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- rows built with esc_html/esc_url in clanbite_events_render_event_list_rows_html(). ?></ul>
+	<ul class="clanbite-event-list"><?php echo $list_ssr_hydrated ? $list_ssr_rows : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; SSR rows built with esc_html/esc_url in clanbite_events_render_event_list_rows_html(). ?></ul>
 	<nav class="clanbite-event-list__pagination" data-wp-bind--hidden="!state.showPagination()" aria-label="<?php esc_attr_e( 'Events pagination', 'clanbite' ); ?>"<?php echo $cp_event_list_hide_pagination ? ' hidden' : ''; ?>>
 		<button type="button" class="clanbite-event-list__page-btn" data-wp-on--click="actions.prevPage" data-wp-bind--disabled="state.isFirstPage()">
 			<?php echo esc_html( $config['i18n']['prev'] ); ?>
@@ -142,3 +143,4 @@ $wrapper = get_block_wrapper_attributes(
 		</button>
 	</nav>
 </div>
+<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>

@@ -17,7 +17,7 @@ const STATUS_OPTIONS = [
 ];
 
 function MatchMetaFields() {
-	const [ meta, setMeta ] = useEntityProp( 'postType', 'cp_match', 'meta' );
+	const [ meta, setMeta ] = useEntityProp( 'postType', 'clanbite_match', 'meta' );
 
 	const patch = ( key, value ) => {
 		setMeta( { ...meta, [ key ]: value } );
@@ -123,7 +123,7 @@ function MatchDocumentPanel() {
 		[]
 	);
 
-	if ( postType !== 'cp_match' ) {
+	if ( postType !== 'clanbite_match' ) {
 		return null;
 	}
 

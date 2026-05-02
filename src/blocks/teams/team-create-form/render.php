@@ -16,9 +16,9 @@ if ( 'team_directories' !== clanbite_teams_get_team_mode() ) {
 		),
 		$block
 	);
-	echo '<div ' . $wrapper_attributes . '><p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes.
-	echo esc_html__( 'Team creation is only available when Teams is set to "team directories" mode.', 'clanbite' );
-	echo '</p></div>';
+	echo clanbite_esc_block_fragment_html(
+		'<div ' . $wrapper_attributes . '><p>' . esc_html__( 'Team creation is only available when Teams is set to "team directories" mode.', 'clanbite' ) . '</p></div>'
+	);
 	return;
 }
 
@@ -28,9 +28,13 @@ if ( ! is_user_logged_in() ) {
 }
 
 $wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'clanbite-team-create-form' ), $block );
-// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Display-only query args after create redirect; values are `sanitize_key()`-ed.
-$status      = sanitize_key( (string) ( $_GET['clanbite_team_status'] ?? '' ) );
-$status_code = sanitize_key( (string) ( $_GET['clanbite_team_code'] ?? '' ) );
+// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Flash notice query args added by `redirect_after_team_create()` together with `_clanbite_team_notice` nonce.
+$notice_nonce = isset( $_GET['_clanbite_team_notice'] )
+	? sanitize_text_field( wp_unslash( (string) $_GET['_clanbite_team_notice'] ) )
+	: '';
+$notice_ok    = '' !== $notice_nonce && wp_verify_nonce( $notice_nonce, 'clanbite_team_create_notice' );
+$status       = $notice_ok ? sanitize_key( (string) ( $_GET['clanbite_team_status'] ?? '' ) ) : '';
+$status_code  = $notice_ok ? sanitize_key( (string) ( $_GET['clanbite_team_code'] ?? '' ) ) : '';
 // phpcs:enable WordPress.Security.NonceVerification.Recommended
 $steps = array(
 	'basic_details' => array(
@@ -72,8 +76,9 @@ $context             = array(
 	'inviteSearchNonce' => wp_create_nonce( 'clanbite_team_invite_search' ),
 );
 ?>
+<?php ob_start(); ?>
 <div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns escaped HTML attributes. ?>
+	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via clanbite_esc_block_fragment_html() after markup. ?>
 	data-wp-interactive="clanbite-team-create-form"
 	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
 	data-wp-init="callbacks.init"
@@ -287,3 +292,4 @@ $context             = array(
 	</form>
 	<?php do_action( 'clanbite_after_team_create_form' ); ?>
 </div>
+<?php echo clanbite_esc_block_fragment_html( (string) ob_get_clean() ); ?>

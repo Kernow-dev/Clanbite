@@ -31,7 +31,7 @@
 	function useTeamMeta() {
 		const [ rawMeta, setMeta ] = useEntityProp(
 			'postType',
-			'cp_team',
+			'clanbite_team',
 			'meta'
 		);
 		const meta = rawMeta && typeof rawMeta === 'object' ? rawMeta : {};
@@ -565,7 +565,7 @@
 			return select( 'core/editor' ).getCurrentPostType();
 		}, [] );
 
-		if ( 'cp_team' !== postType ) {
+		if ( 'clanbite_team' !== postType ) {
 			return null;
 		}
 

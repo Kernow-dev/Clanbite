@@ -26,7 +26,7 @@ final class Event_Rsvp_Schema {
 	public static function create_tables(): void {
 		global $wpdb;
 
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		\clanbite_require_wp_admin_upgrade_includes();
 
 		$charset = $wpdb->get_charset_collate();
 		$table   = self::table_name();

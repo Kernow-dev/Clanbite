@@ -84,7 +84,7 @@ class Events extends Skeleton {
 	public function run_uninstaller(): void {
 		$ids = get_posts(
 			array(
-				'post_type'      => 'cp_event',
+				'post_type'      => 'clanbite_event',
 				'post_status'    => 'any',
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
