@@ -1339,6 +1339,7 @@ add_filter( 'clanbite_notification_transport_config', function( $config, $user_i
 | `clanbite.notifications.useWebSocket` | Return true to use WebSocket transport |
 | `clanbite.notifications.webSocketConfig` | Provide WebSocket URL and auth config |
 | `clanbite.notifications.received` | Fired when new notifications arrive |
+| `clanbite.notifications.polled` | Fired after each successful HTTP poll response or WebSocket message, or from extensions after related mutations (e.g. Points click award). Payload always includes `transport` (`http`, `websocket`, or `synthetic`), `response` (poll JSON or null), and `payload` (WebSocket message or null). Extensions may add fields such as `reason`. Use to sync other UI on the same cadence as the bell. |
 | `clanbite.notifications.showToast` | Customize toast notification display |
 
 ### PHP Filters

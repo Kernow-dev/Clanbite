@@ -5,6 +5,11 @@
  * non-blocking polls (one DB read per request); enable long-polling via
  * `clanbite_notification_poll_blocking_wait` if desired. Third-party plugins can provide
  * WebSocket transport via the 'sync.providers' filter (same pattern as WP 7.0 RTC).
+ *
+ * After each successful poll (or WebSocket payload), fires `clanbite.notifications.polled` on
+ * `wp.hooks` so other UI (e.g. rank progress bars) can sync on the same cadence—not only when
+ * `clanbite.notifications.received` runs (new items only). Payload shape is normalized: always
+ * includes `transport`, `response` (HTTP poll JSON or null), and `payload` (WebSocket message or null).
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
@@ -806,6 +811,11 @@ function startPolling( ctx ) {
 			ctx.unreadCount = response.unread_count ?? ctx.unreadCount;
 			ctx.lastTimestamp = response.timestamp;
 			ctx.pollInterval = response.next_poll || 4000;
+
+			window.wp?.hooks?.doAction?.(
+				'clanbite.notifications.polled',
+				notificationsPolledDetail( 'http', response, null )
+			);
 		} catch ( error ) {
 			// Increase interval on error.
 			ctx.pollInterval = Math.min( ctx.pollInterval * 2, 30000 );
@@ -818,6 +828,23 @@ function startPolling( ctx ) {
 
 	// Start polling immediately.
 	poll();
+}
+
+/**
+ * Build the object passed to `clanbite.notifications.polled` so consumers can read `response`
+ * and `payload` uniformly (`null` when not applicable for that transport).
+ *
+ * @param {string}      transport `http`, `websocket`, or (when mirrored by extensions) `synthetic`.
+ * @param {Object|null} response  Poll REST JSON when `transport === 'http'`, else null.
+ * @param {Object|null} payload   WebSocket message when `transport === 'websocket'`, else null.
+ * @return {{ transport: string, response: Object|null, payload: Object|null }} Detail object.
+ */
+function notificationsPolledDetail( transport, response, payload ) {
+	return {
+		transport,
+		response: response ?? null,
+		payload: payload ?? null,
+	};
 }
 
 /**
@@ -835,25 +862,37 @@ function initSyncProvider( ctx ) {
 
 	try {
 		provider.subscribe( 'clanbite.notifications', ( data ) => {
-			if ( data.type === 'notification' && data.notification ) {
-				ctx.notifications = [
-					data.notification,
-					...( ctx.notifications || [] ),
-				].slice( 0, ctx.dropdownCount );
+			try {
+				if ( data.type === 'notification' && data.notification ) {
+					ctx.notifications = [
+						data.notification,
+						...( ctx.notifications || [] ),
+					].slice( 0, ctx.dropdownCount );
 
-				ctx.unreadCount = data.unread_count || ctx.unreadCount + 1;
-				ctx.lastId = data.notification.id;
+					ctx.unreadCount = data.unread_count || ctx.unreadCount + 1;
+					ctx.lastId = data.notification.id;
 
-				if ( ctx.isOpen && ctx._ref ) {
-					renderNotificationsList( ctx, ctx._ref );
+					if ( ctx.isOpen && ctx._ref ) {
+						renderNotificationsList( ctx, ctx._ref );
+					}
+
+					window.wp?.hooks?.doAction?.(
+						'clanbite.notifications.received',
+						[ data.notification ]
+					);
+				} else if ( data.type === 'count' ) {
+					ctx.unreadCount = data.unread_count || 0;
 				}
-
-				window.wp?.hooks?.doAction?.(
-					'clanbite.notifications.received',
-					[ data.notification ]
+			} catch ( handlerError ) {
+				console.error(
+					'Clanbite notification bell: WebSocket message handler error',
+					handlerError
 				);
-			} else if ( data.type === 'count' ) {
-				ctx.unreadCount = data.unread_count || 0;
+			} finally {
+				window.wp?.hooks?.doAction?.(
+					'clanbite.notifications.polled',
+					notificationsPolledDetail( 'websocket', null, data )
+				);
 			}
 		} );
 
