@@ -443,6 +443,10 @@ function clanbite_player_user_id_from_canonical_request_path(): int {
 /**
  * User ID for player profile header/nav (author archive, `/players/settings/`, or canonical `/players/{nicename}/`).
  *
+ * Canonical path is resolved before trusting `get_queried_object()` as a `WP_User`, so unrelated templates
+ * that leave a user on the main query do not resolve as a player profile (e.g. social feed blocks in
+ * `home` mode on non-profile URLs).
+ *
  * @return int
  */
 function clanbite_player_profile_context_user_id(): int {
@@ -452,13 +456,20 @@ function clanbite_player_profile_context_user_id(): int {
 		return $uid > 0 ? $uid : 0;
 	}
 
-	if ( get_queried_object() instanceof \WP_User ) {
-		return (int) get_queried_object()->ID;
+	$from_path = clanbite_player_user_id_from_canonical_request_path();
+	if ( $from_path > 0 ) {
+		return $from_path;
 	}
 
-	$from_path = clanbite_player_user_id_from_canonical_request_path();
+	$obj = get_queried_object();
+	if ( $obj instanceof \WP_User ) {
+		$uid = (int) $obj->ID;
+		if ( $uid > 0 && is_author() ) {
+			return $uid;
+		}
+	}
 
-	return $from_path > 0 ? $from_path : 0;
+	return 0;
 }
 
 /**
