@@ -8,7 +8,8 @@
  *
  * After each successful poll (or WebSocket payload), fires `clanbite.notifications.polled` on
  * `wp.hooks` so other UI (e.g. rank progress bars) can sync on the same cadence—not only when
- * `clanbite.notifications.received` runs (new items only).
+ * `clanbite.notifications.received` runs (new items only). Payload shape is normalized: always
+ * includes `transport`, `response` (HTTP poll JSON or null), and `payload` (WebSocket message or null).
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
@@ -813,10 +814,7 @@ function startPolling( ctx ) {
 
 			window.wp?.hooks?.doAction?.(
 				'clanbite.notifications.polled',
-				{
-					transport: 'http',
-					response,
-				}
+				notificationsPolledDetail( 'http', response, null )
 			);
 		} catch ( error ) {
 			// Increase interval on error.
@@ -830,6 +828,23 @@ function startPolling( ctx ) {
 
 	// Start polling immediately.
 	poll();
+}
+
+/**
+ * Build the object passed to `clanbite.notifications.polled` so consumers can read `response`
+ * and `payload` uniformly (`null` when not applicable for that transport).
+ *
+ * @param {string}      transport `http`, `websocket`, or (when mirrored by extensions) `synthetic`.
+ * @param {Object|null} response  Poll REST JSON when `transport === 'http'`, else null.
+ * @param {Object|null} payload   WebSocket message when `transport === 'websocket'`, else null.
+ * @return {{ transport: string, response: Object|null, payload: Object|null }} Detail object.
+ */
+function notificationsPolledDetail( transport, response, payload ) {
+	return {
+		transport,
+		response: response ?? null,
+		payload: payload ?? null,
+	};
 }
 
 /**
@@ -868,13 +883,15 @@ function initSyncProvider( ctx ) {
 				} else if ( data.type === 'count' ) {
 					ctx.unreadCount = data.unread_count || 0;
 				}
+			} catch ( handlerError ) {
+				console.error(
+					'Clanbite notification bell: WebSocket message handler error',
+					handlerError
+				);
 			} finally {
 				window.wp?.hooks?.doAction?.(
 					'clanbite.notifications.polled',
-					{
-						transport: 'websocket',
-						payload: data,
-					}
+					notificationsPolledDetail( 'websocket', null, data )
 				);
 			}
 		} );
