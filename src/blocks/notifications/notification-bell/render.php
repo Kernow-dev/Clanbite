@@ -55,18 +55,20 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 $dropdown_id = wp_unique_id( 'clanbite-notification-bell-dropdown-' );
+
+$notification_bell_root_open = '<div '
+	. trim( (string) $wrapper_attributes )
+	. ' data-wp-interactive="clanbite/notification-bell"'
+	. ' data-wp-context="' . esc_attr( wp_json_encode( $context ) ) . '"'
+	. ' data-wp-init="callbacks.init"'
+	. ' data-wp-on-document--click="actions.handleOutsideClick"'
+	. ' data-wp-on-document--keydown="actions.handleKeydown"'
+	. ' data-wp-class--is-open="context.isOpen"'
+	. ' data-wp-class--has-unread="context.unreadCount"'
+	. '>';
 ?>
 <?php ob_start(); ?>
-<div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
-	data-wp-interactive="clanbite/notification-bell"
-	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
-	data-wp-init="callbacks.init"
-	data-wp-on-document--click="actions.handleOutsideClick"
-	data-wp-on-document--keydown="actions.handleKeydown"
-	data-wp-class--is-open="context.isOpen"
-	data-wp-class--has-unread="context.unreadCount"
->
+<?php echo clanbite_esc_block_fragment_html( $notification_bell_root_open ); ?>
 	<button
 		type="button"
 		class="clanbite-notification-bell__trigger"
@@ -133,7 +135,7 @@ $dropdown_id = wp_unique_id( 'clanbite-notification-bell-dropdown-' );
 						</p>
 					<?php else : ?>
 						<?php foreach ( $notifications as $notification ) : ?>
-							<?php echo clanbite_render_notification( $notification, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
+							<?php echo wp_kses( clanbite_render_notification( $notification, true ), clanbite_notification_allowed_html() ); ?>
 						<?php endforeach; ?>
 					<?php endif; ?>
 				</div>

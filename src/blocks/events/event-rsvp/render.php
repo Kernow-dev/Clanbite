@@ -92,14 +92,16 @@ $wrapper = get_block_wrapper_attributes(
 	),
 	$block
 );
+
+$event_rsvp_root_open = '<div '
+	. trim( (string) $wrapper )
+	. ' data-wp-interactive="clanbite-event-rsvp"'
+	. ' data-wp-context="' . esc_attr( wp_json_encode( $config ) ) . '"'
+	. ' data-wp-init="callbacks.init"'
+	. '>';
 ?>
 <?php ob_start(); ?>
-<div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
-	data-wp-interactive="clanbite-event-rsvp"
-	data-wp-context="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
-	data-wp-init="callbacks.init"
->
+<?php echo clanbite_esc_block_fragment_html( $event_rsvp_root_open ); ?>
 	<div class="clanbite-event-rsvp__actions">
 		<?php if ( is_user_logged_in() ) : ?>
 			<div class="clanbite-event-rsvp__buttons" role="group" aria-label="<?php esc_attr_e( 'RSVP', 'clanbite' ); ?>">

@@ -84,7 +84,7 @@ $wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detai
 
 ob_start();
 ?>
-<div <?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; fragment escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after capture. ?>>
+<?php echo clanbite_esc_block_fragment_html( '<div ' . trim( (string) $wrapper ) . '>' ); ?>
 	<h1 class="clanbite-event-detail__title"><?php echo esc_html( get_the_title( $post ) ); ?></h1>
 	<?php if ( $start_label ) : ?>
 	<p class="clanbite-event-detail__meta">
@@ -98,7 +98,7 @@ ob_start();
 	</p>
 	<?php endif; ?>
 	<div class="clanbite-event-detail__content entry-content">
-		<?php echo apply_filters( 'the_content', $post->post_content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after capture. ?>
+		<?php echo wp_kses_post( apply_filters( 'the_content', $post->post_content ) ); ?>
 	</div>
 	<?php if ( Event_Post_Type::MODE_VIRTUAL === $mode ) : ?>
 		<h2 class="clanbite-event-detail__section-title"><?php esc_html_e( 'Virtual', 'clanbite' ); ?></h2>
@@ -136,16 +136,17 @@ ob_start();
 			<summary class="clanbite-event-detail__edit-summary"><?php esc_html_e( 'Edit this event', 'clanbite' ); ?></summary>
 			<div class="clanbite-event-detail__edit-panel-inner">
 				<?php
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after capture.
-				echo render_block(
-					array(
-						'blockName' => 'clanbite/event-create-form',
-						'attrs'     => array(
-							'scopeType' => Event_Post_Type::SCOPE_TEAM === $scope_ev ? 'team' : 'group',
-							'teamId'    => $tid,
-							'groupId'   => $gid,
-							'eventId'   => $event_id,
-						),
+				echo clanbite_esc_block_fragment_html(
+					(string) render_block(
+						array(
+							'blockName' => 'clanbite/event-create-form',
+							'attrs'     => array(
+								'scopeType' => Event_Post_Type::SCOPE_TEAM === $scope_ev ? 'team' : 'group',
+								'teamId'    => $tid,
+								'groupId'   => $gid,
+								'eventId'   => $event_id,
+							),
+						)
 					)
 				);
 				?>

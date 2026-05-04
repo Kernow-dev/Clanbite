@@ -116,16 +116,18 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	),
 	$block
 );
+
+$user_nav_root_open = '<div '
+	. trim( (string) $wrapper_attributes )
+	. ' data-wp-interactive="clanbite/user-nav"'
+	. ' data-wp-context="' . esc_attr( wp_json_encode( $context ) ) . '"'
+	. ' data-wp-on-document--click="actions.handleOutsideClick"'
+	. ' data-wp-on-document--keydown="actions.handleKeydown"'
+	. ' data-wp-class--is-open="context.isOpen"'
+	. '>';
 ?>
 <?php ob_start(); ?>
-<div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered below with wp_kses(, clanbite_block_fragment_allowed_html()). ?>
-	data-wp-interactive="clanbite/user-nav"
-	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
-	data-wp-on-document--click="actions.handleOutsideClick"
-	data-wp-on-document--keydown="actions.handleKeydown"
-	data-wp-class--is-open="context.isOpen"
->
+<?php echo clanbite_esc_block_fragment_html( $user_nav_root_open ); ?>
 	<?php if ( $is_logged_in ) : ?>
 		<button
 			type="button"
@@ -137,7 +139,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 			data-wp-on--click="actions.toggleDropdown"
 			data-wp-bind--aria-expanded="context.isOpen"
 		>
-			<?php echo $avatar_trigger; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after template. ?>
+			<?php echo clanbite_esc_block_fragment_html( (string) $avatar_trigger ); ?>
 			<?php if ( $show_username ) : ?>
 				<span class="clanbite-user-nav__username"><?php echo esc_html( $display_name ); ?></span>
 			<?php endif; ?>
@@ -164,7 +166,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		>
 			<div class="clanbite-user-nav__dropdown-header">
 				<a href="<?php echo esc_url( $profile_url ); ?>" class="clanbite-user-nav__profile-link">
-					<?php echo $avatar_dropdown; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after template. ?>
+					<?php echo clanbite_esc_block_fragment_html( (string) $avatar_dropdown ); ?>
 					<div class="clanbite-user-nav__profile-info">
 						<span class="clanbite-user-nav__profile-name"><?php echo esc_html( $display_name ); ?></span>
 						<span class="clanbite-user-nav__profile-label"><?php esc_html_e( 'View Profile', 'clanbite' ); ?></span>

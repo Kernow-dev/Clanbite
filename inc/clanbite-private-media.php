@@ -143,92 +143,95 @@ function clanbite_private_media_filter_upload_admin_list( $query ): void {
  * Marks the attachment so it stays out of the Media Library UI. Direct REST fetch by ID
  * (e.g. block editor preview) still works.
  *
- * @param string $files_key   Key in $_FILES (e.g. team_avatar).
- * @param int    $post_parent Attachment parent post ID (0 for not linked).
- * @param string $subdir      Path under uploads, e.g. clanbite/teams/12 (no leading/trailing slashes).
- * @param string $filename_base Filename without extension, e.g. avatar or cover.
+ * @param string $files_key          Key in $_FILES (e.g. team_avatar).
+ * @param int    $post_parent        Attachment parent post ID (0 for not linked).
+ * @param string $subdir             Path under uploads, e.g. clanbite/teams/12 (no leading/trailing slashes).
+ * @param string $filename_base      Filename without extension, e.g. avatar or cover.
+ * @param string $nonce_action       Nonce action string (same as {@see wp_create_nonce()}).
+ * @param string $nonce_request_key  Key in `$_POST` / `$_REQUEST` holding the nonce value.
  * @return int|\WP_Error Attachment ID or error.
  */
-function clanbite_handle_isolated_image_upload( string $files_key, int $post_parent, string $subdir, string $filename_base ) {
+function clanbite_handle_isolated_image_upload( string $files_key, int $post_parent, string $subdir, string $filename_base, string $nonce_action, string $nonce_request_key ) {
 	clanbite_require_wp_admin_media_includes();
 
-	// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` normalized before `media_handle_upload()`; callers verify auth and nonces.
-	try {
-		if ( empty( $_FILES[ $files_key ] ) || ! is_array( $_FILES[ $files_key ] ) ) {
-			return new \WP_Error( 'clanbite_no_file', __( 'No file was uploaded.', 'clanbite' ) );
-		}
-
-		$file = clanbite_sanitize_files_array_entry( wp_unslash( $_FILES[ $files_key ] ) );
-		if ( null === $file ) {
-			return new \WP_Error( 'clanbite_no_file', __( 'No file was uploaded.', 'clanbite' ) );
-		}
-
-		// `media_handle_upload()` reads `$_FILES[ $field ]`; replace with the sanitized row.
-		$_FILES[ $files_key ] = $file;
-
-		if ( ! empty( $file['error'] ) && UPLOAD_ERR_OK !== (int) $file['error'] ) {
-			return new \WP_Error( 'clanbite_upload_err', __( 'File upload failed.', 'clanbite' ) );
-		}
-
-		$subdir = trim( str_replace( '\\', '/', $subdir ), '/' );
-		if ( '' === $subdir ) {
-			return new \WP_Error( 'clanbite_bad_subdir', __( 'Invalid upload path.', 'clanbite' ) );
-		}
-
-		$filename_base = sanitize_file_name( $filename_base );
-		if ( '' === $filename_base ) {
-			return new \WP_Error( 'clanbite_bad_name', __( 'Invalid filename.', 'clanbite' ) );
-		}
-
-		$orig_name = isset( $file['name'] ) ? (string) $file['name'] : '';
-		$ext       = strtolower( (string) pathinfo( $orig_name, PATHINFO_EXTENSION ) );
-		if ( '' === $orig_name ) {
-			return new \WP_Error( 'clanbite_no_name', __( 'Invalid upload.', 'clanbite' ) );
-		}
-		if ( '' === $ext ) {
-			$chk = wp_check_filetype( $orig_name );
-			if ( ! empty( $chk['ext'] ) ) {
-				$ext = strtolower( (string) $chk['ext'] );
-			}
-		}
-
-		if ( '' === $ext ) {
-			return new \WP_Error( 'clanbite_no_ext', __( 'Could not determine file type.', 'clanbite' ) );
-		}
-
-		$final_name = $filename_base . '.' . $ext;
-
-		$upload_dir_cb = static function ( array $dirs ) use ( $subdir ): array {
-			$dirs['subdir'] = '/' . $subdir;
-			$dirs['path']   = $dirs['basedir'] . $dirs['subdir'];
-			$dirs['url']    = $dirs['baseurl'] . $dirs['subdir'];
-			return $dirs;
-		};
-
-		$prefilter_cb = static function ( array $file ) use ( $final_name ): array {
-			$file['name'] = $final_name;
-			return $file;
-		};
-
-		add_filter( 'upload_dir', $upload_dir_cb );
-		add_filter( 'wp_handle_upload_prefilter', $prefilter_cb );
-
-		$attachment_id = media_handle_upload( $files_key, $post_parent );
-
-		remove_filter( 'upload_dir', $upload_dir_cb );
-		remove_filter( 'wp_handle_upload_prefilter', $prefilter_cb );
-
-		if ( is_wp_error( $attachment_id ) ) {
-			return $attachment_id;
-		}
-
-		$attachment_id = (int) $attachment_id;
-		update_post_meta( $attachment_id, CLANBITE_ATTACHMENT_HIDE_FROM_LIBRARY, '1' );
-
-		return $attachment_id;
-	} finally {
-		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing
+	$nonce = clanbite_request_nonce_string( $nonce_request_key );
+	if ( '' === $nonce || ! wp_verify_nonce( $nonce, $nonce_action ) ) {
+		return new \WP_Error( 'clanbite_invalid_nonce', __( 'Invalid security token.', 'clanbite' ) );
 	}
+
+	if ( empty( $_FILES[ $files_key ] ) || ! is_array( $_FILES[ $files_key ] ) ) {
+		return new \WP_Error( 'clanbite_no_file', __( 'No file was uploaded.', 'clanbite' ) );
+	}
+
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- `$_FILES` row normalized by {@see clanbite_sanitize_files_array_entry()} before use.
+	$file = clanbite_sanitize_files_array_entry( wp_unslash( $_FILES[ $files_key ] ) );
+	if ( null === $file ) {
+		return new \WP_Error( 'clanbite_no_file', __( 'No file was uploaded.', 'clanbite' ) );
+	}
+
+	// `media_handle_upload()` reads `$_FILES[ $field ]`; replace with the sanitized row.
+	$_FILES[ $files_key ] = $file;
+
+	if ( ! empty( $file['error'] ) && UPLOAD_ERR_OK !== (int) $file['error'] ) {
+		return new \WP_Error( 'clanbite_upload_err', __( 'File upload failed.', 'clanbite' ) );
+	}
+
+	$subdir = trim( str_replace( '\\', '/', $subdir ), '/' );
+	if ( '' === $subdir ) {
+		return new \WP_Error( 'clanbite_bad_subdir', __( 'Invalid upload path.', 'clanbite' ) );
+	}
+
+	$filename_base = sanitize_file_name( $filename_base );
+	if ( '' === $filename_base ) {
+		return new \WP_Error( 'clanbite_bad_name', __( 'Invalid filename.', 'clanbite' ) );
+	}
+
+	$orig_name = isset( $file['name'] ) ? (string) $file['name'] : '';
+	$ext       = strtolower( (string) pathinfo( $orig_name, PATHINFO_EXTENSION ) );
+	if ( '' === $orig_name ) {
+		return new \WP_Error( 'clanbite_no_name', __( 'Invalid upload.', 'clanbite' ) );
+	}
+	if ( '' === $ext ) {
+		$chk = wp_check_filetype( $orig_name );
+		if ( ! empty( $chk['ext'] ) ) {
+			$ext = strtolower( (string) $chk['ext'] );
+		}
+	}
+
+	if ( '' === $ext ) {
+		return new \WP_Error( 'clanbite_no_ext', __( 'Could not determine file type.', 'clanbite' ) );
+	}
+
+	$final_name = $filename_base . '.' . $ext;
+
+	$upload_dir_cb = static function ( array $dirs ) use ( $subdir ): array {
+		$dirs['subdir'] = '/' . $subdir;
+		$dirs['path']   = $dirs['basedir'] . $dirs['subdir'];
+		$dirs['url']    = $dirs['baseurl'] . $dirs['subdir'];
+		return $dirs;
+	};
+
+	$prefilter_cb = static function ( array $file ) use ( $final_name ): array {
+		$file['name'] = $final_name;
+		return $file;
+	};
+
+	add_filter( 'upload_dir', $upload_dir_cb );
+	add_filter( 'wp_handle_upload_prefilter', $prefilter_cb );
+
+	$attachment_id = media_handle_upload( $files_key, $post_parent );
+
+	remove_filter( 'upload_dir', $upload_dir_cb );
+	remove_filter( 'wp_handle_upload_prefilter', $prefilter_cb );
+
+	if ( is_wp_error( $attachment_id ) ) {
+		return $attachment_id;
+	}
+
+	$attachment_id = (int) $attachment_id;
+	update_post_meta( $attachment_id, CLANBITE_ATTACHMENT_HIDE_FROM_LIBRARY, '1' );
+
+	return $attachment_id;
 }
 
 add_action( 'plugins_loaded', 'clanbite_private_media_bootstrap', 2 );

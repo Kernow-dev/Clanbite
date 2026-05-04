@@ -2116,7 +2116,9 @@ class Players extends Skeleton {
 					'profile_avatar',
 					0,
 					'clanbite/players/' . $user_id,
-					'avatar'
+					'avatar',
+					'clanbite_profile_settings_save_action',
+					'nonce'
 				);
 			} else {
 				$attachment_id = new \WP_Error( 'clanbite_upload_missing', __( 'Upload handler unavailable.', 'clanbite' ) );
@@ -2150,7 +2152,9 @@ class Players extends Skeleton {
 					'profile_cover',
 					0,
 					'clanbite/players/' . $user_id,
-					'cover'
+					'cover',
+					'clanbite_profile_settings_save_action',
+					'nonce'
 				);
 			} else {
 				$attachment_id = new \WP_Error( 'clanbite_upload_missing', __( 'Upload handler unavailable.', 'clanbite' ) );

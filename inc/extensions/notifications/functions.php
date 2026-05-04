@@ -561,8 +561,9 @@ add_action( 'init', 'clanbite_register_player_notifications_page_assets', 20 );
 /**
  * Render a notification for display.
  *
- * Output is escaped in the template, then the {@see 'clanbite_render_notification'} filter runs,
- * then markup is passed through {@see wp_kses()} with {@see clanbite_notification_allowed_html()}.
+ * The {@see 'clanbite_render_notification'} filter runs, then markup is passed through
+ * {@see wp_kses()} with {@see clanbite_notification_allowed_html()} before return. Templates
+ * may echo the same {@see wp_kses()} pair again for late-escaping standards (idempotent).
  *
  * @param object $notification Notification object.
  * @param bool   $compact      Compact mode (for dropdown). Default false.
@@ -741,7 +742,7 @@ function clanbite_render_player_notifications_page_markup(): string {
 		<?php else : ?>
 			<div class="clanbite-notifications-page__list">
 				<?php foreach ( $notifications as $notification ) : ?>
-					<?php echo clanbite_render_notification( $notification ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo wp_kses( clanbite_render_notification( $notification ), clanbite_notification_allowed_html() ); ?>
 				<?php endforeach; ?>
 			</div>
 

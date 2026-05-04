@@ -172,14 +172,16 @@ if ( $is_edit ) {
 	$wrapper_classes[] = 'clanbite-event-create-form--edit';
 }
 $wrapper = get_block_wrapper_attributes( array( 'class' => implode( ' ', $wrapper_classes ) ), $block );
+
+$event_create_form_root_open = '<div '
+	. trim( (string) $wrapper )
+	. ' data-wp-interactive="clanbite-event-create-form"'
+	. ' data-wp-context="' . esc_attr( wp_json_encode( $config ) ) . '"'
+	. ' data-wp-init="callbacks.init"'
+	. '>';
 ?>
 <?php ob_start(); ?>
-<div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
-	data-wp-interactive="clanbite-event-create-form"
-	data-wp-context="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
-	data-wp-init="callbacks.init"
->
+<?php echo clanbite_esc_block_fragment_html( $event_create_form_root_open ); ?>
 	<?php
 	if ( ! $is_edit && 'team' === $scope && 'create' === sanitize_key( (string) get_query_var( 'clanbite_team_events_sub' ) ) && $team_id > 0 && function_exists( 'clanbite_teams_get_team_action_url' ) ) {
 		$cp_back_events = clanbite_teams_get_team_action_url( $team_id, 'events' );

@@ -116,22 +116,22 @@ if ( '' !== $avatar_extra_classes ) {
 
 ob_start();
 ?>
-<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer is passed through wp_kses(, clanbite_block_fragment_allowed_html()) below. ?>>
+<?php echo clanbite_esc_block_fragment_html( '<div ' . trim( (string) $wrapper_attributes ) . '>' ); ?>
 	<div class="<?php echo esc_attr( $avatar_classes ); ?>">
 		<?php if ( $use_avatar_media ) : ?>
 			<div class="clanbite-player-avatar__media">
-				<?php echo $link_open; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
-				<div class="clanbite-player-avatar__clip"><?php echo $clip_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?></div>
-				<?php echo $link_close; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
-				<?php echo $rank_overlay_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
+				<?php echo clanbite_esc_block_fragment_html( (string) $link_open ); ?>
+				<div class="clanbite-player-avatar__clip"><?php echo clanbite_esc_block_fragment_html( (string) $clip_inner ); ?></div>
+				<?php echo clanbite_esc_block_fragment_html( (string) $link_close ); ?>
+				<?php echo clanbite_esc_block_fragment_html( (string) $rank_overlay_html ); ?>
 			</div>
 			<?php if ( '' !== $after_clip ) : ?>
-				<?php echo $after_clip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
+				<?php echo clanbite_esc_block_fragment_html( (string) $after_clip ); ?>
 			<?php endif; ?>
 		<?php else : ?>
-			<div class="clanbite-player-avatar__clip"><?php echo $clip_inner; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?></div>
+			<div class="clanbite-player-avatar__clip"><?php echo clanbite_esc_block_fragment_html( (string) $clip_inner ); ?></div>
 			<?php if ( '' !== $after_clip ) : ?>
-				<?php echo $after_clip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Captured buffer escaped below. ?>
+				<?php echo clanbite_esc_block_fragment_html( (string) $after_clip ); ?>
 			<?php endif; ?>
 		<?php endif; ?>
 	</div>
