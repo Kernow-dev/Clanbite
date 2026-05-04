@@ -83,7 +83,7 @@ $wrapper = get_block_wrapper_attributes(
 );
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( '<nav ' . trim( (string) $wrapper ) . '>' ); ?>
+<?php clanbite_echo_block_fragment_html( '<nav ' . trim( (string) $wrapper ) . '>' ); ?>
 	<ul class="clanbite-team-profile-nav__list">
 		<li class="clanbite-team-profile-nav__item<?php echo empty( $current_slug ) ? ' is-active' : ''; ?>">
 			<a

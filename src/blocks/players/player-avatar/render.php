@@ -116,22 +116,22 @@ if ( '' !== $avatar_extra_classes ) {
 
 ob_start();
 ?>
-<?php echo clanbite_esc_block_fragment_html( '<div ' . trim( (string) $wrapper_attributes ) . '>' ); ?>
+<?php clanbite_echo_block_fragment_html( '<div ' . trim( (string) $wrapper_attributes ) . '>' ); ?>
 	<div class="<?php echo esc_attr( $avatar_classes ); ?>">
 		<?php if ( $use_avatar_media ) : ?>
 			<div class="clanbite-player-avatar__media">
-				<?php echo clanbite_esc_block_fragment_html( (string) $link_open ); ?>
-				<div class="clanbite-player-avatar__clip"><?php echo clanbite_esc_block_fragment_html( (string) $clip_inner ); ?></div>
-				<?php echo clanbite_esc_block_fragment_html( (string) $link_close ); ?>
-				<?php echo clanbite_esc_block_fragment_html( (string) $rank_overlay_html ); ?>
+				<?php clanbite_echo_block_fragment_html( (string) $link_open ); ?>
+				<div class="clanbite-player-avatar__clip"><?php clanbite_echo_block_fragment_html( (string) $clip_inner ); ?></div>
+				<?php clanbite_echo_block_fragment_html( (string) $link_close ); ?>
+				<?php clanbite_echo_block_fragment_html( (string) $rank_overlay_html ); ?>
 			</div>
 			<?php if ( '' !== $after_clip ) : ?>
-				<?php echo clanbite_esc_block_fragment_html( (string) $after_clip ); ?>
+				<?php clanbite_echo_block_fragment_html( (string) $after_clip ); ?>
 			<?php endif; ?>
 		<?php else : ?>
-			<div class="clanbite-player-avatar__clip"><?php echo clanbite_esc_block_fragment_html( (string) $clip_inner ); ?></div>
+			<div class="clanbite-player-avatar__clip"><?php clanbite_echo_block_fragment_html( (string) $clip_inner ); ?></div>
 			<?php if ( '' !== $after_clip ) : ?>
-				<?php echo clanbite_esc_block_fragment_html( (string) $after_clip ); ?>
+				<?php clanbite_echo_block_fragment_html( (string) $after_clip ); ?>
 			<?php endif; ?>
 		<?php endif; ?>
 	</div>

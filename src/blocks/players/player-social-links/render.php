@@ -84,7 +84,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( '<div ' . trim( (string) $wrapper_attributes ) . '>' ); ?>
+<?php clanbite_echo_block_fragment_html( '<div ' . trim( (string) $wrapper_attributes ) . '>' ); ?>
 	<ul class="clanbite-player-social-links" role="list">
 		<?php foreach ( $items as $row ) : ?>
 			<?php
@@ -104,7 +104,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 					rel="noopener noreferrer"
 					aria-label="<?php echo esc_attr( $label ); ?>"
 				>
-					<?php echo clanbite_esc_block_fragment_html( (string) $icon ); ?>
+					<?php clanbite_echo_block_fragment_html( (string) $icon ); ?>
 				</a>
 			</li>
 		<?php endforeach; ?>

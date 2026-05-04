@@ -84,7 +84,7 @@ $wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detai
 
 ob_start();
 ?>
-<?php echo clanbite_esc_block_fragment_html( '<div ' . trim( (string) $wrapper ) . '>' ); ?>
+<?php clanbite_echo_block_fragment_html( '<div ' . trim( (string) $wrapper ) . '>' ); ?>
 	<h1 class="clanbite-event-detail__title"><?php echo esc_html( get_the_title( $post ) ); ?></h1>
 	<?php if ( $start_label ) : ?>
 	<p class="clanbite-event-detail__meta">
@@ -136,7 +136,7 @@ ob_start();
 			<summary class="clanbite-event-detail__edit-summary"><?php esc_html_e( 'Edit this event', 'clanbite' ); ?></summary>
 			<div class="clanbite-event-detail__edit-panel-inner">
 				<?php
-				echo clanbite_esc_block_fragment_html(
+				clanbite_echo_block_fragment_html(
 					(string) render_block(
 						array(
 							'blockName' => 'clanbite/event-create-form',

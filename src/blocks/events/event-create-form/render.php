@@ -181,7 +181,7 @@ $event_create_form_root_open = '<div '
 	. '>';
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( $event_create_form_root_open ); ?>
+<?php clanbite_echo_block_fragment_html( $event_create_form_root_open ); ?>
 	<?php
 	if ( ! $is_edit && 'team' === $scope && 'create' === sanitize_key( (string) get_query_var( 'clanbite_team_events_sub' ) ) && $team_id > 0 && function_exists( 'clanbite_teams_get_team_action_url' ) ) {
 		$cp_back_events = clanbite_teams_get_team_action_url( $team_id, 'events' );

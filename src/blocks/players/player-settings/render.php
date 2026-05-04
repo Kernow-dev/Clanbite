@@ -26,7 +26,7 @@ $player_settings_root_open = '<div '
 	. '>';
 ob_start();
 ?>
-<?php echo clanbite_esc_block_fragment_html( $player_settings_root_open ); ?>
+<?php clanbite_echo_block_fragment_html( $player_settings_root_open ); ?>
 	<?php do_action( 'clanbite_player_settings_before_nav' ); ?>
 	<div class="nav-container">
 		<div class="nav">

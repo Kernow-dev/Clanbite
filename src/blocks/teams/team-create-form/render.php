@@ -93,7 +93,7 @@ $team_create_form_root_open = '<div '
 	. '>';
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( $team_create_form_root_open ); ?>
+<?php clanbite_echo_block_fragment_html( $team_create_form_root_open ); ?>
 	<?php do_action( 'clanbite_before_team_create_form' ); ?>
 	<?php if ( 'success' === $status ) : ?>
 		<p id="clanbite-team-create-notice" class="clanbite-team-create-form__notice is-success" role="status" tabindex="-1"><?php esc_html_e( 'Team created successfully.', 'clanbite' ); ?></p>

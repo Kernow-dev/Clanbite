@@ -148,13 +148,13 @@ function clanbite_private_media_filter_upload_admin_list( $query ): void {
  * @param string $subdir             Path under uploads, e.g. clanbite/teams/12 (no leading/trailing slashes).
  * @param string $filename_base      Filename without extension, e.g. avatar or cover.
  * @param string $nonce_action       Nonce action string (same as {@see wp_create_nonce()}).
- * @param string $nonce_request_key  Key in `$_POST` / `$_REQUEST` holding the nonce value.
+ * @param string $nonce_request_key  Key in `$_POST` holding the nonce value.
  * @return int|\WP_Error Attachment ID or error.
  */
 function clanbite_handle_isolated_image_upload( string $files_key, int $post_parent, string $subdir, string $filename_base, string $nonce_action, string $nonce_request_key ) {
 	clanbite_require_wp_admin_media_includes();
 
-	$nonce = clanbite_request_nonce_string( $nonce_request_key );
+	$nonce = clanbite_request_post_nonce_string( $nonce_request_key );
 	if ( '' === $nonce || ! wp_verify_nonce( $nonce, $nonce_action ) ) {
 		return new \WP_Error( 'clanbite_invalid_nonce', __( 'Invalid security token.', 'clanbite' ) );
 	}

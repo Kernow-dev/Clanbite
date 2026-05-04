@@ -4,8 +4,8 @@
  *
  * Most POST helpers assume the caller has already verified a nonce or equivalent capability
  * (e.g. `check_admin_referer`, `save_post` hooks). Do not call them on unauthenticated input.
- * {@see clanbite_request_nonce_string()} is the exception: it sanitizes a token so the caller
- * can pass it to `wp_verify_nonce()` / `check_ajax_referer()` on the next line.
+ * {@see clanbite_request_nonce_string()} and {@see clanbite_request_post_nonce_string()} sanitize a token
+ * so the caller can pass it to `wp_verify_nonce()` / `check_ajax_referer()` on the next line.
  *
  * @package clanbite
  */
@@ -123,10 +123,11 @@ function clanbite_request_post_absint( string $key, int $default = 0 ): int {
 /**
  * Reads a scalar CSRF token from `$_REQUEST` with sanitization (for immediate `wp_verify_nonce()` use).
  *
- * Call only when the next lines verify the token against a fixed action string. This does not
- * replace authorization checks (`current_user_can`, ownership checks, etc.).
+ * Prefer {@see clanbite_request_post_nonce_string()} for POST-only flows (forms, Ajax) so query strings
+ * cannot supply a nonce value. Call only when the next lines verify the token against a fixed action
+ * string. This does not replace authorization checks (`current_user_can`, ownership checks, etc.).
  *
- * @param string $key `$_REQUEST` key (e.g. `_wpnonce`, `_clanbite_team_media_nonce`, `nonce`).
+ * @param string $key `$_REQUEST` key (e.g. `_wpnonce`, `nonce`).
  * @return string Sanitized token, or empty string when missing or non-scalar.
  */
 function clanbite_request_nonce_string( string $key ): string {
@@ -136,6 +137,22 @@ function clanbite_request_nonce_string( string $key ): string {
 	}
 
 	return sanitize_text_field( wp_unslash( (string) $_REQUEST[ $key ] ) );
+	// phpcs:enable WordPress.Security.NonceVerification.Missing,PluginCheck.Security.VerifyNonce
+}
+
+/**
+ * Reads a scalar CSRF token from `$_POST` only (for immediate `wp_verify_nonce()` use).
+ *
+ * @param string $key `$_POST` key (e.g. `_clanbite_team_media_nonce`, `nonce`).
+ * @return string Sanitized token, or empty string when missing or non-scalar.
+ */
+function clanbite_request_post_nonce_string( string $key ): string {
+	// phpcs:disable WordPress.Security.NonceVerification.Missing,PluginCheck.Security.VerifyNonce -- Caller verifies the returned string immediately; this function only normalizes input.
+	if ( ! isset( $_POST[ $key ] ) || ! is_scalar( $_POST[ $key ] ) ) {
+		return '';
+	}
+
+	return sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) );
 	// phpcs:enable WordPress.Security.NonceVerification.Missing,PluginCheck.Security.VerifyNonce
 }
 

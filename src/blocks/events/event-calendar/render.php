@@ -211,7 +211,7 @@ $event_calendar_root_open = '<div '
 	. '>';
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( $event_calendar_root_open ); ?>
+<?php clanbite_echo_block_fragment_html( $event_calendar_root_open ); ?>
 	<div class="clanbite-event-calendar__toolbar">
 		<div class="clanbite-event-calendar__views" role="group" aria-label="<?php esc_attr_e( 'Calendar view', 'clanbite' ); ?>">
 			<button type="button" class="clanbite-event-calendar__view-btn" data-cal-view="month" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['month'] ); ?></button>
@@ -233,6 +233,6 @@ $event_calendar_root_open = '<div '
 	<h2 class="clanbite-event-calendar__heading"><?php echo '' !== $calendar_heading ? esc_html( $calendar_heading ) : ''; ?></h2>
 	<p class="clanbite-event-calendar__sr-only" hidden data-wp-bind--hidden="!context.calLoading" aria-live="polite"><?php echo esc_html( $config['i18n']['loading'] ); ?></p>
 	<p class="clanbite-event-calendar__error" hidden data-wp-bind--hidden="!context.fetchError" data-wp-text="context.fetchError" role="alert"></p>
-	<div class="clanbite-event-calendar__surface"><?php echo clanbite_esc_block_fragment_html( $calendar_surface ? (string) $calendar_surface : '' ); ?></div>
+	<div class="clanbite-event-calendar__surface"><?php clanbite_echo_block_fragment_html( $calendar_surface ? (string) $calendar_surface : '' ); ?></div>
 </div>
 <?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>

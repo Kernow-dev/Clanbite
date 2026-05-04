@@ -97,7 +97,7 @@ $user_nav_root_open = '<div '
 	. '>';
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( $user_nav_root_open ); ?>
+<?php clanbite_echo_block_fragment_html( $user_nav_root_open ); ?>
 	<?php if ( $is_logged_in ) : ?>
 		<button
 			type="button"
@@ -109,7 +109,7 @@ $user_nav_root_open = '<div '
 			data-wp-on--click="actions.toggleDropdown"
 			data-wp-bind--aria-expanded="context.isOpen"
 		>
-			<?php echo clanbite_esc_block_fragment_html( (string) $avatar_trigger ); ?>
+			<?php clanbite_echo_block_fragment_html( (string) $avatar_trigger ); ?>
 			<?php if ( $show_username ) : ?>
 				<span class="clanbite-user-nav__username"><?php echo esc_html( $display_name ); ?></span>
 			<?php endif; ?>

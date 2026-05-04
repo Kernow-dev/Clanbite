@@ -111,7 +111,7 @@ $team_challenge_button_root_open = '<div '
 	. '>';
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( $team_challenge_button_root_open ); ?>
+<?php clanbite_echo_block_fragment_html( $team_challenge_button_root_open ); ?>
 	<div class="wp-block-button">
 		<button
 			type="button"

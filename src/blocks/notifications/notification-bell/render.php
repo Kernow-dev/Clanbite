@@ -68,7 +68,7 @@ $notification_bell_root_open = '<div '
 	. '>';
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( $notification_bell_root_open ); ?>
+<?php clanbite_echo_block_fragment_html( $notification_bell_root_open ); ?>
 	<button
 		type="button"
 		class="clanbite-notification-bell__trigger"

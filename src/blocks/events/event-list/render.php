@@ -121,7 +121,7 @@ $event_list_root_open = '<div '
 	. '>';
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( $event_list_root_open ); ?>
+<?php clanbite_echo_block_fragment_html( $event_list_root_open ); ?>
 	<div class="clanbite-event-list__toolbar">
 		<label class="screen-reader-text" for="clanbite-event-list-time"><?php esc_html_e( 'Filter by time', 'clanbite' ); ?></label>
 		<select id="clanbite-event-list-time" class="clanbite-event-list__time" data-wp-on--change="actions.onTimeScopeChange">
@@ -132,7 +132,7 @@ $event_list_root_open = '<div '
 	</div>
 	<p class="clanbite-event-list__loading" hidden data-wp-bind--hidden="!state.isLoading()" aria-live="polite"><?php echo esc_html( $config['i18n']['loading'] ); ?></p>
 	<p class="clanbite-event-list__error" hidden data-wp-bind--hidden="!state.errorMessage" data-wp-text="state.errorMessage" role="alert"></p>
-	<ul class="clanbite-event-list"><?php echo clanbite_esc_block_fragment_html( $list_ssr_hydrated ? (string) $list_ssr_rows : '' ); ?></ul>
+	<ul class="clanbite-event-list"><?php clanbite_echo_block_fragment_html( $list_ssr_hydrated ? (string) $list_ssr_rows : '' ); ?></ul>
 	<nav class="clanbite-event-list__pagination" data-wp-bind--hidden="!state.showPagination()" aria-label="<?php esc_attr_e( 'Events pagination', 'clanbite' ); ?>"<?php echo $cp_event_list_hide_pagination ? ' hidden' : ''; ?>>
 		<button type="button" class="clanbite-event-list__page-btn" data-wp-on--click="actions.prevPage" data-wp-bind--disabled="state.isFirstPage()">
 			<?php echo esc_html( $config['i18n']['prev'] ); ?>

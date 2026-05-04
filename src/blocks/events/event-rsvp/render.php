@@ -101,7 +101,7 @@ $event_rsvp_root_open = '<div '
 	. '>';
 ?>
 <?php ob_start(); ?>
-<?php echo clanbite_esc_block_fragment_html( $event_rsvp_root_open ); ?>
+<?php clanbite_echo_block_fragment_html( $event_rsvp_root_open ); ?>
 	<div class="clanbite-event-rsvp__actions">
 		<?php if ( is_user_logged_in() ) : ?>
 			<div class="clanbite-event-rsvp__buttons" role="group" aria-label="<?php esc_attr_e( 'RSVP', 'clanbite' ); ?>">
