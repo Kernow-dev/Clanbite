@@ -514,6 +514,40 @@ function clanbite_player_profile_route_current_slug(): string {
 }
 
 /**
+ * Canonical front-end URL for a player profile (`/players/{nicename}/`).
+ *
+ * Used by Social Kit (mentions, REST payloads), notifications, block link helpers, and user-nav when present.
+ *
+ * @param int $user_id WordPress user ID.
+ * @return string Absolute URL, or empty string when the user cannot be resolved.
+ */
+function clanbite_get_player_profile_url( int $user_id ): string {
+	if ( $user_id <= 0 ) {
+		return '';
+	}
+
+	$user = get_userdata( $user_id );
+	if ( ! $user instanceof \WP_User ) {
+		return '';
+	}
+
+	$nicename = isset( $user->user_nicename ) ? (string) $user->user_nicename : '';
+	if ( '' === $nicename ) {
+		return '';
+	}
+
+	$url = trailingslashit( home_url( '/players/' . $nicename ) );
+
+	/**
+	 * Filter the canonical player profile URL for a user.
+	 *
+	 * @param string $url     Profile URL.
+	 * @param int    $user_id User ID.
+	 */
+	return (string) apply_filters( 'clanbite_player_profile_url', $url, $user_id );
+}
+
+/**
  * Label map for image size slugs in Players / Teams settings UI.
  *
  * @return array<string, string> Slug => translated label.
