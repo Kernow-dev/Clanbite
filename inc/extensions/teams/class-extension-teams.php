@@ -2581,7 +2581,7 @@ class Teams extends Skeleton {
 		>
 		<form class="clanbite-team-create-form__form clanbite-team-manage-form__form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( $action_url ); ?>" data-active-step="1">
 			<?php wp_nonce_field( 'clanbite_team_manage_' . $team_id, '_clanbite_team_manage_nonce' ); ?>
-			<input type="hidden" name="_clanbite_team_media_nonce" value="<?php echo esc_attr( wp_create_nonce( 'clanbite_save_team_media' ) ); ?>" />
+			<input type="hidden" name="_clanbite_team_media_nonce" value="<?php echo esc_attr( wp_create_nonce( 'clanbite_team_media_' . (int) $team_id ) ); ?>" />
 			<input type="hidden" name="action" value="clanbite_save_team_manage" />
 			<input type="hidden" name="clanbite_team_id" value="<?php echo esc_attr( (string) $team_id ); ?>" />
 
@@ -3968,7 +3968,7 @@ class Teams extends Skeleton {
 	/**
 	 * Ajax: save team avatar and/or cover from front-end blocks (multipart POST).
 	 *
-	 * Expects `clanbite_team_id`, `_clanbite_team_media_nonce` (action `clanbite_save_team_media`), and optional `team_avatar` / `team_cover` files.
+	 * Expects `clanbite_team_id`, `_clanbite_team_media_nonce` (action `clanbite_team_media_{team_id}`), and optional `team_avatar` / `team_cover` files.
 	 *
 	 * @return void
 	 */
@@ -3980,19 +3980,14 @@ class Teams extends Skeleton {
 			);
 		}
 
-		$ajax_nonce = clanbite_request_nonce_string( '_clanbite_team_media_nonce' );
-		if ( '' === $ajax_nonce || ! wp_verify_nonce( $ajax_nonce, 'clanbite_save_team_media' ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified on the next lines using the team-scoped action `clanbite_team_media_{id}`.
+		$team_id = isset( $_POST['clanbite_team_id'] ) ? absint( wp_unslash( $_POST['clanbite_team_id'] ) ) : 0;
+		$ajax_nonce = clanbite_request_post_nonce_string( '_clanbite_team_media_nonce' );
+		$media_action = $team_id > 0 ? 'clanbite_team_media_' . $team_id : 'clanbite_team_media_invalid';
+		if ( $team_id < 1 || '' === $ajax_nonce || ! wp_verify_nonce( $ajax_nonce, $media_action ) ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Invalid security token.', 'clanbite' ) ),
 				403
-			);
-		}
-
-		$team_id = clanbite_request_post_absint( 'clanbite_team_id' );
-		if ( $team_id < 1 ) {
-			wp_send_json_error(
-				array( 'message' => __( 'Invalid team.', 'clanbite' ) ),
-				400
 			);
 		}
 
@@ -4027,7 +4022,7 @@ class Teams extends Skeleton {
 				$team_id,
 				'team_avatar',
 				'cp_team_avatar_id',
-				'clanbite_save_team_media',
+				$media_action,
 				'_clanbite_team_media_nonce'
 			);
 		}
@@ -4036,7 +4031,7 @@ class Teams extends Skeleton {
 				$team_id,
 				'team_cover',
 				'cp_team_cover_id',
-				'clanbite_save_team_media',
+				$media_action,
 				'_clanbite_team_media_nonce'
 			);
 		}
@@ -4117,7 +4112,7 @@ class Teams extends Skeleton {
 	 * @param string $field_name        Form file input name.
 	 * @param string $meta_key          Meta key to store attachment ID.
 	 * @param string $nonce_action      Nonce action for the current request (see {@see wp_verify_nonce()}).
-	 * @param string $nonce_request_key POST/REQUEST key holding the nonce value.
+	 * @param string $nonce_request_key `$_POST` key holding the nonce value.
 	 * @return void
 	 */
 	protected function maybe_handle_team_media_upload( int $team_id, string $field_name, string $meta_key, string $nonce_action, string $nonce_request_key ): void {
@@ -4127,10 +4122,6 @@ class Teams extends Skeleton {
 
 		// Empty file inputs still populate $_FILES with UPLOAD_ERR_NO_FILE; never delete existing media in that case.
 		if ( ! $this->team_manage_form_has_image_upload( $field_name ) ) {
-			return;
-		}
-
-		if ( empty( $_FILES[ $field_name ] ) || ! is_array( $_FILES[ $field_name ] ) ) {
 			return;
 		}
 
