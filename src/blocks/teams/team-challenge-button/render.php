@@ -103,13 +103,15 @@ $wrapper = get_block_wrapper_attributes(
 	),
 	$block
 );
+
+$team_challenge_button_root_open = '<div '
+	. trim( (string) $wrapper )
+	. ' data-wp-interactive="clanbite-team-challenge-button"'
+	. ' data-wp-context="' . esc_attr( wp_json_encode( $context ) ) . '"'
+	. '>';
 ?>
 <?php ob_start(); ?>
-<div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
-	data-wp-interactive="clanbite-team-challenge-button"
-	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
->
+<?php clanbite_echo_block_fragment_html( $team_challenge_button_root_open ); ?>
 	<div class="wp-block-button">
 		<button
 			type="button"

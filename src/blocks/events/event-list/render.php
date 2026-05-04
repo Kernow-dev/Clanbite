@@ -112,14 +112,16 @@ $wrapper = get_block_wrapper_attributes(
 	),
 	$block
 );
+
+$event_list_root_open = '<div '
+	. trim( (string) $wrapper )
+	. ' data-wp-interactive="clanbite-event-list"'
+	. ' data-wp-context="' . esc_attr( wp_json_encode( $config ) ) . '"'
+	. ' data-wp-init="callbacks.init"'
+	. '>';
 ?>
 <?php ob_start(); ?>
-<div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
-	data-wp-interactive="clanbite-event-list"
-	data-wp-context="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
-	data-wp-init="callbacks.init"
->
+<?php clanbite_echo_block_fragment_html( $event_list_root_open ); ?>
 	<div class="clanbite-event-list__toolbar">
 		<label class="screen-reader-text" for="clanbite-event-list-time"><?php esc_html_e( 'Filter by time', 'clanbite' ); ?></label>
 		<select id="clanbite-event-list-time" class="clanbite-event-list__time" data-wp-on--change="actions.onTimeScopeChange">
@@ -130,7 +132,7 @@ $wrapper = get_block_wrapper_attributes(
 	</div>
 	<p class="clanbite-event-list__loading" hidden data-wp-bind--hidden="!state.isLoading()" aria-live="polite"><?php echo esc_html( $config['i18n']['loading'] ); ?></p>
 	<p class="clanbite-event-list__error" hidden data-wp-bind--hidden="!state.errorMessage" data-wp-text="state.errorMessage" role="alert"></p>
-	<ul class="clanbite-event-list"><?php echo $list_ssr_hydrated ? $list_ssr_rows : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; SSR rows built with esc_html/esc_url in clanbite_events_render_event_list_rows_html(). ?></ul>
+	<ul class="clanbite-event-list"><?php clanbite_echo_block_fragment_html( $list_ssr_hydrated ? (string) $list_ssr_rows : '' ); ?></ul>
 	<nav class="clanbite-event-list__pagination" data-wp-bind--hidden="!state.showPagination()" aria-label="<?php esc_attr_e( 'Events pagination', 'clanbite' ); ?>"<?php echo $cp_event_list_hide_pagination ? ' hidden' : ''; ?>>
 		<button type="button" class="clanbite-event-list__page-btn" data-wp-on--click="actions.prevPage" data-wp-bind--disabled="state.isFirstPage()">
 			<?php echo esc_html( $config['i18n']['prev'] ); ?>

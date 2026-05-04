@@ -84,7 +84,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 
 ?>
 <?php ob_start(); ?>
-<div <?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after markup. ?>>
+<?php clanbite_echo_block_fragment_html( '<div ' . trim( (string) $wrapper_attributes ) . '>' ); ?>
 	<ul class="clanbite-player-social-links" role="list">
 		<?php foreach ( $items as $row ) : ?>
 			<?php
@@ -104,7 +104,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 					rel="noopener noreferrer"
 					aria-label="<?php echo esc_attr( $label ); ?>"
 				>
-					<?php echo $icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after markup. ?>
+					<?php clanbite_echo_block_fragment_html( (string) $icon ); ?>
 				</a>
 			</li>
 		<?php endforeach; ?>

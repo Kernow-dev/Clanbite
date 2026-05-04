@@ -2581,6 +2581,7 @@ class Teams extends Skeleton {
 		>
 		<form class="clanbite-team-create-form__form clanbite-team-manage-form__form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( $action_url ); ?>" data-active-step="1">
 			<?php wp_nonce_field( 'clanbite_team_manage_' . $team_id, '_clanbite_team_manage_nonce' ); ?>
+			<input type="hidden" name="_clanbite_team_media_nonce" value="<?php echo esc_attr( wp_create_nonce( 'clanbite_team_media_' . (int) $team_id ) ); ?>" />
 			<input type="hidden" name="action" value="clanbite_save_team_manage" />
 			<input type="hidden" name="clanbite_team_id" value="<?php echo esc_attr( (string) $team_id ); ?>" />
 
@@ -2890,8 +2891,20 @@ class Teams extends Skeleton {
 			$this->maybe_remove_team_manage_image( $team_id, 'cp_team_cover_id' );
 		}
 
-		$this->maybe_handle_team_media_upload( $team_id, 'team_avatar', 'cp_team_avatar_id' );
-		$this->maybe_handle_team_media_upload( $team_id, 'team_cover', 'cp_team_cover_id' );
+		$this->maybe_handle_team_media_upload(
+			$team_id,
+			'team_avatar',
+			'cp_team_avatar_id',
+			'clanbite_team_manage_' . $team_id,
+			'_clanbite_team_manage_nonce'
+		);
+		$this->maybe_handle_team_media_upload(
+			$team_id,
+			'team_cover',
+			'cp_team_cover_id',
+			'clanbite_team_manage_' . $team_id,
+			'_clanbite_team_manage_nonce'
+		);
 
 		if ( $this->user_is_team_admin_on_frontend( $team_id, $user_id )
 			&& isset( $_POST['member_roles'] )
@@ -3821,8 +3834,20 @@ class Teams extends Skeleton {
 			$this->redirect_after_team_create( false, 'insert_failed' );
 		}
 
-		$this->maybe_handle_team_media_upload( (int) $new_team_id, 'team_avatar', 'cp_team_avatar_id' );
-		$this->maybe_handle_team_media_upload( (int) $new_team_id, 'team_cover', 'cp_team_cover_id' );
+		$this->maybe_handle_team_media_upload(
+			(int) $new_team_id,
+			'team_avatar',
+			'cp_team_avatar_id',
+			'clanbite_create_team_action',
+			'_clanbite_create_team_nonce'
+		);
+		$this->maybe_handle_team_media_upload(
+			(int) $new_team_id,
+			'team_cover',
+			'cp_team_cover_id',
+			'clanbite_create_team_action',
+			'_clanbite_create_team_nonce'
+		);
 
 		$invite_tokens = array();
 
@@ -3943,7 +3968,7 @@ class Teams extends Skeleton {
 	/**
 	 * Ajax: save team avatar and/or cover from front-end blocks (multipart POST).
 	 *
-	 * Expects `clanbite_team_id`, `_clanbite_team_media_nonce`, and optional `team_avatar` / `team_cover` files.
+	 * Expects `clanbite_team_id`, `_clanbite_team_media_nonce` (action `clanbite_team_media_{team_id}`), and optional `team_avatar` / `team_cover` files.
 	 *
 	 * @return void
 	 */
@@ -3955,18 +3980,11 @@ class Teams extends Skeleton {
 			);
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Team ID seeds the scoped AJAX nonce; verified immediately below via `wp_verify_nonce()`.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified on the next lines using the team-scoped action `clanbite_team_media_{id}`.
 		$team_id = isset( $_POST['clanbite_team_id'] ) ? absint( wp_unslash( $_POST['clanbite_team_id'] ) ) : 0;
-		if ( $team_id < 1 ) {
-			wp_send_json_error(
-				array( 'message' => __( 'Invalid team.', 'clanbite' ) ),
-				400
-			);
-		}
-
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce token; verified, not displayed.
-		$nonce = isset( $_POST['_clanbite_team_media_nonce'] ) ? (string) wp_unslash( $_POST['_clanbite_team_media_nonce'] ) : '';
-		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'clanbite_team_media_' . $team_id ) ) {
+		$ajax_nonce = clanbite_request_post_nonce_string( '_clanbite_team_media_nonce' );
+		$media_action = $team_id > 0 ? 'clanbite_team_media_' . $team_id : 'clanbite_team_media_invalid';
+		if ( $team_id < 1 || '' === $ajax_nonce || ! wp_verify_nonce( $ajax_nonce, $media_action ) ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Invalid security token.', 'clanbite' ) ),
 				403
@@ -4000,10 +4018,22 @@ class Teams extends Skeleton {
 		}
 
 		if ( $had_avatar ) {
-			$this->maybe_handle_team_media_upload( $team_id, 'team_avatar', 'cp_team_avatar_id' );
+			$this->maybe_handle_team_media_upload(
+				$team_id,
+				'team_avatar',
+				'cp_team_avatar_id',
+				$media_action,
+				'_clanbite_team_media_nonce'
+			);
 		}
 		if ( $had_cover ) {
-			$this->maybe_handle_team_media_upload( $team_id, 'team_cover', 'cp_team_cover_id' );
+			$this->maybe_handle_team_media_upload(
+				$team_id,
+				'team_cover',
+				'cp_team_cover_id',
+				$media_action,
+				'_clanbite_team_media_nonce'
+			);
 		}
 
 		/**
@@ -4078,12 +4108,14 @@ class Teams extends Skeleton {
 	/**
 	 * Handle optional media upload for team create flow.
 	 *
-	 * @param int    $team_id Team post ID.
-	 * @param string $field_name Form file input name.
-	 * @param string $meta_key Meta key to store attachment ID.
+	 * @param int    $team_id           Team post ID.
+	 * @param string $field_name        Form file input name.
+	 * @param string $meta_key          Meta key to store attachment ID.
+	 * @param string $nonce_action      Nonce action for the current request (see {@see wp_verify_nonce()}).
+	 * @param string $nonce_request_key `$_POST` key holding the nonce value.
 	 * @return void
 	 */
-	protected function maybe_handle_team_media_upload( int $team_id, string $field_name, string $meta_key ): void {
+	protected function maybe_handle_team_media_upload( int $team_id, string $field_name, string $meta_key, string $nonce_action, string $nonce_request_key ): void {
 		if ( ! function_exists( 'clanbite_handle_isolated_image_upload' ) ) {
 			return;
 		}
@@ -4093,21 +4125,12 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` passed to `clanbite_handle_isolated_image_upload()` after nonce check in `handle_save_team_manage()`.
-		try {
-			if ( empty( $_FILES[ $field_name ] ) || ! is_array( $_FILES[ $field_name ] ) ) {
-				return;
-			}
-		} finally {
-			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing
-		}
-
 		$subdir = 'clanbite/teams/' . $team_id;
 		$base   = 'cp_team_avatar_id' === $meta_key ? 'avatar' : 'cover';
 
 		$old_id = (int) get_post_meta( $team_id, $meta_key, true );
 
-		$attachment_id = clanbite_handle_isolated_image_upload( $field_name, $team_id, $subdir, $base );
+		$attachment_id = clanbite_handle_isolated_image_upload( $field_name, $team_id, $subdir, $base, $nonce_action, $nonce_request_key );
 		if ( is_wp_error( $attachment_id ) ) {
 			return;
 		}

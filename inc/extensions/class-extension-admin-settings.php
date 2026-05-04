@@ -3,14 +3,44 @@
 namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Extension settings API uses `{$this->option_key}_*` hook names; keys are registered option slugs.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Dynamic tags are `{option_key}_{suffix}`; suffix constants are clanbite-prefixed; option keys are `clanbite_*`.
 
+/**
+ * WordPress Settings API wrapper for Clanbite option buckets.
+ *
+ * Dynamic filter/action names are built with {@see self::clanbite_extension_settings_hook_tag()}.
+ * Each full tag is `{option_key}_{suffix}` where `option_key` is a registered `clanbite_*` option
+ * name and `suffix` is one of the `HOOK_TAG_*` constants (always starting with `clanbite_`).
+ *
+ * @package clanbite
+ */
 abstract class Abstract_Settings {
+
+	private const HOOK_TAG_STANDALONE_PARENT_SLUG     = 'clanbite_standalone_submenu_parent_slug';
+	private const HOOK_TAG_PERSISTED_DEFAULT_MAP      = 'clanbite_persisted_option_default_map';
+	private const HOOK_TAG_UI_SECTION_REGISTRY        = 'clanbite_settings_ui_section_registry';
+	private const HOOK_TAG_UI_SECTION_FIELD_REGISTRY  = 'clanbite_settings_ui_section_field_registry';
+	private const HOOK_TAG_SINGLE_FIELD_DEFINITION  = 'clanbite_settings_field_definition_single';
+	private const HOOK_TAG_FIELD_MARKUP_DELEGATE    = 'clanbite_settings_field_markup_delegate';
+	private const HOOK_TAG_FORM_PAYLOAD_PREFILTER   = 'clanbite_settings_form_payload_prefilter';
+	private const HOOK_TAG_FINAL_OPTION_VALUE_BUNDLE = 'clanbite_final_merged_option_values';
+	private const HOOK_TAG_SETTINGS_PAGE_SHELL_BEFORE = 'clanbite_settings_page_shell_before';
+	private const HOOK_TAG_SETTINGS_PAGE_SHELL_AFTER  = 'clanbite_settings_page_shell_after';
 
 	protected string $option_key;
 	protected string $page_slug;
 	protected string $settings_group;
 	protected string $capability = 'manage_options';
+
+	/**
+	 * Builds `{option_key}_{$suffix}` for Clanbite settings filters/actions.
+	 *
+	 * @param string $suffix Clanbite-prefixed fragment; pass a `HOOK_TAG_*` constant from this class.
+	 * @return string Full hook tag.
+	 */
+	final protected function clanbite_extension_settings_hook_tag( string $suffix ): string {
+		return $this->option_key . '_' . $suffix;
+	}
 
 	public function __construct() {
 		$this->hooks();
@@ -36,7 +66,7 @@ abstract class Abstract_Settings {
 			return;
 		}
 
-		$parent_slug = (string) apply_filters( "{$this->option_key}_parent_menu_slug", 'clanbite', $this );
+		$parent_slug = (string) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_STANDALONE_PARENT_SLUG ), 'clanbite', $this );
 
 		add_submenu_page(
 			$parent_slug,
@@ -54,10 +84,12 @@ abstract class Abstract_Settings {
 		/**
 		 * Filter extension settings defaults before registration.
 		 *
+		 * Dynamic hook: `{option_key}_clanbite_persisted_option_default_map`.
+		 *
 		 * @param array             $default_settings Default settings map.
 		 * @param Abstract_Settings $settings         Settings class instance.
 		 */
-		$default_settings = (array) apply_filters( "{$this->option_key}_defaults", $default_settings, $this );
+		$default_settings = (array) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_PERSISTED_DEFAULT_MAP ), $default_settings, $this );
 
 		register_setting(
 			$this->settings_group,
@@ -113,10 +145,12 @@ abstract class Abstract_Settings {
 		/**
 		 * Filter all sections before they are registered.
 		 *
+		 * Dynamic hook: `{option_key}_clanbite_settings_ui_section_registry`.
+		 *
 		 * @param array             $sections Sections array.
 		 * @param Abstract_Settings $settings Settings class instance.
 		 */
-		$sections = (array) apply_filters( "{$this->option_key}_sections", $sections, $this );
+		$sections = (array) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_UI_SECTION_REGISTRY ), $sections, $this );
 
 		$resolved = array();
 
@@ -130,12 +164,14 @@ abstract class Abstract_Settings {
 			/**
 			 * Filter section fields before they are registered.
 			 *
+			 * Dynamic hook: `{option_key}_clanbite_settings_ui_section_field_registry`.
+			 *
 			 * @param array             $fields     Field config map.
 			 * @param string            $section_id Section id.
 			 * @param array             $section    Section config.
 			 * @param Abstract_Settings $settings   Settings class instance.
 			 */
-			$fields = (array) apply_filters( "{$this->option_key}_section_fields", $fields, $section_id, $section, $this );
+			$fields = (array) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_UI_SECTION_FIELD_REGISTRY ), $fields, $section_id, $section, $this );
 
 			$resolved_fields = array();
 
@@ -147,12 +183,14 @@ abstract class Abstract_Settings {
 				/**
 				 * Filter a single field config before registration.
 				 *
+				 * Dynamic hook: `{option_key}_clanbite_settings_field_definition_single`.
+				 *
 				 * @param array             $field      Field config.
 				 * @param string            $field_id   Field id.
 				 * @param string            $section_id Section id.
 				 * @param Abstract_Settings $settings   Settings class instance.
 				 */
-				$resolved_fields[ $field_id ] = (array) apply_filters( "{$this->option_key}_field", $field, $field_id, $section_id, $this );
+				$resolved_fields[ $field_id ] = (array) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_SINGLE_FIELD_DEFINITION ), $field, $field_id, $section_id, $this );
 			}
 
 			$section['fields']      = $resolved_fields;
@@ -173,13 +211,15 @@ abstract class Abstract_Settings {
 		 *
 		 * Return true to signal rendering handled by a custom callback.
 		 *
+		 * Dynamic hook: `{option_key}_clanbite_settings_field_markup_delegate`.
+		 *
 		 * @param bool              $handled  Whether rendering has already been handled.
 		 * @param string            $id       Field id.
 		 * @param array             $field    Field config.
 		 * @param mixed             $value    Current field value.
 		 * @param Abstract_Settings $settings Settings class instance.
 		 */
-		$handled = (bool) apply_filters( "{$this->option_key}_render_field", false, $id, $field, $value, $this );
+		$handled = (bool) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_FIELD_MARKUP_DELEGATE ), false, $id, $field, $value, $this );
 		if ( $handled ) {
 			return;
 		}
@@ -249,11 +289,13 @@ abstract class Abstract_Settings {
 		/**
 		 * Filter raw settings payload before field-level sanitization.
 		 *
+		 * Dynamic hook: `{option_key}_clanbite_settings_form_payload_prefilter`.
+		 *
 		 * @param array             $input    Raw input.
 		 * @param array             $fields   Flat field config map.
 		 * @param Abstract_Settings $settings Settings class instance.
 		 */
-		$input = (array) apply_filters( "{$this->option_key}_sanitize_input", $input, $fields, $this );
+		$input = (array) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_FORM_PAYLOAD_PREFILTER ), $input, $fields, $this );
 
 		foreach ( $fields as $key => $field ) {
 			$value = $input[ $key ] ?? null;
@@ -275,7 +317,15 @@ abstract class Abstract_Settings {
 		// Merge defaults to ensure no missing keys
 		$output = wp_parse_args( $output, $defaults );
 
-		return apply_filters( $this->option_key . '_sanitize', $output, $input );
+		/**
+		 * Filter the merged, field-sanitized option array before persistence.
+		 *
+		 * Dynamic hook: `{option_key}_clanbite_final_merged_option_values`.
+		 *
+		 * @param array<string, mixed> $output Merged settings.
+		 * @param array<string, mixed> $input  Raw input (same shape as passed to sanitize).
+		 */
+		return (array) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_FINAL_OPTION_VALUE_BUNDLE ), $output, $input );
 	}
 
 	public function get_all(): array {
@@ -297,7 +347,14 @@ abstract class Abstract_Settings {
 	 * @return void
 	 */
 	protected function render_settings_page( string $title ): void {
-		do_action( "{$this->option_key}_before_page", $this );
+		/**
+		 * Fires before the classic settings page shell markup.
+		 *
+		 * Dynamic hook: `{option_key}_clanbite_settings_page_shell_before`.
+		 *
+		 * @param Abstract_Settings $settings Settings class instance.
+		 */
+		do_action( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_SETTINGS_PAGE_SHELL_BEFORE ), $this );
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html( $title ); ?></h1>
@@ -310,7 +367,14 @@ abstract class Abstract_Settings {
 			</form>
 		</div>
 		<?php
-		do_action( "{$this->option_key}_after_page", $this );
+		/**
+		 * Fires after the classic settings page shell markup.
+		 *
+		 * Dynamic hook: `{option_key}_clanbite_settings_page_shell_after`.
+		 *
+		 * @param Abstract_Settings $settings Settings class instance.
+		 */
+		do_action( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_SETTINGS_PAGE_SHELL_AFTER ), $this );
 	}
 
 	protected function get_flat_fields(): array {

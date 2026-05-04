@@ -185,11 +185,25 @@ function clanbite_block_fragment_allowed_html(): array {
 /**
  * Escape an HTML fragment built from block markup / helpers for safe storage or composition.
  *
- * Block `render.php` files echo via {@see wp_kses()} directly so static analysis recognizes escaping.
+ * For final output in `render.php`, prefer {@see clanbite_echo_block_fragment_html()} so PHPCS recognizes
+ * escaping at the call site; use this function when you need a string (concatenation, tests, etc.).
  *
  * @param string $html Assembled markup (balanced fragment recommended).
  * @return string
  */
 function clanbite_esc_block_fragment_html( string $html ): string {
 	return wp_kses( $html, clanbite_block_fragment_allowed_html() );
+}
+
+/**
+ * Echo a block HTML fragment through {@see wp_kses()} with {@see clanbite_block_fragment_allowed_html()}.
+ *
+ * Prefer this over `echo clanbite_esc_block_fragment_html()` in templates: some PHPCS rules do not treat
+ * the custom escaper as an escaping function at the echo site.
+ *
+ * @param string $html Assembled markup (balanced fragment recommended).
+ * @return void
+ */
+function clanbite_echo_block_fragment_html( string $html ): void {
+	echo wp_kses( $html, clanbite_block_fragment_allowed_html() );
 }

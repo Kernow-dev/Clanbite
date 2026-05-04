@@ -76,7 +76,7 @@ class General_Settings extends Abstract_Settings {
 	}
 
 	protected function get_defaults(): array {
-		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanbite_general_settings_defaults`.
+		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanbite_general_settings_clanbite_persisted_option_default_map`.
 		return array(
 			'admin_notes'                      => '',
 			'events_enabled'                   => true,
@@ -87,7 +87,7 @@ class General_Settings extends Abstract_Settings {
 	}
 
 	protected function get_sections(): array {
-		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanbite_general_settings_sections`.
+		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanbite_general_settings_clanbite_settings_ui_section_registry`.
 		return array(
 			'overview' => array(
 				'title'  => __( 'Overview', 'clanbite' ),

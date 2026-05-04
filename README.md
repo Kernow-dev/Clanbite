@@ -776,17 +776,17 @@ Core **Players** also fires **`clanbite_player_avatar_updated`** and **`clanbite
 ### Settings Extensibility
 All extension settings can be extended or customized by third parties.
 
-For an extension option key (example: `clanbite_teams_settings`) these hooks are available:
-- `{option_key}_parent_menu_slug`
-- `{option_key}_defaults`
-- `{option_key}_sections`
-- `{option_key}_section_fields`
-- `{option_key}_field`
-- `{option_key}_render_field` (return `true` when custom rendering is handled)
-- `{option_key}_sanitize_input`
-- `{option_key}_sanitize`
-- `{option_key}_before_page`
-- `{option_key}_after_page`
+For an extension option key (example: `clanbite_teams_settings`) these dynamic hooks are available (built as `{option_key}_{suffix}`; every suffix starts with `clanbite_` so the full tag stays unique):
+- `{option_key}_clanbite_standalone_submenu_parent_slug`
+- `{option_key}_clanbite_persisted_option_default_map`
+- `{option_key}_clanbite_settings_ui_section_registry`
+- `{option_key}_clanbite_settings_ui_section_field_registry`
+- `{option_key}_clanbite_settings_field_definition_single`
+- `{option_key}_clanbite_settings_field_markup_delegate` (return `true` when custom rendering is handled)
+- `{option_key}_clanbite_settings_form_payload_prefilter`
+- `{option_key}_clanbite_final_merged_option_values`
+- `{option_key}_clanbite_settings_page_shell_before`
+- `{option_key}_clanbite_settings_page_shell_after`
 
 Example: add a custom Teams mode and extra settings fields from a third-party plugin:
 
@@ -808,7 +808,7 @@ add_filter(
 
 // 2) Add fields to the Teams "general" section.
 add_filter(
-	'clanbite_teams_settings_section_fields',
+	'clanbite_teams_settings_clanbite_settings_ui_section_field_registry',
 	function ( array $fields, string $section_id ): array {
 		if ( 'general' !== $section_id ) {
 			return $fields;
@@ -830,7 +830,7 @@ add_filter(
 
 // 3) Enforce extra save rules for teams settings.
 add_filter(
-	'clanbite_teams_settings_sanitize',
+	'clanbite_teams_settings_clanbite_final_merged_option_values',
 	function ( array $output ): array {
 		if ( isset( $output['academy_max_players'] ) ) {
 			$output['academy_max_players'] = max( 5, absint( $output['academy_max_players'] ) );
@@ -849,14 +849,14 @@ add_action(
 );
 ```
 
-Example: fully custom render a Teams setting field with `{option_key}_render_field`:
+Example: fully custom render a Teams setting field with `{option_key}_clanbite_settings_field_markup_delegate`:
 
 ```php
 <?php
 // Render a custom UI for a specific field and mark it handled.
 add_filter(
-	'clanbite_teams_settings_render_field',
-	function ( bool $handled, string $field_id, array $field, $value ): bool {
+	'clanbite_teams_settings_clanbite_settings_field_markup_delegate',
+	function ( bool $handled, string $field_id, array $field, $value, \Kernowdev\Clanbite\Extensions\Abstract_Settings $settings ): bool {
 		if ( 'academy_max_players' !== $field_id ) {
 			return $handled;
 		}
@@ -874,7 +874,7 @@ add_filter(
 		return true;
 	},
 	10,
-	4
+	5
 );
 ```
 

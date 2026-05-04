@@ -17,13 +17,16 @@ defined( 'ABSPATH' ) || exit;
 ?>
 <?php
 $nav_items = (array) apply_filters( 'clanbite_players_settings_nav_items', array() );
+
+$player_settings_wrapper = get_block_wrapper_attributes( array(), $block );
+$player_settings_root_open = '<div '
+	. trim( (string) $player_settings_wrapper )
+	. ' data-wp-interactive="clanbite-player-settings"'
+	. ' data-wp-init="callbacks.init"'
+	. '>';
 ob_start();
 ?>
-<div
-	<?php echo get_block_wrapper_attributes( array(), $block ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
-	data-wp-interactive="clanbite-player-settings"
-	data-wp-init="callbacks.init"
->
+<?php clanbite_echo_block_fragment_html( $player_settings_root_open ); ?>
 	<?php do_action( 'clanbite_player_settings_before_nav' ); ?>
 	<div class="nav-container">
 		<div class="nav">

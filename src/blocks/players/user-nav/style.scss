@@ -96,9 +96,7 @@
 }
 
 .clanbite-user-nav__profile-link {
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
+	display: block;
 	padding: 0.5rem;
 	border-radius: calc(var(--user-nav-radius) - 2px);
 	text-decoration: none;
@@ -108,12 +106,6 @@
 	&:hover {
 		background-color: var(--user-nav-hover-bg);
 	}
-}
-
-.clanbite-user-nav__dropdown-avatar {
-	border-radius: 50%;
-	object-fit: cover;
-	flex-shrink: 0;
 }
 
 .clanbite-user-nav__profile-info {

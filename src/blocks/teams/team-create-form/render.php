@@ -29,14 +29,22 @@ if ( ! is_user_logged_in() ) {
 }
 
 $wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'clanbite-team-create-form' ), $block );
-// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Flash notice query args added by `redirect_after_team_create()` together with `_clanbite_team_notice` nonce.
-$notice_nonce = isset( $_GET['_clanbite_team_notice'] )
-	? sanitize_text_field( wp_unslash( (string) $_GET['_clanbite_team_notice'] ) )
-	: '';
-$notice_ok    = '' !== $notice_nonce && wp_verify_nonce( $notice_nonce, 'clanbite_team_create_notice' );
-$status       = $notice_ok ? sanitize_key( (string) ( $_GET['clanbite_team_status'] ?? '' ) ) : '';
-$status_code  = $notice_ok ? sanitize_key( (string) ( $_GET['clanbite_team_code'] ?? '' ) ) : '';
-// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+$status       = '';
+$status_code  = '';
+if ( isset( $_GET['_clanbite_team_notice'] ) ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only other `$_GET` keys are read after this nonce succeeds (flash notice from `redirect_after_team_create()`).
+	$notice_nonce = sanitize_text_field( wp_unslash( (string) $_GET['_clanbite_team_notice'] ) );
+	if ( '' !== $notice_nonce && wp_verify_nonce( $notice_nonce, 'clanbite_team_create_notice' ) ) {
+		if ( isset( $_GET['clanbite_team_status'] ) ) {
+			$status = sanitize_key( (string) wp_unslash( $_GET['clanbite_team_status'] ) );
+		}
+		if ( isset( $_GET['clanbite_team_code'] ) ) {
+			$status_code = sanitize_key( (string) wp_unslash( $_GET['clanbite_team_code'] ) );
+		}
+	}
+}
+
 $steps = array(
 	'basic_details' => array(
 		'label'       => __( 'Step 1: Team Details', 'clanbite' ),
@@ -76,14 +84,16 @@ $context             = array(
 	'inviteSearchUrl'   => admin_url( 'admin-ajax.php' ),
 	'inviteSearchNonce' => wp_create_nonce( 'clanbite_team_invite_search' ),
 );
+
+$team_create_form_root_open = '<div '
+	. trim( (string) $wrapper_attributes )
+	. ' data-wp-interactive="clanbite-team-create-form"'
+	. ' data-wp-context="' . esc_attr( wp_json_encode( $context ) ) . '"'
+	. ' data-wp-init="callbacks.init"'
+	. '>';
 ?>
 <?php ob_start(); ?>
-<div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after markup. ?>
-	data-wp-interactive="clanbite-team-create-form"
-	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
-	data-wp-init="callbacks.init"
->
+<?php clanbite_echo_block_fragment_html( $team_create_form_root_open ); ?>
 	<?php do_action( 'clanbite_before_team_create_form' ); ?>
 	<?php if ( 'success' === $status ) : ?>
 		<p id="clanbite-team-create-notice" class="clanbite-team-create-form__notice is-success" role="status" tabindex="-1"><?php esc_html_e( 'Team created successfully.', 'clanbite' ); ?></p>

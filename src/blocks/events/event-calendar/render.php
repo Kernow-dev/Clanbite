@@ -202,14 +202,16 @@ $wrapper = get_block_wrapper_attributes(
 	),
 	$block
 );
+
+$event_calendar_root_open = '<div '
+	. trim( (string) $wrapper )
+	. ' data-wp-interactive="clanbite-event-calendar"'
+	. ' data-wp-context="' . esc_attr( wp_json_encode( $config ) ) . '"'
+	. ' data-wp-init="callbacks.init"'
+	. '>';
 ?>
 <?php ob_start(); ?>
-<div
-	<?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) before output. ?>
-	data-wp-interactive="clanbite-event-calendar"
-	data-wp-context="<?php echo esc_attr( wp_json_encode( $config ) ); ?>"
-	data-wp-init="callbacks.init"
->
+<?php clanbite_echo_block_fragment_html( $event_calendar_root_open ); ?>
 	<div class="clanbite-event-calendar__toolbar">
 		<div class="clanbite-event-calendar__views" role="group" aria-label="<?php esc_attr_e( 'Calendar view', 'clanbite' ); ?>">
 			<button type="button" class="clanbite-event-calendar__view-btn" data-cal-view="month" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['month'] ); ?></button>
@@ -231,6 +233,6 @@ $wrapper = get_block_wrapper_attributes(
 	<h2 class="clanbite-event-calendar__heading"><?php echo '' !== $calendar_heading ? esc_html( $calendar_heading ) : ''; ?></h2>
 	<p class="clanbite-event-calendar__sr-only" hidden data-wp-bind--hidden="!context.calLoading" aria-live="polite"><?php echo esc_html( $config['i18n']['loading'] ); ?></p>
 	<p class="clanbite-event-calendar__error" hidden data-wp-bind--hidden="!context.fetchError" data-wp-text="context.fetchError" role="alert"></p>
-	<div class="clanbite-event-calendar__surface"><?php echo $calendar_surface ? $calendar_surface : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; calendar HTML from clanbite_event_calendar_render_surface_html() / grid helpers using esc_html/esc_attr. ?></div>
+	<div class="clanbite-event-calendar__surface"><?php clanbite_echo_block_fragment_html( $calendar_surface ? (string) $calendar_surface : '' ); ?></div>
 </div>
 <?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>

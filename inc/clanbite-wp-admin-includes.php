@@ -3,9 +3,12 @@
  * Lazy-load wp-admin helper includes for APIs normally loaded only in wp-admin.
  *
  * Do not use this to bootstrap WordPress (never load `wp-load.php`, `wp-blog-header.php`,
- * or `wp-config.php` from the plugin). These wrappers only pull in specific
- * `wp-admin/includes/*.php` files immediately before calling functions defined there,
- * per WordPress guidance for REST/async uploads, attachment metadata, dbDelta, etc.
+ * or `wp-config.php` from the plugin). These helpers mirror core patterns (see
+ * {@see \WP_REST_Attachments_Controller}) by loading the small administration API
+ * files that define `wp_handle_upload()`, `media_handle_upload()`, `dbDelta()`, etc.,
+ * only when a caller is about to invoke those functions.
+ *
+ * Paths are composed with {@see path_join()} and {@see ABSPATH} for portability across installs.
  *
  * @package clanbite
  */
@@ -13,7 +16,17 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Ensures `wp-admin/includes/file.php` is loaded (`wp_handle_upload`, `WP_Filesystem`, …).
+ * Absolute filesystem path to a bundled administration API partial (basename only).
+ *
+ * @param string $basename File name only (e.g. `file.php`, `upgrade.php`).
+ * @return string
+ */
+function clanbite_wp_admin_includes_filepath( string $basename ): string {
+	return path_join( path_join( path_join( ABSPATH, 'wp-admin' ), 'includes' ), $basename );
+}
+
+/**
+ * Ensures the core file upload / Filesystem API helpers are loaded.
  *
  * @return void
  */
@@ -22,7 +35,7 @@ function clanbite_require_wp_admin_file_includes(): void {
 		return;
 	}
 
-	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once clanbite_wp_admin_includes_filepath( 'file.php' );
 }
 
 /**
@@ -36,7 +49,7 @@ function clanbite_require_wp_admin_image_includes(): void {
 	}
 
 	clanbite_require_wp_admin_file_includes();
-	require_once ABSPATH . 'wp-admin/includes/image.php';
+	require_once clanbite_wp_admin_includes_filepath( 'image.php' );
 }
 
 /**
@@ -49,9 +62,9 @@ function clanbite_require_wp_admin_media_includes(): void {
 		return;
 	}
 
-	require_once ABSPATH . 'wp-admin/includes/file.php';
-	require_once ABSPATH . 'wp-admin/includes/media.php';
-	require_once ABSPATH . 'wp-admin/includes/image.php';
+	require_once clanbite_wp_admin_includes_filepath( 'file.php' );
+	require_once clanbite_wp_admin_includes_filepath( 'media.php' );
+	require_once clanbite_wp_admin_includes_filepath( 'image.php' );
 }
 
 /**
@@ -64,7 +77,7 @@ function clanbite_require_wp_admin_upgrade_includes(): void {
 		return;
 	}
 
-	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	require_once clanbite_wp_admin_includes_filepath( 'upgrade.php' );
 }
 
 /**
@@ -76,8 +89,8 @@ function clanbite_require_wp_admin_upgrade_includes(): void {
  * @return \WP_Filesystem_Direct
  */
 function clanbite_wp_filesystem_direct(): \WP_Filesystem_Direct {
-	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+	require_once clanbite_wp_admin_includes_filepath( 'class-wp-filesystem-base.php' );
+	require_once clanbite_wp_admin_includes_filepath( 'class-wp-filesystem-direct.php' );
 
 	return new \WP_Filesystem_Direct( false );
 }

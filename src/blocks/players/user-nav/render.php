@@ -24,8 +24,7 @@ if ( $is_logged_in ) {
 		? clanbite_players_get_display_avatar( $user_id, false, '', 'user_nav', 'small' )
 		: get_avatar_url( $user_id, array( 'size' => max( 96, (int) $avatar_size * 2 ) ) );
 
-	$avatar_trigger  = '';
-	$avatar_dropdown = '';
+	$avatar_trigger = '';
 
 	if ( function_exists( 'clanbite_players_get_player_avatar_img_html' ) && function_exists( 'clanbite_players_apply_player_avatar_display_markup' ) ) {
 		$nav_avatar_base = array(
@@ -59,40 +58,11 @@ if ( $is_logged_in ) {
 			$user_id,
 			array_merge( $nav_avatar_base, array( 'variant' => 'trigger' ) )
 		);
-
-		$dropdown_inner = clanbite_players_get_player_avatar_img_html(
-			$user_id,
-			array_merge(
-				$nav_avatar_base,
-				array(
-					'class'  => 'clanbite-user-nav__dropdown-avatar',
-					'width'  => 40,
-					'height' => 40,
-				)
-			)
-		);
-
-		if ( '' === $dropdown_inner ) {
-			$dropdown_inner = sprintf(
-				'<img src="%s" alt="" class="clanbite-user-nav__dropdown-avatar" width="40" height="40" loading="lazy" decoding="async" aria-hidden="true" />',
-				esc_url( $avatar_url_fallback )
-			);
-		}
-
-		$avatar_dropdown = clanbite_players_apply_player_avatar_display_markup(
-			$dropdown_inner,
-			$user_id,
-			array_merge( $nav_avatar_base, array( 'variant' => 'dropdown' ) )
-		);
 	} else {
 		$avatar_trigger = sprintf(
 			'<img src="%1$s" alt="" class="clanbite-user-nav__avatar" width="%2$d" height="%2$d" loading="lazy" decoding="async" aria-hidden="true" />',
 			esc_url( $avatar_url_fallback ),
 			(int) $avatar_size
-		);
-		$avatar_dropdown = sprintf(
-			'<img src="%s" alt="" class="clanbite-user-nav__dropdown-avatar" width="40" height="40" loading="lazy" decoding="async" aria-hidden="true" />',
-			esc_url( $avatar_url_fallback )
 		);
 	}
 
@@ -116,16 +86,18 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	),
 	$block
 );
+
+$user_nav_root_open = '<div '
+	. trim( (string) $wrapper_attributes )
+	. ' data-wp-interactive="clanbite/user-nav"'
+	. ' data-wp-context="' . esc_attr( wp_json_encode( $context ) ) . '"'
+	. ' data-wp-on-document--click="actions.handleOutsideClick"'
+	. ' data-wp-on-document--keydown="actions.handleKeydown"'
+	. ' data-wp-class--is-open="context.isOpen"'
+	. '>';
 ?>
 <?php ob_start(); ?>
-<div
-	<?php echo $wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered below with wp_kses(, clanbite_block_fragment_allowed_html()). ?>
-	data-wp-interactive="clanbite/user-nav"
-	data-wp-context="<?php echo esc_attr( wp_json_encode( $context ) ); ?>"
-	data-wp-on-document--click="actions.handleOutsideClick"
-	data-wp-on-document--keydown="actions.handleKeydown"
-	data-wp-class--is-open="context.isOpen"
->
+<?php clanbite_echo_block_fragment_html( $user_nav_root_open ); ?>
 	<?php if ( $is_logged_in ) : ?>
 		<button
 			type="button"
@@ -137,7 +109,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 			data-wp-on--click="actions.toggleDropdown"
 			data-wp-bind--aria-expanded="context.isOpen"
 		>
-			<?php echo $avatar_trigger; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after template. ?>
+			<?php clanbite_echo_block_fragment_html( (string) $avatar_trigger ); ?>
 			<?php if ( $show_username ) : ?>
 				<span class="clanbite-user-nav__username"><?php echo esc_html( $display_name ); ?></span>
 			<?php endif; ?>
@@ -164,7 +136,6 @@ $wrapper_attributes = get_block_wrapper_attributes(
 		>
 			<div class="clanbite-user-nav__dropdown-header">
 				<a href="<?php echo esc_url( $profile_url ); ?>" class="clanbite-user-nav__profile-link">
-					<?php echo $avatar_dropdown; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Buffered; escaped via wp_kses(, clanbite_block_fragment_allowed_html()) after template. ?>
 					<div class="clanbite-user-nav__profile-info">
 						<span class="clanbite-user-nav__profile-name"><?php echo esc_html( $display_name ); ?></span>
 						<span class="clanbite-user-nav__profile-label"><?php esc_html_e( 'View Profile', 'clanbite' ); ?></span>
