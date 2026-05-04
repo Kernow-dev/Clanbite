@@ -134,6 +134,7 @@ These items recur in **Plugin Check** / **PHPCS** runs. Prefer fixing **errors**
 - `clanbite_load_players_directory_template` — Resolved PHP template path for `/players/`: `(string $path, string $located_theme_path)`.
 - `clanbite_players_directory_per_page` — User-query page size on the players directory shortcode: `(int $per_page)`.
 - `clanbite_redirect_author_archive_to_players_url` — 301 target for `/author/…` and `?author=` → `/players/…`: `(string $target, \WP_User $user)`.
+- `clanbite_player_profile_url` — Canonical URL for `/players/{nicename}/` used by {@see clanbite_get_player_profile_url()}: `(string $url, int $user_id)`.
 - `clanbite_players_social_profile_field_definitions` — Social fields on **Profile → Social Networks** and matching user meta keys: `(array $definitions)` map of slug → `label` / `placeholder`.
 - `clanbite_players_get_display_social` — Single social field after user meta: `(string $value, string $slug, int $player_id)`.
 - `clanbite_players_social_profile_link_url` — Final resolved URL for **Player social links** / helpers: `(string $url, string $slug, int $player_id, string $raw_meta)`.
