@@ -115,15 +115,16 @@ abstract class WP_Post_Meta_Data_Store {
 		}
 		if ( '' === $query ) {
 			if ( function_exists( '_doing_it_wrong' ) ) {
+				$diagnostic = sprintf(
+					'Unexpected metadata SQL mapping: table=%1$s, object_id_field=%2$s, meta_id_field=%3$s.',
+					esc_html( (string) $trusted['table'] ),
+					esc_html( (string) $trusted['object_id_field'] ),
+					esc_html( (string) $trusted['meta_id_field'] )
+				);
 				_doing_it_wrong(
 					__METHOD__,
-					/* translators: 1: meta table, 2: object ID field, 3: meta ID field */
-					sprintf(
-						__( 'Unexpected metadata SQL mapping: table=%1$s, object_id_field=%2$s, meta_id_field=%3$s.', 'clanbite' ),
-						(string) $trusted['table'],
-						(string) $trusted['object_id_field'],
-						(string) $trusted['meta_id_field']
-					),
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- `_doing_it_wrong()` message is developer-facing diagnostic text.
+					$diagnostic,
 					'1.0.0'
 				);
 			}
