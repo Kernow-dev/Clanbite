@@ -114,6 +114,19 @@ abstract class WP_Post_Meta_Data_Store {
 			$query = "SELECT umeta_id AS meta_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id = %d ORDER BY umeta_id";
 		}
 		if ( '' === $query ) {
+			if ( function_exists( '_doing_it_wrong' ) ) {
+				_doing_it_wrong(
+					__METHOD__,
+					/* translators: 1: meta table, 2: object ID field, 3: meta ID field */
+					sprintf(
+						__( 'Unexpected metadata SQL mapping: table=%1$s, object_id_field=%2$s, meta_id_field=%3$s.', 'clanbite' ),
+						(string) $trusted['table'],
+						(string) $trusted['object_id_field'],
+						(string) $trusted['meta_id_field']
+					),
+					'1.0.0'
+				);
+			}
 			return array();
 		}
 
