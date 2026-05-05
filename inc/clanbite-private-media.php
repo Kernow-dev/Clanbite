@@ -158,7 +158,8 @@ function clanbite_handle_isolated_image_upload( string $files_key, int $post_par
 	if ( '' === $nonce ) {
 		return new \WP_Error( 'clanbite_invalid_nonce', __( 'Invalid security token.', 'clanbite' ) );
 	}
-	if ( ! wp_verify_nonce( $nonce, $nonce_action ) ) {
+	$nonce_valid = wp_verify_nonce( $nonce, $nonce_action );
+	if ( false === $nonce_valid ) {
 		return new \WP_Error( 'clanbite_invalid_nonce', __( 'Invalid security token.', 'clanbite' ) );
 	}
 
