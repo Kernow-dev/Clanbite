@@ -104,13 +104,18 @@ abstract class WP_Post_Meta_Data_Store {
 			return array();
 		}
 
-		// Identifiers are allow-listed; object_id is the only variable bound via prepare().
-		$query = sprintf(
-			'SELECT `%1$s` AS meta_id, meta_key, meta_value FROM `%2$s` WHERE `%3$s` = %%d ORDER BY `%1$s`',
-			$trusted['meta_id_field'],
-			$trusted['table'],
-			$trusted['object_id_field']
-		);
+		// Build a fixed query shape from allow-listed identifiers (no runtime SQL shell formatting).
+		$query = '';
+		if ( $trusted['table'] === $wpdb->postmeta && 'meta_id' === $trusted['meta_id_field'] && 'post_id' === $trusted['object_id_field'] ) {
+			$query = "SELECT meta_id AS meta_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id = %d ORDER BY meta_id";
+		} elseif ( $trusted['table'] === $wpdb->postmeta && 'meta_id' === $trusted['meta_id_field'] && 'user_id' === $trusted['object_id_field'] ) {
+			$query = "SELECT meta_id AS meta_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE user_id = %d ORDER BY meta_id";
+		} elseif ( $trusted['table'] === $wpdb->usermeta && 'umeta_id' === $trusted['meta_id_field'] && 'user_id' === $trusted['object_id_field'] ) {
+			$query = "SELECT umeta_id AS meta_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE user_id = %d ORDER BY umeta_id";
+		}
+		if ( '' === $query ) {
+			return array();
+		}
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Identifier shell allow-listed; values bound via prepare(); no bulk raw-meta API in core.
 		$rows = $wpdb->get_results( $wpdb->prepare( $query, $object_id ) );

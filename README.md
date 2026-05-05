@@ -96,7 +96,7 @@ Extensions are registered through filter-based discovery and loaded by the exten
 
 ### Extension loader bootstrap
 
-`Main::$extensions` is **`null` until `init()`** runs (after `load_plugin_textdomain()`). Theme or plugin code that runs earlier must not call `clanbite()->extensions` without a null check.
+`Main::$extensions` is **`null` until `init()`** runs. Theme or plugin code that runs earlier must not call `clanbite()->extensions` without a null check.
 
 `Skeleton::can_install()` reads installed slugs via `Extension_Loader::read_installed_extensions_from_options()` so dependency checks work while the loader singleton is still constructing (avoiding a circular access on `clanbite()->extensions`).
 
