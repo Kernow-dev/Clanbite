@@ -1035,6 +1035,7 @@ class Teams extends Skeleton {
 			return;
 		}
 
+		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global index `$_wp_current_template_id`; must match WordPress internals.
 		if ( is_singular( 'clanbite_team' ) ) {
 			$GLOBALS['_wp_current_template_id'] = 'clanbite//single-clanbite_team';
 		} elseif ( $this->is_team_directories_mode() ) {
@@ -1060,6 +1061,7 @@ class Teams extends Skeleton {
 				}
 			}
 		}
+		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 	}
 
 	/**

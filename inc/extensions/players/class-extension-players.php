@@ -1027,6 +1027,7 @@ class Players extends Skeleton {
 			|| 'players' === $path
 			|| ( $path !== '' && preg_match( '#^players/page/[0-9]+/?$#', $path ) );
 
+		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global index `$_wp_current_template_id`; must match WordPress internals.
 		if ( $is_players_directory ) {
 			$GLOBALS['_wp_current_template_id'] = 'clanbite//players-directory';
 		} elseif ( get_query_var( 'players_settings' ) ) {
@@ -1039,6 +1040,7 @@ class Players extends Skeleton {
 				$GLOBALS['_wp_current_template_id'] = 'clanbite//players-player-profile';
 			}
 		}
+		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 	}
 
 	/**
