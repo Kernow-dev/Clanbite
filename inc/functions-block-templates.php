@@ -43,6 +43,5 @@ function clanbite_render_block_markup_file( string $markup_file ): void {
 	 */
 	do_action( 'clanbite_render_block_markup_file', $markup_file, $markup );
 
-	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	echo do_blocks( $markup );
+	clanbite_echo_block_fragment_html( do_blocks( $markup ) );
 }

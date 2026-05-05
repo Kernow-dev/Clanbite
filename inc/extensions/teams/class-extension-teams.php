@@ -1035,36 +1035,31 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Core global `$_wp_current_template_id` for block theme / Site Editor resolution.
-		global $_wp_current_template_id;
-
 		if ( is_singular( 'clanbite_team' ) ) {
-			$_wp_current_template_id = 'clanbite//single-clanbite_team';
+			$GLOBALS['_wp_current_template_id'] = 'clanbite//single-clanbite_team';
 		} elseif ( $this->is_team_directories_mode() ) {
 			if ( (int) get_query_var( 'clanbite_team_create' ) ) {
-				$_wp_current_template_id = 'clanbite//teams-create';
+				$GLOBALS['_wp_current_template_id'] = 'clanbite//teams-create';
 			} else {
 				$action = sanitize_key( (string) get_query_var( 'clanbite_team_action' ) );
 				if ( 'manage' === $action ) {
-					$_wp_current_template_id = 'clanbite//teams-manage';
+					$GLOBALS['_wp_current_template_id'] = 'clanbite//teams-manage';
 				} elseif ( 'events' === $action && $this->events_extension_is_active() ) {
 					$events_sub = sanitize_key( (string) get_query_var( 'clanbite_team_events_sub' ) );
 					if ( 'create' === $events_sub ) {
-						$_wp_current_template_id = 'clanbite//teams-events-create';
+						$GLOBALS['_wp_current_template_id'] = 'clanbite//teams-events-create';
 					} else {
-						$_wp_current_template_id = ( (int) get_query_var( 'clanbite_team_event_id' ) > 0 )
+						$GLOBALS['_wp_current_template_id'] = ( (int) get_query_var( 'clanbite_team_event_id' ) > 0 )
 							? 'clanbite//teams-events-single'
 							: 'clanbite//teams-events';
 					}
 				} elseif ( 'matches' === $action
 					&& function_exists( 'clanbite_matches' ) && clanbite_matches()
 					&& function_exists( 'clanbite_matches_subpage_team_enabled' ) && clanbite_matches_subpage_team_enabled() ) {
-					$_wp_current_template_id = 'clanbite//teams-matches';
+					$GLOBALS['_wp_current_template_id'] = 'clanbite//teams-matches';
 				}
 			}
 		}
-
-		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 	}
 
 	/**
@@ -3982,9 +3977,21 @@ class Teams extends Skeleton {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified on the next lines using the team-scoped action `clanbite_team_media_{id}`.
 		$team_id = isset( $_POST['clanbite_team_id'] ) ? absint( wp_unslash( $_POST['clanbite_team_id'] ) ) : 0;
+		if ( $team_id < 1 ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid team.', 'clanbite' ) ),
+				400
+			);
+		}
 		$ajax_nonce = clanbite_request_post_nonce_string( '_clanbite_team_media_nonce' );
-		$media_action = $team_id > 0 ? 'clanbite_team_media_' . $team_id : 'clanbite_team_media_invalid';
-		if ( $team_id < 1 || '' === $ajax_nonce || ! wp_verify_nonce( $ajax_nonce, $media_action ) ) {
+		if ( '' === $ajax_nonce ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid security token.', 'clanbite' ) ),
+				403
+			);
+		}
+		$media_action = 'clanbite_team_media_' . $team_id;
+		if ( ! wp_verify_nonce( $ajax_nonce, $media_action ) ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Invalid security token.', 'clanbite' ) ),
 				403
@@ -4403,17 +4410,13 @@ class Teams extends Skeleton {
 			return $pre_render;
 		}
 
-		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Core `$wp_query` / `$_wp_current_template_id` for singular team template priming.
-		global $wp_query, $_wp_current_template_id;
-
+		$wp_query = $GLOBALS['wp_query'] ?? null;
 		if ( ! $wp_query instanceof \WP_Query || ! $wp_query->is_singular( 'clanbite_team' ) || in_the_loop() ) {
-			// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 			return null;
 		}
 
-		$tpl_id = ( isset( $_wp_current_template_id ) && is_string( $_wp_current_template_id ) ) ? $_wp_current_template_id : '';
+		$tpl_id = ( isset( $GLOBALS['_wp_current_template_id'] ) && is_string( $GLOBALS['_wp_current_template_id'] ) ) ? $GLOBALS['_wp_current_template_id'] : '';
 		if ( '' === $tpl_id || ! str_starts_with( $tpl_id, 'clanbite//' ) ) {
-			// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 			return null;
 		}
 
@@ -4422,7 +4425,6 @@ class Teams extends Skeleton {
 			$done = true;
 		}
 
-		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 		return null;
 	}
 

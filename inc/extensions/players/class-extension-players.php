@@ -1022,28 +1022,23 @@ class Players extends Skeleton {
 			return;
 		}
 
-		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Core global `$_wp_current_template_id` for block theme / Site Editor resolution.
-		global $_wp_current_template_id;
-
 		$path = $this->get_canonical_request_path();
 		$is_players_directory = (int) get_query_var( 'cp_players_directory' )
 			|| 'players' === $path
 			|| ( $path !== '' && preg_match( '#^players/page/[0-9]+/?$#', $path ) );
 
 		if ( $is_players_directory ) {
-			$_wp_current_template_id = 'clanbite//players-directory';
+			$GLOBALS['_wp_current_template_id'] = 'clanbite//players-directory';
 		} elseif ( get_query_var( 'players_settings' ) ) {
-			$_wp_current_template_id = 'clanbite//player-settings';
+			$GLOBALS['_wp_current_template_id'] = 'clanbite//player-settings';
 		} else {
 			$sub = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
 			if ( '' !== $sub && is_author() && $this->player_subpage_has_dedicated_template( $sub ) ) {
-				$_wp_current_template_id = 'clanbite//player-' . $sub;
+				$GLOBALS['_wp_current_template_id'] = 'clanbite//player-' . $sub;
 			} elseif ( $this->should_use_player_profile_template() ) {
-				$_wp_current_template_id = 'clanbite//players-player-profile';
+				$GLOBALS['_wp_current_template_id'] = 'clanbite//players-player-profile';
 			}
 		}
-
-		// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals
 	}
 
 	/**

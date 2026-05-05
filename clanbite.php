@@ -338,14 +338,6 @@ final class Main {
 			return;
 		}
 
-		// Load translated strings for the plugin.
-		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Standard plugin i18n; languages live under /languages (not only language packs).
-		load_plugin_textdomain(
-			'clanbite',
-			false,
-			dirname( $this->basename ) . '/languages/'
-		);
-
 		require_once $this->path . 'inc/groups/functions.php';
 
 		// Perform maintenance.
