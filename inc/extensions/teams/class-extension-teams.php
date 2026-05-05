@@ -2578,7 +2578,7 @@ class Teams extends Skeleton {
 		>
 		<form class="clanbite-team-create-form__form clanbite-team-manage-form__form" method="post" enctype="multipart/form-data" action="<?php echo esc_url( $action_url ); ?>" data-active-step="1">
 			<?php wp_nonce_field( 'clanbite_team_manage_' . $team_id, '_clanbite_team_manage_nonce' ); ?>
-			<input type="hidden" name="_clanbite_team_media_nonce" value="<?php echo esc_attr( wp_create_nonce( 'clanbite_team_media_' . (int) $team_id ) ); ?>" />
+			<input type="hidden" name="_clanbite_team_media_nonce" value="<?php echo esc_attr( wp_create_nonce( 'clanbite_team_media' ) ); ?>" />
 			<input type="hidden" name="action" value="clanbite_save_team_manage" />
 			<input type="hidden" name="clanbite_team_id" value="<?php echo esc_attr( (string) $team_id ); ?>" />
 
@@ -3965,7 +3965,7 @@ class Teams extends Skeleton {
 	/**
 	 * Ajax: save team avatar and/or cover from front-end blocks (multipart POST).
 	 *
-	 * Expects `clanbite_team_id`, `_clanbite_team_media_nonce` (action `clanbite_team_media_{team_id}`), and optional `team_avatar` / `team_cover` files.
+	 * Expects `clanbite_team_id`, `_clanbite_team_media_nonce` (action `clanbite_team_media`), and optional `team_avatar` / `team_cover` files.
 	 *
 	 * @return void
 	 */
@@ -3977,14 +3977,6 @@ class Teams extends Skeleton {
 			);
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified on the next lines using the team-scoped action `clanbite_team_media_{id}`.
-		$team_id = isset( $_POST['clanbite_team_id'] ) ? absint( wp_unslash( $_POST['clanbite_team_id'] ) ) : 0;
-		if ( $team_id < 1 ) {
-			wp_send_json_error(
-				array( 'message' => __( 'Invalid team.', 'clanbite' ) ),
-				400
-			);
-		}
 		$ajax_nonce = clanbite_request_post_nonce_string( '_clanbite_team_media_nonce' );
 		if ( '' === $ajax_nonce ) {
 			wp_send_json_error(
@@ -3992,11 +3984,19 @@ class Teams extends Skeleton {
 				403
 			);
 		}
-		$media_action = 'clanbite_team_media_' . $team_id;
+		$media_action = 'clanbite_team_media';
 		if ( ! wp_verify_nonce( $ajax_nonce, $media_action ) ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Invalid security token.', 'clanbite' ) ),
 				403
+			);
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above before reading request data.
+		$team_id = isset( $_POST['clanbite_team_id'] ) ? absint( wp_unslash( $_POST['clanbite_team_id'] ) ) : 0;
+		if ( $team_id < 1 ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Invalid team.', 'clanbite' ) ),
+				400
 			);
 		}
 
