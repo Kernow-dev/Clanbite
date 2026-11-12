@@ -43,3 +43,21 @@ jobs:
                   files: clanbite.zip
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            # WordPress.org: only full releases. Drafts never fire `published`; pre-releases are skipped here.
+            # Deploys the exact files that ship in the zip (the zip holds a top-level `clanbite/` folder), so
+            # SVN trunk and the tag match the GitHub release. Needs SVN_USERNAME / SVN_PASSWORD repository secrets.
+            - name: Unpack release zip for WordPress.org
+              if: ${{ ! github.event.release.prerelease }}
+              run: unzip -q clanbite.zip -d wporg-build
+
+            - name: Deploy to WordPress.org
+              if: ${{ ! github.event.release.prerelease }}
+              uses: 10up/action-wordpress-plugin-deploy@stable
+              env:
+                  SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+                  SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+                  SLUG: clanbite
+                  BUILD_DIR: wporg-build/clanbite
+                  # Set to true to preview what would be committed without touching the directory.
+                  DRY_RUN: false
