@@ -146,10 +146,7 @@ registerBlockType( metadata, {
 							/>
 						) }
 						<ToggleControl
-							label={ __(
-								'Exclude banned members',
-								'clanbite'
-							) }
+							label={ __( 'Exclude banned members', 'clanbite' ) }
 							checked={ excludeBannedMembers }
 							onChange={ ( v ) =>
 								setAttributes( { excludeBannedMembers: v } )
@@ -211,10 +208,7 @@ registerBlockType( metadata, {
 							/>
 						) }
 						<TextControl
-							label={ __(
-								'Max members (0 = all)',
-								'clanbite'
-							) }
+							label={ __( 'Max members (0 = all)', 'clanbite' ) }
 							type="number"
 							min={ 0 }
 							value={ queryPerPage ? String( queryPerPage ) : '' }
@@ -244,10 +238,7 @@ registerBlockType( metadata, {
 							__nextHasNoMarginBottom
 						/>
 						<TextareaControl
-							label={ __(
-								'Filter by meta (JSON)',
-								'clanbite'
-							) }
+							label={ __( 'Filter by meta (JSON)', 'clanbite' ) }
 							value={ queryMetaQueryJson || '' }
 							onChange={ ( v ) =>
 								setAttributes( { queryMetaQueryJson: v ?? '' } )
@@ -308,10 +299,7 @@ registerBlockType( metadata, {
 							__nextHasNoMarginBottom
 						/>
 						<TextareaControl
-							label={ __(
-								'Exclude by meta (JSON)',
-								'clanbite'
-							) }
+							label={ __( 'Exclude by meta (JSON)', 'clanbite' ) }
 							value={ queryExcludeMetaQueryJson || '' }
 							onChange={ ( v ) =>
 								setAttributes( {

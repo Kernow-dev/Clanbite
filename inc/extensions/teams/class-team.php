@@ -124,6 +124,7 @@ class Team {
 	}
 
 	/**
+	 * Set the team name (post title).
 	 *
 	 * @param string $name Post title.
 	 * @return void
@@ -142,6 +143,7 @@ class Team {
 	}
 
 	/**
+	 * Set the team slug (post name).
 	 *
 	 * @param string $slug Sanitized slug.
 	 * @return void
@@ -160,6 +162,7 @@ class Team {
 	}
 
 	/**
+	 * Set the team description (post content).
 	 *
 	 * @param string $description Post content.
 	 * @return void
@@ -178,6 +181,7 @@ class Team {
 	}
 
 	/**
+	 * Set the team post status.
 	 *
 	 * @param string $status Post status.
 	 * @return void
@@ -196,6 +200,7 @@ class Team {
 	}
 
 	/**
+	 * Set the team owner user ID (post author).
 	 *
 	 * @param int $author_id User ID.
 	 * @return void
@@ -214,6 +219,7 @@ class Team {
 	}
 
 	/**
+	 * Set the short team code.
 	 *
 	 * @param string $code Team code.
 	 * @return void
@@ -232,6 +238,7 @@ class Team {
 	}
 
 	/**
+	 * Set the team motto.
 	 *
 	 * @param string $motto Motto text.
 	 * @return void
@@ -250,6 +257,7 @@ class Team {
 	}
 
 	/**
+	 * Set the join mode slug.
 	 *
 	 * @param string $join_mode Join mode slug.
 	 * @return void
@@ -259,6 +267,7 @@ class Team {
 	}
 
 	/**
+	 * Whether members can be invited.
 	 *
 	 * @return bool
 	 */
@@ -267,6 +276,7 @@ class Team {
 	}
 
 	/**
+	 * Set whether members can be invited.
 	 *
 	 * @param bool $allow_invites Whether invites are enabled.
 	 * @return void
@@ -276,6 +286,7 @@ class Team {
 	}
 
 	/**
+	 * Whether the team can be edited on the front end.
 	 *
 	 * @return bool
 	 */
@@ -284,6 +295,7 @@ class Team {
 	}
 
 	/**
+	 * Set whether the team can be edited on the front end.
 	 *
 	 * @param bool $allow_frontend_edit Whether front-end manage is enabled.
 	 * @return void
@@ -293,6 +305,7 @@ class Team {
 	}
 
 	/**
+	 * Whether managers can ban players.
 	 *
 	 * @return bool
 	 */
@@ -301,6 +314,7 @@ class Team {
 	}
 
 	/**
+	 * Set whether managers can ban players.
 	 *
 	 * @param bool $allow_ban_players Whether banning is enabled.
 	 * @return void
@@ -319,6 +333,8 @@ class Team {
 	}
 
 	/**
+	 * Set whether other teams can challenge this team.
+	 *
 	 * @param bool $accept_challenges Whether challenges are allowed.
 	 * @return void
 	 */
@@ -336,6 +352,8 @@ class Team {
 	}
 
 	/**
+	 * Set the ISO country code (sanitized as text).
+	 *
 	 * @param string $country ISO 3166-1 alpha-2 code or empty.
 	 * @return void
 	 */
@@ -344,6 +362,8 @@ class Team {
 	}
 
 	/**
+	 * Get the win count.
+	 *
 	 * @return int
 	 */
 	public function get_wins(): int {
@@ -351,6 +371,8 @@ class Team {
 	}
 
 	/**
+	 * Set the win count (negative values are clamped to 0).
+	 *
 	 * @param int $wins Wins.
 	 * @return void
 	 */
@@ -359,6 +381,8 @@ class Team {
 	}
 
 	/**
+	 * Get the loss count.
+	 *
 	 * @return int
 	 */
 	public function get_losses(): int {
@@ -366,6 +390,8 @@ class Team {
 	}
 
 	/**
+	 * Set the loss count (negative values are clamped to 0).
+	 *
 	 * @param int $losses Losses.
 	 * @return void
 	 */
@@ -374,6 +400,8 @@ class Team {
 	}
 
 	/**
+	 * Get the draw count.
+	 *
 	 * @return int
 	 */
 	public function get_draws(): int {
@@ -381,6 +409,8 @@ class Team {
 	}
 
 	/**
+	 * Set the draw count (negative values are clamped to 0).
+	 *
 	 * @param int $draws Draws.
 	 * @return void
 	 */
@@ -398,6 +428,7 @@ class Team {
 	}
 
 	/**
+	 * Set the avatar attachment ID.
 	 *
 	 * @param int $avatar_id Attachment ID.
 	 * @return void
@@ -416,6 +447,7 @@ class Team {
 	}
 
 	/**
+	 * Set the cover attachment ID.
 	 *
 	 * @param int $cover_id Attachment ID.
 	 * @return void

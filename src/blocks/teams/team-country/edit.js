@@ -55,10 +55,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						/>
 					) : null }
 					<ToggleControl
-						label={ __(
-							'Show country code in text',
-							'clanbite'
-						) }
+						label={ __( 'Show country code in text', 'clanbite' ) }
 						checked={ !! showCode }
 						onChange={ ( v ) =>
 							setAttributes( { showCode: !! v } )
@@ -115,10 +112,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					) }
 				</div>
 				<p className="clanbite-team-block-placeholder">
-					{ __(
-						'Team country (single team template)',
-						'clanbite'
-					) }
+					{ __( 'Team country (single team template)', 'clanbite' ) }
 				</p>
 			</div>
 		</>

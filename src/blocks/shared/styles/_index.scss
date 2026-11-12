@@ -1,20 +1,21 @@
 /**
  * Clanbite Shared Styles Index
- * 
+ *
  * Import this file to get all unified Clanbite component styles.
  * All plugins should use these consistent patterns.
  */
 
 // Core UI Components
-@import 'buttons';
-@import 'modals';
-@import 'forms';
-@import 'lists';
-@import 'navigation';
-@import 'cards';
-@import 'avatars';
-@import 'avatar-progress';
-@import 'covers';
+@use "buttons";
+@use "modals";
+@use "forms";
+@use "lists";
+@use "navigation";
+@use "cards";
+@use "avatars";
+@use "avatar-progress";
+@use "covers";
+@use "reduced-motion";
 
 // Utility classes
 .clanbite-hidden {
@@ -46,12 +47,12 @@
 }
 
 .clanbite-error {
-	color: #c00;
+	color: var(--clanbite-danger, #b32d2e);
 	border-color: #fcc;
 }
 
 .clanbite-success {
-	color: #0a0;
+	color: #007017;
 	border-color: #cfc;
 }
 

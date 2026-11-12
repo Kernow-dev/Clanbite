@@ -59,7 +59,7 @@ final class Event_Rsvp_Schema {
 	public static function maybe_upgrade(): void {
 		$stored = get_option( self::OPTION_DB_VERSION, '' );
 
-		if ( $stored === self::DB_VERSION ) {
+		if ( self::DB_VERSION === $stored ) {
 			return;
 		}
 

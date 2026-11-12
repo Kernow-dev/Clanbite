@@ -19,6 +19,13 @@ final class Notification_Data_Access {
 	/**
 	 * Notification statuses.
 	 */
+	/**
+	 * Object cache group for unread counts.
+	 *
+	 * @var string
+	 */
+	private const CACHE_GROUP = 'clanbite_notifications';
+
 	public const STATUS_PENDING   = 'pending';
 	public const STATUS_ACCEPTED  = 'accepted';
 	public const STATUS_DECLINED  = 'declined';
@@ -96,6 +103,7 @@ final class Notification_Data_Access {
 		}
 
 		$notification_id = (int) $wpdb->insert_id;
+		self::flush_unread_cache();
 
 		/**
 		 * Fires after a notification is inserted.
@@ -153,7 +161,7 @@ final class Notification_Data_Access {
 
 		if ( $unread_only ) {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
-			$total = (int) $wpdb->get_var(
+			$total        = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND is_read = 0",
 					$user_id
@@ -161,17 +169,15 @@ final class Notification_Data_Access {
 			);
 			$unread_count = $total;
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
-			$total = (int) $wpdb->get_var(
+			// One pass for both counts. phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
+			$counts       = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$table} WHERE user_id = %d",
+					"SELECT COUNT(*) AS total, COALESCE( SUM( is_read = 0 ), 0 ) AS unread FROM {$table} WHERE user_id = %d",
 					$user_id
 				)
 			);
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from schema helper.
-			$unread_count = (int) $wpdb->get_var(
-				$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND is_read = 0", $user_id )
-			);
+			$total        = $counts ? (int) $counts->total : 0;
+			$unread_count = $counts ? (int) $counts->unread : 0;
 		}
 
 		$limit  = max( 0, (int) $per_page );
@@ -216,14 +222,56 @@ final class Notification_Data_Access {
 	public static function get_unread_count( int $user_id ): int {
 		global $wpdb;
 
+		// Cached only with a persistent object cache: the bell long-polls this in a loop, and an in-process cache could not see
+		// writes made by other requests. Every write bumps the shared salt, which invalidates all users' counts at once.
+		$use_cache = wp_using_ext_object_cache();
+		$cache_key = '';
+		if ( $use_cache ) {
+			$cache_key = 'unread_' . $user_id . '_' . self::cache_salt();
+			$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
+			if ( false !== $cached ) {
+				return (int) $cached;
+			}
+		}
+
 		Notification_Schema::ensure_table_exists();
 
 		$table = Notification_Schema::table_name();
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return (int) $wpdb->get_var(
+		$count = (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE user_id = %d AND is_read = 0", $user_id )
 		);
+
+		if ( $use_cache ) {
+			wp_cache_set( $cache_key, $count, self::CACHE_GROUP, 5 * MINUTE_IN_SECONDS );
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Current cache salt for unread counts.
+	 *
+	 * @return string
+	 */
+	private static function cache_salt(): string {
+		$salt = wp_cache_get( 'salt', self::CACHE_GROUP );
+		if ( ! is_string( $salt ) || '' === $salt ) {
+			$salt = (string) microtime( true );
+			wp_cache_set( 'salt', $salt, self::CACHE_GROUP );
+		}
+
+		return $salt;
+	}
+
+	/**
+	 * Invalidate every cached unread count. Call after any write to the notifications table.
+	 *
+	 * @return void
+	 */
+	private static function flush_unread_cache(): void {
+		wp_cache_set( 'salt', (string) microtime( true ), self::CACHE_GROUP );
 	}
 
 	/**
@@ -253,6 +301,8 @@ final class Notification_Data_Access {
 		);
 
 		if ( false !== $result && $result > 0 ) {
+			self::flush_unread_cache();
+
 			/**
 			 * Fires after a notification is marked as read.
 			 *
@@ -289,6 +339,8 @@ final class Notification_Data_Access {
 		$count = false !== $result ? (int) $result : 0;
 
 		if ( $count > 0 ) {
+			self::flush_unread_cache();
+
 			/**
 			 * Fires after all notifications are marked as read.
 			 *
@@ -323,6 +375,8 @@ final class Notification_Data_Access {
 		);
 
 		if ( false !== $result && $result > 0 ) {
+			self::flush_unread_cache();
+
 			/**
 			 * Fires after a notification is deleted.
 			 *
@@ -348,6 +402,7 @@ final class Notification_Data_Access {
 		$table = Notification_Schema::table_name();
 
 		$result = $wpdb->delete( $table, array( 'user_id' => $user_id ), array( '%d' ) );
+		self::flush_unread_cache();
 
 		return false !== $result ? (int) $result : 0;
 	}
@@ -372,6 +427,7 @@ final class Notification_Data_Access {
 			),
 			array( '%s', '%d' )
 		);
+		self::flush_unread_cache();
 
 		return false !== $result ? (int) $result : 0;
 	}
@@ -534,6 +590,8 @@ final class Notification_Data_Access {
 		);
 
 		if ( false !== $result && $result > 0 ) {
+			self::flush_unread_cache();
+
 			/**
 			 * Fires after a notification status is updated.
 			 *

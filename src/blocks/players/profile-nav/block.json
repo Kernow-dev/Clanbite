@@ -39,5 +39,6 @@
 		},
 		"typography": ".wp-block-clanbite-player-profile-nav .clanbite-player-profile-nav__link",
 		"border": ".wp-block-clanbite-player-profile-nav"
-	}
+	},
+	"version": "1.0.0"
 }

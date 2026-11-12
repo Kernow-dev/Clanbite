@@ -20,6 +20,7 @@
 		}
 
 		@media ( min-width: 600px ) {
+
 			&.columns-2 > li {
 				width: calc((100% / 2) - 1.25em + (1.25em / 2));
 			}
@@ -45,6 +46,7 @@
 
 // Match core mobile grid collapse (repeat class names = specificity bump like core).
 @media ( max-width: 599px ) {
+
 	.wp-block-clanbite-player-template-is-layout-grid.wp-block-clanbite-player-template-is-layout-grid.wp-block-clanbite-player-template-is-layout-grid.wp-block-clanbite-player-template-is-layout-grid {
 		grid-template-columns: 1fr !important;
 	}

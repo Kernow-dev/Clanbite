@@ -1,0 +1,161 @@
+/**
+ * Clanbite button contract (style handle `clanbite-buttons`).
+ *
+ * Every action button in Clanbite and its companion plugins carries the WordPress button classes plus a Clanbite
+ * variant, so the active theme styles them through theme.json (`styles.elements.button` / `styles.blocks.core/button`):
+ *
+ *   <button class="wp-element-button clanbite-button clanbite-button--primary">...</button>
+ *   <div class="wp-block-button clanbite-button clanbite-button--ghost">
+ *       <a class="wp-block-button__link wp-element-button clanbite-button__element">...</a>
+ *   </div>
+ *
+ * Two layers:
+ *   1. Defaults, written with :where() so they have ZERO specificity. They only apply when the theme says nothing
+ *      about buttons (classic themes, or block themes without `styles.elements.button`), so the plugin looks finished
+ *      on any theme. Any theme rule, theme.json included, overrides them without needing !important.
+ *   2. Variants and states (`--ghost`, `--danger`, `--small`, toggle, disabled, focus). These layer on whatever the
+ *      theme set and only change what must differ.
+ *
+ * Override the custom properties below (for example `--clanbite-accent: #e11d48` on :root), or target the
+ * classes from a theme stylesheet. See DESIGN-SYSTEM.md.
+ */
+
+:root {
+	/* Colours come from the shared tokens (clanbite-tokens.css), each with a standalone fallback. */
+	--clanbite-button-danger: var(--clanbite-danger, var(--wp--preset--color--danger, var(--wp--preset--color--vivid-red, #b32d2e)));
+	--clanbite-button-danger-contrast: var(--wp--preset--color--white, #fff);
+	/* Hover wash for outline buttons; follows the button text colour. */
+	--clanbite-button-wash: color-mix(in srgb, currentcolor 10%, transparent);
+	--clanbite-button-wash-active: color-mix(in srgb, currentcolor 18%, transparent);
+	--clanbite-button-disabled-opacity: 0.55;
+	/* Focus ring: accent, then the system highlight colour (visible in forced-colors mode too). */
+	--clanbite-focus-ring: var(--clanbite-accent, var(--wp--preset--color--primary, Highlight));
+}
+
+/*
+ * Layer 1: defaults (zero specificity; any theme rule wins). Text colour is computed from the accent so it is
+ * always readable (black or white); browsers without relative colour syntax fall back to white.
+ */
+:where(.wp-element-button.clanbite-button, .clanbite-button > .wp-element-button) {
+	padding: 0.6em 1.15em;
+	border: 1px solid transparent;
+	border-radius: var(--clanbite-radius, 0.375em);
+	background-color: var(--clanbite-accent, var(--wp--preset--color--primary, #2271b1));
+	color: #fff;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: 600;
+	line-height: 1.25;
+	min-height: 2.5em;
+	transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+@supports (color: oklch(from red l c h)) {
+
+	:where(.wp-element-button.clanbite-button, .clanbite-button > .wp-element-button) {
+		color: oklch(from var(--clanbite-accent) clamp(0, (0.62 - l) * 1000, 1) 0 0);
+	}
+}
+
+:where(.wp-element-button.clanbite-button:hover:not(:disabled, [aria-disabled="true"]), .clanbite-button > .wp-element-button:hover:not(:disabled, [aria-disabled="true"])) {
+	background-color: color-mix(in srgb, var(--clanbite-accent) 85%, black);
+}
+
+/* Layer 2: layout shared by the button element itself (never the `wp-block-button` wrapper). */
+:is(.wp-element-button.clanbite-button, .clanbite-button > .wp-element-button) {
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4em;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+}
+
+/* Secondary / ghost: outline in the current text colour. */
+:is(
+	.wp-element-button.clanbite-button--ghost,
+	.wp-element-button.clanbite-button--secondary,
+	.clanbite-button--ghost > .wp-element-button,
+	.clanbite-button--secondary > .wp-element-button
+) {
+	background: transparent;
+	border: 1px solid currentcolor;
+	color: inherit;
+}
+
+:is(
+	.wp-element-button.clanbite-button--ghost,
+	.wp-element-button.clanbite-button--secondary,
+	.clanbite-button--ghost > .wp-element-button,
+	.clanbite-button--secondary > .wp-element-button
+):is(:hover, :focus-visible):not(:disabled, [aria-disabled="true"]) {
+	background: var(--clanbite-button-wash);
+	color: inherit;
+}
+
+/* Plain / text button: no fill or outline until hovered (post actions, toolbars). */
+:is(
+	.wp-element-button.clanbite-button--plain,
+	.clanbite-button--plain > .wp-element-button
+) {
+	background: transparent;
+	border-color: transparent;
+	color: inherit;
+}
+
+:is(
+	.wp-element-button.clanbite-button--plain,
+	.clanbite-button--plain > .wp-element-button
+):is(:hover, :focus-visible):not(:disabled, [aria-disabled="true"]) {
+	background: var(--clanbite-button-wash);
+	color: inherit;
+}
+
+/* Danger: solid destructive colour. */
+:is(.wp-element-button.clanbite-button--danger, .clanbite-button--danger > .wp-element-button) {
+	background: var(--clanbite-button-danger);
+	border-color: var(--clanbite-button-danger);
+	color: var(--clanbite-button-danger-contrast);
+}
+
+/* Danger outline (use with `--ghost`): destructive text and border only. */
+:is(
+	.wp-element-button.clanbite-button--danger.clanbite-button--ghost,
+	.clanbite-button--danger.clanbite-button--ghost > .wp-element-button
+) {
+	background: transparent;
+	color: var(--clanbite-button-danger);
+}
+
+/* Compact size for toolbars, pagination and segmented controls (padding only: font size stays the theme's). */
+:is(.wp-element-button.clanbite-button--small, .clanbite-button--small > .wp-element-button) {
+	min-height: 0;
+	padding: 0.35em 0.75em;
+}
+
+/* Toggle / segmented controls: `aria-pressed`, `aria-current` or `.is-active` marks the current choice. */
+:is(.wp-element-button.clanbite-button, .clanbite-button > .wp-element-button):is(.is-active, [aria-pressed="true"], [aria-current="true"], [aria-current="page"]) {
+	background: var(--clanbite-button-wash-active);
+	font-weight: 600;
+}
+
+/* Disabled. */
+:is(.wp-element-button.clanbite-button, .clanbite-button > .wp-element-button):is(:disabled, [aria-disabled="true"]) {
+	cursor: not-allowed;
+	opacity: var(--clanbite-button-disabled-opacity);
+}
+
+/* Keyboard focus. `Highlight` keeps the ring visible in forced-colors mode. */
+:is(.wp-element-button.clanbite-button, .clanbite-button > .wp-element-button):focus-visible {
+	outline: 2px solid var(--clanbite-focus-ring);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	:is(.wp-element-button.clanbite-button, .clanbite-button > .wp-element-button) {
+		transition: none;
+	}
+}

@@ -1,7 +1,7 @@
 .wp-block-clanbite-team-card {
-	border: 1px solid #2a2a2a;
+	border: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 	border-radius: 6px;
 	padding: 1rem;
-	background: #0f1115;
-	color: #f5f6f7;
+	background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
+	color: inherit;
 }

@@ -89,3 +89,11 @@ phpstan.neon
 # Block package local tooling files.
 src/**/.editorconfig
 src/**/.gitignore
+
+# Working reports from refactors (not part of the product docs)
+/ACCESSIBILITY-FIXES.md
+/CSS-ARCHITECTURE-CORRECTED.md
+/OVERHAUL-COMPLETED.md
+/UNIFICATION-SUMMARY.md
+/UNIFIED-CSS-*.md
+/VERSION-FIXES.md

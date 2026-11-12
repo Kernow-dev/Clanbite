@@ -1,0 +1,291 @@
+/**
+ * Clanbite avatars (style handle `clanbite-avatars`).
+ *
+ * Loaded by every block that renders an avatar (core, Social Kit, Forums): list the handle in the block's `block.json`
+ * `style` array, or `wp_enqueue_style( 'clanbite-avatars' )` from template output.
+ *
+ * One avatar system for players, teams and groups, in three shapes (circle, square, hexagon), with an optional XP ring around
+ * the photo and a rank badge at the lower right.
+ *
+ * Geometry lives in a 100 x 100 coordinate space shared with the SVG frame that PHP draws (clanbite_avatar_frame_svg() in
+ * inc/avatar-helpers.php): keep the clip values below in sync with the radii used there.
+ *
+ *   frame border  radius 50     photo with ring  radius 37
+ *   ring          radius 43     photo (no ring)  radius 45
+ *
+ * Everything is sized from `--clanbite-avatar-size`, so any size works. Colours come from the theme-adaptive tokens
+ * (`--clanbite-surface`, `--clanbite-accent`, ...) with standalone fallbacks; override the `--clanbite-avatar-*` properties
+ * below to restyle.
+ */
+
+/* Base avatar block wrapper */
+.clanbite-avatar-block {
+	position: relative;
+	line-height: 0;
+	margin: 0;
+}
+
+/* Avatar container */
+.clanbite-avatar {
+	/* Box size; set it on any ancestor or on the avatar to override the presets below. */
+	--clanbite-avatar-size: 96px;
+
+	position: relative;
+	display: inline-flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.35rem;
+	line-height: 0;
+	max-width: 100%;
+}
+
+/* Hidden parts (Interactivity templates toggle `hidden`): an author `display` value must not beat it. */
+.clanbite-avatar [hidden] {
+	display: none !important;
+}
+
+.clanbite-avatar--large {
+	--clanbite-avatar-size: 120px;
+}
+
+.clanbite-avatar--medium {
+	--clanbite-avatar-size: 64px;
+}
+
+.clanbite-avatar--small {
+	--clanbite-avatar-size: 40px;
+}
+
+/* Avatar media: the square box everything is positioned in */
+.clanbite-avatar__media,
+.clanbite-player-avatar__media,
+.clanbite-team-avatar__media {
+	position: relative;
+	display: inline-block;
+	flex: none;
+	width: var(--clanbite-avatar-size);
+	height: var(--clanbite-avatar-size);
+	line-height: 0;
+	vertical-align: top;
+}
+
+/* Frame: border, ring track and progress arc, drawn in the avatar's shape */
+.clanbite-avatar__frame {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+	pointer-events: none;
+}
+
+.clanbite-avatar__frame-border {
+	fill: var(--clanbite-avatar-frame, var(--clanbite-surface, #fff));
+	filter: drop-shadow(0 1px 3px rgb(0 0 0 / 18%));
+}
+
+/* Photo: clipped to the shape, inside the border (and inside the ring when there is one) */
+.clanbite-avatar__clip,
+.clanbite-player-avatar__clip,
+.clanbite-team-avatar__clip {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	display: block;
+	overflow: hidden;
+	line-height: 0;
+	clip-path: var(--clanbite-avatar-clip-plain);
+}
+
+.clanbite-avatar--has-ring .clanbite-avatar__clip,
+.clanbite-avatar--has-ring .clanbite-player-avatar__clip,
+.clanbite-avatar--has-ring .clanbite-team-avatar__clip,
+.clanbite-avatar:has(.clanbite-avatar__ring:not([hidden])) .clanbite-avatar__clip {
+	clip-path: var(--clanbite-avatar-clip-ring);
+}
+
+/* Avatar link wrapper */
+.clanbite-avatar__link,
+.clanbite-player-avatar__link,
+.clanbite-team-avatar__link {
+	display: block;
+	width: 100%;
+	height: 100%;
+	line-height: 0;
+}
+
+/* Avatar image */
+.clanbite-avatar__img,
+.clanbite-player-avatar__img,
+.clanbite-team-avatar__img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+
+}
+
+.clanbite-avatar__img--placeholder {
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.75rem;
+	text-align: center;
+	padding: 0.25rem;
+	color: var(--clanbite-muted, color-mix(in srgb, currentcolor 62%, transparent));
+	background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
+}
+
+/* Avatar overlays (custom badges added through the `clanbite_avatar_overlays` actions) */
+.clanbite-avatar__overlay,
+.clanbite-player-avatar__rank-overlay {
+	position: absolute;
+	right: -4px;
+	bottom: -6px;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	align-items: flex-end;
+	gap: 4px;
+	max-width: 58%;
+	z-index: 3;
+	pointer-events: none;
+	box-sizing: border-box;
+}
+
+/* Placeholder state */
+.clanbite-avatar--placeholder {
+	border: 1px dashed var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
+	min-width: 80px;
+	min-height: 80px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	color: var(--clanbite-muted, color-mix(in srgb, currentcolor 62%, transparent));
+	font-size: 0.75rem;
+	text-align: center;
+	padding: 0.25rem;
+}
+
+/* ==========================================================================
+   SHAPES: photo clip (frame geometry is drawn by PHP, see the header)
+   ========================================================================== */
+
+/* Circle (default) */
+.clanbite-avatar,
+.clanbite-avatar--shape-circle {
+	--clanbite-avatar-clip-plain: circle(45% at 50% 50%);
+	--clanbite-avatar-clip-ring: circle(37% at 50% 50%);
+}
+
+/* Square, with rounded corners */
+.clanbite-avatar--shape-square {
+	--clanbite-avatar-clip-plain: inset(5% round 11%);
+	--clanbite-avatar-clip-ring: inset(13.5% round 6%);
+}
+
+/* Hexagon, regular and point-up */
+.clanbite-avatar--shape-hexagon {
+	--clanbite-avatar-clip-plain: polygon(45.50% 7.60%, 46.92% 6.94%, 48.44% 6.53%, 50.00% 6.39%, 51.56% 6.53%, 53.08% 6.94%, 54.50% 7.60%, 84.47% 24.90%, 85.76% 25.80%, 86.87% 26.91%, 87.77% 28.20%, 88.43% 29.62%, 88.83% 31.13%, 88.97% 32.70%, 88.97% 67.30%, 88.83% 68.87%, 88.43% 70.38%, 87.77% 71.80%, 86.87% 73.09%, 85.76% 74.20%, 84.47% 75.10%, 54.50% 92.40%, 53.08% 93.06%, 51.56% 93.47%, 50.00% 93.61%, 48.44% 93.47%, 46.92% 93.06%, 45.50% 92.40%, 15.53% 75.10%, 14.24% 74.20%, 13.13% 73.09%, 12.23% 71.80%, 11.57% 70.38%, 11.17% 68.87%, 11.03% 67.30%, 11.03% 32.70%, 11.17% 31.13%, 11.57% 29.62%, 12.23% 28.20%, 13.13% 26.91%, 14.24% 25.80%, 15.53% 24.90%);
+	--clanbite-avatar-clip-ring: polygon(46.30% 15.14%, 47.47% 14.59%, 48.72% 14.26%, 50.00% 14.14%, 51.28% 14.26%, 52.53% 14.59%, 53.70% 15.14%, 78.34% 29.36%, 79.40% 30.10%, 80.31% 31.02%, 81.05% 32.07%, 81.60% 33.24%, 81.93% 34.49%, 82.04% 35.77%, 82.04% 64.23%, 81.93% 65.51%, 81.60% 66.76%, 81.05% 67.93%, 80.31% 68.98%, 79.40% 69.90%, 78.34% 70.64%, 53.70% 84.86%, 52.53% 85.41%, 51.28% 85.74%, 50.00% 85.86%, 48.72% 85.74%, 47.47% 85.41%, 46.30% 84.86%, 21.66% 70.64%, 20.60% 69.90%, 19.69% 68.98%, 18.95% 67.93%, 18.40% 66.76%, 18.07% 65.51%, 17.96% 64.23%, 17.96% 35.77%, 18.07% 34.49%, 18.40% 33.24%, 18.95% 32.07%, 19.69% 31.02%, 20.60% 30.10%, 21.66% 29.36%);
+}
+
+/* ==========================================================================
+   RANK BADGE: a small shape at the lower right with the level icon or number
+   ========================================================================== */
+
+.clanbite-avatar__badge {
+	/* Scales with the avatar, never smaller than a readable digit. */
+	--clanbite-avatar-badge-size: clamp(18px, calc(var(--clanbite-avatar-size) * 0.3), 44px);
+
+	position: absolute;
+	right: 1%;
+	bottom: 3%;
+	z-index: 3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--clanbite-avatar-badge-size);
+	height: var(--clanbite-avatar-badge-size);
+	line-height: 1;
+	pointer-events: none;
+}
+
+.clanbite-avatar__badge-shape {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+.clanbite-avatar__badge-outer {
+	fill: var(--clanbite-avatar-frame, var(--clanbite-surface, #fff));
+	filter: drop-shadow(0 1px 2px rgb(0 0 0 / 25%));
+}
+
+.clanbite-avatar__badge-inner {
+	fill: var(--clanbite-avatar-badge-bg, var(--clanbite-accent, #2271b1));
+}
+
+.clanbite-avatar__badge-text {
+	position: relative;
+	font-family: inherit;
+	font-size: calc(var(--clanbite-avatar-badge-size) * 0.5);
+	font-weight: 700;
+	color: var(--clanbite-avatar-badge-color, var(--clanbite-on-accent, #fff));
+}
+
+.clanbite-avatar__badge-icon {
+	position: relative;
+	display: block;
+	width: 64%;
+	height: 64%;
+	object-fit: contain;
+}
+
+/**
+ * Avatar XP ring
+ *
+ * The ring is part of the avatar frame (an SVG in the avatar's own shape: circle, square or hexagon). A faint track runs
+ * all the way round; the progress arc starts at the top and runs clockwise, `stroke-dasharray` being "<percent> 100" on a
+ * path of length 100. Colours follow the theme tokens; restyle with the custom properties:
+ *
+ *   --clanbite-avatar-ring        arc colour (default: accent)
+ *   --clanbite-avatar-ring-track  track colour
+ *   --clanbite-avatar-ring-width  stroke width in frame units (default 5, of 100)
+ */
+
+.clanbite-avatar__ring-track,
+.clanbite-avatar__ring-progress {
+	fill: none;
+	stroke-width: var(--clanbite-avatar-ring-width, 5);
+	stroke-linejoin: round;
+}
+
+.clanbite-avatar__ring-track {
+	stroke: var(--clanbite-avatar-ring-track, color-mix(in srgb, var(--clanbite-on-surface, #1e1e1e) 14%, transparent));
+}
+
+.clanbite-avatar__ring-progress {
+	stroke: var(--clanbite-avatar-ring, var(--clanbite-accent, #2271b1));
+	stroke-linecap: round;
+	transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* A ring at 0% would still draw a round cap dot; hide the arc until there is progress. */
+.clanbite-avatar__ring-progress[stroke-dasharray^="0 "] {
+	stroke-opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.clanbite-avatar__ring-progress {
+		transition: none;
+	}
+}

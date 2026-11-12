@@ -1,8 +1,16 @@
+@use "../../shared/styles/reduced-motion";
+
 .clanbite-event-calendar-wrap {
-	--cal-border: #dcdcde;
-	--cal-muted: #787c82;
-	--cal-accent: #2271b1;
-	--cal-today: rgba(34, 113, 177, 0.12);
+	// Theme-driven: surfaces and text follow the theme palette,
+	// never a fixed light scheme.
+	--cal-bg: var(--clanbite-surface, Canvas);
+	--cal-surface: color-mix(in srgb, currentcolor 6%, var(--cal-bg));
+	--cal-skeleton: color-mix(in srgb, currentcolor 14%, var(--cal-bg));
+	--cal-border: color-mix(in srgb, currentcolor 22%, transparent);
+	--cal-muted: color-mix(in srgb, currentcolor 62%, transparent);
+	--cal-accent: var(--wp--preset--color--primary, #2271b1);
+	--cal-today: color-mix(in srgb, var(--cal-accent) 16%, var(--cal-bg));
+	--cal-danger: var(--clanbite-button-danger, var(--wp--preset--color--danger, #b32d2e));
 
 	box-sizing: border-box;
 	width: 100%;
@@ -10,7 +18,7 @@
 	border: 1px solid var(--cal-border);
 	border-radius: 8px;
 	padding: 1rem;
-	background: #fff;
+	background: var(--cal-bg);
 }
 
 .clanbite-event-calendar__toolbar {
@@ -26,44 +34,14 @@
 	gap: 0.35rem;
 }
 
-.clanbite-event-calendar__view-btn {
-	padding: 0.35rem 0.75rem;
-	font-size: 0.875rem;
-	border: 1px solid var(--cal-border);
-	border-radius: 4px;
-	background: #f6f7f7;
-	cursor: pointer;
-
-	&.is-active {
-		background: var(--cal-accent);
-		border-color: var(--cal-accent);
-		color: #fff;
-	}
-}
-
 .clanbite-event-calendar__nav {
 	display: flex;
 	align-items: center;
 	gap: 0.35rem;
 }
 
-.clanbite-event-calendar__nav-btn,
-.clanbite-event-calendar__today {
-	padding: 0.35rem 0.65rem;
-	font-size: 0.875rem;
-	border: 1px solid var(--cal-border);
-	border-radius: 4px;
-	background: #fff;
-	cursor: pointer;
-}
-
 .clanbite-event-calendar__toolbar > .wp-block-button:last-child {
 	margin-left: auto;
-}
-
-.clanbite-event-calendar__add {
-	font-size: 0.875rem;
-	font-weight: 500;
 }
 
 .clanbite-event-calendar__heading {
@@ -90,7 +68,7 @@
 }
 
 .clanbite-event-calendar__error {
-	color: #b32d2e;
+	color: var(--cal-danger);
 }
 
 .clanbite-event-calendar__dow {
@@ -117,11 +95,11 @@
 .clanbite-event-calendar__cell {
 	min-height: 5.5rem;
 	padding: 0.25rem;
-	background: #fff;
+	background: var(--cal-bg);
 	font-size: 0.75rem;
 
 	&.is-muted {
-		background: #f6f7f7;
+		background: var(--cal-surface);
 		color: var(--cal-muted);
 	}
 
@@ -213,10 +191,11 @@
 }
 
 span.clanbite-event-calendar__list-title {
-	color: #1d2327;
+	color: inherit;
 }
 
 @keyframes clanbite-cal-skel {
+
 	0% {
 		opacity: 0.45;
 	}
@@ -255,7 +234,7 @@ span.clanbite-event-calendar__list-title {
 .clanbite-event-calendar__skel-dow,
 .clanbite-event-calendar__skel-cell {
 	min-height: 1rem;
-	background: #fff;
+	background: var(--cal-bg);
 	padding: 0.35rem;
 }
 
@@ -268,7 +247,7 @@ span.clanbite-event-calendar__list-title {
 	width: 1.25rem;
 	height: 0.65rem;
 	border-radius: 2px;
-	background: #e8e8e8;
+	background: var(--cal-skeleton);
 	margin-bottom: 0.35rem;
 }
 
@@ -276,7 +255,7 @@ span.clanbite-event-calendar__list-title {
 	display: block;
 	height: 0.45rem;
 	border-radius: 2px;
-	background: #ededed;
+	background: var(--cal-skeleton);
 	margin-bottom: 0.25rem;
 
 	&.clanbite-event-calendar__skel-line--short {
@@ -294,12 +273,12 @@ span.clanbite-event-calendar__list-title {
 	border: 1px solid var(--cal-border);
 	border-radius: 4px;
 	padding: 0.5rem;
-	background: #fff;
+	background: var(--cal-bg);
 }
 
 .clanbite-event-calendar__skeleton--day {
 	padding: 0.5rem 0;
-	background: #fff;
+	background: var(--cal-bg);
 }
 
 .clanbite-event-calendar__skeleton--list .clanbite-event-calendar__skel-list-row {
@@ -314,7 +293,7 @@ span.clanbite-event-calendar__list-title {
 	flex: 0 0 7rem;
 	height: 0.65rem;
 	border-radius: 4px;
-	background: #e8e8e8;
+	background: var(--cal-skeleton);
 }
 
 .clanbite-event-calendar__skeleton--list .clanbite-event-calendar__skel-line {
@@ -339,6 +318,7 @@ span.clanbite-event-calendar__list-title {
 }
 
 @media (max-width: 600px) {
+
 	.clanbite-event-calendar__week {
 		grid-template-columns: 1fr;
 	}
@@ -392,6 +372,6 @@ span.clanbite-event-calendar__list-title {
 
 .clanbite-event-calendar-editor {
 	padding: 1rem;
-	border: 1px dashed #c3c4c7;
+	border: 1px dashed var(--cal-border);
 	border-radius: 4px;
 }

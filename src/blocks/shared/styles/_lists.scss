@@ -1,6 +1,6 @@
 /**
  * Unified List Styles
- * 
+ *
  * All Clanbite lists use consistent structure across plugins.
  */
 
@@ -8,10 +8,13 @@
 .clanbite-list {
 	// Type variants (core Clanbite only)
 	&.clanbite-list--matches { }
+
 	&.clanbite-list--events { }
+
 	&.clanbite-list--players { }
+
 	&.clanbite-list--teams { }
-	
+
 	// Note: Plugin-specific variants (--forums, --social-kit, --points, --ranks)
 	// and plugin-specific list types (--topics, --replies for forums)
 	// should be defined in each plugin's own SCSS files, not here in core.
@@ -23,11 +26,11 @@
 	gap: 1rem;
 	padding: 1rem;
 	border-bottom: 1px solid var(--wp--preset--color--contrast-3, #e0e0e0);
-	
+
 	&:last-child {
 		border-bottom: none;
 	}
-	
+
 	&.clanbite-list__item--active {
 		background: var(--wp--preset--color--contrast-1, #f5f5f5);
 	}

@@ -48,4 +48,4 @@ $markup = (string) apply_filters( 'clanbite_match_list_block_inner_markup', $mar
  */
 $wrapper_attrs = (array) apply_filters( 'clanbite_match_block_wrapper_attributes', array(), 'clanbite/match-list', $block );
 $wrapper       = get_block_wrapper_attributes( $wrapper_attrs, $block );
-echo wp_kses( '<div ' . $wrapper . '>' . $markup . '</div>', clanbite_block_fragment_allowed_html());
+echo wp_kses( '<div ' . $wrapper . '>' . $markup . '</div>', clanbite_block_fragment_allowed_html() );

@@ -25,6 +25,13 @@ require_once __DIR__ . '/class-matches-rest.php';
  */
 class Matches extends Skeleton {
 
+	/**
+	 * Match post type slug.
+	 *
+	 * @var string
+	 */
+	public const POST_TYPE = 'clanbite_match';
+
 	public const STATUS_SCHEDULED = 'scheduled';
 	public const STATUS_LIVE      = 'live';
 	public const STATUS_FINISHED  = 'finished';
@@ -145,7 +152,7 @@ class Matches extends Skeleton {
 	 * @return void
 	 */
 	public function run(): void {
-		$this->admin          = new Matches_Settings_Admin();
+		$this->admin        = new Matches_Settings_Admin();
 		$this->matches_rest = new Rest_Controller( $this );
 
 		add_action( 'init', array( $this, 'register_match_post_type' ), 11 );
@@ -280,9 +287,9 @@ class Matches extends Skeleton {
 	 * @return array<string, mixed>
 	 */
 	public function match_to_rest_array( WP_Post $post ): array {
-		$home_id = (int) get_post_meta( $post->ID, 'cp_match_home_team_id', true );
-		$away_id = (int) get_post_meta( $post->ID, 'cp_match_away_team_id', true );
-		$fmt     = $this->admin->get( 'datetime_format', 'M j, Y g:i a' );
+		$home_id    = (int) get_post_meta( $post->ID, 'cp_match_home_team_id', true );
+		$away_id    = (int) get_post_meta( $post->ID, 'cp_match_away_team_id', true );
+		$fmt        = $this->admin->get( 'datetime_format', 'M j, Y g:i a' );
 		$visibility = (string) get_post_meta( $post->ID, 'cp_match_visibility', true );
 
 		$away_title = function_exists( 'clanbite_matches_resolve_away_team_title' )
@@ -290,9 +297,9 @@ class Matches extends Skeleton {
 			: clanbite_matches_team_title( $away_id );
 
 		$away_ext = array(
-			'label'       => (string) get_post_meta( $post->ID, 'cp_match_away_external_label', true ),
-			'logoUrl'     => (string) get_post_meta( $post->ID, 'cp_match_away_external_logo_url', true ),
-			'profileUrl'  => (string) get_post_meta( $post->ID, 'cp_match_away_external_profile_url', true ),
+			'label'      => (string) get_post_meta( $post->ID, 'cp_match_away_external_label', true ),
+			'logoUrl'    => (string) get_post_meta( $post->ID, 'cp_match_away_external_logo_url', true ),
+			'profileUrl' => (string) get_post_meta( $post->ID, 'cp_match_away_external_profile_url', true ),
 		);
 		if ( $away_id > 0 ) {
 			$away_ext = array(
@@ -700,7 +707,7 @@ class Matches extends Skeleton {
 	 * @return string One of the {@see VISIBILITY_*} constants.
 	 */
 	public function sanitize_match_visibility( $value ): string {
-		$value = sanitize_key( (string) $value );
+		$value   = sanitize_key( (string) $value );
 		$allowed = array(
 			self::VISIBILITY_PUBLIC,
 			self::VISIBILITY_MEMBERS,
@@ -754,8 +761,8 @@ class Matches extends Skeleton {
 	 */
 	public function render_match_admin_column( string $column, int $post_id ): void {
 		if ( 'cp_match_teams' === $column ) {
-			$h = (int) get_post_meta( $post_id, 'cp_match_home_team_id', true );
-			$a = (int) get_post_meta( $post_id, 'cp_match_away_team_id', true );
+			$h          = (int) get_post_meta( $post_id, 'cp_match_home_team_id', true );
+			$a          = (int) get_post_meta( $post_id, 'cp_match_away_team_id', true );
 			$away_label = $a > 0
 				? clanbite_matches_team_title( $a )
 				: ( function_exists( 'clanbite_matches_resolve_away_team_title' )
@@ -846,7 +853,7 @@ class Matches extends Skeleton {
 	 * @return void
 	 */
 	public function register_match_block_libraries(): void {
-		$base = clanbite()->path . 'build/matches';
+		$base     = clanbite()->path . 'build/matches';
 		$manifest = $base . '/blocks-manifest.php';
 
 		if ( ! is_dir( $base ) || ! is_readable( $manifest ) ) {
@@ -899,6 +906,12 @@ class Matches extends Skeleton {
 	 * @return void
 	 */
 	public function enqueue_match_editor(): void {
+		// The sidebar panel only renders for matches (see MatchDocumentPanel in the script), so skip every other editor screen.
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || self::POST_TYPE !== $screen->post_type ) {
+			return;
+		}
+
 		$path = clanbite()->path . 'build/cp-match-editor/index.asset.php';
 		if ( ! is_readable( $path ) ) {
 			return;
@@ -1074,20 +1087,20 @@ class Matches extends Skeleton {
 		echo '<ul class="clanbite-match-list">';
 		while ( $q->have_posts() ) {
 			$q->the_post();
-			$pid = (int) get_the_ID();
-			$post = get_post( $pid );
+			$pid  = (int) get_the_ID();
+			$post = get_post();
 			if ( $post instanceof \WP_Post && ! $this->viewer_can_see_match( $post, $viewer_id ) ) {
 				continue;
 			}
-			$h   = (int) get_post_meta( $pid, 'cp_match_home_team_id', true );
-			$a   = (int) get_post_meta( $pid, 'cp_match_away_team_id', true );
+			$h          = (int) get_post_meta( $pid, 'cp_match_home_team_id', true );
+			$a          = (int) get_post_meta( $pid, 'cp_match_away_team_id', true );
 			$away_title = function_exists( 'clanbite_matches_resolve_away_team_title' )
 				? clanbite_matches_resolve_away_team_title( $pid )
 				: clanbite_matches_team_title( $a );
-			$st  = (string) get_post_meta( $pid, 'cp_match_status', true );
-			$raw = (string) get_post_meta( $pid, 'cp_match_scheduled_at', true );
-			$hs  = (int) get_post_meta( $pid, 'cp_match_home_score', true );
-			$as  = (int) get_post_meta( $pid, 'cp_match_away_score', true );
+			$st         = (string) get_post_meta( $pid, 'cp_match_status', true );
+			$raw        = (string) get_post_meta( $pid, 'cp_match_scheduled_at', true );
+			$hs         = (int) get_post_meta( $pid, 'cp_match_home_score', true );
+			$as         = (int) get_post_meta( $pid, 'cp_match_away_score', true );
 
 			$choices = $this->get_status_choices();
 			$st_lbl  = $choices[ $st ] ?? $st;
@@ -1173,7 +1186,7 @@ class Matches extends Skeleton {
 				<span class="clanbite-match-card__vs"> <?php esc_html_e( 'vs', 'clanbite' ); ?> </span>
 				<span class="clanbite-match-card__away">
 					<?php
-					$ext = isset( $data['awayExternal'] ) && is_array( $data['awayExternal'] ) ? $data['awayExternal'] : array();
+					$ext  = isset( $data['awayExternal'] ) && is_array( $data['awayExternal'] ) ? $data['awayExternal'] : array();
 					$logo = isset( $ext['logoUrl'] ) ? esc_url( (string) $ext['logoUrl'] ) : '';
 					if ( '' !== $logo ) :
 						?>

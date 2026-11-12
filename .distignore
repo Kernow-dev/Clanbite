@@ -27,3 +27,11 @@ vendor/phpstan/
 vendor/php-stubs/
 vendor/squizlabs/
 vendor/wp-coding-standards/
+/ACCESSIBILITY-FIXES.md
+/CSS-ARCHITECTURE-CORRECTED.md
+/OVERHAUL-COMPLETED.md
+/UNIFICATION-SUMMARY.md
+/UNIFIED-CSS-*.md
+/VERSION-FIXES.md
+/HOOKS.md
+/DESIGN-SYSTEM.md

@@ -30,7 +30,7 @@
 	},
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css",
+	"style": ["file:./style-index.css", "clanbite-buttons", "clanbite-forms"],
 	"render": "file:./render.php",
 	"viewScriptModule": "file:./view.js",
 	"selectors": {

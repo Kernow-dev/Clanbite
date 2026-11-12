@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Server render: Event detail block.
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 use Kernowdev\Clanbite\Events\Event_Permissions;
 use Kernowdev\Clanbite\Events\Event_Post_Type;
@@ -26,20 +25,20 @@ $viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
 
 if ( $event_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detail clanbite-event-detail--placeholder' ), $block );
-	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No event selected.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No event selected.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
 $post = get_post( $event_id );
 if ( ! ( $post instanceof \WP_Post ) || Event_Post_Type::POST_TYPE !== $post->post_type ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detail clanbite-event-detail--placeholder' ), $block );
-	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Event not found.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Event not found.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
 if ( ! Event_Permissions::viewer_can_see( $post, $viewer_id ) ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detail clanbite-event-detail--forbidden' ), $block );
-	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'This event is not available.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'This event is not available.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -71,12 +70,12 @@ $country  = (string) get_post_meta( $event_id, 'cp_event_country', true );
 
 $start_label = '';
 if ( $starts ) {
-	$ts = strtotime( $starts . ' UTC' );
+	$ts          = strtotime( $starts . ' UTC' );
 	$start_label = $ts ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $ts ) : '';
 }
 $end_label = '';
 if ( $ends ) {
-	$ts = strtotime( $ends . ' UTC' );
+	$ts        = strtotime( $ends . ' UTC' );
 	$end_label = $ts ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $ts ) : '';
 }
 
@@ -154,12 +153,20 @@ ob_start();
 		</details>
 		<div class="clanbite-event-detail__manage">
 			<h2 class="clanbite-event-detail__section-title"><?php esc_html_e( 'Manage', 'clanbite' ); ?></h2>
-			<form class="clanbite-event-detail__delete-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<?php // Confirmation runs in view.js: inline `onclick` is stripped by wp_kses() below, which previously left this destructive button with no confirmation. ?>
+			<form
+				class="clanbite-event-detail__delete-form"
+				method="post"
+				action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+				data-wp-interactive="clanbite-event-detail"
+				data-wp-on--submit="actions.confirmDelete"
+				data-clanbite-confirm="<?php echo esc_attr( __( 'Move this event to the trash?', 'clanbite' ) ); ?>"
+			>
 				<?php wp_nonce_field( 'clanbite_delete_event_' . $event_id ); ?>
 				<input type="hidden" name="action" value="clanbite_delete_event" />
 				<input type="hidden" name="clanbite_event_id" value="<?php echo esc_attr( (string) $event_id ); ?>" />
 				<input type="hidden" name="clanbite_event_delete_redirect" value="<?php echo esc_attr( $delete_redirect ); ?>" />
-				<button type="submit" class="clanbite-event-detail__delete-button button" onclick="return window.confirm( <?php echo wp_json_encode( __( 'Move this event to the trash?', 'clanbite' ) ); ?> );">
+				<button type="submit" class="wp-element-button clanbite-button clanbite-button--danger clanbite-button--ghost clanbite-event-detail__delete-button">
 					<?php esc_html_e( 'Delete event', 'clanbite' ); ?>
 				</button>
 			</form>
@@ -168,10 +175,10 @@ ob_start();
 </div>
 <?php
 $html = (string) ob_get_clean();
-echo wp_kses( $html, clanbite_block_fragment_allowed_html());
+echo wp_kses( $html, clanbite_block_fragment_allowed_html() );
 
 $rsvp_markup = sprintf(
 	'<!-- wp:clanbite/event-rsvp {"eventType":"clanbite_event","eventId":%d,"showAttendees":true} /-->',
 	$event_id
 );
-echo wp_kses( do_blocks( $rsvp_markup ), clanbite_block_fragment_allowed_html());
+echo wp_kses( do_blocks( $rsvp_markup ), clanbite_block_fragment_allowed_html() );

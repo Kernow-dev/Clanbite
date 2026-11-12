@@ -20,9 +20,26 @@ use Kernowdev\Clanbite\Extensions\Abstract_Settings;
 class Groups_Settings extends Abstract_Settings {
 	public const OPTION_KEY = 'clanbite_groups_settings';
 
-	protected string $option_key     = self::OPTION_KEY;
+	/**
+	 * Option name storing this settings bucket.
+	 *
+	 * @var string
+	 */
+	protected string $option_key = self::OPTION_KEY;
+
+	/**
+	 * Settings API group for `register_setting()`.
+	 *
+	 * @var string
+	 */
 	protected string $settings_group = 'clanbite_groups';
-	protected string $page_slug      = 'clanbite-groups';
+
+	/**
+	 * Settings page slug.
+	 *
+	 * @var string
+	 */
+	protected string $page_slug = 'clanbite-groups';
 
 	/**
 	 * Unified React admin: do not add a separate submenu.
@@ -95,10 +112,10 @@ class Groups_Settings extends Abstract_Settings {
 					),
 				),
 			),
-			'integrations' => array(
+			'integrations'      => array(
 				'title'  => __( 'Extension integrations', 'clanbite' ),
 				'fields' => array(
-					'events_profile_subpage' => array(
+					'events_profile_subpage'         => array(
 						'label'       => __( 'Group profile: Events tab', 'clanbite' ),
 						'type'        => 'checkbox',
 						'description' => __( 'When the Events extension is enabled, register the group Events subpage and block template. When off, those integrations are not loaded.', 'clanbite' ),

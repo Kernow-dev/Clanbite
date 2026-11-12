@@ -19,12 +19,12 @@ final class Event_Post_Type {
 	public const SCOPE_GROUP = 'group';
 
 	public const MODE_IN_PERSON = 'in_person';
-	public const MODE_VIRTUAL  = 'virtual';
+	public const MODE_VIRTUAL   = 'virtual';
 
-	public const VISIBILITY_PUBLIC        = 'public';
-	public const VISIBILITY_MEMBERS       = 'members';
-	public const VISIBILITY_TEAM_MEMBERS  = 'team_members';
-	public const VISIBILITY_TEAM_ADMINS   = 'team_admins';
+	public const VISIBILITY_PUBLIC       = 'public';
+	public const VISIBILITY_MEMBERS      = 'members';
+	public const VISIBILITY_TEAM_MEMBERS = 'team_members';
+	public const VISIBILITY_TEAM_ADMINS  = 'team_admins';
 
 	/**
 	 * Register hooks.
@@ -53,19 +53,19 @@ final class Event_Post_Type {
 		register_post_type(
 			self::POST_TYPE,
 			array(
-				'labels'              => $labels,
-				'description'         => __( 'Clanbite scheduled events.', 'clanbite' ),
-				'public'              => false,
-				'publicly_queryable'  => false,
-				'show_ui'             => true,
-				'show_in_menu'        => false,
-				'show_in_rest'        => true,
-				'rest_base'           => 'clanbite_event',
+				'labels'                => $labels,
+				'description'           => __( 'Clanbite scheduled events.', 'clanbite' ),
+				'public'                => false,
+				'publicly_queryable'    => false,
+				'show_ui'               => true,
+				'show_in_menu'          => false,
+				'show_in_rest'          => true,
+				'rest_base'             => 'clanbite_event',
 				'rest_controller_class' => 'WP_REST_Posts_Controller',
-				'supports'            => array( 'title', 'editor', 'excerpt', 'author' ),
-				'capability_type'     => 'post',
-				'map_meta_cap'        => true,
-				'has_archive'         => false,
+				'supports'              => array( 'title', 'editor', 'excerpt', 'author' ),
+				'capability_type'       => 'post',
+				'map_meta_cap'          => true,
+				'has_archive'           => false,
 			)
 		);
 	}
@@ -102,91 +102,91 @@ final class Event_Post_Type {
 		);
 
 		$meta = array(
-			'cp_event_scope'                 => array(
+			'cp_event_scope'                => array(
 				'type'              => 'string',
 				'default'           => self::SCOPE_TEAM,
 				'sanitize_callback' => array( $this, 'sanitize_scope' ),
 				'show_in_rest'      => array( 'schema' => $scope_schema ),
 			),
-			'cp_event_team_id'               => array(
+			'cp_event_team_id'              => array(
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
 			),
-			'cp_event_group_id'              => array(
+			'cp_event_group_id'             => array(
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
 			),
-			'cp_event_mode'                  => array(
+			'cp_event_mode'                 => array(
 				'type'              => 'string',
 				'default'           => self::MODE_IN_PERSON,
 				'sanitize_callback' => array( $this, 'sanitize_mode' ),
 				'show_in_rest'      => array( 'schema' => $mode_schema ),
 			),
-			'cp_event_virtual_url'           => array(
+			'cp_event_virtual_url'          => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
 				'show_in_rest'      => true,
 			),
-			'cp_event_address_line1'         => array(
+			'cp_event_address_line1'        => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_address_line2'         => array(
+			'cp_event_address_line2'        => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_locality'              => array(
+			'cp_event_locality'             => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_region'                => array(
+			'cp_event_region'               => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_postcode'              => array(
+			'cp_event_postcode'             => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_country'               => array(
+			'cp_event_country'              => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_starts_at'             => array(
+			'cp_event_starts_at'            => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => array( $this, 'sanitize_datetime_gmt' ),
 				'show_in_rest'      => true,
 			),
-			'cp_event_ends_at'               => array(
+			'cp_event_ends_at'              => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => array( $this, 'sanitize_datetime_gmt' ),
 				'show_in_rest'      => true,
 			),
-			'cp_event_visibility'            => array(
+			'cp_event_visibility'           => array(
 				'type'              => 'string',
 				'default'           => self::VISIBILITY_PUBLIC,
 				'sanitize_callback' => array( $this, 'sanitize_visibility' ),
 				'show_in_rest'      => array( 'schema' => $visibility_schema ),
 			),
-			'cp_event_attendees_visibility'  => array(
+			'cp_event_attendees_visibility' => array(
 				'type'              => 'string',
 				'default'           => 'hidden',
 				'sanitize_callback' => array( $this, 'sanitize_attendees_visibility' ),
@@ -195,10 +195,10 @@ final class Event_Post_Type {
 		);
 
 		foreach ( $meta as $key => $args ) {
-			$args['single']            = true;
-			$args['object_subtype']    = self::POST_TYPE;
-			$args['auth_callback']     = array( $this, 'meta_auth_edit_post' );
-			$args['show_in_rest']      = $args['show_in_rest'] ?? true;
+			$args['single']         = true;
+			$args['object_subtype'] = self::POST_TYPE;
+			$args['auth_callback']  = array( $this, 'meta_auth_edit_post' );
+			$args['show_in_rest']   = $args['show_in_rest'] ?? true;
 			register_post_meta( self::POST_TYPE, $key, $args );
 		}
 	}

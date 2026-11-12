@@ -13,7 +13,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		<div { ...blockProps }>
 			<InspectorControls>
 				<PanelBody title={ __( 'Context', 'clanbite' ) }>
-					<SelectControl
+					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
 						label={ __( 'Scope', 'clanbite' ) }
 						value={ scopeType }
 						options={ [
@@ -87,7 +87,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							__nextHasNoMarginBottom
 						/>
 					) }
-					<SelectControl
+					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
 						label={ __( 'Default view', 'clanbite' ) }
 						value={ defaultView }
 						options={ [

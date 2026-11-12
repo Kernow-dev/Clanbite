@@ -69,7 +69,7 @@ final class Notifications_Runtime {
 	/**
 	 * Add `player-notifications` to the Players extension FSE templates.
 	 *
-	 * @param array<string, array<string, string>> $templates Template definitions keyed by slug.
+	 * @param array<string, array<string, string>>    $templates Template definitions keyed by slug.
 	 * @param \Kernowdev\Clanbite\Extensions\Skeleton $extension Calling extension (Players).
 	 * @return array<string, array<string, string>>
 	 */
@@ -136,9 +136,9 @@ final class Notifications_Runtime {
 			return;
 		}
 
-		$req_uri = clanbite_sanitize_request_uri( '' );
-		$path    = wp_parse_url( $req_uri, PHP_URL_PATH );
-		$path    = is_string( $path ) ? $path : '';
+		$req_uri     = clanbite_sanitize_request_uri( '' );
+		$path        = wp_parse_url( $req_uri, PHP_URL_PATH );
+		$path        = is_string( $path ) ? $path : '';
 		$redirect_to = '' !== $path ? home_url( $path ) : home_url( '/' );
 		$redirect_to = wp_validate_redirect( $redirect_to, home_url( '/' ) );
 

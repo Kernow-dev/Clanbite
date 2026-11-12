@@ -1,12 +1,11 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Events extension helpers for themes and third-party code.
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Whether the Events extension (`cp_events`) is installed and enabled.

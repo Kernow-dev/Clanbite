@@ -8,8 +8,13 @@
 	"icon": "flag",
 	"description": "Lets guests and team managers challenge this team when challenges are enabled.",
 	"textdomain": "clanbite",
-	"postTypes": [ "clanbite_team" ],
-	"usesContext": [ "postId", "postType" ],
+	"postTypes": [
+		"clanbite_team"
+	],
+	"usesContext": [
+		"postId",
+		"postType"
+	],
 	"supports": {
 		"spacing": {
 			"margin": true,
@@ -27,11 +32,12 @@
 			"text": true,
 			"background": true
 		},
-		"html": false
+		"html": false,
+		"interactivity": true
 	},
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css",
+	"style": ["file:./style-index.css", "clanbite-buttons"],
 	"render": "file:./render.php",
 	"viewScriptModule": "file:./view.js",
 	"selectors": {

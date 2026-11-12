@@ -159,9 +159,9 @@ class Loader {
 			if ( isset( $installed[ $slug ] ) ) {
 				continue;
 			}
-			$ver               = isset( $versions[ $slug ] ) ? (string) $versions[ $slug ] : '1.0.0';
+			$ver                = isset( $versions[ $slug ] ) ? (string) $versions[ $slug ] : '1.0.0';
 			$installed[ $slug ] = array( 'version' => $ver );
-			$changed           = true;
+			$changed            = true;
 		}
 
 		if ( ! $changed ) {

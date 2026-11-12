@@ -43,7 +43,7 @@
 	},
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css",
+	"style": ["file:./style-index.css", "clanbite-tokens"],
 	"selectors": {
 		"root": ".wp-block-clanbite-team-card",
 		"color": ".wp-block-clanbite-team-card",

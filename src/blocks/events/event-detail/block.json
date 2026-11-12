@@ -31,10 +31,12 @@
 			"text": true,
 			"background": true
 		},
-		"html": false
+		"html": false,
+		"interactivity": true
 	},
 	"editorScript": "file:./index.js",
-	"style": "file:./style-index.css",
+	"viewScriptModule": "file:./view.js",
+	"style": ["file:./style-index.css", "clanbite-buttons"],
 	"render": "file:./render.php",
 	"selectors": {
 		"root": ".wp-block-clanbite-event-detail",

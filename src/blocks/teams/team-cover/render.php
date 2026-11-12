@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Render callback: team cover image and inner blocks.
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $team_id = clanbite_team_single_block_team_id( $block );
 
@@ -37,9 +36,9 @@ if ( $team_id < 1 ) {
 	);
 	echo wp_kses(
 		'<div ' . $wrapper . '>'
-		. '<div class="clanbite-cover__media clanbite-cover__media--placeholder" aria-hidden="true"></div>'
+		. '<div class="clanbite-cover__media-clip"><div class="clanbite-cover__media clanbite-cover__media--placeholder" aria-hidden="true"></div></div>'
 		. '<div class="clanbite-cover__content">'
-		. wp_kses_post( $content )
+		. wp_kses( $content, clanbite_block_fragment_allowed_html() )
 		. '</div></div>',
 		clanbite_block_fragment_allowed_html()
 	);
@@ -63,9 +62,9 @@ if ( ! $url ) {
 	);
 	echo wp_kses(
 		'<div ' . $wrapper . '>'
-		. '<img class="clanbite-cover__media clanbite-cover__media--empty" src="' . esc_url( $cover_placeholder ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" />'
+		. '<div class="clanbite-cover__media-clip">' . '<img class="clanbite-cover__media clanbite-cover__media--empty" src="' . esc_url( $cover_placeholder ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" /></div>'
 		. '<div class="clanbite-cover__content">'
-		. wp_kses_post( $content )
+		. wp_kses( $content, clanbite_block_fragment_allowed_html() )
 		. '</div></div>',
 		clanbite_block_fragment_allowed_html()
 	);
@@ -82,9 +81,9 @@ $wrapper_attributes = get_block_wrapper_attributes(
 
 echo wp_kses(
 	'<div ' . $wrapper_attributes . '>'
-	. '<img class="clanbite-cover__media" src="' . esc_url( $url ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" />'
+	. '<div class="clanbite-cover__media-clip">' . '<img class="clanbite-cover__media" src="' . esc_url( $url ) . '" alt="' . esc_attr( $cover_alt ) . '" loading="lazy" decoding="async" /></div>'
 	. '<div class="clanbite-cover__content">'
-	. wp_kses_post( $content )
+	. wp_kses( $content, clanbite_block_fragment_allowed_html() )
 	. '</div></div>',
 	clanbite_block_fragment_allowed_html()
 );

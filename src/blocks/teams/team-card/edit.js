@@ -24,10 +24,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				onChange={ ( value ) =>
 					setAttributes( { description: value } )
 				}
-				placeholder={ __(
-					'Team description (optional)',
-					'clanbite'
-				) }
+				placeholder={ __( 'Team description (optional)', 'clanbite' ) }
 			/>
 		</div>
 	);

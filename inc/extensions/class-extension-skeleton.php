@@ -1,4 +1,9 @@
 <?php
+/**
+ * Base class (`Skeleton`) that every Clanbite extension extends.
+ *
+ * @package clanbite
+ */
 
 namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
@@ -140,13 +145,13 @@ class Skeleton {
 		string $requires_clanbite = ''
 	): void {
 		// Setup basic extension data.
-		$this->name                 = $this->validate_name( $name );
-		$this->slug                 = $this->validate_slug( $slug );
-		$this->description          = $description;
-		$this->parent_slug          = $this->validate_parent_slug( $parent_slug );
-		$this->version              = $this->validate_version( $version );
-		$this->requires             = $this->validate_requires( $requires );
-		$this->requires_clanbite  = $this->validate_requires_clanbite( $requires_clanbite );
+		$this->name              = $this->validate_name( $name );
+		$this->slug              = $this->validate_slug( $slug );
+		$this->description       = $description;
+		$this->parent_slug       = $this->validate_parent_slug( $parent_slug );
+		$this->version           = $this->validate_version( $version );
+		$this->requires          = $this->validate_requires( $requires );
+		$this->requires_clanbite = $this->validate_requires_clanbite( $requires_clanbite );
 		/**
 		 * Filter the extension data store implementation.
 		 *
@@ -166,6 +171,8 @@ class Skeleton {
 	 * @param string $name The extension name.
 	 *
 	 * @return string The extension name.
+	 *
+	 * @throws \InvalidArgumentException When the name is empty.
 	 */
 	protected function validate_name( string $name ): string {
 		$name = trim( $name );
@@ -183,6 +190,8 @@ class Skeleton {
 	 * @param string $slug The extension slug.
 	 *
 	 * @return string Returns the validated extension slug.
+	 *
+	 * @throws \InvalidArgumentException When the slug is empty after sanitizing.
 	 */
 	protected function validate_slug( string $slug ): string {
 		$slug = strtolower( trim( $slug ) );
@@ -201,6 +210,8 @@ class Skeleton {
 	 * @param string $parent_slug The extension parent slug.
 	 *
 	 * @return string The validated extension parent slug.
+	 *
+	 * @throws \InvalidArgumentException When a non-empty parent slug is invalid.
 	 */
 	protected function validate_parent_slug( string $parent_slug ): string {
 		if ( empty( $parent_slug ) ) {
@@ -228,6 +239,8 @@ class Skeleton {
 	 * @param string $version The extension version string.
 	 *
 	 * @return string The validated version string.
+	 *
+	 * @throws \InvalidArgumentException When the version is not `x.y.z`.
 	 */
 	protected function validate_version( string $version ): string {
 		if ( ! preg_match( '/^\d+\.\d+\.\d+$/', $version ) ) {
@@ -244,6 +257,8 @@ class Skeleton {
 	 * @param array $requires An array of required extension slugs.
 	 *
 	 * @return array
+	 *
+	 * @throws \InvalidArgumentException When a requirement is not a non-empty string.
 	 */
 	protected function validate_requires( array $requires ): array {
 		foreach ( $requires as $require ) {
@@ -261,6 +276,8 @@ class Skeleton {
 	 *
 	 * @param string $version Version string.
 	 * @return string
+	 *
+	 * @throws \InvalidArgumentException When a non-empty version is not `x.y.z`.
 	 */
 	protected function validate_requires_clanbite( string $version ): string {
 		$version = trim( $version );

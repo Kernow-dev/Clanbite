@@ -1,8 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Renders the player public website when set.
  *
@@ -11,6 +7,10 @@ defined( 'ABSPATH' ) || exit;
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
 	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
@@ -23,7 +23,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper . '><p class="clanbite-player-website__text">' . esc_html__( 'Player website', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p class="clanbite-player-website__text">' . esc_html__( 'Player website', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -35,7 +35,7 @@ if ( '' === $raw ) {
 	return '';
 }
 
-$align = isset( $attributes['textAlign'] ) ? sanitize_key( (string) $attributes['textAlign'] ) : '';
+$align   = isset( $attributes['textAlign'] ) ? sanitize_key( (string) $attributes['textAlign'] ) : '';
 $p_class = array( 'clanbite-player-website__text' );
 if ( $align && in_array( $align, array( 'left', 'center', 'right', 'justify' ), true ) ) {
 	$p_class[] = 'has-text-align-' . $align;
@@ -65,5 +65,6 @@ echo wp_kses(
 		$wrapper_attributes,
 		esc_attr( implode( ' ', $p_class ) ),
 		$inner
-	), clanbite_block_fragment_allowed_html()
+	),
+	clanbite_block_fragment_allowed_html()
 );

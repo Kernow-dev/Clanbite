@@ -43,5 +43,29 @@ function clanbite_render_block_markup_file( string $markup_file ): void {
 	 */
 	do_action( 'clanbite_render_block_markup_file', $markup_file, $markup );
 
-	clanbite_echo_block_fragment_html( do_blocks( $markup ) );
+	// Shortcode blocks (e.g. the players directory) are not expanded by do_blocks(); block templates run do_shortcode() too.
+	clanbite_echo_block_fragment_html( do_shortcode( do_blocks( $markup ) ) );
+}
+
+/**
+ * Resolve the template for a Clanbite route: a theme PHP file, then the block template, then the plugin's PHP loader.
+ *
+ * Only a real theme template may be handed to {@see locate_block_template()}. Passing the plugin's own PHP loader
+ * makes WordPress treat it as a theme template that wins over the block template, so block themes would fall back to
+ * the classic loader and blocks would render after `wp_head` (no import map, broken Interactivity API modules).
+ *
+ * @param string   $theme_template  Result of `locate_template()` (empty when the theme has no matching PHP file).
+ * @param string   $plugin_template Absolute path of the plugin's classic PHP loader used as the last resort.
+ * @param string   $slug            Block template slug registered with `register_block_template()` (id segment after `//`).
+ * @param string[] $hierarchy       Template file hierarchy for the route (for example `array( 'teams-create.php', 'index.php' )`).
+ * @return string Template path to hand back to `template_include`.
+ */
+function clanbite_locate_block_or_plugin_template( string $theme_template, string $plugin_template, string $slug, array $hierarchy ): string {
+	$resolved = function_exists( 'locate_block_template' ) ? locate_block_template( $theme_template, $slug, $hierarchy ) : $theme_template;
+
+	if ( ! $resolved ) {
+		$resolved = '' !== $theme_template ? $theme_template : $plugin_template;
+	}
+
+	return (string) $resolved;
 }

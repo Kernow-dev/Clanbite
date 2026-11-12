@@ -87,32 +87,32 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 */
 	public function get_collection_params(): array {
 		return array(
-			'team_id'    => array(
+			'team_id'        => array(
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
 			),
-			'group_id'   => array(
+			'group_id'       => array(
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
 			),
-			'per_page'   => array(
+			'per_page'       => array(
 				'type'              => 'integer',
 				'default'           => 20,
 				'sanitize_callback' => 'absint',
 			),
-			'page'       => array(
+			'page'           => array(
 				'type'              => 'integer',
 				'default'           => 1,
 				'sanitize_callback' => 'absint',
 			),
-			'search'     => array(
+			'search'         => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
-			'time_scope' => array(
+			'time_scope'     => array(
 				'type'              => 'string',
 				'default'           => 'all',
 				'sanitize_callback' => 'sanitize_key',
@@ -255,41 +255,44 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			? clanbite_events_get_user_group_ids_for_calendar( $player_user_id )
 			: array();
 
-		$meta_or = array( 'relation' => 'OR' );
-
+		/*
+		 * One IN clause per scope key (not one AND pair per team/group): WP_Query joins wp_postmeta once per clause, so a
+		 * player on many teams otherwise produced an exponentially growing join. Team events always store
+		 * `cp_event_group_id` = 0 and group events `cp_event_team_id` = 0, so matching the id alone is unambiguous.
+		 */
+		$enabled_team_ids = array();
 		foreach ( $team_ids as $tid ) {
 			$tid = (int) $tid;
-			if ( $tid < 1 || ! function_exists( 'clanbite_events_are_enabled_for_team' ) || ! clanbite_events_are_enabled_for_team( $tid ) ) {
-				continue;
+			if ( $tid >= 1 && function_exists( 'clanbite_events_are_enabled_for_team' ) && clanbite_events_are_enabled_for_team( $tid ) ) {
+				$enabled_team_ids[] = $tid;
 			}
+		}
+
+		$enabled_group_ids = array();
+		foreach ( $group_ids as $gid ) {
+			$gid = (int) $gid;
+			if ( $gid >= 1 && function_exists( 'clanbite_events_are_enabled_for_group' ) && clanbite_events_are_enabled_for_group( $gid ) ) {
+				$enabled_group_ids[] = $gid;
+			}
+		}
+
+		$meta_or = array( 'relation' => 'OR' );
+
+		if ( $enabled_team_ids ) {
 			$meta_or[] = array(
-				'relation' => 'AND',
-				array(
-					'key'   => 'cp_event_scope',
-					'value' => Event_Post_Type::SCOPE_TEAM,
-				),
-				array(
-					'key'   => 'cp_event_team_id',
-					'value' => $tid,
-				),
+				'key'     => 'cp_event_team_id',
+				'value'   => array_values( array_unique( $enabled_team_ids ) ),
+				'compare' => 'IN',
+				'type'    => 'NUMERIC',
 			);
 		}
 
-		foreach ( $group_ids as $gid ) {
-			$gid = (int) $gid;
-			if ( $gid < 1 || ! function_exists( 'clanbite_events_are_enabled_for_group' ) || ! clanbite_events_are_enabled_for_group( $gid ) ) {
-				continue;
-			}
+		if ( $enabled_group_ids ) {
 			$meta_or[] = array(
-				'relation' => 'AND',
-				array(
-					'key'   => 'cp_event_scope',
-					'value' => Event_Post_Type::SCOPE_GROUP,
-				),
-				array(
-					'key'   => 'cp_event_group_id',
-					'value' => $gid,
-				),
+				'key'     => 'cp_event_group_id',
+				'value'   => array_values( array_unique( $enabled_group_ids ) ),
+				'compare' => 'IN',
+				'type'    => 'NUMERIC',
 			);
 		}
 
@@ -303,7 +306,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		$meta_query = array(
+		$meta_query   = array(
 			'relation' => 'AND',
 		);
 		$meta_query[] = $meta_or;
@@ -335,8 +338,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	/**
 	 * Run the list query with shared time / range / pagination rules.
 	 *
-	 * @param WP_REST_Request        $request    Request.
-	 * @param array<string, mixed>   $meta_query Base meta query (AND).
+	 * @param WP_REST_Request      $request    Request.
+	 * @param array<string, mixed> $meta_query Base meta query (AND).
 	 * @return WP_REST_Response
 	 */
 	private function query_events_with_request_filters( WP_REST_Request $request, array $meta_query ): WP_REST_Response {
@@ -553,9 +556,9 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	public function create_item( $request ) {
 		$request = rest_ensure_request( $request );
 
-		$user_id = (int) get_current_user_id();
-		$scope   = sanitize_key( (string) $request->get_param( 'scope' ) );
-		$team_id = (int) $request->get_param( 'team_id' );
+		$user_id  = (int) get_current_user_id();
+		$scope    = sanitize_key( (string) $request->get_param( 'scope' ) );
+		$team_id  = (int) $request->get_param( 'team_id' );
 		$group_id = (int) $request->get_param( 'group_id' );
 
 		if ( Event_Post_Type::SCOPE_TEAM === $scope ) {
@@ -594,7 +597,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		if ( function_exists( 'clanbite_wordban_mask_html_content' ) ) {
 			$content = clanbite_wordban_mask_html_content( $content );
 		}
-		$status  = sanitize_key( (string) $request->get_param( 'status' ) );
+		$status = sanitize_key( (string) $request->get_param( 'status' ) );
 		if ( ! in_array( $status, array( 'draft', 'publish' ), true ) ) {
 			$status = 'publish';
 		}
@@ -792,18 +795,18 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$pt = new Event_Post_Type();
 
 		$keys = array(
-			'mode'                   => 'cp_event_mode',
-			'virtual_url'            => 'cp_event_virtual_url',
-			'address_line1'          => 'cp_event_address_line1',
-			'address_line2'          => 'cp_event_address_line2',
-			'locality'               => 'cp_event_locality',
-			'region'                 => 'cp_event_region',
-			'postcode'               => 'cp_event_postcode',
-			'country'                => 'cp_event_country',
-			'starts_at'              => 'cp_event_starts_at',
-			'ends_at'                => 'cp_event_ends_at',
-			'visibility'             => 'cp_event_visibility',
-			'attendees_visibility'   => 'cp_event_attendees_visibility',
+			'mode'                 => 'cp_event_mode',
+			'virtual_url'          => 'cp_event_virtual_url',
+			'address_line1'        => 'cp_event_address_line1',
+			'address_line2'        => 'cp_event_address_line2',
+			'locality'             => 'cp_event_locality',
+			'region'               => 'cp_event_region',
+			'postcode'             => 'cp_event_postcode',
+			'country'              => 'cp_event_country',
+			'starts_at'            => 'cp_event_starts_at',
+			'ends_at'              => 'cp_event_ends_at',
+			'visibility'           => 'cp_event_visibility',
+			'attendees_visibility' => 'cp_event_attendees_visibility',
 		);
 
 		foreach ( $keys as $param => $meta_key ) {
@@ -862,7 +865,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 * Update a `cp_event` post (capability shim).
 	 *
 	 * @param array<string, mixed> $postarr Post data for {@see wp_update_post()}.
-	 * @param int                    $user_id Acting user ID.
+	 * @param int                  $user_id Acting user ID.
 	 * @return int|\WP_Error
 	 */
 	private function update_event_post( array $postarr, int $user_id ) {
@@ -892,27 +895,27 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	private function post_to_response( \WP_Post $post ): array {
 		$pid = $post->ID;
 		return array(
-			'id'                   => $pid,
-			'title'                => get_the_title( $post ),
-			'content'              => $post->post_content,
-			'status'               => $post->post_status,
-			'scope'                => (string) get_post_meta( $pid, 'cp_event_scope', true ),
-			'teamId'               => (int) get_post_meta( $pid, 'cp_event_team_id', true ),
-			'groupId'              => (int) get_post_meta( $pid, 'cp_event_group_id', true ),
-			'mode'                 => (string) get_post_meta( $pid, 'cp_event_mode', true ),
-			'virtualUrl'           => (string) get_post_meta( $pid, 'cp_event_virtual_url', true ),
-			'addressLine1'         => (string) get_post_meta( $pid, 'cp_event_address_line1', true ),
-			'addressLine2'         => (string) get_post_meta( $pid, 'cp_event_address_line2', true ),
-			'locality'             => (string) get_post_meta( $pid, 'cp_event_locality', true ),
-			'region'               => (string) get_post_meta( $pid, 'cp_event_region', true ),
-			'postcode'             => (string) get_post_meta( $pid, 'cp_event_postcode', true ),
-			'country'              => (string) get_post_meta( $pid, 'cp_event_country', true ),
-			'startsAt'             => (string) get_post_meta( $pid, 'cp_event_starts_at', true ),
-			'endsAt'               => (string) get_post_meta( $pid, 'cp_event_ends_at', true ),
-			'visibility'           => (string) get_post_meta( $pid, 'cp_event_visibility', true ),
-			'attendeesVisibility'  => (string) get_post_meta( $pid, 'cp_event_attendees_visibility', true ),
-			'permalink'            => self::public_permalink_for_event_post( $post ),
-			'permalinkTeam'        => '', // Deprecated; use permalink.
+			'id'                  => $pid,
+			'title'               => get_the_title( $post ),
+			'content'             => $post->post_content,
+			'status'              => $post->post_status,
+			'scope'               => (string) get_post_meta( $pid, 'cp_event_scope', true ),
+			'teamId'              => (int) get_post_meta( $pid, 'cp_event_team_id', true ),
+			'groupId'             => (int) get_post_meta( $pid, 'cp_event_group_id', true ),
+			'mode'                => (string) get_post_meta( $pid, 'cp_event_mode', true ),
+			'virtualUrl'          => (string) get_post_meta( $pid, 'cp_event_virtual_url', true ),
+			'addressLine1'        => (string) get_post_meta( $pid, 'cp_event_address_line1', true ),
+			'addressLine2'        => (string) get_post_meta( $pid, 'cp_event_address_line2', true ),
+			'locality'            => (string) get_post_meta( $pid, 'cp_event_locality', true ),
+			'region'              => (string) get_post_meta( $pid, 'cp_event_region', true ),
+			'postcode'            => (string) get_post_meta( $pid, 'cp_event_postcode', true ),
+			'country'             => (string) get_post_meta( $pid, 'cp_event_country', true ),
+			'startsAt'            => (string) get_post_meta( $pid, 'cp_event_starts_at', true ),
+			'endsAt'              => (string) get_post_meta( $pid, 'cp_event_ends_at', true ),
+			'visibility'          => (string) get_post_meta( $pid, 'cp_event_visibility', true ),
+			'attendeesVisibility' => (string) get_post_meta( $pid, 'cp_event_attendees_visibility', true ),
+			'permalink'           => self::public_permalink_for_event_post( $post ),
+			'permalinkTeam'       => '', // Deprecated; use permalink.
 		);
 	}
 

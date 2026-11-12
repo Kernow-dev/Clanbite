@@ -1,4 +1,9 @@
 <?php
+/**
+ * Theme-safe `clanbite_players_*()` helpers and player-related utilities.
+ *
+ * @package clanbite
+ */
 
 defined( 'ABSPATH' ) || exit;
 
@@ -319,6 +324,14 @@ function clanbite_players_get_bundled_default_cover_url(): string {
 	return clanbite()->url . 'assets/img/covers/default-player-cover-image.png';
 }
 
+/**
+ * Get the default avatar URL used when a player has not uploaded one.
+ *
+ * Uses the Players setting `default_avatar` when set, otherwise the bundled image.
+ *
+ * @param int $player_id Player (user) ID, passed through to the filter.
+ * @return string Image URL.
+ */
 function clanbite_players_get_default_avatar( $player_id ) {
 	$loader = clanbite()->extensions;
 	if ( null === $loader ) {
@@ -334,9 +347,23 @@ function clanbite_players_get_default_avatar( $player_id ) {
 		$default_avatar = clanbite_players_get_bundled_default_avatar_url();
 	}
 
+	/**
+	 * Filters the default player avatar URL.
+	 *
+	 * @param string $default_avatar Default avatar URL (setting or bundled image).
+	 * @param int    $player_id  Player (user) ID.
+	 */
 	return apply_filters( 'clanbite_players_get_default_avatar', $default_avatar, $player_id );
 }
 
+/**
+ * Get the default cover URL used when a player has not uploaded one.
+ *
+ * Uses the Players setting `default_cover` when set, otherwise the bundled image.
+ *
+ * @param int $player_id Player (user) ID, passed through to the filter.
+ * @return string Image URL.
+ */
 function clanbite_players_get_default_cover( $player_id ) {
 	$loader = clanbite()->extensions;
 	if ( null === $loader ) {
@@ -352,6 +379,12 @@ function clanbite_players_get_default_cover( $player_id ) {
 		$default_cover = clanbite_players_get_bundled_default_cover_url();
 	}
 
+	/**
+	 * Filters the default player cover URL.
+	 *
+	 * @param string $default_cover Default cover URL (setting or bundled image).
+	 * @param int    $player_id  Player (user) ID.
+	 */
 	return apply_filters( 'clanbite_players_get_default_cover', $default_cover, $player_id );
 }
 
@@ -564,11 +597,11 @@ function clanbite_players_get_image_size_choices_for_settings(): array {
 	sort( $slugs );
 
 	$labels = array(
-		'full'                          => __( 'Full size', 'clanbite' ),
-		'thumbnail'                     => __( 'Thumbnail', 'clanbite' ),
-		'medium'                        => __( 'Medium', 'clanbite' ),
-		'medium_large'                  => __( 'Medium large', 'clanbite' ),
-		'large'                         => __( 'Large (WordPress)', 'clanbite' ),
+		'full'                        => __( 'Full size', 'clanbite' ),
+		'thumbnail'                   => __( 'Thumbnail', 'clanbite' ),
+		'medium'                      => __( 'Medium', 'clanbite' ),
+		'medium_large'                => __( 'Medium large', 'clanbite' ),
+		'large'                       => __( 'Large (WordPress)', 'clanbite' ),
 		'clanbite-avatar-large'       => __( 'Clanbite player avatar — large (default preset)', 'clanbite' ),
 		'clanbite-avatar-medium'      => __( 'Clanbite player avatar — medium (default preset)', 'clanbite' ),
 		'clanbite-avatar-small'       => __( 'Clanbite player avatar — small (default preset)', 'clanbite' ),
@@ -579,7 +612,7 @@ function clanbite_players_get_image_size_choices_for_settings(): array {
 
 	$out = array();
 	foreach ( $slugs as $slug ) {
-		$key           = (string) $slug;
+		$key         = (string) $slug;
 		$out[ $key ] = $labels[ $key ] ?? $key;
 	}
 
@@ -621,8 +654,8 @@ function clanbite_players_sanitize_image_size_setting_value( string $value, stri
  * @return string Registered size name or `full`.
  */
 function clanbite_players_resolve_player_avatar_image_size( string $preset ): string {
-	$preset = sanitize_key( $preset );
-	$keys   = array(
+	$preset   = sanitize_key( $preset );
+	$keys     = array(
 		'large'  => 'player_avatar_image_size_large',
 		'medium' => 'player_avatar_image_size_medium',
 		'small'  => 'player_avatar_image_size_small',
@@ -636,7 +669,7 @@ function clanbite_players_resolve_player_avatar_image_size( string $preset ): st
 	$setting_key = $keys[ $preset ] ?? $keys['large'];
 	$fallback    = $defaults[ $preset ] ?? $defaults['large'];
 
-	$raw = '';
+	$raw    = '';
 	$loader = clanbite()->extensions;
 	if ( null !== $loader ) {
 		$ext = $loader->get( 'cp_players' );
@@ -681,7 +714,7 @@ function clanbite_players_get_display_avatar( int $player_id = 0, bool $suppress
 		$player_id = get_current_user_id();
 	}
 
-	$preset_key = sanitize_key( $avatar_preset );
+	$preset_key        = sanitize_key( $avatar_preset );
 	$preset_for_filter = '';
 
 	if ( in_array( $preset_key, array( 'large', 'medium', 'small' ), true ) ) {
@@ -739,6 +772,9 @@ function clanbite_players_get_display_avatar_id( int $player_id = 0, bool $suppr
 	/**
 	 * Allows filtering of the players display avatar attachment ID, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param int $avatar_id Avatar attachment ID (0 when unset).
+	 * @param int $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_avatar_id', $user_avatar_id, $player_id );
 }
@@ -850,7 +886,7 @@ function clanbite_players_get_player_avatar_img_html( int $user_id, array $args 
 	$attr = apply_filters( 'clanbite_players_player_avatar_img_attributes', $attr, $user_id, $args, $url );
 
 	if ( $presentational ) {
-		$attr['alt']          = '';
+		$attr['alt']         = '';
 		$attr['aria-hidden'] = 'true';
 	}
 
@@ -930,10 +966,10 @@ function clanbite_players_apply_player_avatar_display_markup( string $inner, int
  */
 function clanbite_players_apply_player_avatar_block_parts( string $display_inner, int $user_id, array $args ): array {
 	$defaults = array(
-		'clip_inner'          => $display_inner,
-		'after_clip'          => '',
-		'avatar_extra_class'  => '',
-		'rank_overlay_html'   => '',
+		'clip_inner'         => $display_inner,
+		'after_clip'         => '',
+		'avatar_extra_class' => '',
+		'rank_overlay_html'  => '',
 	);
 	/**
 	 * Filters layout parts for the player avatar block when preset is `large`.
@@ -953,10 +989,10 @@ function clanbite_players_apply_player_avatar_block_parts( string $display_inner
 		return $defaults;
 	}
 	return array(
-		'clip_inner'          => (string) ( $filtered['clip_inner'] ?? $display_inner ),
-		'after_clip'          => (string) ( $filtered['after_clip'] ?? '' ),
-		'avatar_extra_class'  => trim( (string) ( $filtered['avatar_extra_class'] ?? '' ) ),
-		'rank_overlay_html'   => (string) ( $filtered['rank_overlay_html'] ?? '' ),
+		'clip_inner'         => (string) ( $filtered['clip_inner'] ?? $display_inner ),
+		'after_clip'         => (string) ( $filtered['after_clip'] ?? '' ),
+		'avatar_extra_class' => trim( (string) ( $filtered['avatar_extra_class'] ?? '' ) ),
+		'rank_overlay_html'  => (string) ( $filtered['rank_overlay_html'] ?? '' ),
 	);
 }
 
@@ -987,6 +1023,9 @@ function clanbite_players_get_display_cover( int $player_id = 0, bool $suppress_
 	/**
 	 * Allows filtering of the players display cover, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $cover     Cover image URL.
+	 * @param int    $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_cover', $user_cover, $player_id );
 }
@@ -1013,6 +1052,9 @@ function clanbite_players_get_display_cover_id( int $player_id = 0, bool $suppre
 	/**
 	 * Allows filtering of the players display cover attachment ID, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param int $cover_id  Cover attachment ID (0 when unset).
+	 * @param int $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_cover_id', $user_cover_id, $player_id );
 }
@@ -1039,6 +1081,9 @@ function clanbite_players_get_display_cover_position_x( int $player_id = 0, bool
 	/**
 	 * Allows filtering of the players display cover position on the X axis, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param float $position  Horizontal focal position, 0 to 1.
+	 * @param int   $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_cover_position_x', $user_cover_position_x, $player_id );
 }
@@ -1065,6 +1110,9 @@ function clanbite_players_get_display_cover_position_y( int $player_id = 0, bool
 	/**
 	 * Allows filtering of the players display cover position on the Y axis, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param float $position  Vertical focal position, 0 to 1.
+	 * @param int   $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_cover_position_y', $user_cover_position_y, $player_id );
 }
@@ -1095,6 +1143,10 @@ function clanbite_players_get_display_name( int $player_id = 0, bool $suppress_f
 	/**
 	 * Allows filtering of the players display name, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string   $display_name Display name.
+	 * @param int      $player_id    Player (user) ID.
+	 * @param \WP_User $player       Player user object.
 	 */
 	return apply_filters( 'clanbite_players_get_display_name', $player->display_name, $player_id, $player );
 }
@@ -1121,6 +1173,9 @@ function clanbite_players_get_display_tagline( int $player_id = 0, bool $suppres
 	/**
 	 * Allows filtering of the players display tagline, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $tagline   Profile tagline.
+	 * @param int    $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_tagline', $tagline, $player_id );
 }
@@ -1147,6 +1202,9 @@ function clanbite_players_get_display_bio( int $player_id = 0, bool $suppress_fi
 	/**
 	 * Allows filtering of the players display bio, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $bio       Profile description.
+	 * @param int    $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_bio', $bio, $player_id );
 }
@@ -1173,6 +1231,9 @@ function clanbite_players_get_display_website( int $player_id = 0, bool $suppres
 	/**
 	 * Allows filtering of the players display website, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $website   Profile website.
+	 * @param int    $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_website', $website, $player_id );
 }
@@ -1517,7 +1578,7 @@ function clanbite_players_get_display_country( int $player_id = 0, string $retur
 
 	$country = get_user_meta( $player_id, 'cp_player_country', true );
 
-	if ( $return_type === 'name' ) {
+	if ( 'name' === $return_type ) {
 		$countries = clanbite_players_get_countries();
 
 		foreach ( $countries as $country_code => $country_name ) {
@@ -1535,6 +1596,10 @@ function clanbite_players_get_display_country( int $player_id = 0, string $retur
 	/**
 	 * Allows filtering of the players display country, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $country     Country name or code, per `$return_type`.
+	 * @param int    $player_id   Player (user) ID.
+	 * @param string $return_type What was requested: `name` or `code`.
 	 */
 	return apply_filters( 'clanbite_players_get_display_country', $country, $player_id, $return_type );
 }
@@ -1561,6 +1626,9 @@ function clanbite_players_get_display_city( int $player_id = 0, bool $suppress_f
 	/**
 	 * Allows filtering of the players display city, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $city      Profile city.
+	 * @param int    $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_city', $city, $player_id );
 }
@@ -1587,6 +1655,9 @@ function clanbite_players_get_display_birthday( int $player_id = 0, bool $suppre
 	/**
 	 * Allows filtering of the players display birthday, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $birthday  Birthday (`Y-m-d`, empty when unset).
+	 * @param int    $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_display_birthday', $birthday, $player_id );
 }
@@ -1620,6 +1691,10 @@ function clanbite_players_get_display_age( int $player_id = 0, bool $suppress_fi
 	/**
 	 * Allows filtering of the players display age, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $age       Computed age.
+	 * @param int    $player_id Player (user) ID.
+	 * @param string $birthday  Birthday the age was computed from.
 	 */
 	return (string) apply_filters( 'clanbite_players_get_display_age', $age, $player_id, $birthday );
 }
@@ -1646,6 +1721,9 @@ function clanbite_players_get_account_firstname( int $player_id = 0, bool $suppr
 	/**
 	 * Allows filtering of the players account first name, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $first_name Account first name.
+	 * @param int    $player_id  Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_account_firstname', $first_name, $player_id );
 }
@@ -1672,6 +1750,9 @@ function clanbite_players_get_account_lastname( int $player_id = 0, bool $suppre
 	/**
 	 * Allows filtering of the players account last name, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $last_name Account last name.
+	 * @param int    $player_id Player (user) ID.
 	 */
 	return apply_filters( 'clanbite_players_get_account_lastname', $last_name, $player_id );
 }
@@ -1700,6 +1781,11 @@ function clanbite_players_get_account_fullname( int $player_id = 0, bool $suppre
 	/**
 	 * Allows filtering of the players account full name, this can be bypassed by setting $suppress_filters param
 	 * to true.
+	 *
+	 * @param string $full_name  Account full name.
+	 * @param int    $player_id  Player (user) ID.
+	 * @param string $first_name Account first name.
+	 * @param string $last_name  Account last name.
 	 */
 	return apply_filters( 'clanbite_players_get_account_fullname', $full_name, $player_id, $first_name, $last_name );
 }
@@ -1932,16 +2018,16 @@ function clanbite_remove_user_nav_menu_item( string $item_id ): void {
  * @return string Avatar shape: 'circle', 'square', or 'hexagon'. Default 'circle'.
  */
 function clanbite_players_get_avatar_shape(): string {
-	// Get directly from the database to avoid caching issues
+	// Get directly from the database to avoid caching issues.
 	$all_settings = get_option( 'clanbite_players_settings', array() );
 	$shape        = isset( $all_settings['player_avatar_shape'] ) ? $all_settings['player_avatar_shape'] : 'circle';
-	
-	// Sanitize and validate
+
+	// Sanitize and validate.
 	$shape = sanitize_key( $shape );
 	if ( ! in_array( $shape, array( 'circle', 'square', 'hexagon' ), true ) ) {
 		$shape = 'circle';
 	}
-	
+
 	/**
 	 * Filter the player avatar shape.
 	 *
@@ -1949,4 +2035,3 @@ function clanbite_players_get_avatar_shape(): string {
 	 */
 	return (string) apply_filters( 'clanbite_players_avatar_shape', $shape );
 }
-

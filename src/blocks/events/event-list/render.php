@@ -1,20 +1,19 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Server render: Event list block (Interactivity: time filter, pagination).
  *
  * @package clanbite
  */
 
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
+
 use Kernowdev\Clanbite\Events\Event_Post_Type;
 
-$scope    = sanitize_key( (string) ( $attributes['scopeType'] ?? 'team' ) );
-$team_id  = (int) ( $attributes['teamId'] ?? 0 );
-$group_id = (int) ( $attributes['groupId'] ?? 0 );
+$scope      = sanitize_key( (string) ( $attributes['scopeType'] ?? 'team' ) );
+$team_id    = (int) ( $attributes['teamId'] ?? 0 );
+$group_id   = (int) ( $attributes['groupId'] ?? 0 );
 $max_list   = function_exists( 'clanbite_events_rest_max_per_page_paginated' )
 	? clanbite_events_rest_max_per_page_paginated()
 	: 50;
@@ -35,13 +34,13 @@ if ( $group_id < 1 && 'group' === $scope && function_exists( 'clanbite_group_pro
 
 if ( 'team' === $scope && $team_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-list clanbite-event-list--placeholder' ), $block );
-	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
 if ( 'group' === $scope && $group_id < 1 ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-list clanbite-event-list--placeholder' ), $block );
-	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -61,17 +60,17 @@ $config = array(
 	'nonce'      => wp_create_nonce( 'wp_rest' ),
 	'perPage'    => $limit,
 	'maxPerPage' => (int) $max_list,
-	'i18n'     => array(
-		'timeAll'       => __( 'All', 'clanbite' ),
-		'timeUpcoming'  => __( 'Upcoming', 'clanbite' ),
-		'timePast'      => __( 'Past', 'clanbite' ),
-		'loading'       => __( 'Loading…', 'clanbite' ),
-		'noEvents'      => __( 'No events yet.', 'clanbite' ),
-		'prev'          => __( 'Previous', 'clanbite' ),
-		'next'          => __( 'Next', 'clanbite' ),
-		'pageLabel'     => __( 'Page', 'clanbite' ),
-		'error'         => __( 'Could not load events.', 'clanbite' ),
-		'untitled'      => __( '(Untitled)', 'clanbite' ),
+	'i18n'       => array(
+		'timeAll'      => __( 'All', 'clanbite' ),
+		'timeUpcoming' => __( 'Upcoming', 'clanbite' ),
+		'timePast'     => __( 'Past', 'clanbite' ),
+		'loading'      => __( 'Loading…', 'clanbite' ),
+		'noEvents'     => __( 'No events yet.', 'clanbite' ),
+		'prev'         => __( 'Previous', 'clanbite' ),
+		'next'         => __( 'Next', 'clanbite' ),
+		'pageLabel'    => __( 'Page', 'clanbite' ),
+		'error'        => __( 'Could not load events.', 'clanbite' ),
+		'untitled'     => __( '(Untitled)', 'clanbite' ),
 	),
 );
 
@@ -101,7 +100,7 @@ if ( function_exists( 'clanbite_events_block_query_collection' ) ) {
 }
 
 $config['ssrHydrated'] = $list_ssr_hydrated;
-$config['ssrTotal']  = $list_ssr_total;
+$config['ssrTotal']    = $list_ssr_total;
 
 $cp_event_list_hide_pagination = ! $list_ssr_hydrated
 	|| (int) ceil( max( 1, $list_ssr_total ) / max( 1, $limit ) ) <= 1;
@@ -134,15 +133,15 @@ $event_list_root_open = '<div '
 	<p class="clanbite-event-list__error" hidden data-wp-bind--hidden="!state.errorMessage" data-wp-text="state.errorMessage" role="alert"></p>
 	<ul class="clanbite-event-list"><?php clanbite_echo_block_fragment_html( $list_ssr_hydrated ? (string) $list_ssr_rows : '' ); ?></ul>
 	<nav class="clanbite-event-list__pagination" data-wp-bind--hidden="!state.showPagination()" aria-label="<?php esc_attr_e( 'Events pagination', 'clanbite' ); ?>"<?php echo $cp_event_list_hide_pagination ? ' hidden' : ''; ?>>
-		<button type="button" class="clanbite-event-list__page-btn" data-wp-on--click="actions.prevPage" data-wp-bind--disabled="state.isFirstPage()">
+		<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-list__page-btn" data-wp-on--click="actions.prevPage" data-wp-bind--disabled="state.isFirstPage()">
 			<?php echo esc_html( $config['i18n']['prev'] ); ?>
 		</button>
 		<span class="clanbite-event-list__page-status">
 			<span data-wp-text="state.pageLabel"></span>
 		</span>
-		<button type="button" class="clanbite-event-list__page-btn" data-wp-on--click="actions.nextPage" data-wp-bind--disabled="state.isLastPage()">
+		<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-list__page-btn" data-wp-on--click="actions.nextPage" data-wp-bind--disabled="state.isLastPage()">
 			<?php echo esc_html( $config['i18n']['next'] ); ?>
 		</button>
 	</nav>
 </div>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <ruleset name="Clanbite">
 	<description>
-		PHPCS: PHP 8.2 / WordPress runtime compatibility. Full WPCS style rules are not enforced yet
-		(to avoid large no-op formatting churn); run PHPCBF with WordPress-Core locally if desired.
+		PHPCS for the Clanbite core plugin: WordPress Coding Standards (Core + Docs + Security) and PHP 8.2 / WordPress
+		compatibility, matching the companion plugins (Forums, Points, Ranks, Social Kit).
 		Block render callbacks echo markup via wp_kses( ..., clanbite_block_fragment_allowed_html() ).
 		{@see clanbite_esc_block_fragment_html()} remains a string helper for non-echo contexts.
 	</description>
@@ -11,22 +11,33 @@
 	<file>shortcut-function.php</file>
 	<file>inc</file>
 	<file>templates</file>
-	<file>build</file>
+	<file>src</file>
+	<arg name="extensions" value="php"/>
 
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
-	<!-- Built assets are scanned only when PHP (e.g. block render.php); skip binaries/text bundles. -->
-	<exclude-pattern>*/build/**/*.js</exclude-pattern>
-	<exclude-pattern>*/build/**/*.css</exclude-pattern>
-	<exclude-pattern>*/build/**/*.scss</exclude-pattern>
-	<exclude-pattern>*/build/**/*.svg</exclude-pattern>
-	<exclude-pattern>*/build/**/*.json</exclude-pattern>
-	<exclude-pattern>*/build/**/*.txt</exclude-pattern>
+	<!-- `build/` is generated (webpack copies src/**/render.php); fix the source, not the copy. -->
+	<exclude-pattern>*/build/*</exclude-pattern>
 
-	<config name="minimum_supported_wp_version" value="6.7"/>
+	<config name="minimum_supported_wp_version" value="6.9"/>
 	<config name="testVersion" value="8.2-"/>
 
+	<rule ref="WordPress-Core"/>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="WordPress.Security"/>
 	<rule ref="PHPCompatibilityWP"/>
 
-	<rule ref="WordPress.Security.EscapeOutput"/>
+	<!-- Classes are loaded through Composer's classmap / PSR-4 map, and several class names differ from their `class-*.php` file names; renaming files would break autoloading. -->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.Security.EscapeOutput">
+		<properties>
+			<!-- Escapes every attribute name and value internally (see inc/avatar-helpers.php). -->
+			<property name="customEscapingFunctions" type="array">
+				<element value="clanbite_build_html_attributes"/>
+			</property>
+		</properties>
+	</rule>
 </ruleset>

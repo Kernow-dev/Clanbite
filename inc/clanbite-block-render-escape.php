@@ -12,33 +12,54 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Global HTML attributes aligned with WordPress core post-tag behaviour
- * ({@see _wp_add_global_attributes()} in `wp-includes/kses.php`), kept locally so Clanbite does not
- * depend on Core’s underscore-prefixed helper.
+ * Global HTML attributes: WordPress core post-tag behaviour
+ * ({@see _wp_add_global_attributes()} in `wp-includes/kses.php`) plus the ARIA state attributes and `tabindex`
+ * that Clanbite widgets (tabs, comboboxes, dialogs, menus) need, kept locally so Clanbite does not depend on
+ * Core’s underscore-prefixed helper.
+ *
+ * Core omits these, so `wp_kses()` silently removed them (e.g. `aria-selected` on tabs, `aria-modal` on dialogs,
+ * `tabindex` on roving-tabindex controls). They are inert state attributes with no script-injection vector;
+ * event-handler attributes (`on*`) remain disallowed.
  *
  * @return array<string, bool>
  */
 function clanbite_block_fragment_global_attributes(): array {
 	return array(
-		'aria-controls'    => true,
-		'aria-current'     => true,
-		'aria-describedby' => true,
-		'aria-details'     => true,
-		'aria-expanded'    => true,
-		'aria-hidden'      => true,
-		'aria-label'       => true,
-		'aria-labelledby'  => true,
-		'aria-live'        => true,
-		'class'            => true,
-		'data-*'           => true,
-		'dir'              => true,
-		'hidden'           => true,
-		'id'               => true,
-		'lang'             => true,
-		'style'            => true,
-		'title'            => true,
-		'role'             => true,
-		'xml:lang'         => true,
+		'aria-activedescendant' => true,
+		'aria-atomic'           => true,
+		'aria-autocomplete'     => true,
+		'aria-busy'             => true,
+		'aria-checked'          => true,
+		'aria-controls'         => true,
+		'aria-current'          => true,
+		'aria-describedby'      => true,
+		'aria-details'          => true,
+		'aria-disabled'         => true,
+		'aria-errormessage'     => true,
+		'aria-expanded'         => true,
+		'aria-haspopup'         => true,
+		'aria-hidden'           => true,
+		'aria-invalid'          => true,
+		'aria-label'            => true,
+		'aria-labelledby'       => true,
+		'aria-live'             => true,
+		'aria-modal'            => true,
+		'aria-multiline'        => true,
+		'aria-orientation'      => true,
+		'aria-pressed'          => true,
+		'aria-required'         => true,
+		'aria-selected'         => true,
+		'class'                 => true,
+		'data-*'                => true,
+		'dir'                   => true,
+		'hidden'                => true,
+		'id'                    => true,
+		'lang'                  => true,
+		'style'                 => true,
+		'tabindex'              => true,
+		'title'                 => true,
+		'role'                  => true,
+		'xml:lang'              => true,
 	);
 }
 
@@ -97,22 +118,38 @@ function clanbite_block_fragment_allowed_html(): array {
 		if ( empty( $allowed['path'] ) ) {
 			$allowed['path'] = array_merge(
 				array(
-					'd'               => true,
-					'fill'            => true,
-					'stroke'          => true,
-					'stroke-width'    => true,
-					'stroke-linecap'  => true,
-					'stroke-linejoin' => true,
-					'opacity'         => true,
-					'fill-rule'       => true,
-					'clip-rule'       => true,
-					'transform'       => true,
+					'd'                 => true,
+					'fill'              => true,
+					'stroke'            => true,
+					'stroke-width'      => true,
+					'stroke-linecap'    => true,
+					'stroke-linejoin'   => true,
+					'opacity'           => true,
+					'fill-rule'         => true,
+					'clip-rule'         => true,
+					'pathlength'        => true,
+					'stroke-dasharray'  => true,
+					'stroke-dashoffset' => true,
+					'transform'         => true,
 				),
 				$svg_shared
 			);
 		}
 
-		// Circle elements for progress rings
+		// Group element: avatar frames wrap the XP ring (track + progress arc) in one.
+		if ( empty( $allowed['g'] ) ) {
+			$allowed['g'] = array_merge(
+				array(
+					'fill'      => true,
+					'stroke'    => true,
+					'opacity'   => true,
+					'transform' => true,
+				),
+				$svg_shared
+			);
+		}
+
+		// Circle elements for progress rings.
 		if ( empty( $allowed['circle'] ) ) {
 			$allowed['circle'] = array_merge(
 				array(
@@ -124,6 +161,9 @@ function clanbite_block_fragment_allowed_html(): array {
 					'stroke-width'      => true,
 					'stroke-dasharray'  => true,
 					'stroke-dashoffset' => true,
+					'stroke-linecap'    => true,
+					'stroke-linejoin'   => true,
+					'pathlength'        => true,
 					'opacity'           => true,
 					'transform'         => true,
 				),
@@ -131,7 +171,7 @@ function clanbite_block_fragment_allowed_html(): array {
 			);
 		}
 
-		// Polygon elements for hexagon progress rings
+		// Polygon elements for hexagon progress rings.
 		if ( empty( $allowed['polygon'] ) ) {
 			$allowed['polygon'] = array_merge(
 				array(
@@ -144,13 +184,15 @@ function clanbite_block_fragment_allowed_html(): array {
 					'stroke-linejoin'   => true,
 					'opacity'           => true,
 					'transform'         => true,
-					'pathLength'        => true,
+					'pathlength'        => true,
+					'stroke-linecap'    => true,
+					'stroke-linejoin'   => true,
 				),
 				$svg_shared
 			);
 		}
 
-		// Rect elements for square progress rings
+		// Rect elements for square progress rings.
 		if ( empty( $allowed['rect'] ) ) {
 			$allowed['rect'] = array_merge(
 				array(
@@ -167,10 +209,21 @@ function clanbite_block_fragment_allowed_html(): array {
 					'stroke-dashoffset' => true,
 					'opacity'           => true,
 					'transform'         => true,
-					'pathLength'        => true,
+					'pathlength'        => true,
+					'stroke-linecap'    => true,
+					'stroke-linejoin'   => true,
 				),
 				$svg_shared
 			);
+		}
+
+		// Core's `post` tags only carry core's (shorter) global attribute list. Merge ours into every tag that already
+		// accepts global attributes, so widget state such as `aria-selected` / `aria-modal` / `tabindex` survives on divs, buttons, lists, etc.
+		$globals = clanbite_block_fragment_global_attributes();
+		foreach ( $allowed as $tag => $tag_attrs ) {
+			if ( is_array( $tag_attrs ) && ( isset( $tag_attrs['class'] ) || isset( $tag_attrs['id'] ) || isset( $tag_attrs['role'] ) ) ) {
+				$allowed[ $tag ] = array_merge( $tag_attrs, $globals );
+			}
 		}
 
 		$base_allowed = $allowed;
@@ -181,30 +234,30 @@ function clanbite_block_fragment_allowed_html(): array {
 		 */
 		$base_allowed['input'] = clanbite_block_fragment_merge_global_attrs(
 			array(
-				'type'             => true,
-				'name'             => true,
-				'value'            => true,
-				'placeholder'      => true,
-				'checked'          => true,
-				'disabled'         => true,
-				'readonly'         => true,
-				'required'         => true,
-				'maxlength'        => true,
-				'minlength'        => true,
-				'min'              => true,
-				'max'              => true,
-				'step'             => true,
-				'pattern'          => true,
-				'accept'           => true,
-				'multiple'         => true,
-				'autocomplete'     => true,
-				'size'             => true,
-				'inputmode'        => true,
-				'list'             => true,
-				'tabindex'         => true,
-				'aria-valuenow'    => true,
-				'aria-valuemin'    => true,
-				'aria-valuemax'    => true,
+				'type'          => true,
+				'name'          => true,
+				'value'         => true,
+				'placeholder'   => true,
+				'checked'       => true,
+				'disabled'      => true,
+				'readonly'      => true,
+				'required'      => true,
+				'maxlength'     => true,
+				'minlength'     => true,
+				'min'           => true,
+				'max'           => true,
+				'step'          => true,
+				'pattern'       => true,
+				'accept'        => true,
+				'multiple'      => true,
+				'autocomplete'  => true,
+				'size'          => true,
+				'inputmode'     => true,
+				'list'          => true,
+				'tabindex'      => true,
+				'aria-valuenow' => true,
+				'aria-valuemin' => true,
+				'aria-valuemax' => true,
 			)
 		);
 

@@ -14,7 +14,11 @@ function wpBlockClass( blockName ) {
 	return '.wp-block-' + blockName.replace( '/', '-' );
 }
 
-/** Second object wins (theme author / existing block.json overrides defaults). */
+/**
+ * Second object wins (theme author / existing block.json overrides defaults).
+ * @param base
+ * @param over
+ */
 function deepMergePreferSecond( base, over ) {
 	if ( ! over || typeof over !== 'object' || Array.isArray( over ) ) {
 		return base;
@@ -75,7 +79,7 @@ const COLOR_LINK = new Set( [
 
 /**
  * @param {string} name
- * @returns {Record<string, unknown>}
+ * @return {Record<string, unknown>}
  */
 function buildSelectors( name ) {
 	const wp = wpBlockClass( name );
@@ -306,7 +310,7 @@ for ( const file of walkBlockJson( blocksRoot ) ) {
 		continue;
 	}
 
-	let pack = structuredClone( DEFAULT_SUPPORTS_BASE );
+	const pack = structuredClone( DEFAULT_SUPPORTS_BASE );
 	if ( NO_BACKGROUND.has( name ) && pack.color ) {
 		pack.color = { ...pack.color, background: false };
 	}

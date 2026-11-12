@@ -78,17 +78,17 @@ $rest_nonce      = wp_create_nonce( 'wp_rest' );
 $challenge_nonce = wp_create_nonce( 'clanbite_team_challenge_' . $team_id );
 
 $context = array(
-	'teamId'          => $team_id,
-	'restUrl'         => $rest_root,
-	'restNonce'       => $rest_nonce,
-	'challengeNonce'  => $challenge_nonce,
-	'managedTeams'    => $managed,
-	'isLoggedIn'      => $uid > 0,
-	'open'            => false,
-	'loading'         => false,
-	'lookupLoading'   => false,
-	'remoteError'     => '',
-	'formError'       => '',
+	'teamId'            => $team_id,
+	'restUrl'           => $rest_root,
+	'restNonce'         => $rest_nonce,
+	'challengeNonce'    => $challenge_nonce,
+	'managedTeams'      => $managed,
+	'isLoggedIn'        => $uid > 0,
+	'open'              => false,
+	'loading'           => false,
+	'lookupLoading'     => false,
+	'remoteError'       => '',
+	'formError'         => '',
 	'formSuccess'       => '',
 	'previewTitle'      => '',
 	'previewLogo'       => '',
@@ -107,6 +107,7 @@ $wrapper = get_block_wrapper_attributes(
 $team_challenge_button_root_open = '<div '
 	. trim( (string) $wrapper )
 	. ' data-wp-interactive="clanbite-team-challenge-button"'
+	. ' data-wp-watch="callbacks.announcePopup"'
 	. ' data-wp-context="' . esc_attr( wp_json_encode( $context ) ) . '"'
 	. '>';
 ?>
@@ -226,4 +227,4 @@ $team_challenge_button_root_open = '<div '
 		</div>
 	</div>
 </div>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

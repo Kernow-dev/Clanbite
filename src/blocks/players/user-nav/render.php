@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * User Navigation block render.
  *
  * @package Clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $avatar_size   = $attributes['avatarSize'] ?? 32;
 $show_username = $attributes['showUsername'] ?? false;
@@ -20,7 +19,7 @@ if ( $is_logged_in ) {
 	$user_id      = $user->ID;
 	$display_name = $user->display_name;
 
-	// Use the unified avatar rendering system
+	// Use the unified avatar rendering system.
 	$avatar_trigger = '';
 	if ( function_exists( 'clanbite_render_avatar' ) ) {
 		$avatar_trigger = clanbite_render_avatar(
@@ -31,13 +30,11 @@ if ( $is_logged_in ) {
 				'context'       => 'user_nav',
 				'extra_classes' => array( 'clanbite-user-nav__avatar' ),
 				'link'          => false,
-				'show_rank'     => false,
-				'show_progress' => false,
 			)
 		);
 	}
 
-	// Fallback if unified system isn't available
+	// Fallback if unified system isn't available.
 	if ( '' === $avatar_trigger ) {
 		$avatar_url_fallback = function_exists( 'clanbite_players_get_display_avatar' )
 			? clanbite_players_get_display_avatar( $user_id, false, '', 'user_nav', 'small' )
@@ -59,7 +56,7 @@ if ( $is_logged_in ) {
 	$guest_links = clanbite_get_user_nav_guest_links();
 }
 
-$context = array(
+$context     = array(
 	'isOpen' => false,
 );
 $dropdown_id = wp_unique_id( 'clanbite-user-nav-dropdown-' );
@@ -78,6 +75,7 @@ $user_nav_root_open = '<div '
 	. ' data-wp-on-document--click="actions.handleOutsideClick"'
 	. ' data-wp-on-document--keydown="actions.handleKeydown"'
 	. ' data-wp-class--is-open="context.isOpen"'
+	. ' data-wp-watch="callbacks.announcePopup"'
 	. '>';
 ?>
 <?php ob_start(); ?>
@@ -91,6 +89,7 @@ $user_nav_root_open = '<div '
 			aria-haspopup="menu"
 			aria-controls="<?php echo esc_attr( $dropdown_id ); ?>"
 			data-wp-on--click="actions.toggleDropdown"
+			data-wp-on--keydown="actions.onTriggerKeydown"
 			data-wp-bind--aria-expanded="context.isOpen"
 		>
 			<?php clanbite_echo_block_fragment_html( (string) $avatar_trigger ); ?>
@@ -117,9 +116,10 @@ $user_nav_root_open = '<div '
 			aria-label="<?php esc_attr_e( 'User menu', 'clanbite' ); ?>"
 			hidden
 			data-wp-bind--hidden="!context.isOpen"
+			data-wp-on--keydown="actions.onMenuKeydown"
 		>
-			<div class="clanbite-user-nav__dropdown-header">
-				<a href="<?php echo esc_url( $profile_url ); ?>" class="clanbite-user-nav__profile-link">
+			<div class="clanbite-user-nav__dropdown-header" role="none">
+				<a href="<?php echo esc_url( $profile_url ); ?>" class="clanbite-user-nav__profile-link" role="menuitem">
 					<div class="clanbite-user-nav__profile-info">
 						<span class="clanbite-user-nav__profile-name"><?php echo esc_html( $display_name ); ?></span>
 						<span class="clanbite-user-nav__profile-label"><?php esc_html_e( 'View Profile', 'clanbite' ); ?></span>
@@ -141,7 +141,7 @@ $user_nav_root_open = '<div '
 						endif;
 						$current_group = $group;
 						?>
-						<div class="clanbite-user-nav__menu-group" data-group="<?php echo esc_attr( $group ); ?>">
+						<div class="clanbite-user-nav__menu-group" role="group" data-group="<?php echo esc_attr( $group ); ?>">
 						<?php
 					endif;
 					?>
@@ -181,4 +181,4 @@ $user_nav_root_open = '<div '
 		</div>
 	<?php endif; ?>
 </div>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

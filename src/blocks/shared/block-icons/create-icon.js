@@ -1,7 +1,7 @@
 /**
  * Factory for crisp block inserter icons (2× render, 1× display).
  *
- * @package clanbite
+ * @package
  */
 
 import { createElement } from '@wordpress/element';

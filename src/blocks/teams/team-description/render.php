@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Render callback: team description (post content).
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $team_id = clanbite_team_single_block_team_id( $block );
 if ( $team_id < 1 ) {
@@ -18,7 +17,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -30,7 +29,7 @@ if ( ! $post || 'clanbite_team' !== $post->post_type ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><span class="clanbite-team-description__content">' . esc_html__( 'Team description', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -42,7 +41,7 @@ if ( '' === trim( $content ) ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content"><p>' . esc_html__( 'No description yet.', 'clanbite' ) . '</p></div></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content"><p>' . esc_html__( 'No description yet.', 'clanbite' ) . '</p></div></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -56,4 +55,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo wp_kses( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content">' . $html . '</div></div>', clanbite_block_fragment_allowed_html());
+echo wp_kses( '<div ' . $wrapper_attributes . '><div class="clanbite-team-description__content">' . $html . '</div></div>', clanbite_block_fragment_allowed_html() );

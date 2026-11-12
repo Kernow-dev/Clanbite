@@ -130,10 +130,10 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 			const total = Number( state.stepCount );
 			return total > 0 ? total : 1;
 		},
-		canGoNext() {
+		get canGoNext() {
 			return state.step < state.maxStep();
 		},
-		canGoBack() {
+		get canGoBack() {
 			return state.step > 1;
 		},
 		isVirtual() {
@@ -266,18 +266,15 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 
 			const title =
 				root
-					.querySelector(
-						'.clanbite-event-create-form__input-title'
-					)
+					.querySelector( '.clanbite-event-create-form__input-title' )
 					?.value?.trim() || '';
 			const content =
 				root.querySelector(
 					'.clanbite-event-create-form__input-content'
 				)?.value || '';
 			const mode =
-				root.querySelector(
-					'.clanbite-event-create-form__input-mode'
-				)?.value || 'in_person';
+				root.querySelector( '.clanbite-event-create-form__input-mode' )
+					?.value || 'in_person';
 
 			if ( ! title ) {
 				state.message =

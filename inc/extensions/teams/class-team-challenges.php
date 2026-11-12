@@ -24,24 +24,24 @@ use WP_User;
  */
 final class Team_Challenges {
 
-	public const POST_TYPE = 'clanbite_team_challenge';
+	public const POST_TYPE = 'clanbite_challenge';
 
 	public const STATUS_PENDING  = 'pending';
 	public const STATUS_ACCEPTED = 'accepted';
 	public const STATUS_DECLINED = 'declined';
 
-	public const META_CHALLENGED_TEAM_ID    = 'cp_challenge_challenged_team_id';
-	public const META_CHALLENGER_USER_ID     = 'cp_challenge_challenger_user_id';
-	public const META_CHALLENGER_NAME        = 'cp_challenge_challenger_name';
-	public const META_CHALLENGER_EMAIL       = 'cp_challenge_challenger_email';
-	public const META_MESSAGE                = 'cp_challenge_message';
-	public const META_PROPOSED_SCHEDULED_AT  = 'cp_challenge_proposed_scheduled_at';
-	public const META_CHALLENGER_TEAM_ID     = 'cp_challenge_challenger_team_id';
-	public const META_REMOTE_TEAM_URL        = 'cp_challenge_remote_team_url';
-	public const META_REMOTE_SNAPSHOT        = 'cp_challenge_remote_snapshot';
-	public const META_STATUS                 = 'cp_challenge_status';
-	public const META_MATCH_ID               = 'cp_challenge_match_id';
-	public const META_EVENT_ID               = 'cp_challenge_event_id';
+	public const META_CHALLENGED_TEAM_ID            = 'cp_challenge_challenged_team_id';
+	public const META_CHALLENGER_USER_ID            = 'cp_challenge_challenger_user_id';
+	public const META_CHALLENGER_NAME               = 'cp_challenge_challenger_name';
+	public const META_CHALLENGER_EMAIL              = 'cp_challenge_challenger_email';
+	public const META_MESSAGE                       = 'cp_challenge_message';
+	public const META_PROPOSED_SCHEDULED_AT         = 'cp_challenge_proposed_scheduled_at';
+	public const META_CHALLENGER_TEAM_ID            = 'cp_challenge_challenger_team_id';
+	public const META_REMOTE_TEAM_URL               = 'cp_challenge_remote_team_url';
+	public const META_REMOTE_SNAPSHOT               = 'cp_challenge_remote_snapshot';
+	public const META_STATUS                        = 'cp_challenge_status';
+	public const META_MATCH_ID                      = 'cp_challenge_match_id';
+	public const META_EVENT_ID                      = 'cp_challenge_event_id';
 	public const META_CHALLENGER_LOGO_ATTACHMENT_ID = 'cp_challenge_challenger_logo_attachment_id';
 
 	/**
@@ -217,6 +217,10 @@ final class Team_Challenges {
 			return new WP_Error( 'clanbite_challenge_bad_nonce', __( 'Invalid security token.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
+		if ( ! $this->rate_limit_challenge_submission( 'remote_team' ) ) {
+			return new WP_Error( 'clanbite_challenge_rate_limited', __( 'Too many requests. Please try again later.', 'clanbite' ), array( 'status' => 429 ) );
+		}
+
 		$result = $this->fetch_remote_team_bundle( $url );
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -256,39 +260,55 @@ final class Team_Challenges {
 
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- `$_FILES` after REST nonce check; normalized via {@see clanbite_sanitize_files_array_entry()}.
 		try {
-		if ( empty( $_FILES['file'] ) || ! is_array( $_FILES['file'] ) ) {
-			return new WP_Error( 'clanbite_challenge_no_file', __( 'No file uploaded.', 'clanbite' ), array( 'status' => 400 ) );
-		}
+			if ( empty( $_FILES['file'] ) || ! is_array( $_FILES['file'] ) ) {
+				return new WP_Error( 'clanbite_challenge_no_file', __( 'No file uploaded.', 'clanbite' ), array( 'status' => 400 ) );
+			}
 
-		$file = \clanbite_sanitize_files_array_entry( wp_unslash( $_FILES['file'] ) );
-		if ( null === $file ) {
-			return new WP_Error( 'clanbite_challenge_no_file', __( 'No file uploaded.', 'clanbite' ), array( 'status' => 400 ) );
-		}
-		if ( ! empty( $file['error'] ) && UPLOAD_ERR_OK !== (int) $file['error'] ) {
-			return new WP_Error( 'clanbite_challenge_upload', __( 'Upload failed.', 'clanbite' ), array( 'status' => 400 ) );
-		}
+			$file = \clanbite_sanitize_files_array_entry( wp_unslash( $_FILES['file'] ) );
+			if ( null === $file ) {
+				return new WP_Error( 'clanbite_challenge_no_file', __( 'No file uploaded.', 'clanbite' ), array( 'status' => 400 ) );
+			}
+			if ( ! empty( $file['error'] ) && UPLOAD_ERR_OK !== (int) $file['error'] ) {
+				return new WP_Error( 'clanbite_challenge_upload', __( 'Upload failed.', 'clanbite' ), array( 'status' => 400 ) );
+			}
 
-		if ( ! empty( $file['size'] ) && (int) $file['size'] > 2 * MB_IN_BYTES ) {
-			return new WP_Error( 'clanbite_challenge_upload', __( 'Image must be 2MB or smaller.', 'clanbite' ), array( 'status' => 400 ) );
-		}
+			/**
+			 * Filters the maximum size of a guest challenge logo upload.
+			 *
+			 * @param int             $max_bytes Maximum size in bytes (default 2 MB).
+			 * @param int             $team_id   Challenged team post ID.
+			 * @param WP_REST_Request $request   Upload request.
+			 */
+			$max_bytes = max( 1, (int) apply_filters( 'clanbite_team_challenge_upload_max_bytes', 2 * MB_IN_BYTES, $team_id, $request ) );
+			if ( ! empty( $file['size'] ) && (int) $file['size'] > $max_bytes ) {
+				return new WP_Error(
+					'clanbite_challenge_upload',
+					sprintf(
+					/* translators: %s: maximum upload size, e.g. 2 MB. */
+						__( 'Image must be %s or smaller.', 'clanbite' ),
+						size_format( $max_bytes )
+					),
+					array( 'status' => 400 )
+				);
+			}
 
-		\clanbite_require_wp_admin_image_includes();
+			\clanbite_require_wp_admin_image_includes();
 
-		$overrides = array(
-			'test_form' => false,
-			'mimes'     => array(
-				'jpg|jpeg|jpe' => 'image/jpeg',
-				'gif'          => 'image/gif',
-				'png'          => 'image/png',
-				'webp'         => 'image/webp',
-			),
-		);
+			$overrides = array(
+				'test_form' => false,
+				'mimes'     => array(
+					'jpg|jpeg|jpe' => 'image/jpeg',
+					'gif'          => 'image/gif',
+					'png'          => 'image/png',
+					'webp'         => 'image/webp',
+				),
+			);
 
-		$staging_relative = function_exists( 'clanbite_team_challenge_logo_staging_relative_dir' )
+			$staging_relative = function_exists( 'clanbite_team_challenge_logo_staging_relative_dir' )
 			? clanbite_team_challenge_logo_staging_relative_dir( $team_id )
 			: 'clanbite/teams/' . $team_id . '/matches/staging';
 
-		$move = function_exists( 'clanbite_with_upload_subdir' )
+			$move = function_exists( 'clanbite_with_upload_subdir' )
 			? clanbite_with_upload_subdir(
 				$staging_relative,
 				static function () use ( $file, $overrides ) {
@@ -296,53 +316,53 @@ final class Team_Challenges {
 				}
 			)
 			: wp_handle_upload( $file, $overrides );
-		if ( isset( $move['error'] ) ) {
-			return new WP_Error( 'clanbite_challenge_upload', sanitize_text_field( (string) $move['error'] ), array( 'status' => 400 ) );
-		}
+			if ( isset( $move['error'] ) ) {
+				return new WP_Error( 'clanbite_challenge_upload', sanitize_text_field( (string) $move['error'] ), array( 'status' => 400 ) );
+			}
 
-		$type = wp_check_filetype( $move['file'], null );
-		if ( empty( $type['type'] ) || 0 !== strpos( (string) $type['type'], 'image/' ) ) {
-			wp_delete_file( $move['file'] );
-			return new WP_Error( 'clanbite_challenge_upload', __( 'Only image uploads are allowed.', 'clanbite' ), array( 'status' => 400 ) );
-		}
+			$type = wp_check_filetype( $move['file'], null );
+			if ( empty( $type['type'] ) || 0 !== strpos( (string) $type['type'], 'image/' ) ) {
+				wp_delete_file( $move['file'] );
+				return new WP_Error( 'clanbite_challenge_upload', __( 'Only image uploads are allowed.', 'clanbite' ), array( 'status' => 400 ) );
+			}
 
-		$att_id = wp_insert_attachment(
-			array(
-				'post_mime_type' => $type['type'],
-				'post_title'     => sanitize_file_name( basename( $move['file'] ) ),
-				'post_content'   => '',
-				'post_status'    => 'inherit',
-				'post_author'    => is_user_logged_in() ? (int) get_current_user_id() : 0,
-			),
-			$move['file']
-		);
+			$att_id = wp_insert_attachment(
+				array(
+					'post_mime_type' => $type['type'],
+					'post_title'     => sanitize_file_name( basename( $move['file'] ) ),
+					'post_content'   => '',
+					'post_status'    => 'inherit',
+					'post_author'    => is_user_logged_in() ? (int) get_current_user_id() : 0,
+				),
+				$move['file']
+			);
 
-		if ( ! is_int( $att_id ) || $att_id < 1 ) {
-			wp_delete_file( $move['file'] );
-			return new WP_Error( 'clanbite_challenge_upload', __( 'Could not save attachment.', 'clanbite' ), array( 'status' => 500 ) );
-		}
+			if ( ! is_int( $att_id ) || $att_id < 1 ) {
+				wp_delete_file( $move['file'] );
+				return new WP_Error( 'clanbite_challenge_upload', __( 'Could not save attachment.', 'clanbite' ), array( 'status' => 500 ) );
+			}
 
-		wp_update_attachment_metadata( (int) $att_id, wp_generate_attachment_metadata( (int) $att_id, $move['file'] ) );
+			wp_update_attachment_metadata( (int) $att_id, wp_generate_attachment_metadata( (int) $att_id, $move['file'] ) );
 
-		if ( defined( 'CLANBITE_TEAM_CHALLENGE_LOGO_TEAM_META' ) ) {
-			update_post_meta( (int) $att_id, \CLANBITE_TEAM_CHALLENGE_LOGO_TEAM_META, (string) $team_id );
-		}
-		if ( defined( 'CLANBITE_ATTACHMENT_HIDE_FROM_LIBRARY' ) ) {
-			update_post_meta( (int) $att_id, \CLANBITE_ATTACHMENT_HIDE_FROM_LIBRARY, '1' );
-		}
+			if ( defined( 'CLANBITE_TEAM_CHALLENGE_LOGO_TEAM_META' ) ) {
+				update_post_meta( (int) $att_id, \CLANBITE_TEAM_CHALLENGE_LOGO_TEAM_META, (string) $team_id );
+			}
+			if ( defined( 'CLANBITE_ATTACHMENT_HIDE_FROM_LIBRARY' ) ) {
+				update_post_meta( (int) $att_id, \CLANBITE_ATTACHMENT_HIDE_FROM_LIBRARY, '1' );
+			}
 
-		$url = wp_get_attachment_image_url( (int) $att_id, 'medium' );
+			$url = wp_get_attachment_image_url( (int) $att_id, 'medium' );
 
-		$data = $this->filter_challenge_rest_payload(
-			array(
-				'id'  => (int) $att_id,
-				'url' => $url ? (string) $url : '',
-			),
-			'upload_media',
-			$request
-		);
+			$data = $this->filter_challenge_rest_payload(
+				array(
+					'id'  => (int) $att_id,
+					'url' => $url ? (string) $url : '',
+				),
+				'upload_media',
+				$request
+			);
 
-		return new WP_REST_Response( $data, 201 );
+			return new WP_REST_Response( $data, 201 );
 		} finally {
 			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing
 		}
@@ -471,7 +491,7 @@ final class Team_Challenges {
 		if ( '' !== $opponent_url ) {
 			$remote = $this->fetch_remote_team_bundle( $opponent_url );
 			if ( ! is_wp_error( $remote ) && ! empty( $remote['team'] ) && is_array( $remote['team'] ) ) {
-				$t = $remote['team'];
+				$t        = $remote['team'];
 				$snapshot = array(
 					'source'             => 'remote',
 					'title'              => isset( $t['title'] ) ? sanitize_text_field( (string) $t['title'] ) : $name,
@@ -509,7 +529,7 @@ final class Team_Challenges {
 			if ( $logo_ok ) {
 				$logo_src = wp_get_attachment_image_url( $logo_att_id, 'medium' );
 				if ( $logo_src ) {
-					$snapshot['logoUrl'] = (string) $logo_src;
+					$snapshot['logoUrl']       = (string) $logo_src;
 					$stored_logo_attachment_id = $logo_att_id;
 				}
 			}
@@ -766,7 +786,7 @@ final class Team_Challenges {
 			$snapshot = array();
 		}
 
-		$away_id = $challenger_team_id;
+		$away_id   = $challenger_team_id;
 		$ext_label = isset( $snapshot['title'] ) ? sanitize_text_field( (string) $snapshot['title'] ) : '';
 		$ext_logo  = isset( $snapshot['logoUrl'] ) ? esc_url_raw( (string) $snapshot['logoUrl'] ) : '';
 		$ext_url   = isset( $snapshot['profileUrl'] ) ? esc_url_raw( (string) $snapshot['profileUrl'] ) : '';
@@ -1048,11 +1068,33 @@ final class Team_Challenges {
 			$origin = $scheme . '://' . $host . $port;
 		}
 
-		$discovery = wp_remote_get(
+		/**
+		 * Filters whether plain-http remote sites may be contacted for challenges.
+		 *
+		 * Defaults to true only on `local` / `development` environments; production requires https.
+		 *
+		 * @param bool   $allow_http Whether http origins are allowed.
+		 * @param string $origin     Resolved remote origin (scheme + host + port).
+		 */
+		$allow_http = (bool) apply_filters(
+			'clanbite_team_challenge_remote_allow_http',
+			in_array( wp_get_environment_type(), array( 'local', 'development' ), true ),
+			$origin
+		);
+		if ( ! $allow_http && ! str_starts_with( $origin, 'https://' ) ) {
+			return new WP_Error( 'clanbite_remote_url', __( 'Remote sites must use https.', 'clanbite' ), array( 'status' => 400 ) );
+		}
+
+		// Server-side fetch of a user-supplied URL: `wp_safe_remote_get()` rejects private/loopback hosts and unusual ports (SSRF), and responses are size-capped.
+		$remote_args = array(
+			'timeout'             => 8,
+			'redirection'         => 2,
+			'limit_response_size' => 256 * KB_IN_BYTES,
+		);
+
+		$discovery = wp_safe_remote_get(
 			trailingslashit( $origin ) . 'wp-json/clanbite/v1/discovery',
-			array(
-				'timeout' => 8,
-			)
+			$remote_args
 		);
 		if ( is_wp_error( $discovery ) ) {
 			return new WP_Error( 'clanbite_remote_unreachable', __( 'Could not reach the remote site.', 'clanbite' ), array( 'status' => 502 ) );
@@ -1069,12 +1111,12 @@ final class Team_Challenges {
 		if ( '' === $slug ) {
 			return array(
 				'clanbite' => true,
-				'origin'     => $origin,
+				'origin'   => $origin,
 			);
 		}
 
 		$team_url = trailingslashit( $origin ) . 'wp-json/clanbite/v1/public-team?slug=' . rawurlencode( $slug );
-		$team_res = wp_remote_get( $team_url, array( 'timeout' => 8 ) );
+		$team_res = wp_safe_remote_get( $team_url, $remote_args );
 		if ( is_wp_error( $team_res ) ) {
 			return new WP_Error( 'clanbite_remote_team', __( 'Could not load the remote team.', 'clanbite' ), array( 'status' => 502 ) );
 		}
@@ -1085,21 +1127,30 @@ final class Team_Challenges {
 
 		return array(
 			'clanbite' => true,
-			'origin'     => $origin,
-			'team'       => is_array( $team_body ) ? $team_body : array(),
+			'origin'   => $origin,
+			'team'     => is_array( $team_body ) ? $team_body : array(),
 		);
 	}
 
 	/**
 	 * Simple per-IP rate limit for anonymous challenge spam.
 	 *
+	 * @param string $bucket Counter bucket (`challenge` for create/upload, `remote_team` for the remote proxy).
 	 * @return bool True when allowed.
 	 */
-	private function rate_limit_challenge_submission(): bool {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
-		$key = 'clanbite_ch_' . md5( $ip );
+	private function rate_limit_challenge_submission( string $bucket = 'challenge' ): bool {
+		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
+		$key = 'clanbite_ch_' . md5( $bucket . '|' . $ip );
 		$n   = (int) get_transient( $key );
-		if ( $n > 20 ) {
+
+		/**
+		 * Filters the per-IP hourly request limit for guest challenge endpoints.
+		 *
+		 * @param int    $limit  Maximum requests per hour per IP (default 20 for `challenge`, 30 for `remote_team`).
+		 * @param string $bucket Counter bucket: `challenge` or `remote_team`.
+		 */
+		$limit = (int) apply_filters( 'clanbite_team_challenge_rate_limit', 'remote_team' === $bucket ? 30 : 20, $bucket );
+		if ( $n >= $limit ) {
 			return false;
 		}
 		set_transient( $key, $n + 1, HOUR_IN_SECONDS );
@@ -1120,8 +1171,8 @@ final class Team_Challenges {
 	/**
 	 * Insert match as the accepting user with a temporary capability grant.
 	 *
-	 * @param int                    $user_id Acting user.
-	 * @param array<string, mixed>   $postarr Post args.
+	 * @param int                  $user_id Acting user.
+	 * @param array<string, mixed> $postarr Post args.
 	 * @return int|WP_Error
 	 */
 	private function insert_match_post_for_user( int $user_id, array $postarr ): int|WP_Error {
@@ -1131,8 +1182,8 @@ final class Team_Challenges {
 	/**
 	 * Insert event as the accepting user with a temporary capability grant.
 	 *
-	 * @param int                    $user_id Acting user.
-	 * @param array<string, mixed>   $postarr Post args.
+	 * @param int                  $user_id Acting user.
+	 * @param array<string, mixed> $postarr Post args.
 	 * @return int|WP_Error
 	 */
 	private function insert_event_post_for_user( int $user_id, array $postarr ): int|WP_Error {

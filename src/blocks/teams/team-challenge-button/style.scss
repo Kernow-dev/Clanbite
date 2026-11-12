@@ -1,5 +1,5 @@
-@import '../../shared/styles/buttons';
-@import '../../shared/styles/avatars';
+@use "../../shared/styles/buttons";
+@use "../../shared/styles/avatars";
 
 .clanbite-team-challenge {
 	box-sizing: border-box;
@@ -22,8 +22,8 @@
 }
 
 .clanbite-team-challenge__dialog {
-	background: #fff;
-	color: #111;
+	background: var(--clanbite-surface, Canvas);
+	color: var(--clanbite-on-surface, CanvasText);
 	max-width: 32rem;
 	width: 100%;
 	max-height: 90vh;
@@ -62,7 +62,7 @@
 	gap: 0.75rem;
 	margin: 0.5rem 0 0;
 	padding: 0.5rem;
-	background: #f5f5f5;
+	background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
 	border-radius: 6px;
 }
 
@@ -86,9 +86,9 @@
 }
 
 .clanbite-team-challenge__notice.is-error {
-	color: #b32d2e;
+	color: var(--clanbite-danger, #b32d2e);
 }
 
 .clanbite-team-challenge__notice.is-success {
-	color: #1e4620;
+	color: var(--clanbite-success, #1e4620);
 }

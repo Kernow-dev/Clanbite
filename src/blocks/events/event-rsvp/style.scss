@@ -1,4 +1,6 @@
+@use '../../shared/styles/reduced-motion';
 .clanbite-event-rsvp {
+
 	&__actions {
 		margin-bottom: 1rem;
 	}
@@ -8,18 +10,6 @@
 		flex-wrap: wrap;
 		gap: 0.5rem;
 		margin-bottom: 0.5rem;
-	}
-
-	&__btn {
-		cursor: pointer;
-		padding: 0.35rem 0.75rem;
-		border-radius: 4px;
-		border: 1px solid currentColor;
-		background: transparent;
-
-		&.is-active {
-			font-weight: 600;
-		}
 	}
 
 	&__status {
@@ -33,15 +23,6 @@
 		align-items: center;
 		gap: 0.5rem 1rem;
 		margin-bottom: 0.5rem;
-	}
-
-	&__toggle {
-		cursor: pointer;
-		padding: 0.25rem 0.5rem;
-		border-radius: 4px;
-		border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
-		background: color-mix(in srgb, currentColor 6%, transparent);
-		font-size: 0.9rem;
 	}
 
 	&__toggle-text {
@@ -69,7 +50,7 @@
 		justify-content: space-between;
 		gap: 0.75rem;
 		padding: 0.25rem 0;
-		border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+		border-bottom: 1px solid color-mix(in srgb, currentcolor 12%, transparent);
 	}
 
 	&__attendee-status {
@@ -81,13 +62,13 @@
 	&--forbidden {
 		padding: 0.75rem;
 		border-radius: 4px;
-		background: color-mix(in srgb, currentColor 6%, transparent);
+		background: color-mix(in srgb, currentcolor 6%, transparent);
 	}
 }
 
 .clanbite-event-rsvp-editor {
 	padding: 0.75rem;
-	border: 1px dashed currentColor;
+	border: 1px dashed currentcolor;
 	border-radius: 4px;
 
 	&__title {

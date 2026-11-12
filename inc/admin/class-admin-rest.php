@@ -34,6 +34,11 @@ class Admin_Rest {
 		$this->settings_by_option = $settings_by_option;
 	}
 
+	/**
+	 * Register the `clanbite/v1/admin/*` routes: bootstrap (read), settings save per option key, and installed-extensions save.
+	 *
+	 * @return void
+	 */
 	public function register_routes(): void {
 		register_rest_route(
 			'clanbite/v1',
@@ -72,6 +77,13 @@ class Admin_Rest {
 		);
 	}
 
+	/**
+	 * Permission callback shared by every admin route.
+	 *
+	 * Requires the capability from the `clanbite_admin_rest_manage_capability` filter (default `manage_options`).
+	 *
+	 * @return bool
+	 */
 	public function can_manage(): bool {
 		/**
 		 * Filter: `clanbite_admin_rest_manage_capability` — primitive capability required for `clanbite/v1/admin/*` routes.
@@ -101,6 +113,11 @@ class Admin_Rest {
 			'clear'        => __( 'Clear', 'clanbite' ),
 		);
 
+		/**
+		 * Filters the translated UI strings passed to the admin icon picker.
+		 *
+		 * @param array<string, string> $icon_picker_i18n Label map (for example `clear`).
+		 */
 		return (array) apply_filters( 'clanbite_admin_icon_picker_i18n', $icon_picker_i18n );
 	}
 
@@ -241,7 +258,7 @@ class Admin_Rest {
 		if ( defined( 'CLANBITE_POINTS_FILE' ) ) {
 			$check = dirname( CLANBITE_POINTS_FILE ) . '/assets/point-icons/starter/coin-bronze.svg';
 			if ( is_readable( $check ) ) {
-				$base = trailingslashit( plugins_url( 'assets/point-icons/starter', CLANBITE_POINTS_FILE ) );
+				$base  = trailingslashit( plugins_url( 'assets/point-icons/starter', CLANBITE_POINTS_FILE ) );
 				$raw[] = array(
 					'id'    => 'clanbite-points-starter',
 					'label' => __( 'Clanbite Points Starter', 'clanbite' ),
@@ -285,7 +302,7 @@ class Admin_Rest {
 		if ( defined( 'CLANBITE_RANKS_FILE' ) ) {
 			$check = dirname( CLANBITE_RANKS_FILE ) . '/assets/rank-icons/starter/wood.svg';
 			if ( is_readable( $check ) ) {
-				$base = trailingslashit( plugins_url( 'assets/rank-icons/starter', CLANBITE_RANKS_FILE ) );
+				$base  = trailingslashit( plugins_url( 'assets/rank-icons/starter', CLANBITE_RANKS_FILE ) );
 				$raw[] = array(
 					'id'    => 'clanbite-starter',
 					'label' => __( 'Clanbite Starter', 'clanbite' ),
@@ -341,6 +358,13 @@ class Admin_Rest {
 	protected static function collect_bootstrap_icon_packs(): array {
 		self::require_companion_icon_pack_classes();
 
+		/**
+		 * Filters the icon packs offered by the admin icon picker.
+		 *
+		 * Packs from the Points and Ranks companions are merged in afterwards and deduplicated by pack id.
+		 *
+		 * @param array<int, array<string, mixed>> $packs Icon pack definitions, each with an `id`. Return a list, not an associative array.
+		 */
 		$raw = apply_filters( 'clanbite_admin_icon_packs', array() );
 		if ( ! is_array( $raw ) ) {
 			$raw = array();
@@ -398,8 +422,8 @@ class Admin_Rest {
 		$loader     = Loader::instance();
 		$extensions = $loader->get_extensions();
 
-		$values   = array();
-		$schemas  = array();
+		$values  = array();
+		$schemas = array();
 		foreach ( $this->settings_by_option as $key => $handler ) {
 			$values[ $key ]  = $handler->get_all();
 			$schemas[ $key ] = $handler->export_rest_schema();
@@ -430,7 +454,12 @@ class Admin_Rest {
 	}
 
 	/**
-	 * @param array<string, Skeleton> $extensions
+	 * Build the tab list for the React shell: General, Extensions, Groups, and one tab per top-level extension
+	 * (sub-extensions are grouped under their parent via `parent_slug`).
+	 *
+	 * Result is passed through the `clanbite_admin_rest_tabs` filter.
+	 *
+	 * @param array<string, Skeleton> $extensions Registered extensions keyed by slug.
 	 * @return array<int, array<string, mixed>>
 	 */
 	protected function build_tabs( array $extensions ): array {
@@ -502,12 +531,12 @@ class Admin_Rest {
 				continue;
 			}
 
-			$tabs[]  = array(
-				'id'             => 'ext-' . $slug,
-				'type'           => 'extension',
-				'label'          => $ext->name,
-				'extensionSlug'  => $slug,
-				'sectionGroups'  => $groups,
+			$tabs[]         = array(
+				'id'            => 'ext-' . $slug,
+				'type'          => 'extension',
+				'label'         => $ext->name,
+				'extensionSlug' => $slug,
+				'sectionGroups' => $groups,
 			);
 			$added[ $slug ] = true;
 		}
@@ -532,7 +561,7 @@ class Admin_Rest {
 				continue;
 			}
 
-			$tabs[] = array(
+			$tabs[]         = array(
 				'id'            => 'ext-' . $slug,
 				'type'          => 'extension',
 				'label'         => $ext->name,
@@ -566,9 +595,13 @@ class Admin_Rest {
 	}
 
 	/**
-	 * @param array<string, Skeleton>           $by_slug
-	 * @param array<string, array<int, string>> $children_by_parent
-	 * @param Loader                              $loader Extension install state.
+	 * Collect settings section groups for an extension and its descendants (`parent_slug` tree).
+	 *
+	 * @param string                            $root_slug           Slug of the root extension.
+	 * @param Skeleton                          $root                Root extension instance.
+	 * @param array<string, Skeleton>           $by_slug             All extensions keyed by slug.
+	 * @param array<string, array<int, string>> $children_by_parent  Child slugs keyed by parent slug.
+	 * @param Loader                            $loader              Extension install state.
 	 * @return array<int, array<string, mixed>>
 	 */
 	protected function section_groups_for_extension_tree( string $root_slug, Skeleton $root, array $by_slug, array $children_by_parent, Loader $loader ): array {
@@ -624,14 +657,17 @@ class Admin_Rest {
 	}
 
 	/**
-	 * @param array<string, Skeleton> $extensions
+	 * Build the extension rows shown on the Extensions tab (status, dependencies, capabilities).
+	 *
+	 * @param Loader                  $loader     Extension install state.
+	 * @param array<string, Skeleton> $extensions Registered extensions keyed by slug.
 	 * @return array<int, array<string, mixed>> Each item includes `isCoreBundled` (main-package extensions only).
 	 */
 	protected function build_extensions_payload( Loader $loader, array $extensions ): array {
-		$installed   = $loader->get_installed_extensions();
-		$official    = $loader->get_official_extensions();
-		$extensions  = $this->sort_extensions_by_dependencies( $extensions );
-		$out         = array();
+		$installed  = $loader->get_installed_extensions();
+		$official   = $loader->get_official_extensions();
+		$extensions = $this->sort_extensions_by_dependencies( $extensions );
+		$out        = array();
 
 		$required    = Loader::get_required_extension_slugs();
 		$core_bundle = Loader::get_core_bundled_extension_slugs();
@@ -641,20 +677,20 @@ class Admin_Rest {
 				continue;
 			}
 			$row = array(
-				'slug'                   => $slug,
-				'name'                   => $ext->name,
-				'description'            => $ext->description,
-				'version'                => $ext->version,
-				'type'                   => $ext->type,
-				'parentSlug'             => (string) ( $ext->parent_slug ?? '' ),
-				'requires'               => array_values( $ext->requires ),
-				'requiresClanbite'       => $ext->get_requires_clanbite_version(),
-				'meetsClanbiteVersion'   => $ext->meets_clanbite_version_requirement(),
-				'isOfficial'             => isset( $official[ $slug ] ),
-				'isCoreBundled'          => in_array( $slug, $core_bundle, true ),
-				'isInstalled'            => isset( $installed[ $slug ] ),
-				'canInstall'             => $ext->can_install(),
-				'isRequired'             => in_array( $slug, $required, true ),
+				'slug'                 => $slug,
+				'name'                 => $ext->name,
+				'description'          => $ext->description,
+				'version'              => $ext->version,
+				'type'                 => $ext->type,
+				'parentSlug'           => (string) ( $ext->parent_slug ?? '' ),
+				'requires'             => array_values( $ext->requires ),
+				'requiresClanbite'     => $ext->get_requires_clanbite_version(),
+				'meetsClanbiteVersion' => $ext->meets_clanbite_version_requirement(),
+				'isOfficial'           => isset( $official[ $slug ] ),
+				'isCoreBundled'        => in_array( $slug, $core_bundle, true ),
+				'isInstalled'          => isset( $installed[ $slug ] ),
+				'canInstall'           => $ext->can_install(),
+				'isRequired'           => in_array( $slug, $required, true ),
 			);
 
 			/**
@@ -691,14 +727,14 @@ class Admin_Rest {
 			}
 		}
 
-		if ( $valid === array() ) {
+		if ( array() === $valid ) {
 			return array();
 		}
 
-		$slugs        = array_keys( $valid );
-		$in_degree    = array_fill_keys( $slugs, 0 );
-		$dependents   = array();
-		$required     = Loader::get_required_extension_slugs();
+		$slugs         = array_keys( $valid );
+		$in_degree     = array_fill_keys( $slugs, 0 );
+		$dependents    = array();
+		$required      = Loader::get_required_extension_slugs();
 		$required_rank = array_flip( $required );
 
 		foreach ( $valid as $slug => $extension ) {
@@ -725,7 +761,7 @@ class Admin_Rest {
 		);
 
 		$sorted = array();
-		while ( $queue !== array() ) {
+		while ( array() !== $queue ) {
 			usort(
 				$queue,
 				static function ( string $a, string $b ) use ( $required_rank ): int {
@@ -738,10 +774,10 @@ class Admin_Rest {
 				}
 			);
 
-			while ( $queue !== array() && isset( $sorted[ $queue[0] ] ) ) {
+			while ( array() !== $queue && isset( $sorted[ $queue[0] ] ) ) {
 				array_shift( $queue );
 			}
-			if ( $queue === array() ) {
+			if ( array() === $queue ) {
 				break;
 			}
 
@@ -894,6 +930,13 @@ class Admin_Rest {
 			);
 		}
 
+		/**
+		 * Filters the extension slugs that will be saved after the admin Extensions screen validates the request.
+		 *
+		 * @param array<int,    string>                                  $new Validated slugs that will be stored.
+		 * @param array<int,    string>                                  $requested Slugs the admin requested.
+		 * @param array<string, \Kernowdev\Clanbite\Extensions\Skeleton> $available Registered extensions keyed by slug.
+		 */
 		$new = (array) apply_filters( 'clanbite_validate_installed_extensions', $new, $requested, $available );
 
 		foreach ( $required as $req_slug ) {

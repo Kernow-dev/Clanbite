@@ -15,9 +15,26 @@ use Kernowdev\Clanbite\Extensions\Abstract_Settings;
  * Notifications extension settings for the unified React admin (`clanbite_notifications_settings`).
  */
 class Admin extends Abstract_Settings {
-	protected string $option_key     = 'clanbite_notifications_settings';
+	/**
+	 * Option name storing this settings bucket.
+	 *
+	 * @var string
+	 */
+	protected string $option_key = 'clanbite_notifications_settings';
+
+	/**
+	 * Settings API group for `register_setting()`.
+	 *
+	 * @var string
+	 */
 	protected string $settings_group = 'clanbite_notifications';
-	protected string $page_slug      = 'clanbite-notifications';
+
+	/**
+	 * Settings page slug.
+	 *
+	 * @var string
+	 */
+	protected string $page_slug = 'clanbite-notifications';
 
 	/**
 	 * Browser title for the legacy standalone settings page (if enabled).
@@ -56,7 +73,7 @@ class Admin extends Abstract_Settings {
 	 */
 	protected function get_sections(): array {
 		return array(
-			'profile_subpages' => array(
+			'profile_subpages'  => array(
 				'title'  => __( 'Profile subpages', 'clanbite' ),
 				'fields' => array(
 					'subpage_player' => array(

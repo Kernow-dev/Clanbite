@@ -1,6 +1,6 @@
 /**
  * Unified Form Styles
- * 
+ *
  * All Clanbite forms use consistent structure across plugins.
  */
 
@@ -8,9 +8,11 @@
 .clanbite-form {
 	// Type variants (core Clanbite only)
 	&.clanbite-form--create { }
+
 	&.clanbite-form--edit { }
+
 	&.clanbite-form--inline { }
-	
+
 	// Note: Plugin-specific variants (--forums, --social-kit, --points, --ranks)
 	// should be defined in each plugin's own SCSS files, not here in core.
 }
@@ -32,37 +34,43 @@
 	padding: 1rem;
 	border-radius: 4px;
 	margin-bottom: 1rem;
-	
+
 	&.clanbite-form__message--error {
-		background: #fee;
-		border: 1px solid #fcc;
-		color: #c00;
+		background: color-mix(in srgb, var(--clanbite-danger, #b32d2e) 12%, transparent);
+		border: 1px solid color-mix(in srgb, var(--clanbite-danger, #b32d2e) 40%, transparent);
+		color: inherit;
 	}
-	
+
 	&.clanbite-form__message--success {
-		background: #efe;
-		border: 1px solid #cfc;
-		color: #0a0;
+		background: color-mix(in srgb, var(--clanbite-success, #00a32a) 12%, transparent);
+		border: 1px solid color-mix(in srgb, var(--clanbite-success, #00a32a) 40%, transparent);
+		color: inherit;
 	}
-	
+
 	&.clanbite-form__message--info {
-		background: #eef;
-		border: 1px solid #ccf;
-		color: #00a;
+		background: color-mix(in srgb, var(--clanbite-accent, #2271b1) 12%, transparent);
+		border: 1px solid color-mix(in srgb, var(--clanbite-accent, #2271b1) 40%, transparent);
+		color: inherit;
 	}
 }
 
 // Form field wrapper
 .clanbite-form-field {
 	margin-bottom: 1.25rem;
-	
+
 	// Type variants
 	&.clanbite-form-field--text { }
+
 	&.clanbite-form-field--email { }
+
 	&.clanbite-form-field--select { }
+
 	&.clanbite-form-field--textarea { }
+
 	&.clanbite-form-field--radio { }
+
 	&.clanbite-form-field--checkbox { }
+
 	&.clanbite-form-field--hidden {
 		display: none;
 	}
@@ -73,26 +81,27 @@
 	display: block;
 	margin-bottom: 0.5rem;
 	font-weight: 600;
-	color: var(--wp--preset--color--contrast, #000);
+	color: inherit;
 }
 
 // Form field input
 .clanbite-form-field__input {
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid var(--wp--preset--color--contrast-3, #e0e0e0);
+	border: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 	border-radius: 4px;
 	font-family: inherit;
 	font-size: 1rem;
-	
+
 	&:focus {
-		outline: none;
-		border-color: var(--wp--preset--color--primary, #0073aa);
-		box-shadow: 0 0 0 1px var(--wp--preset--color--primary, #0073aa);
+		// Transparent (not none) so the focus indicator is still drawn in forced-colors / high-contrast mode.
+		outline: 2px solid transparent;
+		border-color: var(--clanbite-accent, #0073aa);
+		box-shadow: 0 0 0 2px var(--clanbite-accent, #0073aa);
 	}
-	
+
 	&[disabled] {
-		background: var(--wp--preset--color--contrast-1, #f5f5f5);
+		background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
 		cursor: not-allowed;
 	}
 }
@@ -108,12 +117,12 @@
 .clanbite-form-field__error {
 	margin-top: 0.5rem;
 	font-size: 0.875rem;
-	color: #c00;
+	color: var(--clanbite-danger, #b32d2e);
 }
 
 // Form field success
 .clanbite-form-field__success {
 	margin-top: 0.5rem;
 	font-size: 0.875rem;
-	color: #0a0;
+	color: #007017;
 }

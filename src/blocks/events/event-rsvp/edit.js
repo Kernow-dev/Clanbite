@@ -38,7 +38,7 @@ export default function Edit( { attributes, setAttributes, context } ) {
 		<div { ...blockProps }>
 			<InspectorControls>
 				<PanelBody title={ __( 'Event', 'clanbite' ) }>
-					<SelectControl
+					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
 						label={ __( 'Event type', 'clanbite' ) }
 						value={ eventType }
 						options={ [

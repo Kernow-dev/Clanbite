@@ -1,5 +1,7 @@
+@use "../../shared/styles/reduced-motion";
+
 .wp-block-clanbite-event-create-form {
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 	border-radius: 6px;
 	padding: 1rem;
 }
@@ -10,7 +12,7 @@
 	gap: 0.5rem;
 	margin: 0 0 0.75rem;
 	padding: 0 0 0.75rem;
-	border-bottom: 1px solid #dcdcde;
+	border-bottom: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 }
 
 .clanbite-event-create-form__tab {
@@ -24,22 +26,22 @@
 	padding: 0.6rem 0.75rem;
 	font: inherit;
 	cursor: pointer;
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 	border-radius: 6px;
-	background: #f6f7f7;
-	color: #1d2327;
+	background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
+	color: inherit;
 	transition:
 		background 0.15s ease,
 		border-color 0.15s ease,
 		box-shadow 0.15s ease;
 
 	&:hover:not(:disabled) {
-		background: #fff;
-		border-color: #c3c4c7;
+		background: var(--clanbite-surface, Canvas);
+		border-color: var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 	}
 
 	&:focus-visible {
-		outline: 2px solid #2271b1;
+		outline: 2px solid var(--clanbite-accent, #2271b1);
 		outline-offset: 2px;
 	}
 
@@ -49,14 +51,14 @@
 	}
 
 	&.is-active {
-		background: #fff;
-		border-color: #2271b1;
-		box-shadow: 0 0 0 1px #2271b1;
+		background: var(--clanbite-surface, Canvas);
+		border-color: var(--clanbite-accent, #2271b1);
+		box-shadow: 0 0 0 1px var(--clanbite-accent, #2271b1);
 	}
 
 	&.is-complete:not(.is-active) {
-		background: #fff;
-		border-color: #00a32a;
+		background: var(--clanbite-surface, Canvas);
+		border-color: var(--clanbite-success, #00a32a);
 	}
 }
 
@@ -70,18 +72,18 @@
 	border-radius: 50%;
 	font-size: 0.875rem;
 	font-weight: 600;
-	background: #dcdcde;
-	color: #1d2327;
+	background: var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
+	color: inherit;
 }
 
 .clanbite-event-create-form__tab.is-active .clanbite-event-create-form__tab-index {
-	background: #2271b1;
-	color: #fff;
+	background: var(--clanbite-accent, #2271b1);
+	color: var(--clanbite-on-accent, #fff);
 }
 
 .clanbite-event-create-form__tab.is-complete:not(.is-active) .clanbite-event-create-form__tab-index {
-	background: #00a32a;
-	color: #fff;
+	background: var(--clanbite-success, #00a32a);
+	color: var(--clanbite-on-success, #fff);
 }
 
 .clanbite-event-create-form__tab-text {
@@ -100,7 +102,7 @@
 .clanbite-event-create-form__tab-description {
 	font-size: 0.75rem;
 	line-height: 1.35;
-	color: #646970;
+	color: var(--clanbite-muted, color-mix(in srgb, currentcolor 62%, transparent));
 }
 
 .clanbite-event-create-form__form {
@@ -117,9 +119,9 @@
 		margin-bottom: 0.25rem;
 	}
 
-	input[type='text'],
-	input[type='url'],
-	input[type='datetime-local'],
+	input[type="text"],
+	input[type="url"],
+	input[type="datetime-local"],
 	textarea,
 	select {
 		width: 100%;
@@ -129,11 +131,12 @@
 
 .clanbite-event-create-form__grid {
 	display: grid;
-	grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 0.75rem;
 }
 
 @media ( max-width: 600px ) {
+
 	.clanbite-event-create-form__grid {
 		grid-template-columns: 1fr;
 	}
@@ -167,41 +170,41 @@
 	cursor: pointer;
 	text-align: center;
 	border-radius: 4px;
-	border: 1px solid #dcdcde;
-	background: #fff;
-	color: #1d2327;
+	border: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
+	background: var(--clanbite-surface, Canvas);
+	color: inherit;
 
 	&:hover {
-		background: #f6f7f7;
+		background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
 	}
 
 	&:focus-visible {
-		outline: 2px solid #2271b1;
+		outline: 2px solid var(--clanbite-accent, #2271b1);
 		outline-offset: 1px;
 	}
 }
 
 .clanbite-event-create-form__button--primary {
-	background: #2271b1;
-	border-color: #2271b1;
-	color: #fff;
+	background: var(--clanbite-accent, #2271b1);
+	border-color: var(--clanbite-accent, #2271b1);
+	color: var(--clanbite-on-accent, #fff);
 
 	&:hover {
-		background: #135e96;
-		border-color: #135e96;
+		background: color-mix(in srgb, var(--clanbite-accent, #2271b1) 82%, black);
+		border-color: color-mix(in srgb, var(--clanbite-accent, #2271b1) 82%, black);
 	}
 }
 
 .clanbite-event-create-form__msg {
 	padding: 0.75rem;
 	border-radius: 4px;
-	background: color-mix(in srgb, currentColor 6%, transparent);
+	background: color-mix(in srgb, currentcolor 6%, transparent);
 }
 
 .clanbite-event-create-form--locked {
 	padding: 0.75rem;
 	border-radius: 4px;
-	background: color-mix(in srgb, currentColor 6%, transparent);
+	background: color-mix(in srgb, currentcolor 6%, transparent);
 }
 
 .clanbite-event-create-form__back {
@@ -213,8 +216,8 @@
 	margin-top: 1rem;
 	padding: 1rem 1.25rem;
 	border-radius: 6px;
-	border: 1px solid #00a32a;
-	background: color-mix(in srgb, #00a32a 8%, #fff);
+	border: 1px solid var(--clanbite-success, #00a32a);
+	background: color-mix(in srgb, var(--clanbite-success, #00a32a) 8%, transparent);
 	outline: none;
 
 	&[hidden] {
@@ -235,9 +238,9 @@
 .clanbite-event-create-form__member-outreach {
 	margin: 1rem 0 0;
 	padding: 0.75rem 1rem;
-	border: 1px solid #dcdcde;
+	border: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 	border-radius: 6px;
-	background: #fcfcfc;
+	background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
 }
 
 .clanbite-event-create-form__member-outreach-legend {
@@ -248,5 +251,5 @@
 .clanbite-event-create-form__member-outreach-help {
 	margin: 0 0 0.5rem;
 	font-size: 0.9rem;
-	color: #50575e;
+	color: var(--clanbite-muted, color-mix(in srgb, currentcolor 62%, transparent));
 }

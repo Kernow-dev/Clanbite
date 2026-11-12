@@ -16,10 +16,10 @@ const { state } = store( 'clanbite-team-manage-form', {
 			const total = Number( state.stepCount );
 			return total > 0 ? total : 1;
 		},
-		canGoNext() {
+		get canGoNext() {
 			return state.step < state.maxStep();
 		},
-		canGoBack() {
+		get canGoBack() {
 			return state.step > 1;
 		},
 	},

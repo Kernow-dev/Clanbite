@@ -18,7 +18,7 @@ const LONG_GUARD = "if ( ! defined( 'ABSPATH' ) ) {\n\texit;\n}\n\n";
  * Remove `<?php` and any known ABSPATH guard variants from the start of a file body.
  *
  * @param {string} raw
- * @returns {string}
+ * @return {string}
  */
 function stripPhpOpenAndGuards( raw ) {
 	let s = raw.replace( /^\ufeff?<\?php\s*/u, '' );
@@ -26,14 +26,17 @@ function stripPhpOpenAndGuards( raw ) {
 		/^\s*if\s*\(\s*!\s*defined\s*\(\s*['"]ABSPATH['"]\s*\)\s*\)\s*\{\s*exit\s*;\s*\}\s*/m,
 		''
 	);
-	s = s.replace( /^\s*defined\s*\(\s*'ABSPATH'\s*\)\s*\|\|\s*exit\s*;\s*/m, '' );
+	s = s.replace(
+		/^\s*defined\s*\(\s*'ABSPATH'\s*\)\s*\|\|\s*exit\s*;\s*/m,
+		''
+	);
 	return s.trimStart();
 }
 
 /**
- * @param {string} dir
+ * @param {string}   dir
  * @param {string[]} acc
- * @returns {string[]}
+ * @return {string[]}
  */
 function collectAssetPhp( dir, acc = [] ) {
 	if ( ! fs.existsSync( dir ) ) {
@@ -52,9 +55,9 @@ function collectAssetPhp( dir, acc = [] ) {
 }
 
 /**
- * @param {string} dir
+ * @param {string}   dir
  * @param {string[]} acc
- * @returns {string[]}
+ * @return {string[]}
  */
 function collectBlocksManifests( dir, acc = [] ) {
 	if ( ! fs.existsSync( dir ) ) {
@@ -79,10 +82,7 @@ function collectBlocksManifests( dir, acc = [] ) {
  */
 function saveGuarded( filePath, body, kind ) {
 	const out =
-		'<?php\n\n' +
-		LONG_GUARD +
-		body +
-		( body.endsWith( '\n' ) ? '' : '\n' );
+		'<?php\n\n' + LONG_GUARD + body + ( body.endsWith( '\n' ) ? '' : '\n' );
 	fs.writeFileSync( filePath, out );
 	process.stdout.write(
 		`wrap-asset-php-guard: ${ kind } ${ path.relative( root, filePath ) }\n`
@@ -100,7 +100,10 @@ function wrapAssetFile( filePath ) {
 	const body = stripPhpOpenAndGuards( raw );
 	if ( ! body.startsWith( 'return ' ) ) {
 		process.stderr.write(
-			`wrap-asset-php-guard: skip asset (no return): ${ path.relative( root, filePath ) }\n`
+			`wrap-asset-php-guard: skip asset (no return): ${ path.relative(
+				root,
+				filePath
+			) }\n`
 		);
 		return;
 	}
@@ -118,7 +121,10 @@ function wrapBlocksManifest( filePath ) {
 	const body = stripPhpOpenAndGuards( raw );
 	if ( ! body.startsWith( '//' ) && ! body.startsWith( 'return ' ) ) {
 		process.stderr.write(
-			`wrap-asset-php-guard: skip manifest (unexpected): ${ path.relative( root, filePath ) }\n`
+			`wrap-asset-php-guard: skip manifest (unexpected): ${ path.relative(
+				root,
+				filePath
+			) }\n`
 		);
 		return;
 	}

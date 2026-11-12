@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Render callback: team motto.
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $team_id = clanbite_team_single_block_team_id( $block );
 if ( $team_id < 1 ) {
@@ -18,7 +17,7 @@ if ( $team_id < 1 ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper . '><span>' . esc_html__( 'Team motto', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><span>' . esc_html__( 'Team motto', 'clanbite' ) . '</span></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -33,4 +32,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 
 $display = '' === $motto ? __( 'No motto set.', 'clanbite' ) : $motto;
 
-echo wp_kses( '<div ' . $wrapper_attributes . '><p class="clanbite-team-motto__text">' . esc_html( $display ) . '</p></div>', clanbite_block_fragment_allowed_html());
+echo wp_kses( '<div ' . $wrapper_attributes . '><p class="clanbite-team-motto__text">' . esc_html( $display ) . '</p></div>', clanbite_block_fragment_allowed_html() );

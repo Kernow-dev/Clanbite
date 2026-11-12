@@ -31,7 +31,7 @@
 	"textdomain": "clanbite",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
-	"style": "file:./style-index.css",
+	"style": ["file:./style-index.css", "clanbite-buttons"],
 	"render": "file:./render.php",
 	"viewScriptModule": "file:./view.js",
 	"selectors": {

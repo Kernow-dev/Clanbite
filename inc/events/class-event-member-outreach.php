@@ -20,9 +20,9 @@ use WP_Post;
  */
 final class Event_Member_Outreach {
 
-	public const MODE_NONE            = 'none';
-	public const MODE_NOTIFY          = 'notify';
-	public const MODE_RSVP_TENTATIVE  = 'rsvp_tentative';
+	public const MODE_NONE           = 'none';
+	public const MODE_NOTIFY         = 'notify';
+	public const MODE_RSVP_TENTATIVE = 'rsvp_tentative';
 
 	/**
 	 * RSVP table event_type for scheduled `cp_event` posts.
@@ -71,8 +71,8 @@ final class Event_Member_Outreach {
 			return $out;
 		}
 
-		$scope = sanitize_key( (string) get_post_meta( $event_id, 'cp_event_scope', true ) );
-		$team_id = (int) get_post_meta( $event_id, 'cp_event_team_id', true );
+		$scope    = sanitize_key( (string) get_post_meta( $event_id, 'cp_event_scope', true ) );
+		$team_id  = (int) get_post_meta( $event_id, 'cp_event_team_id', true );
 		$group_id = (int) get_post_meta( $event_id, 'cp_event_group_id', true );
 
 		$user_ids = self::collect_recipient_user_ids( $scope, $team_id, $group_id );

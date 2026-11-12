@@ -2,16 +2,16 @@
  * Sharper Clanbite block icons in the block inserter and placeholders.
  */
 
-.block-editor-block-types-list__item-icon svg[data-clanbite-icon='true'],
-.block-editor-inserter__panel-content svg[data-clanbite-icon='true'],
-.clanbite-block-icon svg[data-clanbite-icon='true'] {
+.block-editor-block-types-list__item-icon svg[data-clanbite-icon="true"],
+.block-editor-inserter__panel-content svg[data-clanbite-icon="true"],
+.clanbite-block-icon svg[data-clanbite-icon="true"] {
 	display: block;
 	width: 24px !important;
 	height: 24px !important;
 	max-width: none;
 	max-height: none;
 	flex-shrink: 0;
-	shape-rendering: geometricPrecision;
-	text-rendering: geometricPrecision;
+	shape-rendering: geometricprecision;
+	text-rendering: geometricprecision;
 	-webkit-font-smoothing: antialiased;
 }

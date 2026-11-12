@@ -182,9 +182,9 @@ function clanbite_request_post_flag( string $key ): bool {
  */
 function clanbite_sanitize_player_settings_post_array( array $post ): array {
 	$skip = array(
-		'action'                               => true,
+		'action'                                => true,
 		'_clanbite_profile_settings_save_nonce' => true,
-		'_wp_http_referer'                     => true,
+		'_wp_http_referer'                      => true,
 	);
 
 	$html_keys = array(
@@ -300,7 +300,7 @@ function clanbite_sanitize_team_create_post_array(): array {
 
 	$skip = array(
 		'_clanbite_create_team_nonce' => true,
-		'_wp_http_referer'              => true,
+		'_wp_http_referer'            => true,
 	);
 
 	$html_keys = array(

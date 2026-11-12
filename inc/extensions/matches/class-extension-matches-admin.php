@@ -16,9 +16,26 @@ use Kernowdev\Clanbite\Extensions\Abstract_Settings;
  * Persists display-related options under `clanbite_matches_settings`.
  */
 class Admin extends Abstract_Settings {
-	protected string $option_key     = 'clanbite_matches_settings';
+	/**
+	 * Option name storing this settings bucket.
+	 *
+	 * @var string
+	 */
+	protected string $option_key = 'clanbite_matches_settings';
+
+	/**
+	 * Settings API group for `register_setting()`.
+	 *
+	 * @var string
+	 */
 	protected string $settings_group = 'clanbite_matches';
-	protected string $page_slug      = 'clanbite-matches';
+
+	/**
+	 * Settings page slug.
+	 *
+	 * @var string
+	 */
+	protected string $page_slug = 'clanbite-matches';
 
 	/**
 	 * Browser title for the legacy standalone settings page (if enabled).
@@ -90,28 +107,28 @@ class Admin extends Abstract_Settings {
 				'display'          => array(
 					'title'  => __( 'Display', 'clanbite' ),
 					'fields' => array(
-						'list_per_page'        => array(
+						'list_per_page'      => array(
 							'label'       => __( 'REST / admin list size', 'clanbite' ),
 							'type'        => 'text',
 							'description' => __( 'Maximum matches returned per page in the REST API and admin helpers.', 'clanbite' ),
 							'default'     => 10,
 							'sanitize'    => 'absint',
 						),
-						'default_list_limit'   => array(
+						'default_list_limit' => array(
 							'label'       => __( 'Default block list limit', 'clanbite' ),
 							'type'        => 'text',
 							'description' => __( 'Default number of matches for the Match list block when the block attribute is unset.', 'clanbite' ),
 							'default'     => 10,
 							'sanitize'    => 'absint',
 						),
-						'datetime_format'      => array(
+						'datetime_format'    => array(
 							'label'       => __( 'Date/time format', 'clanbite' ),
 							'type'        => 'text',
 							'description' => __( 'PHP date format used on the front end (see wp_date).', 'clanbite' ),
 							'default'     => 'M j, Y g:i a',
 							'sanitize'    => 'sanitize_text_field',
 						),
-						'show_scores'          => array(
+						'show_scores'        => array(
 							'label'       => __( 'Show scores in blocks', 'clanbite' ),
 							'type'        => 'checkbox',
 							'description' => __( 'When unchecked, blocks hide scores until you turn this back on.', 'clanbite' ),

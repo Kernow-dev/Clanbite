@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Render callback: team member count.
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $team_id = clanbite_team_single_block_team_id( $block );
 if ( $team_id < 1 ) {
@@ -40,7 +39,7 @@ if ( $team_id < 1 ) {
 		$parts[] = '<span class="clanbite-team-members-count__postfix">' . wp_kses_post( $postfix_raw ) . '</span>';
 	}
 
-	echo wp_kses( '<div ' . $wrapper . '>' . implode( '', $parts ) . '</div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '>' . implode( '', $parts ) . '</div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -75,4 +74,4 @@ if ( '' !== $postfix_plain ) {
 	$parts[] = '<span class="clanbite-team-members-count__postfix">' . wp_kses_post( $postfix_raw ) . '</span>';
 }
 
-echo wp_kses( '<div ' . $wrapper_attributes . '>' . implode( '', $parts ) . '</div>', clanbite_block_fragment_allowed_html());
+echo wp_kses( '<div ' . $wrapper_attributes . '>' . implode( '', $parts ) . '</div>', clanbite_block_fragment_allowed_html() );

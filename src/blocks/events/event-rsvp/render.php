@@ -1,19 +1,18 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Server render: Event RSVP block.
  *
  * @package clanbite
  */
 
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
+
 use Kernowdev\Clanbite\Events\Events;
 
-$event_type = sanitize_key( (string) ( $attributes['eventType'] ?? 'match' ) );
-$event_id   = (int) ( $attributes['eventId'] ?? 0 );
+$event_type     = sanitize_key( (string) ( $attributes['eventType'] ?? 'match' ) );
+$event_id       = (int) ( $attributes['eventId'] ?? 0 );
 $show_attendees = ! empty( $attributes['showAttendees'] );
 
 if ( $event_id < 1 && isset( $block->context['postId'] ) ) {
@@ -28,8 +27,8 @@ if ( $event_id < 1 && isset( $block->context['postId'] ) ) {
 }
 
 if ( $event_id < 1 && 'clanbite_event' === $event_type ) {
-	$tid = (int) get_query_var( 'clanbite_team_event_id' );
-	$gid = (int) get_query_var( 'cp_group_event_id' );
+	$tid      = (int) get_query_var( 'clanbite_team_event_id' );
+	$gid      = (int) get_query_var( 'cp_group_event_id' );
 	$event_id = $tid > 0 ? $tid : $gid;
 }
 
@@ -42,7 +41,7 @@ if ( $event_id < 1 ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Select an event or place this block on a match or group template.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Select an event or place this block on a match or group template.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -55,36 +54,39 @@ if ( ! $can_view ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'This event is not available.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'This event is not available.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
 $config = array(
-	'eventType'      => $event_type,
-	'eventId'        => $event_id,
-	'showAttendees'  => (bool) $show_attendees,
-	'restUrl'        => esc_url_raw( rest_url( 'clanbite/v1' ) ),
-	'nonce'          => wp_create_nonce( 'wp_rest' ),
-	'loggedIn'       => is_user_logged_in(),
-	'loginUrl'       => wp_login_url( get_permalink() ),
-	'canView'        => true,
-	'i18n'           => array(
-		'currentPrefix'  => __( 'Your response: ', 'clanbite' ),
-		'logInToRsvp'    => __( 'Log in to respond', 'clanbite' ),
-		'noAttendees'    => __( 'No responses yet.', 'clanbite' ),
+	'eventType'     => $event_type,
+	'eventId'       => $event_id,
+	'showAttendees' => (bool) $show_attendees,
+	'restUrl'       => esc_url_raw( rest_url( 'clanbite/v1' ) ),
+	'nonce'         => wp_create_nonce( 'wp_rest' ),
+	'loggedIn'      => is_user_logged_in(),
+	'loginUrl'      => wp_login_url( get_permalink() ),
+	'canView'       => true,
+	'i18n'          => array(
+		'currentPrefix'   => __( 'Your response: ', 'clanbite' ),
+		'logInToRsvp'     => __( 'Log in to respond', 'clanbite' ),
+		'noAttendees'     => __( 'No responses yet.', 'clanbite' ),
 		'attendeesHidden' => __( 'Attendee list is hidden.', 'clanbite' ),
-		'statusLabels'   => array(
+		'statusLabels'    => array(
 			'accepted'  => __( 'Accepted', 'clanbite' ),
 			'declined'  => __( 'Declined', 'clanbite' ),
 			'tentative' => __( 'Tentative', 'clanbite' ),
 		),
-		'buttonLabels' => array(
+		'buttonLabels'    => array(
 			'accepted'  => __( 'Accepted', 'clanbite' ),
 			'declined'  => __( 'Declined', 'clanbite' ),
 			'tentative' => __( 'Tentative', 'clanbite' ),
 		),
 	),
 );
+
+// The attendee list starts open (see view.js `panelOpen`); tell the server so `hidden` bindings resolve.
+wp_interactivity_state( 'clanbite-event-rsvp', array( 'attendeesOpen' => true ) );
 
 $wrapper = get_block_wrapper_attributes(
 	array(
@@ -105,9 +107,9 @@ $event_rsvp_root_open = '<div '
 	<div class="clanbite-event-rsvp__actions">
 		<?php if ( is_user_logged_in() ) : ?>
 			<div class="clanbite-event-rsvp__buttons" role="group" aria-label="<?php esc_attr_e( 'RSVP', 'clanbite' ); ?>">
-				<button type="button" class="clanbite-event-rsvp__btn" data-cp-rsvp-status="accepted" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['accepted'] ); ?></button>
-				<button type="button" class="clanbite-event-rsvp__btn" data-cp-rsvp-status="tentative" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['tentative'] ); ?></button>
-				<button type="button" class="clanbite-event-rsvp__btn" data-cp-rsvp-status="declined" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['declined'] ); ?></button>
+				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__btn" data-cp-rsvp-status="accepted" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['accepted'] ); ?></button>
+				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__btn" data-cp-rsvp-status="tentative" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['tentative'] ); ?></button>
+				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__btn" data-cp-rsvp-status="declined" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['declined'] ); ?></button>
 			</div>
 		<?php endif; ?>
 		<p class="clanbite-event-rsvp__status" aria-live="polite">
@@ -119,17 +121,17 @@ $event_rsvp_root_open = '<div '
 	<?php if ( $show_attendees ) : ?>
 		<div class="clanbite-event-rsvp__attendees">
 			<div class="clanbite-event-rsvp__attendees-head">
-				<button type="button" class="clanbite-event-rsvp__toggle" data-wp-on--click="actions.toggleAttendees" data-wp-bind--aria-expanded="state.attendeesOpen()">
-					<span class="clanbite-event-rsvp__toggle-text" data-wp-bind--hidden="!state.attendeesOpen()"><?php esc_html_e( 'Hide responses', 'clanbite' ); ?></span>
-					<span class="clanbite-event-rsvp__toggle-text" hidden data-wp-bind--hidden="state.attendeesOpen()"><?php esc_html_e( 'Show responses', 'clanbite' ); ?></span>
+				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__toggle" data-wp-on--click="actions.toggleAttendees" data-wp-bind--aria-expanded="state.attendeesOpen">
+					<span class="clanbite-event-rsvp__toggle-text" data-wp-bind--hidden="!state.attendeesOpen"><?php esc_html_e( 'Hide responses', 'clanbite' ); ?></span>
+					<span class="clanbite-event-rsvp__toggle-text" hidden data-wp-bind--hidden="state.attendeesOpen"><?php esc_html_e( 'Show responses', 'clanbite' ); ?></span>
 				</button>
 				<h3 class="clanbite-event-rsvp__attendees-heading"><?php esc_html_e( 'Responses', 'clanbite' ); ?></h3>
 			</div>
-			<div class="clanbite-event-rsvp__attendees-body" data-wp-bind--hidden="!state.attendeesOpen()">
+			<div class="clanbite-event-rsvp__attendees-body" data-wp-bind--hidden="!state.attendeesOpen">
 				<p class="clanbite-event-rsvp__attendees-note" hidden></p>
 				<ul class="clanbite-event-rsvp__list"></ul>
 			</div>
 		</div>
 	<?php endif; ?>
 </div>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

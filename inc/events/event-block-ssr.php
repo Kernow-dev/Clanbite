@@ -82,7 +82,7 @@ function clanbite_events_calendar_range_iso_for_view( string $view, string $anch
 		$end   = $anchor->modify( 'last day of this month' )->setTime( 23, 59, 59 );
 	}
 
-	$utc    = new \DateTimeZone( 'UTC' );
+	$utc     = new \DateTimeZone( 'UTC' );
 	$start_u = $start->setTimezone( $utc );
 	$end_u   = $end->setTimezone( $utc );
 
@@ -127,7 +127,7 @@ function clanbite_events_calendar_heading_for_view( string $view, string $anchor
 }
 
 /**
- * @param string               $starts_at Event starts_at meta (MySQL / ISO fragment).
+ * @param string $starts_at Event starts_at meta (MySQL / ISO fragment).
  * @return \DateTimeImmutable|null UTC.
  */
 function clanbite_events_parse_starts_at_utc( string $starts_at ): ?\DateTimeImmutable {
@@ -154,8 +154,8 @@ function clanbite_events_event_ymd_range_site( array $ev ): ?array {
 		return null;
 	}
 
-	$tz       = wp_timezone();
-	$s_local  = $s->setTimezone( $tz );
+	$tz        = wp_timezone();
+	$s_local   = $s->setTimezone( $tz );
 	$start_ymd = $s_local->format( 'Y-m-d' );
 
 	$ends_raw = isset( $ev['endsAt'] ) ? (string) $ev['endsAt'] : '';
@@ -291,11 +291,11 @@ function clanbite_events_render_month_cell_events_html( array $ranges, string $c
 /**
  * Full month surface inner HTML (matches client `renderSurface` month branch).
  *
- * @param string                              $anchor_ymd     Y-m-d in month.
- * @param array<int, array<string, mixed>>    $items          REST rows.
- * @param array<int, string>                  $weekday_labels Seven labels, Sunday first.
- * @param string                              $today_ymd      Site today.
- * @param array<string, string>               $i18n           untitled, noEvents.
+ * @param string                           $anchor_ymd     Y-m-d in month.
+ * @param array<int, array<string, mixed>> $items          REST rows.
+ * @param array<int, string>               $weekday_labels Seven labels, Sunday first.
+ * @param string                           $today_ymd      Site today.
+ * @param array<string, string>            $i18n           untitled, noEvents.
  * @return string
  */
 function clanbite_event_calendar_render_month_surface_html( string $anchor_ymd, array $items, array $weekday_labels, string $today_ymd, array $i18n ): string {
@@ -314,7 +314,7 @@ function clanbite_event_calendar_render_month_surface_html( string $anchor_ymd, 
 	$html  = '<div class="clanbite-event-calendar__month">';
 	$html .= '<div class="clanbite-event-calendar__dow">';
 	for ( $i = 0; $i < 7; $i++ ) {
-		$lab = isset( $weekday_labels[ $i ] ) ? (string) $weekday_labels[ $i ] : '';
+		$lab   = isset( $weekday_labels[ $i ] ) ? (string) $weekday_labels[ $i ] : '';
 		$html .= '<div class="clanbite-event-calendar__dow-cell">' . esc_html( $lab ) . '</div>';
 	}
 	$html .= '</div><div class="clanbite-event-calendar__grid">';
@@ -322,11 +322,11 @@ function clanbite_event_calendar_render_month_surface_html( string $anchor_ymd, 
 	$cursor = clone $start_grid;
 	for ( $w = 0; $w < 6; $w++ ) {
 		for ( $c = 0; $c < 7; $c++ ) {
-			$ymd       = $cursor->format( 'Y-m-d' );
-			$in_month  = (int) $cursor->format( 'n' ) === (int) $anchor->format( 'n' );
-			$is_today  = ( $ymd === $today_ymd );
-			$ranges    = clanbite_events_touching_ymd( $items, $ymd );
-			$cell_cls  = 'clanbite-event-calendar__cell';
+			$ymd      = $cursor->format( 'Y-m-d' );
+			$in_month = (int) $cursor->format( 'n' ) === (int) $anchor->format( 'n' );
+			$is_today = ( $ymd === $today_ymd );
+			$ranges   = clanbite_events_touching_ymd( $items, $ymd );
+			$cell_cls = 'clanbite-event-calendar__cell';
 			if ( ! $in_month ) {
 				$cell_cls .= ' is-muted';
 			}
@@ -347,9 +347,12 @@ function clanbite_event_calendar_render_month_surface_html( string $anchor_ymd, 
 }
 
 /**
- * @param array<int, array<string, mixed>> $items .
- * @param array<string, string>          $i18n  untitled, noEvents.
- * @return string
+ * Server-render the event calendar week grid.
+ *
+ * @param string                           $anchor_ymd Anchor date (`Y-m-d`, site timezone).
+ * @param array<int, array<string, mixed>> $items      Event rows from the events REST shape.
+ * @param array<string, string>            $i18n       Labels: `untitled`, `noEvents`.
+ * @return string Escaped HTML.
  */
 function clanbite_event_calendar_render_week_surface_html( string $anchor_ymd, array $items, array $i18n ): string {
 	$tz = wp_timezone();
@@ -368,20 +371,20 @@ function clanbite_event_calendar_render_week_surface_html( string $anchor_ymd, a
 
 	$html = '<div class="clanbite-event-calendar__week">';
 	for ( $i = 0; $i < 7; $i++ ) {
-		$day = $start->modify( '+' . $i . ' days' );
-		$ymd = $day->format( 'Y-m-d' );
-		$html .= '<div class="clanbite-event-calendar__week-day">';
-		$html .= '<div class="clanbite-event-calendar__week-day-head">' . esc_html( wp_date( 'D, M j', $day->getTimestamp() ) ) . '</div><ul>';
+		$day    = $start->modify( '+' . $i . ' days' );
+		$ymd    = $day->format( 'Y-m-d' );
+		$html  .= '<div class="clanbite-event-calendar__week-day">';
+		$html  .= '<div class="clanbite-event-calendar__week-day-head">' . esc_html( wp_date( 'D, M j', $day->getTimestamp() ) ) . '</div><ul>';
 		$ranges = clanbite_events_touching_ymd( $items, $ymd );
 		if ( array() === $ranges ) {
 			$html .= '<li class="clanbite-event-calendar__empty">' . esc_html( $no_events ) . '</li>';
 		} else {
 			foreach ( $ranges as $r ) {
-				$ev      = $r['ev'];
-				$kind    = clanbite_events_segment_kind( $r, $ymd );
-				$t       = isset( $ev['title'] ) && '' !== (string) $ev['title'] ? (string) $ev['title'] : $untitled;
-				$u       = isset( $ev['permalink'] ) ? (string) $ev['permalink'] : '';
-				$st      = isset( $ev['startsAt'] ) ? (string) $ev['startsAt'] : '';
+				$ev       = $r['ev'];
+				$kind     = clanbite_events_segment_kind( $r, $ymd );
+				$t        = isset( $ev['title'] ) && '' !== (string) $ev['title'] ? (string) $ev['title'] : $untitled;
+				$u        = isset( $ev['permalink'] ) ? (string) $ev['permalink'] : '';
+				$st       = isset( $ev['startsAt'] ) ? (string) $ev['startsAt'] : '';
 				$time_lbl = ( 'start' === $kind || 'single' === $kind ) ? clanbite_events_format_time_for_calendar( $st ) : '···';
 				if ( '' !== $u ) {
 					$html .= '<li><a href="' . esc_url( $u ) . '">' . esc_html( $time_lbl ) . ' — ' . esc_html( $t ) . '</a></li>';
@@ -398,9 +401,12 @@ function clanbite_event_calendar_render_week_surface_html( string $anchor_ymd, a
 }
 
 /**
- * @param array<int, array<string, mixed>> $items .
- * @param array<string, string>          $i18n  untitled, noEvents.
- * @return string
+ * Server-render the event calendar single-day list.
+ *
+ * @param string                           $anchor_ymd Anchor date (`Y-m-d`, site timezone).
+ * @param array<int, array<string, mixed>> $items      Event rows from the events REST shape.
+ * @param array<string, string>            $i18n       Labels: `untitled`, `noEvents`.
+ * @return string Escaped HTML.
  */
 function clanbite_event_calendar_render_day_surface_html( string $anchor_ymd, array $items, array $i18n ): string {
 	$no_events = isset( $i18n['noEvents'] ) ? (string) $i18n['noEvents'] : '';
@@ -432,7 +438,7 @@ function clanbite_event_calendar_render_day_surface_html( string $anchor_ymd, ar
 
 /**
  * @param array<int, array<string, mixed>> $items .
- * @param array<string, string>          $i18n  untitled, noEvents.
+ * @param array<string, string>            $i18n  untitled, noEvents.
  * @return string
  */
 function clanbite_event_calendar_render_list_surface_html( array $items, array $i18n ): string {
@@ -552,7 +558,7 @@ function clanbite_events_format_list_row_starts_at( string $starts_at ): string 
  * Build `<li>` rows for the event list `<ul>`.
  *
  * @param array<int, array<string, mixed>> $items REST rows.
- * @param array<string, string>          $i18n  untitled, noEvents.
+ * @param array<string, string>            $i18n  untitled, noEvents.
  * @return string HTML (no `<ul>` wrapper).
  */
 function clanbite_events_render_event_list_rows_html( array $items, array $i18n ): string {

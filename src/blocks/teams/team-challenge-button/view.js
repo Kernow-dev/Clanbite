@@ -1,7 +1,43 @@
 /**
  * Front-end interactivity: challenge modal, remote team preview, REST submit.
  */
-import { store, getContext } from '@wordpress/interactivity';
+import { store, getContext, getElement } from '@wordpress/interactivity';
+
+/**
+ * Popup lifecycle hooks shared by every Clanbite popup (user menu, notification bell, challenge dialog, …).
+ *
+ * - `clanbite.popup.toggled` (action): fires whenever the popup opens or closes, however it was triggered.
+ *   Receives `{ name, open, root }`.
+ * - `clanbite.popup.shouldOpen` (filter): return `false` to stop a popup from opening. Receives `true`, `{ name, root }`.
+ */
+const popupLast = new WeakMap();
+
+function announcePopup( name, open, root ) {
+	if ( ! root ) {
+		return;
+	}
+	const seen = popupLast.has( root );
+	const previous = popupLast.get( root );
+	popupLast.set( root, open );
+	// The first run only records the server-rendered state; it is not a toggle.
+	if ( seen && previous !== open ) {
+		window.wp?.hooks?.doAction?.( 'clanbite.popup.toggled', {
+			name,
+			open,
+			root,
+		} );
+	}
+}
+
+function allowPopupOpen( name, root ) {
+	return (
+		false !==
+		window.wp?.hooks?.applyFilters?.( 'clanbite.popup.shouldOpen', true, {
+			name,
+			root,
+		} )
+	);
+}
 
 function joinRestPath( base, segment ) {
 	const b = String( base || '' ).replace( /\/+$/, '' );
@@ -10,9 +46,19 @@ function joinRestPath( base, segment ) {
 }
 
 store( 'clanbite-team-challenge-button', {
+	callbacks: {
+		// Runs reactively whenever `context.open` changes (see `data-wp-watch` on the root).
+		announcePopup() {
+			const { ref } = getElement();
+			announcePopup( 'team-challenge', !! getContext().open, ref );
+		},
+	},
 	actions: {
 		open() {
 			const ctx = getContext();
+			if ( ! allowPopupOpen( 'team-challenge', getElement().ref ) ) {
+				return;
+			}
 			ctx.open = true;
 			ctx.formError = '';
 			ctx.formSuccess = '';

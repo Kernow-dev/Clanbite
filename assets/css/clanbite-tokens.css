@@ -1,0 +1,84 @@
+/**
+ * Clanbite design tokens (style handle `clanbite-tokens`).
+ *
+ * One small set of colour tokens shared by Clanbite and its add-ons, derived from the page so the plugins fit any
+ * theme (light, dark, classic or block) without configuration. Nothing here is a fixed light or dark palette.
+ *
+ *   --clanbite-surface      Panel / popover / card background. Theme preset `background`, then `base`, then the
+ *                           white.
+ *   --clanbite-on-surface   Text on that surface. Computed from the surface so it is always readable (black or
+ *                           white); browsers without relative colour syntax fall back to near-black.
+ *   --clanbite-surface-alt  Subtle raised or sunken area (table stripes, input backgrounds, hover wash).
+ *   --clanbite-border       Hairlines and control outlines.
+ *   --clanbite-muted        Secondary text.
+ *   --clanbite-accent       Brand / action colour (theme palette `primary`, then `accent`).
+ *   --clanbite-on-accent    Readable text on the accent (`-on-success`, `-on-danger` likewise).
+ *   --clanbite-danger       Destructive actions and errors (palette slug `danger`, then core `vivid-red`).
+ *   --clanbite-warning      Cautions (palette slug `warning`, then amber).
+ *   --clanbite-success      Positive confirmations (palette slug `success`, then core green).
+ *   --clanbite-radius       Corner radius for controls and cards.
+ *
+ * The same sheet ends with zero-specificity defaults for form controls and plain buttons inside Clanbite blocks (inherit
+ * the text colour and font, tokenised border and surface, no overflow). They use :where(), so they only apply when the
+ * theme does not style controls and any theme rule overrides them.
+ *
+ * A theme (or the site owner) can set any of these in `:root` to override the derived value, for example
+ * `:root { --clanbite-surface: #101418; --clanbite-accent: #e11d48; }`. Blocks always use them as
+ * `var(--clanbite-x, <fallback>)`, so a missing stylesheet never breaks a block.
+ */
+
+:root {
+	--clanbite-surface: var(--wp--preset--color--background, var(--wp--preset--color--base, #fff));
+	--clanbite-on-surface: #1e1e1e;
+	--clanbite-accent: var(--wp--preset--color--primary, var(--wp--preset--color--accent, var(--wp--preset--color--vivid-cyan-blue, #2271b1)));
+	--clanbite-danger: var(--wp--preset--color--danger, var(--wp--preset--color--vivid-red, #b32d2e));
+	--clanbite-warning: var(--wp--preset--color--warning, #dba617);
+	--clanbite-success: var(--wp--preset--color--success, var(--wp--preset--color--vivid-green-cyan, #00a32a));
+	--clanbite-on-accent: #fff;
+	--clanbite-on-success: #fff;
+	--clanbite-on-danger: #fff;
+	--clanbite-radius: 0.375em;
+}
+
+@supports (color: oklch(from red l c h)) {
+
+	:root {
+		--clanbite-on-surface: oklch(from var(--clanbite-surface) clamp(0, (0.62 - l) * 1000, 1) 0 0);
+		--clanbite-on-accent: oklch(from var(--clanbite-accent) clamp(0, (0.62 - l) * 1000, 1) 0 0);
+		--clanbite-on-success: oklch(from var(--clanbite-success) clamp(0, (0.62 - l) * 1000, 1) 0 0);
+		--clanbite-on-danger: oklch(from var(--clanbite-danger) clamp(0, (0.62 - l) * 1000, 1) 0 0);
+	}
+}
+
+:root {
+	--clanbite-surface-alt: color-mix(in srgb, var(--clanbite-on-surface) 6%, var(--clanbite-surface));
+	--clanbite-border: color-mix(in srgb, var(--clanbite-on-surface) 22%, transparent);
+	--clanbite-muted: color-mix(in srgb, var(--clanbite-on-surface) 62%, transparent);
+}
+
+/* Control defaults inside Clanbite blocks (zero specificity: any theme rule wins). */
+:where([class*="wp-block-clanbite"]) :where(
+	input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="hidden"], [type="color"], [type="submit"], [type="button"], [type="reset"], [type="image"]),
+	select,
+	textarea
+) {
+	box-sizing: border-box;
+	max-width: 100%;
+	padding: 0.5em 0.65em;
+	border: 1px solid var(--clanbite-border);
+	border-radius: var(--clanbite-radius);
+	background-color: var(--clanbite-surface-alt);
+	color: inherit;
+	font: inherit;
+}
+
+:where([class*="wp-block-clanbite"]) :where(input, textarea)::placeholder {
+	color: var(--clanbite-muted);
+	opacity: 1;
+}
+
+/* Plain buttons (tabs, menu triggers, icon buttons) take the surrounding text colour, not the browser's black. */
+:where([class*="wp-block-clanbite"]) :where(button:not(.wp-element-button)) {
+	color: inherit;
+	font: inherit;
+}

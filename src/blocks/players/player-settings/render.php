@@ -1,9 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * PHP file to use when rendering the block type on the server to show on the front end.
  *
@@ -13,12 +8,21 @@ defined( 'ABSPATH' ) || exit;
  *     $block (WP_Block): The block instance.
  *
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
+ *
+ * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 ?>
 <?php
 $nav_items = (array) apply_filters( 'clanbite_players_settings_nav_items', array() );
 
-$player_settings_wrapper = get_block_wrapper_attributes( array(), $block );
+// Field error boxes start hidden: `showError` is true while a field has no error (the view script computes it live).
+wp_interactivity_state( 'clanbite-player-settings', array( 'showError' => static fn() => true ) );
+
+$player_settings_wrapper   = get_block_wrapper_attributes( array(), $block );
 $player_settings_root_open = '<div '
 	. trim( (string) $player_settings_wrapper )
 	. ' data-wp-interactive="clanbite-player-settings"'
@@ -27,7 +31,12 @@ $player_settings_root_open = '<div '
 ob_start();
 ?>
 <?php clanbite_echo_block_fragment_html( $player_settings_root_open ); ?>
-	<?php do_action( 'clanbite_player_settings_before_nav' ); ?>
+	<?php
+	/**
+	 * Fires before the player settings navigation is rendered.
+	 */
+	do_action( 'clanbite_player_settings_before_nav' );
+	?>
 	<div class="nav-container">
 		<div class="nav">
 			<?php
@@ -54,6 +63,13 @@ ob_start();
 					id="<?php echo esc_attr( $nav_item ); ?>"
 				>
 					<?php
+					/**
+					 * Filters the sub-navigation of one player settings section while rendering the settings block.
+					 *
+					 * The dynamic portion is the top-level navigation slug.
+					 *
+					 * @param array<string, array<string, string>> $items Sub-navigation items keyed by slug (`label`, `description`).
+					 */
 					$nav_sub_items = (array) apply_filters( "clanbite_players_settings_nav_{$nav_item}_sub_items", array() );
 					foreach ( $nav_sub_items as $nav_sub_item => $sub_item ) :
 						$sub_label = $sub_item['label'] ?? '';
@@ -76,7 +92,7 @@ ob_start();
 				<?php wp_nonce_field( 'clanbite_profile_settings_save_action', '_clanbite_profile_settings_save_nonce', true, true ); ?>
 				<button
 					type="button"
-					class="save"
+					class="wp-element-button clanbite-button clanbite-button--primary save"
 					data-wp-on--click="actions.save"
 				><?php esc_html_e( 'Save changes', 'clanbite' ); ?></button>
 			</div>
@@ -101,7 +117,14 @@ ob_start();
 						<span class="section-label"><?php echo esc_html( $section_label ); ?></span>
 						<span class="settings-label"><?php echo esc_html( $settings_label ); ?></span>
 					</div>
-					<?php do_action( "clanbite_player_settings_panel_{$nav_sub_item}" ); ?>
+					<?php
+					/**
+					 * Renders the content of one player settings sub-panel.
+					 *
+					 * The dynamic portion is the sub-navigation slug (for example `profile-info`, `account-info`).
+					 */
+					do_action( "clanbite_player_settings_panel_{$nav_sub_item}" );
+					?>
 				</div>
 			</div>
 		<?php endforeach; ?>
@@ -126,4 +149,4 @@ ob_start();
 		</div>
 	</div>
 </div>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

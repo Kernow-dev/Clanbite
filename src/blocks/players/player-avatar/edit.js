@@ -50,10 +50,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			<EntityLinkInspector
 				attributes={ attributes }
 				setAttributes={ setAttributes }
-				toggleLabel={ __(
-					'Link image to player profile',
-					'clanbite'
-				) }
+				toggleLabel={ __( 'Link image to player profile', 'clanbite' ) }
 			/>
 			<div { ...useBlockProps() }>
 				<p>{ __( 'Player avatar block', 'clanbite' ) }</p>

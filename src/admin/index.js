@@ -71,10 +71,10 @@ const IconPickerBootstrapContext = createContext( {
 /**
  * Icon URL stored via pack picker and/or media library (no raw URL field; `icon_picker` + type url).
  *
- * @param {Object}        props
- * @param {Object}        props.field   Field schema from REST.
- * @param {unknown}       props.value   Current value.
- * @param {Function}      props.onChange ( fieldId, next ) => void
+ * @param {Object}   props
+ * @param {Object}   props.field    Field schema from REST.
+ * @param {unknown}  props.value    Current value.
+ * @param {Function} props.onChange ( fieldId, next ) => void
  * @return {import('react').ReactNode} Rendered controls.
  */
 function IconUrlFieldControl( { field, value, onChange } ) {
@@ -378,8 +378,8 @@ function setupApiFetch() {
  * Repeater-style user IDs with search (REST) and removable rows (avatar + name).
  *
  * @param {Object}   props
- * @param {Object}   props.field   Field schema (`user_search_path`, `label`, `description`, `id`).
- * @param {unknown}  props.value   Expected number[] from settings.
+ * @param {Object}   props.field    Field schema (`user_search_path`, `label`, `description`, `id`).
+ * @param {unknown}  props.value    Expected number[] from settings.
  * @param {Function} props.onChange ( fieldId, nextValue ) => void
  * @return {import('react').ReactNode}
  */
@@ -691,7 +691,7 @@ function restPostTitleText( p ) {
  *
  * @param {Object}             props          Props.
  * @param {Object}             props.field    Field schema from PHP (`post_id_list`).
- * @param {number[]|undefined} props.value   Selected post IDs.
+ * @param {number[]|undefined} props.value    Selected post IDs.
  * @param {Function}           props.onChange `( fieldId, nextIds ) => void`.
  * @return {import('react').ReactNode} Field UI.
  */
@@ -846,10 +846,7 @@ function PostIdListControl( { field, value, onChange } ) {
 							label = row.name;
 						} else {
 							/* translators: %d: post ID */
-							label = sprintf(
-								__( 'Item %d', 'clanbite' ),
-								pid
-							);
+							label = sprintf( __( 'Item %d', 'clanbite' ), pid );
 						}
 						return (
 							<li
@@ -881,10 +878,7 @@ function PostIdListControl( { field, value, onChange } ) {
 					label={ __( 'Add item', 'clanbite' ) }
 					value={ query }
 					onChange={ setQuery }
-					placeholder={ __(
-						'Search by title or slug…',
-						'clanbite'
-					) }
+					placeholder={ __( 'Search by title or slug…', 'clanbite' ) }
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 					autoComplete="off"
@@ -944,8 +938,8 @@ function PostIdListControl( { field, value, onChange } ) {
  * Nested repeaters for extension settings (e.g. Points types + rules).
  *
  * @param {Object}   props
- * @param {Object}   props.field   Field schema (`fields`, `add_label`, `default_row`).
- * @param {unknown}  props.value   Expected array of row objects.
+ * @param {Object}   props.field    Field schema (`fields`, `add_label`, `default_row`).
+ * @param {unknown}  props.value    Expected array of row objects.
  * @param {Function} props.onChange ( fieldId, nextRows ) => void
  * @return {import('react').ReactNode}
  */
@@ -959,10 +953,18 @@ function RepeaterControl( { field, value, onChange } ) {
 		field.addLabel || field.add_label || __( 'Add row', 'clanbite' );
 	const inferEntityName = () => {
 		const key = String( id || '' ).toLowerCase();
-		if ( key === 'point_types' ) return __( 'point type', 'clanbite' );
-		if ( key === 'rank_types' ) return __( 'rank type', 'clanbite' );
-		if ( key === 'rules' ) return __( 'rule', 'clanbite' );
-		if ( key === 'levels' ) return __( 'level', 'clanbite' );
+		if ( key === 'point_types' ) {
+			return __( 'point type', 'clanbite' );
+		}
+		if ( key === 'rank_types' ) {
+			return __( 'rank type', 'clanbite' );
+		}
+		if ( key === 'rules' ) {
+			return __( 'rule', 'clanbite' );
+		}
+		if ( key === 'levels' ) {
+			return __( 'level', 'clanbite' );
+		}
 		return __( 'row', 'clanbite' );
 	};
 	const entityName = inferEntityName();
@@ -1236,8 +1238,7 @@ function FieldControl( { field, value, onChange } ) {
 				}
 
 				const frame = window.wp.media( {
-					title:
-						field.mediaTitle || __( 'Select image', 'clanbite' ),
+					title: field.mediaTitle || __( 'Select image', 'clanbite' ),
 					button: {
 						text:
 							field.mediaButtonText ||
@@ -1295,7 +1296,7 @@ function FieldControl( { field, value, onChange } ) {
 			);
 		case 'select':
 			return (
-				<SelectControl
+				<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
 					{ ...common }
 					value={ String( value ?? '' ) }
 					options={ ( field.options || [] ).map( ( o ) => ( {
@@ -1314,7 +1315,8 @@ function FieldControl( { field, value, onChange } ) {
 					<div className="clanbite-admin-avatar-shape-radio__options">
 						{ ( field.options || [] ).map( ( option ) => {
 							const shapeValue = option.value;
-							const isChecked = String( value ?? 'circle' ) === shapeValue;
+							const isChecked =
+								String( value ?? 'circle' ) === shapeValue;
 							return (
 								<label
 									key={ shapeValue }
@@ -1327,7 +1329,9 @@ function FieldControl( { field, value, onChange } ) {
 										name={ `avatar-shape-${ id }` }
 										value={ shapeValue }
 										checked={ isChecked }
-										onChange={ () => onChange( id, shapeValue ) }
+										onChange={ () =>
+											onChange( id, shapeValue )
+										}
 										className="clanbite-admin-avatar-shape-radio__input"
 									/>
 									<div className="clanbite-admin-avatar-shape-radio__preview">
@@ -1414,8 +1418,8 @@ function FieldControl( { field, value, onChange } ) {
 /**
  * Check if a field's dependencies are satisfied.
  *
- * @param {Object}              field Field config with optional `depends_on`.
- * @param {Object}              data  Current values for the option key.
+ * @param {Object} field Field config with optional `depends_on`.
+ * @param {Object} data  Current values for the option key.
  * @return {boolean} True if field should be visible.
  */
 function isFieldVisible( field, data ) {
@@ -1442,10 +1446,7 @@ function SettingsSections( { sections, optionKey, values, onFieldChange } ) {
 	if ( ! sections?.length ) {
 		return (
 			<p className="description">
-				{ __(
-					'No configurable fields for this section.',
-					'clanbite'
-				) }
+				{ __( 'No configurable fields for this section.', 'clanbite' ) }
 			</p>
 		);
 	}
@@ -1487,9 +1488,9 @@ function SettingsSections( { sections, optionKey, values, onFieldChange } ) {
  * Lists required extension names; flags dependencies that are not currently installed.
  *
  * @param {Object}   props
- * @param {string[]} props.requires                 Slugs from the server (`ext.requires`).
- * @param {Object[]} props.allExtensions          Full `bootstrap.extensions` list.
- * @param {string[]} props.installedSlugs         Currently toggled-on slugs in the UI.
+ * @param {string[]} props.requires             Slugs from the server (`ext.requires`).
+ * @param {Object[]} props.allExtensions        Full `bootstrap.extensions` list.
+ * @param {string[]} props.installedSlugs       Currently toggled-on slugs in the UI.
  * @param {string}   props.requiresClanbite     Minimum core version (`x.y.z`) or empty.
  * @param {boolean}  props.meetsClanbiteVersion Whether core satisfies `requiresClanbite`.
  * @return {import('react').ReactNode}
@@ -1581,6 +1582,10 @@ function extensionCanBeTurnedOn( ext, pendingInstalledSlugs ) {
  * Integration tab mount point: fires `clanbite:admin-integration-mount` / `unmount` on this element.
  *
  * Depends on `bootstrapRevision` (not `bootstrap` identity) so re-renders that reuse state do not re-dispatch DOM events.
+ * @param root0
+ * @param root0.slotId
+ * @param root0.bootstrap
+ * @param root0.bootstrapRevision
  */
 function IntegrationSlot( { slotId, bootstrap, bootstrapRevision } ) {
 	const ref = useRef( null );
@@ -1931,9 +1936,7 @@ function App() {
 						<div className="clanbite-admin-header-brand">
 							<span className="clanbite-admin-logo-wrap">
 								<img
-									src={
-										window.clanbiteAdmin?.logoUrl || ''
-									}
+									src={ window.clanbiteAdmin?.logoUrl || '' }
 									alt=""
 									className="clanbite-admin-logo"
 								/>

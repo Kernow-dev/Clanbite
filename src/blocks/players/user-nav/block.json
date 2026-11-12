@@ -43,7 +43,7 @@
 	"textdomain": "clanbite",
 	"editorScript": "file:./index.js",
 	"viewScriptModule": "file:./view.js",
-	"style": "file:./style-index.css",
+	"style": ["file:./style-index.css", "clanbite-tokens"],
 	"render": "file:./render.php",
 	"selectors": {
 		"root": ".wp-block-clanbite-user-nav",

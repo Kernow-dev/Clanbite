@@ -120,10 +120,10 @@ function clanbite_relocate_team_challenge_logo_to_match_dir( int $attachment_id,
 		return false;
 	}
 
-	$filename   = wp_basename( $old_path );
-	$dest_path  = path_join( $dest_dir, wp_unique_filename( $dest_dir, $filename ) );
-	$old_norm   = wp_normalize_path( $old_path );
-	$dest_norm  = wp_normalize_path( $dest_path );
+	$filename  = wp_basename( $old_path );
+	$dest_path = path_join( $dest_dir, wp_unique_filename( $dest_dir, $filename ) );
+	$old_norm  = wp_normalize_path( $old_path );
+	$dest_norm = wp_normalize_path( $dest_path );
 
 	if ( $old_norm === $dest_norm ) {
 		return true;

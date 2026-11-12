@@ -48,7 +48,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 					/>
-					<SelectControl
+					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
 						label={ __( 'Status filter', 'clanbite' ) }
 						value={ statusFilter }
 						options={ STATUS_OPTIONS }
@@ -56,7 +56,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							setAttributes( { statusFilter: v } )
 						}
 					/>
-					<SelectControl
+					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
 						label={ __( 'Sort by scheduled time', 'clanbite' ) }
 						value={ order }
 						options={ [

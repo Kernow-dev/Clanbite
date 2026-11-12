@@ -1,9 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Renders a link to player settings for the profile owner.
  *
@@ -12,6 +7,10 @@ defined( 'ABSPATH' ) || exit;
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $player_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
 	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
@@ -65,4 +64,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo wp_kses( '<div ' . $wrapper_attributes . '><div class="wp-block-button clanbite-button clanbite-button--settings"><a class="wp-block-button__link wp-element-button clanbite-button__element" href="' . esc_url( $settings_url ) . '">' . esc_html( $label ) . '</a></div></div>', clanbite_block_fragment_allowed_html());
+echo wp_kses( '<div ' . $wrapper_attributes . '><div class="wp-block-button clanbite-button clanbite-button--settings"><a class="wp-block-button__link wp-element-button clanbite-button__element" href="' . esc_url( $settings_url ) . '">' . esc_html( $label ) . '</a></div></div>', clanbite_block_fragment_allowed_html() );

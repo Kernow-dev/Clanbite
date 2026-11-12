@@ -41,13 +41,13 @@
 
 	.toast-box-icon::before {
 		display: block;
-		content: '';
+		content: "";
 		width: 1.25rem;
 		height: 1.25rem;
 		mask-repeat: no-repeat;
 		mask-position: center;
 		mask-size: contain;
-		background-color: currentColor;
+		background-color: currentcolor;
 		opacity: 0.9;
 	}
 

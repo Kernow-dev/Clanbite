@@ -16,7 +16,7 @@
 	justify-content: space-between;
 	margin-bottom: 1.5rem;
 	padding-bottom: 1rem;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	border-bottom: 1px solid color-mix(in srgb, currentcolor 14%, transparent);
 }
 
 .clanbite-notifications-page__header h1 {
@@ -24,25 +24,10 @@
 	font-size: 1.5rem;
 }
 
-.clanbite-notifications-page__mark-all-btn {
-	padding: 0.5rem 1rem;
-	font-size: 0.875rem;
-	color: var(--wp--preset--color--primary, #0073aa);
-	background: transparent;
-	border: 1px solid currentColor;
-	border-radius: 4px;
-	cursor: pointer;
-}
-
-.clanbite-notifications-page__mark-all-btn:hover {
-	background: var(--wp--preset--color--primary, #0073aa);
-	color: #fff;
-}
-
 .clanbite-notifications-page__empty {
 	text-align: center;
 	padding: 4rem 2rem;
-	color: rgba(0, 0, 0, 0.5);
+	color: color-mix(in srgb, currentcolor 60%, transparent);
 }
 
 .clanbite-notifications-page__empty p {
@@ -53,7 +38,7 @@
 .clanbite-notifications-page__list {
 	display: flex;
 	flex-direction: column;
-	border: 1px solid rgba(0, 0, 0, 0.1);
+	border: 1px solid color-mix(in srgb, currentcolor 14%, transparent);
 	border-radius: 8px;
 	overflow: hidden;
 }
@@ -81,7 +66,7 @@
 }
 
 .clanbite-notifications-page__pagination-info {
-	color: rgba(0, 0, 0, 0.5);
+	color: color-mix(in srgb, currentcolor 60%, transparent);
 	font-size: 0.875rem;
 }
 

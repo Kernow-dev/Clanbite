@@ -73,8 +73,8 @@ function clanbite_private_media_mark_player_attachment( $meta_id, $user_id, $met
 /**
  * Hide flagged attachments from REST media collections (block editor library uses this).
  *
- * @param array<string, mixed>           $args    Query args.
- * @param \WP_REST_Request               $request Request.
+ * @param array<string, mixed> $args    Query args.
+ * @param \WP_REST_Request     $request Request.
  * @return array<string, mixed>
  */
 function clanbite_private_media_filter_rest_attachment_query( array $args, $request ): array {

@@ -66,7 +66,7 @@ const { state } = store( 'clanbite-event-rsvp', {
 	state: {
 		root: null,
 		panelOpen: true,
-		attendeesOpen() {
+		get attendeesOpen() {
 			return state.panelOpen;
 		},
 	},
@@ -115,6 +115,10 @@ const { state } = store( 'clanbite-event-rsvp', {
 				buttons.forEach( ( btn ) => {
 					const s = btn.getAttribute( 'data-cp-rsvp-status' );
 					btn.classList.toggle( 'is-active', s === status );
+					btn.setAttribute(
+						'aria-pressed',
+						s === status ? 'true' : 'false'
+					);
 				} );
 				if ( ctx.showAttendees ) {
 					const listEl = root.querySelector(
@@ -195,6 +199,10 @@ const { state } = store( 'clanbite-event-rsvp', {
 						buttons.forEach( ( btn ) => {
 							const s = btn.getAttribute( 'data-cp-rsvp-status' );
 							btn.classList.toggle( 'is-active', s === st );
+							btn.setAttribute(
+								'aria-pressed',
+								s === st ? 'true' : 'false'
+							);
 						} );
 					} )
 					.catch( () => {} );

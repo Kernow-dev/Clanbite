@@ -24,10 +24,7 @@ registerBlockType( metadata, {
 				<InspectorControls>
 					<PanelBody title={ __( 'Settings', 'clanbite' ) }>
 						<ToggleControl
-							label={ __(
-								'Show dropdown on click',
-								'clanbite'
-							) }
+							label={ __( 'Show dropdown on click', 'clanbite' ) }
 							checked={ showDropdown }
 							onChange={ ( value ) =>
 								setAttributes( { showDropdown: value } )
@@ -35,7 +32,7 @@ registerBlockType( metadata, {
 							__nextHasNoMarginBottom
 						/>
 						{ showDropdown && (
-							<RangeControl
+							<RangeControl __nextHasNoMarginBottom
 								label={ __(
 									'Notifications in dropdown',
 									'clanbite'
