@@ -5,7 +5,6 @@
  * Description: Community management system for Gamers and Sports teams
  * Version: 1.3.0
  * Requires at least: 6.9
- * Tested up to: 7.1
  * Requires PHP: 8.2
  * Author: kernow.dev
  * Author URI: https://kernow.dev

@@ -331,7 +331,7 @@ function clanbite_render_avatar( array $args ): string {
 					$img_attrs = apply_filters( "clanbite_avatar_img_attributes_{$args['context']}", $img_attrs, $args );
 				}
 				?>
-				<img <?php echo clanbite_build_html_attributes( $img_attrs ); ?> />
+				<img <?php echo clanbite_build_html_attributes( $img_attrs ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- clanbite_build_html_attributes() escapes every name and value. ?> />
 			</div>
 			
 			<?php if ( $args['link'] ) : ?>
@@ -777,7 +777,7 @@ function clanbite_render_avatar_for_interactivity( array $args ): string {
 
 	ob_start();
 	?>
-	<<?php echo esc_attr( $args['wrapper_tag'] ); ?> <?php echo clanbite_build_html_attributes( $args['wrapper_attrs'] ); ?>>
+	<<?php echo esc_attr( $args['wrapper_tag'] ); ?> <?php echo clanbite_build_html_attributes( $args['wrapper_attrs'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- clanbite_build_html_attributes() escapes every name and value. ?>>
 		<span class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $classes ) ) ); ?>">
 			<span class="clanbite-avatar__media">
 				<?php
@@ -789,7 +789,7 @@ function clanbite_render_avatar_for_interactivity( array $args ): string {
 				}
 				?>
 				<span class="clanbite-avatar__clip">
-					<img <?php echo clanbite_build_html_attributes( $img_attrs ); ?> />
+					<img <?php echo clanbite_build_html_attributes( $img_attrs ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- clanbite_build_html_attributes() escapes every name and value. ?> />
 				</span>
 				<?php
 				if ( $data['show_badge'] && '' !== $args['badge_path'] ) {

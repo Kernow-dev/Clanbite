@@ -2431,9 +2431,8 @@ class Players extends Skeleton {
 					} else {
 						clean_user_cache( $user_id );
 						/** This action is documented in wp-includes/user.php */
-						// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core action name; must remain `profile_update` for hooks expecting core’s user update flow.
 						do_action(
-							'profile_update',
+							'profile_update', // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core action name; must remain `profile_update` for hooks expecting core’s user update flow.
 							$user_id,
 							$old_user,
 							array(
