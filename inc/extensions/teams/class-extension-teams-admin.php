@@ -1,4 +1,9 @@
 <?php
+/**
+ * Teams extension admin settings tab.
+ *
+ * @package clanbite
+ */
 
 namespace Kernowdev\Clanbite\Extensions\Teams;
 
@@ -11,45 +16,84 @@ use Kernowdev\Clanbite\Extensions\Abstract_Settings;
  * Teams admin settings and functionality.
  */
 class Admin extends Abstract_Settings {
-	protected string $option_key     = 'clanbite_teams_settings';
-	protected string $settings_group = 'clanbite_teams';
-	protected string $page_slug      = 'clanbite-teams';
+	/**
+	 * Option name storing this settings bucket.
+	 *
+	 * @var string
+	 */
+	protected string $option_key = 'clanbite_teams_settings';
 
+	/**
+	 * Settings API group for `register_setting()`.
+	 *
+	 * @var string
+	 */
+	protected string $settings_group = 'clanbite_teams';
+
+	/**
+	 * Settings page slug.
+	 *
+	 * @var string
+	 */
+	protected string $page_slug = 'clanbite-teams';
+
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_page_title(): string {
 		return __( 'Teams', 'clanbite' );
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_menu_title(): string {
 		return __( 'Teams', 'clanbite' );
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_defaults(): array {
+		/**
+		 * Filters the default Teams settings.
+		 *
+		 * @param array<string, mixed> $defaults Defaults keyed by setting.
+		 */
 		return apply_filters(
 			'clanbite_teams_defaults',
 			array(
-				'team_mode'                      => 'single_team',
-				'player_team_membership'         => 'multiple',
-				'default_team_avatar'            => '',
-				'default_team_cover'             => '',
-				'team_name_wordban_custom_list'  => '',
-				'global_auto_join_team_ids'      => \clanbite_teams_global_auto_join_team_ids(),
-				'events_profile_subpage'         => true,
-				'team_avatar_image_size_large'   => 'clanbite-team-avatar-large',
-				'team_avatar_image_size_medium'  => 'clanbite-team-avatar-medium',
-				'team_avatar_image_size_small'   => 'clanbite-team-avatar-small',
-				'team_avatar_shape'              => 'circle',
+				'team_mode'                     => 'single_team',
+				'player_team_membership'        => 'multiple',
+				'default_team_avatar'           => '',
+				'default_team_cover'            => '',
+				'team_name_wordban_custom_list' => '',
+				'global_auto_join_team_ids'     => \clanbite_teams_global_auto_join_team_ids(),
+				'events_profile_subpage'        => true,
+				'team_avatar_image_size_large'  => 'clanbite-team-avatar-large',
+				'team_avatar_image_size_medium' => 'clanbite-team-avatar-medium',
+				'team_avatar_image_size_small'  => 'clanbite-team-avatar-small',
+				'team_avatar_shape'             => 'circle',
 			)
 		);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_sections(): array {
+		/**
+		 * Filters the Teams settings sections and fields shown in the admin.
+		 *
+		 * @param array<string, array<string, mixed>> $sections Sections keyed by id.
+		 */
 		return apply_filters(
 			'clanbite_teams_sections',
 			array(
-				'general'  => array(
+				'general'                => array(
 					'title'  => __( 'General', 'clanbite' ),
 					'fields' => array(
-						'team_mode'              => array(
+						'team_mode'                     => array(
 							'label'       => __( 'Team mode', 'clanbite' ),
 							'type'        => 'select',
 							'description' => __( 'Choose how teams should behave for your community.', 'clanbite' ),
@@ -57,7 +101,7 @@ class Admin extends Abstract_Settings {
 							'options'     => $this->get_team_mode_options(),
 							'sanitize'    => array( $this, 'sanitize_team_mode' ),
 						),
-						'player_team_membership' => array(
+						'player_team_membership'        => array(
 							'label'       => __( 'Player team membership', 'clanbite' ),
 							'type'        => 'select',
 							'description' => __( 'Single: a player may only belong to one team (invite search hides anyone who already leads a team). Multiple: no limit from this setting.', 'clanbite' ),
@@ -65,13 +109,13 @@ class Admin extends Abstract_Settings {
 							'options'     => $this->get_player_team_membership_options(),
 							'sanitize'    => array( $this, 'sanitize_player_team_membership' ),
 						),
-						'global_auto_join_team_ids' => array(
-							'label'              => __( 'Default team joins', 'clanbite' ),
-							'type'               => 'post_id_list',
-							'post_search_path'   => 'wp/v2/clanbite_team',
-							'description'        => __( 'Every player is added to these team rosters as a member when they register or log in.', 'clanbite' ),
-							'default'            => array(),
-							'sanitize'           => static function ( $value ): array {
+						'global_auto_join_team_ids'     => array(
+							'label'            => __( 'Default team joins', 'clanbite' ),
+							'type'             => 'post_id_list',
+							'post_search_path' => 'wp/v2/clanbite_team',
+							'description'      => __( 'Every player is added to these team rosters as a member when they register or log in.', 'clanbite' ),
+							'default'          => array(),
+							'sanitize'         => static function ( $value ): array {
 								if ( ! is_array( $value ) ) {
 									return array();
 								}
@@ -87,7 +131,7 @@ class Admin extends Abstract_Settings {
 						),
 					),
 				),
-				'integrations' => array(
+				'integrations'           => array(
 					'title'  => __( 'Extension integrations', 'clanbite' ),
 					'fields' => array(
 						'events_profile_subpage' => array(
@@ -97,38 +141,38 @@ class Admin extends Abstract_Settings {
 							'default'     => true,
 							'sanitize'    => 'rest_sanitize_boolean',
 						),
-				),
-			),
-			'team_avatar_appearance' => array(
-				'title'  => __( 'Team avatar appearance', 'clanbite' ),
-				'fields' => array(
-					'team_avatar_shape' => array(
-						'label'       => __( 'Avatar shape', 'clanbite' ),
-						'type'        => 'avatar_shape_radio',
-						'description' => __( 'Controls the shape of team avatars site-wide. The progress bar and rank icon will adapt to the selected shape.', 'clanbite' ),
-						'default'     => 'circle',
-						'options'     => array(
-							array(
-								'label' => __( 'Circle', 'clanbite' ),
-								'value' => 'circle',
-							),
-							array(
-								'label' => __( 'Square', 'clanbite' ),
-								'value' => 'square',
-							),
-							array(
-								'label' => __( 'Hexagon', 'clanbite' ),
-								'value' => 'hexagon',
-							),
-						),
-						'sanitize'    => array( $this, 'sanitize_team_avatar_shape' ),
 					),
 				),
-			),
-			'team_avatar_sizes' => array(
+				'team_avatar_appearance' => array(
+					'title'  => __( 'Team avatar appearance', 'clanbite' ),
+					'fields' => array(
+						'team_avatar_shape' => array(
+							'label'       => __( 'Avatar shape', 'clanbite' ),
+							'type'        => 'avatar_shape_radio',
+							'description' => __( 'Controls the shape of team avatars site-wide. The progress bar and rank icon will adapt to the selected shape.', 'clanbite' ),
+							'default'     => 'circle',
+							'options'     => array(
+								array(
+									'label' => __( 'Circle', 'clanbite' ),
+									'value' => 'circle',
+								),
+								array(
+									'label' => __( 'Square', 'clanbite' ),
+									'value' => 'square',
+								),
+								array(
+									'label' => __( 'Hexagon', 'clanbite' ),
+									'value' => 'hexagon',
+								),
+							),
+							'sanitize'    => array( $this, 'sanitize_team_avatar_shape' ),
+						),
+					),
+				),
+				'team_avatar_sizes'      => array(
 					'title'  => __( 'Team avatar image sizes', 'clanbite' ),
 					'fields' => array(
-						'team_avatar_image_size_large' => array(
+						'team_avatar_image_size_large'  => array(
 							'label'       => __( 'Large — team profiles', 'clanbite' ),
 							'type'        => 'select',
 							'description' => __( 'Team profile pages and the team avatar block. Preset “large” in code.', 'clanbite' ),
@@ -144,7 +188,7 @@ class Admin extends Abstract_Settings {
 							'options'     => $this->get_team_avatar_image_size_options(),
 							'sanitize'    => array( $this, 'sanitize_team_avatar_size_medium' ),
 						),
-						'team_avatar_image_size_small' => array(
+						'team_avatar_image_size_small'  => array(
 							'label'       => __( 'Small — compact UI', 'clanbite' ),
 							'type'        => 'select',
 							'description' => __( 'Small team marks in tight layouts. Preset “small”.', 'clanbite' ),
@@ -154,24 +198,24 @@ class Admin extends Abstract_Settings {
 						),
 					),
 				),
-				'branding' => array(
+				'branding'               => array(
 					'title'  => __( 'Branding defaults', 'clanbite' ),
 					'fields' => array(
 						'default_team_avatar' => array(
-							'label'       => __( 'Default team avatar image', 'clanbite' ),
-							'type'        => 'image',
-							'description' => __( 'Shown when a team has no avatar set. Leave empty to use the plugin bundled image.', 'clanbite' ),
-							'default'     => '',
+							'label'        => __( 'Default team avatar image', 'clanbite' ),
+							'type'         => 'image',
+							'description'  => __( 'Shown when a team has no avatar set. Leave empty to use the plugin bundled image.', 'clanbite' ),
+							'default'      => '',
 							'fallback_url' => \clanbite_teams_get_default_avatar_url( 0 ),
-							'sanitize'    => 'esc_url_raw',
+							'sanitize'     => 'esc_url_raw',
 						),
 						'default_team_cover'  => array(
-							'label'       => __( 'Default team cover image', 'clanbite' ),
-							'type'        => 'image',
-							'description' => __( 'Shown when a team has no cover image set. Leave empty to use the plugin bundled image.', 'clanbite' ),
-							'default'     => '',
+							'label'        => __( 'Default team cover image', 'clanbite' ),
+							'type'         => 'image',
+							'description'  => __( 'Shown when a team has no cover image set. Leave empty to use the plugin bundled image.', 'clanbite' ),
+							'default'      => '',
 							'fallback_url' => \clanbite_teams_get_default_cover_url( 0 ),
-							'sanitize'    => 'esc_url_raw',
+							'sanitize'     => 'esc_url_raw',
 						),
 					),
 				),
@@ -254,6 +298,9 @@ class Admin extends Abstract_Settings {
 		return (array) apply_filters( 'clanbite_teams_mode_options', $options, $this );
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function render_page(): void {
 		$this->render_settings_page( __( 'Teams', 'clanbite' ) );
 	}

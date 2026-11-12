@@ -1,9 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Renders the player display name for profile routes.
  *
@@ -12,6 +7,10 @@ defined( 'ABSPATH' ) || exit;
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
 	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
@@ -24,7 +23,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper . '><p class="clanbite-player-display-name__text">' . esc_html__( 'Player name', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p class="clanbite-player-display-name__text">' . esc_html__( 'Player name', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -33,7 +32,7 @@ $title = function_exists( 'clanbite_players_get_display_name' )
 	: '';
 
 if ( '' === $title ) {
-	$u = get_userdata( $user_id );
+	$u     = get_userdata( $user_id );
 	$title = ( $u instanceof WP_User ) ? $u->display_name : __( 'Player', 'clanbite' );
 }
 
@@ -73,5 +72,6 @@ echo wp_kses(
 		$wrapper_attributes,
 		esc_attr( implode( ' ', $class ) ),
 		$inner
-	), clanbite_block_fragment_allowed_html()
+	),
+	clanbite_block_fragment_allowed_html()
 );

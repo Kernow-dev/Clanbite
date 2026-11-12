@@ -298,10 +298,10 @@ final class Front_Seo {
 				'name'  => $name,
 			),
 			array(
-				'@type'     => 'Organization',
-				'@id'       => trailingslashit( $url ) . '#organization',
-				'name'      => $name,
-				'url'       => $url,
+				'@type'       => 'Organization',
+				'@id'         => trailingslashit( $url ) . '#organization',
+				'name'        => $name,
+				'url'         => $url,
 				'description' => '' !== $desc ? wp_strip_all_tags( $desc ) : null,
 			),
 		);
@@ -351,10 +351,10 @@ final class Front_Seo {
 		if ( self::output_json_ld() ) {
 			$graph = array(
 				array(
-					'@type' => 'CollectionPage',
-					'@id'   => trailingslashit( $url ) . '#webpage',
-					'url'   => $url,
-					'name'  => __( 'Players', 'clanbite' ),
+					'@type'       => 'CollectionPage',
+					'@id'         => trailingslashit( $url ) . '#webpage',
+					'url'         => $url,
+					'name'        => __( 'Players', 'clanbite' ),
 					'description' => __( 'Community member profiles.', 'clanbite' ),
 					'isPartOf'    => array( '@id' => trailingslashit( home_url( '/' ) ) . '#website' ),
 				),
@@ -428,13 +428,16 @@ final class Front_Seo {
 		);
 
 		$webpage = array(
-			'@type'      => 'WebPage',
-			'@id'        => trailingslashit( $url ) . '#webpage',
-			'url'        => $url,
-			'name'       => $display,
-			'isPartOf'   => array( '@id' => trailingslashit( home_url( '/' ) ) . '#website' ),
-			'about'      => array( '@id' => trailingslashit( $url ) . '#person' ),
-			'primaryImageOfPage' => '' !== $image ? array( '@type' => 'ImageObject', 'url' => $image ) : null,
+			'@type'              => 'WebPage',
+			'@id'                => trailingslashit( $url ) . '#webpage',
+			'url'                => $url,
+			'name'               => $display,
+			'isPartOf'           => array( '@id' => trailingslashit( home_url( '/' ) ) . '#website' ),
+			'about'              => array( '@id' => trailingslashit( $url ) . '#person' ),
+			'primaryImageOfPage' => '' !== $image ? array(
+				'@type' => 'ImageObject',
+				'url'   => $image,
+			) : null,
 		);
 
 		$graph = array( $webpage, $profile_page, $person );
@@ -541,13 +544,16 @@ final class Front_Seo {
 		);
 
 		$webpage = array(
-			'@type'      => 'WebPage',
-			'@id'        => trailingslashit( $url ) . '#webpage',
-			'url'        => $url,
-			'name'       => $title,
-			'isPartOf'   => array( '@id' => trailingslashit( home_url( '/' ) ) . '#website' ),
-			'about'      => array( '@id' => trailingslashit( $url ) . '#team' ),
-			'primaryImageOfPage' => '' !== $image ? array( '@type' => 'ImageObject', 'url' => $image ) : null,
+			'@type'              => 'WebPage',
+			'@id'                => trailingslashit( $url ) . '#webpage',
+			'url'                => $url,
+			'name'               => $title,
+			'isPartOf'           => array( '@id' => trailingslashit( home_url( '/' ) ) . '#website' ),
+			'about'              => array( '@id' => trailingslashit( $url ) . '#team' ),
+			'primaryImageOfPage' => '' !== $image ? array(
+				'@type' => 'ImageObject',
+				'url'   => $image,
+			) : null,
 		);
 
 		$graph = array( $webpage, $team_node );
@@ -631,7 +637,10 @@ final class Front_Seo {
 			'name'               => $title,
 			'isPartOf'           => array( '@id' => trailingslashit( home_url( '/' ) ) . '#website' ),
 			'about'              => array( '@id' => trailingslashit( $url ) . '#group' ),
-			'primaryImageOfPage' => '' !== $image ? array( '@type' => 'ImageObject', 'url' => $image ) : null,
+			'primaryImageOfPage' => '' !== $image ? array(
+				'@type' => 'ImageObject',
+				'url'   => $image,
+			) : null,
 		);
 
 		$graph = array(
@@ -658,6 +667,13 @@ final class Front_Seo {
 		);
 	}
 
+	/**
+	 * Print Open Graph, Twitter and JSON-LD output for a single match.
+	 *
+	 * Does nothing outside singular `clanbite_match` requests.
+	 *
+	 * @return void
+	 */
 	private static function print_match_seo(): void {
 		if ( ! is_singular( 'clanbite_match' ) ) {
 			return;
@@ -706,25 +722,28 @@ final class Front_Seo {
 		}
 
 		$event = array(
-			'@type'         => 'SportsEvent',
-			'@id'           => trailingslashit( $url ) . '#match',
-			'name'          => $title,
-			'url'           => $url,
-			'description'   => '' !== $description ? $description : null,
-			'image'         => '' !== $image ? $image : null,
-			'startDate'     => '' !== $iso ? $iso : null,
-			'eventStatus'   => $event_status,
+			'@type'               => 'SportsEvent',
+			'@id'                 => trailingslashit( $url ) . '#match',
+			'name'                => $title,
+			'url'                 => $url,
+			'description'         => '' !== $description ? $description : null,
+			'image'               => '' !== $image ? $image : null,
+			'startDate'           => '' !== $iso ? $iso : null,
+			'eventStatus'         => $event_status,
 			'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
 		);
 
 		$webpage = array(
-			'@type'      => 'WebPage',
-			'@id'        => trailingslashit( $url ) . '#webpage',
-			'url'        => $url,
-			'name'       => $title,
-			'isPartOf'   => array( '@id' => trailingslashit( home_url( '/' ) ) . '#website' ),
-			'about'      => array( '@id' => trailingslashit( $url ) . '#match' ),
-			'primaryImageOfPage' => '' !== $image ? array( '@type' => 'ImageObject', 'url' => $image ) : null,
+			'@type'              => 'WebPage',
+			'@id'                => trailingslashit( $url ) . '#webpage',
+			'url'                => $url,
+			'name'               => $title,
+			'isPartOf'           => array( '@id' => trailingslashit( home_url( '/' ) ) . '#website' ),
+			'about'              => array( '@id' => trailingslashit( $url ) . '#match' ),
+			'primaryImageOfPage' => '' !== $image ? array(
+				'@type' => 'ImageObject',
+				'url'   => $image,
+			) : null,
 		);
 
 		$graph = array( $webpage, $event );

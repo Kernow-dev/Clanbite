@@ -171,6 +171,16 @@ function clanbite_get_profile_subpages( string $context ): array {
 		? $GLOBALS[ $gkey ]
 		: array();
 
+	/**
+	 * Filters the registered profile sub-pages (tabs) for one context.
+	 *
+	 * The hook name depends on the context: `clanbite_player_subpages`, `clanbite_team_subpages` or
+	 * `clanbite_group_subpages` (extensions can add contexts through `clanbite_profile_subpage_registry_map`).
+	 * Prefer {@see clanbite_register_profile_subpage()} and its player/team/group wrappers for adding a tab.
+	 *
+	 * @param array<string, array<string, mixed>> $registry Registered sub-pages keyed by slug. Each entry has `label`,
+	 *                                                      `template_id`, `default_blocks`, `capability` and `position`.
+	 */
 	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Filter name is defined per context in `clanbite_profile_subpage_registry_map()` (core values are clanbite-prefixed).
 	$subpages = (array) apply_filters( $config['filter'], $registry );
 	$subpages = clanbite_profile_subpages_sort( $subpages );
@@ -204,8 +214,8 @@ function clanbite_get_profile_subpage( string $context, string $slug ): ?array {
  *
  * Extensions should use this for custom navigation UIs; core blocks call it from render callbacks.
  *
- * @param string                               $context   Context slug (`player`, `team`, `group`, …).
- * @param int                                  $object_id Subject id (user id, team post id, group id).
+ * @param string                              $context   Context slug (`player`, `team`, `group`, …).
+ * @param int                                 $object_id Subject id (user id, team post id, group id).
  * @param array<string, array<string, mixed>> $subpages  Typically {@see clanbite_get_profile_subpages()} for `$context`.
  * @return array<string, array<string, mixed>>
  */

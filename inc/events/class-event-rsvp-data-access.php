@@ -29,7 +29,7 @@ final class Event_Rsvp_Data_Access {
 	 * @return string One of the STATUS_* constants.
 	 */
 	public static function sanitize_status( $status ): string {
-		$status = sanitize_key( (string) $status );
+		$status  = sanitize_key( (string) $status );
 		$allowed = array(
 			self::STATUS_ACCEPTED,
 			self::STATUS_DECLINED,
@@ -134,12 +134,12 @@ final class Event_Rsvp_Data_Access {
 			$wpdb->insert(
 				$table,
 				array(
-					'event_type'  => $event_type,
-					'event_id'    => $event_id,
-					'user_id'     => $user_id,
-					'status'      => $status,
-					'created_at'  => $now,
-					'updated_at'  => $now,
+					'event_type' => $event_type,
+					'event_id'   => $event_id,
+					'user_id'    => $user_id,
+					'status'     => $status,
+					'created_at' => $now,
+					'updated_at' => $now,
 				),
 				array( '%s', '%d', '%d', '%s', '%s', '%s' )
 			);

@@ -1,8 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Renders the player profile description (bio HTML) when set.
  *
@@ -11,6 +7,10 @@ defined( 'ABSPATH' ) || exit;
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
 	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
@@ -23,7 +23,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper . '><div class="clanbite-player-description__content">' . esc_html__( 'Player description', 'clanbite' ) . '</div></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><div class="clanbite-player-description__content">' . esc_html__( 'Player description', 'clanbite' ) . '</div></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -50,5 +50,6 @@ echo wp_kses(
 		$wrapper_attributes,
 		esc_attr( implode( ' ', $class ) ),
 		$content
-	), clanbite_block_fragment_allowed_html()
+	),
+	clanbite_block_fragment_allowed_html()
 );

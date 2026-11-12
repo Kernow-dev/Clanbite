@@ -112,20 +112,29 @@ const applyPlayerSettingsPayloadToFields = ( root, payload ) => {
 	} );
 
 	// Forums signature RTE: textarea is source of truth for save; mirror into contenteditable.
-	root.querySelectorAll( '[data-cp-forum-signature-rte]' ).forEach( ( rteRoot ) => {
-		const ta = rteRoot.querySelector( 'textarea[name="cp_forum_signature"]' );
-		const ed = rteRoot.querySelector( '.clanbite-forums-board__rte-editor' );
-		if ( ta instanceof HTMLTextAreaElement && ed instanceof HTMLElement ) {
-			ed.innerHTML = ta.value;
+	root.querySelectorAll( '[data-cp-forum-signature-rte]' ).forEach(
+		( rteRoot ) => {
+			const ta = rteRoot.querySelector(
+				'textarea[name="cp_forum_signature"]'
+			);
+			const ed = rteRoot.querySelector(
+				'.clanbite-forums-board__rte-editor'
+			);
+			if (
+				ta instanceof HTMLTextAreaElement &&
+				ed instanceof HTMLElement
+			) {
+				ed.innerHTML = ta.value;
+			}
 		}
-	} );
+	);
 };
 
 /**
- * @param {HTMLElement} root Block root.
- * @param {{avatarUrl?: string, coverUrl?: string}} data Success payload from AJAX.
- * @param {HTMLInputElement|null} avatarInput
- * @param {HTMLInputElement|null} coverInput
+ * @param {HTMLElement}                             root        Block root.
+ * @param {{avatarUrl?: string, coverUrl?: string}} data        Success payload from AJAX.
+ * @param {HTMLInputElement|null}                   avatarInput
+ * @param {HTMLInputElement|null}                   coverInput
  */
 const updateAvatarCoverPreviewsAfterSave = (
 	root,
@@ -159,7 +168,7 @@ const updateAvatarCoverPreviewsAfterSave = (
 };
 
 /**
- * @param {HTMLElement|null} root Block root.
+ * @param {HTMLElement|null} root  Block root.
  * @param {string}           nav   Parent nav slug (e.g. profile).
  * @param {string}           panel Panel slug (e.g. profile-info).
  * @return {boolean} Whether both controls exist in the DOM.
@@ -570,9 +579,14 @@ const { state, actions } = store( 'clanbite-player-settings', {
 					const rootEl = state.root;
 					const fieldSnapshot = data;
 					const mediaPayload =
-						json.data && typeof json.data === 'object' ? json.data : {};
+						json.data && typeof json.data === 'object'
+							? json.data
+							: {};
 					queueMicrotask( () => {
-						applyPlayerSettingsPayloadToFields( rootEl, fieldSnapshot );
+						applyPlayerSettingsPayloadToFields(
+							rootEl,
+							fieldSnapshot
+						);
 						updateAvatarCoverPreviewsAfterSave(
 							rootEl,
 							mediaPayload,
@@ -614,6 +628,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 		 * - data-cp-action-confirm (optional confirmation text)
 		 * - data-cp-action-remove-closest (CSS selector to remove on success)
 		 * - data-cp-action-success-message / data-cp-action-error-message
+		 * @param event
 		 */
 		async runPluginAction( event ) {
 			event.preventDefault();

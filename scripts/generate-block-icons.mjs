@@ -5,8 +5,18 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const root = path.join( path.dirname( fileURLToPath( import.meta.url ) ), '..' );
-const iconsDir = path.join( root, 'src', 'blocks', 'shared', 'block-icons', 'icons' );
+const root = path.join(
+	path.dirname( fileURLToPath( import.meta.url ) ),
+	'..'
+);
+const iconsDir = path.join(
+	root,
+	'src',
+	'blocks',
+	'shared',
+	'block-icons',
+	'icons'
+);
 const blocksRoot = path.join( root, 'src', 'blocks' );
 
 /** Heroicons solid export name per block slug. */
@@ -76,7 +86,9 @@ function findBlockIndexFiles() {
 			} else if (
 				entry.name === 'index.js' &&
 				full.includes( `${ path.sep }blocks${ path.sep }` ) &&
-				! full.includes( `${ path.sep }shared${ path.sep }block-icons${ path.sep }` )
+				! full.includes(
+					`${ path.sep }shared${ path.sep }block-icons${ path.sep }`
+				)
 			) {
 				out.push( full );
 			}
@@ -123,7 +135,9 @@ for ( const indexPath of findBlockIndexFiles() ) {
 	);
 
 	if ( ! src.includes( newImport ) ) {
-		const blockJsonImport = src.match( /import metadata from ['"]\.\/block\.json['"];?\n/ );
+		const blockJsonImport = src.match(
+			/import metadata from ['"]\.\/block\.json['"];?\n/
+		);
 		if ( blockJsonImport ) {
 			src = src.replace(
 				blockJsonImport[ 0 ],

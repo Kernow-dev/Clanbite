@@ -1,16 +1,17 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Server-side render for the Team Profile Navigation block.
  *
  * @var array    $attributes Block attributes.
  * @var string   $content    Block content.
  * @var WP_Block $block      Block instance.
+ *
+ * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $team_id = function_exists( 'clanbite_team_profile_context_team_id' ) ? clanbite_team_profile_context_team_id() : 0;
 if ( $team_id < 1 ) {
@@ -75,9 +76,9 @@ if ( array() === $visible_subpages && ! $show_settings_link ) {
 
 $wrapper = get_block_wrapper_attributes(
 	array(
-		'class'       => 'clanbite-team-profile-nav',
-		'role'        => 'navigation',
-		'aria-label'  => __( 'Team sections', 'clanbite' ),
+		'class'      => 'clanbite-team-profile-nav',
+		'role'       => 'navigation',
+		'aria-label' => __( 'Team sections', 'clanbite' ),
 	),
 	$block
 );
@@ -94,7 +95,8 @@ $wrapper = get_block_wrapper_attributes(
 				<?php echo esc_html( $home_label ); ?>
 			</a>
 		</li>
-		<?php foreach ( $visible_subpages as $slug => $config ) :
+		<?php
+		foreach ( $visible_subpages as $slug => $config ) :
 			$label = $config['label'] ?? ucfirst( $slug );
 
 			$is_active = ( $slug === $current_slug );
@@ -123,5 +125,4 @@ $wrapper = get_block_wrapper_attributes(
 		<?php endif; ?>
 	</ul>
 </nav>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
-
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

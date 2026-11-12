@@ -1,12 +1,11 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Country flag assets (Flagpack) and filterable markup for country blocks.
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Normalize a stored country code for flag file lookup.
@@ -43,6 +42,13 @@ function clanbite_country_flag_asset_slug( string $normalized_code, array $conte
 	$slug = strtolower( $normalized_code );
 
 	if ( is_readable( $dir . $slug . '.svg' ) ) {
+		/**
+		 * Filters the file slug used to find the bundled SVG flag for a country.
+		 *
+		 * @param string        $slug            Lowercased file slug.
+		 * @param string        $normalized_code Normalized country code.
+		 * @param array<string, mixed>           $context Rendering context.
+		 */
 		return (string) apply_filters( 'clanbite_country_flag_asset_slug', $slug, $normalized_code, $context );
 	}
 
@@ -233,12 +239,12 @@ function clanbite_country_block_inner_html( array $attributes, string $code, str
 
 	$norm = clanbite_normalize_country_code( $code );
 	$ctx  = array(
-		'entity'      => $entity,
-		'block_name'  => $block_name,
-		'block'       => $block,
-		'attributes'  => $attributes,
-		'display'     => $display,
-		'flag_first'  => $flag_first,
+		'entity'     => $entity,
+		'block_name' => $block_name,
+		'block'      => $block,
+		'attributes' => $attributes,
+		'display'    => $display,
+		'flag_first' => $flag_first,
 	);
 
 	$text_inner = '';

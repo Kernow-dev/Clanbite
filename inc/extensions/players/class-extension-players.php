@@ -1,4 +1,9 @@
 <?php
+/**
+ * Players extension: player profiles, directory, settings and avatars.
+ *
+ * @package clanbite
+ */
 
 namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
@@ -28,6 +33,11 @@ class Players extends Skeleton {
 	 */
 	protected static ?\WP_Block_Template $player_profile_header_template_part_cache = null;
 
+	/**
+	 * Players admin settings handler (set in {@see self::run()}).
+	 *
+	 * @var Admin
+	 */
 	protected Admin $admin;
 
 	/**
@@ -85,15 +95,29 @@ class Players extends Skeleton {
 		);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function run_installer(): void {
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function run_uninstaller(): void {
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function run_updater(): void {
 	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * Boots the Players admin settings and, when `enable_profiles` is on, the profile features.
+	 */
 	public function run(): void {
 		// Initiate admin functionality and settings.
 		$this->admin = new Admin();
@@ -104,6 +128,13 @@ class Players extends Skeleton {
 		}
 	}
 
+	/**
+	 * Read a Players setting from `clanbite_players_settings`.
+	 *
+	 * @param string $key      Setting key.
+	 * @param mixed  $fallback Value returned when the key is unset.
+	 * @return mixed
+	 */
 	public function get_setting( string $key, $fallback = null ) {
 		return $this->admin->get( $key, $fallback );
 	}
@@ -177,6 +208,16 @@ class Players extends Skeleton {
 		add_action( 'wp_ajax_clanbite_save_player_settings', array( $this, 'ajax_save_player_settings' ) );
 	}
 
+	/**
+	 * Point author links at the canonical `/players/{nicename}` URL.
+	 *
+	 * Hooked to `author_link`.
+	 *
+	 * @param string $link            Original author URL.
+	 * @param int    $author_id       Author user ID.
+	 * @param string $author_nicename Author `user_nicename`.
+	 * @return string Player profile URL.
+	 */
 	public function modify_author_links( $link, $author_id, $author_nicename ) {
 		return home_url( '/players/' . $author_nicename );
 	}
@@ -292,6 +333,12 @@ class Players extends Skeleton {
 		);
 	}
 
+	/**
+	 * Register the query vars used by player settings and profile sub-pages.
+	 *
+	 * @param string[] $vars Existing public query vars.
+	 * @return string[]
+	 */
 	public function register_profile_query_vars( $vars ) {
 		$vars[] = 'players_settings';
 		$vars[] = 'players_settings_nav';
@@ -325,7 +372,7 @@ class Players extends Skeleton {
 
 		$name = (string) ( $parsed_block['blockName'] ?? '' );
 
-		$feed_blocks = array(
+		$feed_blocks            = array(
 			'clanbite-social/social-feed',
 			'clanbite-social/social-composer',
 		);
@@ -672,18 +719,18 @@ class Players extends Skeleton {
 
 		status_header( 200 );
 		nocache_headers();
-		$wp_query->is_404              = false;
-		$wp_query->is_home             = false;
-		$wp_query->is_front_page       = false;
-		$wp_query->is_posts_page       = false;
-		$wp_query->is_page             = false;
-		$wp_query->is_singular         = false;
-		$wp_query->is_single           = false;
-		$wp_query->is_archive          = false;
+		$wp_query->is_404               = false;
+		$wp_query->is_home              = false;
+		$wp_query->is_front_page        = false;
+		$wp_query->is_posts_page        = false;
+		$wp_query->is_page              = false;
+		$wp_query->is_singular          = false;
+		$wp_query->is_single            = false;
+		$wp_query->is_archive           = false;
 		$wp_query->is_post_type_archive = false;
-		$wp_query->found_posts         = 0;
-		$wp_query->max_num_pages       = 0;
-		$wp_query->posts               = array();
+		$wp_query->found_posts          = 0;
+		$wp_query->max_num_pages        = 0;
+		$wp_query->posts                = array();
 
 		set_query_var( 'cp_players_directory', '1' );
 		if ( preg_match( '#^players/page/([0-9]+)/?$#', $path, $m ) ) {
@@ -708,26 +755,26 @@ class Players extends Skeleton {
 
 		global $wp_query;
 
-		$wp_query->is_404                = false;
-		$wp_query->is_home               = false;
-		$wp_query->is_front_page         = false;
-		$wp_query->is_posts_page         = false;
-		$wp_query->is_page               = false;
-		$wp_query->is_singular           = false;
-		$wp_query->is_single             = false;
-		$wp_query->is_category           = false;
-		$wp_query->is_tag                = false;
-		$wp_query->is_date               = false;
-		$wp_query->is_post_type_archive  = false;
-		$wp_query->is_attachment         = false;
-		$wp_query->is_author             = true;
-		$wp_query->is_archive            = true;
-		$wp_query->queried_object        = $user;
-		$wp_query->queried_object_id     = (int) $user->ID;
-		$wp_query->posts                 = array();
-		$wp_query->post_count            = 0;
-		$wp_query->found_posts           = 0;
-		$wp_query->max_num_pages         = 0;
+		$wp_query->is_404               = false;
+		$wp_query->is_home              = false;
+		$wp_query->is_front_page        = false;
+		$wp_query->is_posts_page        = false;
+		$wp_query->is_page              = false;
+		$wp_query->is_singular          = false;
+		$wp_query->is_single            = false;
+		$wp_query->is_category          = false;
+		$wp_query->is_tag               = false;
+		$wp_query->is_date              = false;
+		$wp_query->is_post_type_archive = false;
+		$wp_query->is_attachment        = false;
+		$wp_query->is_author            = true;
+		$wp_query->is_archive           = true;
+		$wp_query->queried_object       = $user;
+		$wp_query->queried_object_id    = (int) $user->ID;
+		$wp_query->posts                = array();
+		$wp_query->post_count           = 0;
+		$wp_query->found_posts          = 0;
+		$wp_query->max_num_pages        = 0;
 
 		set_query_var( 'author_name', $user->user_nicename );
 		if ( $paged > 1 ) {
@@ -856,9 +903,13 @@ class Players extends Skeleton {
 
 		$templates = array( 'players/players-directory.php', 'players-directory.php' );
 		$located   = locate_template( $templates );
-		if ( ! $located ) {
-			$located = clanbite()->path . 'templates/players/players-directory.php';
-		}
+
+		$resolved = clanbite_locate_block_or_plugin_template(
+			$located,
+			clanbite()->path . 'templates/players/players-directory.php',
+			'players-directory',
+			$templates
+		);
 
 		/**
 		 * Filter the resolved players directory template path.
@@ -867,17 +918,23 @@ class Players extends Skeleton {
 		 * @param string $located Theme `locate_template` result (may be empty).
 		 */
 		$resolved = locate_block_template( $located, 'players-directory', $templates );
-		if ( ! $resolved && is_readable( $located ) ) {
-			$resolved = $located;
+		if ( ! $resolved ) {
+			$resolved = $located ? $located : $plugin_file;
 		}
 
+		/**
+		 * Filters the resolved template path for the players directory.
+		 *
+		 * @param string $path               Resolved template path.
+		 * @param string $located_theme_path Template path found in the active theme, if any.
+		 */
 		$resolved = (string) apply_filters(
 			'clanbite_load_players_directory_template',
 			$resolved,
 			$located
 		);
 
-		return $resolved !== '' ? $resolved : $template;
+		return '' !== $resolved ? $resolved : $template;
 	}
 
 	/**
@@ -896,6 +953,11 @@ class Players extends Skeleton {
 	 * @return string
 	 */
 	public function render_players_directory_shortcode( $atts = array() ): string {
+		/**
+		 * Filters the page size of the players directory shortcode.
+		 *
+		 * @param int $per_page Users per page (default 20).
+		 */
 		$per_page = (int) apply_filters( 'clanbite_players_directory_per_page', 20 );
 		$per_page = max( 1, min( 100, $per_page ) );
 
@@ -952,7 +1014,7 @@ class Players extends Skeleton {
 					'next_text' => __( 'Next', 'clanbite' ),
 				)
 			);
-			if ( is_string( $paging ) && $paging !== '' ) {
+			if ( is_string( $paging ) && '' !== $paging ) {
 				echo '<nav class="clanbite-players-directory__pagination" aria-label="' . esc_attr__( 'Players list pagination', 'clanbite' ) . '">' . wp_kses_post( $paging ) . '</nav>';
 			}
 		}
@@ -1022,10 +1084,10 @@ class Players extends Skeleton {
 			return;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path                 = $this->get_canonical_request_path();
 		$is_players_directory = (int) get_query_var( 'cp_players_directory' )
 			|| 'players' === $path
-			|| ( $path !== '' && preg_match( '#^players/page/[0-9]+/?$#', $path ) );
+			|| ( '' !== $path && preg_match( '#^players/page/[0-9]+/?$#', $path ) );
 
 		// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Core global index `$_wp_current_template_id`; must match WordPress internals.
 		if ( $is_players_directory ) {
@@ -1229,24 +1291,17 @@ class Players extends Skeleton {
 			"subpage-{$sub}.php",
 		);
 
-		$located = locate_template( $candidates );
-		if ( ! $located ) {
-			$located = clanbite()->path . "templates/players/player-{$sub}.php";
-		}
+		$located         = locate_template( $candidates );
+		$plugin_template = clanbite()->path . "templates/players/player-{$sub}.php";
 
-		if ( ! is_readable( $located ) ) {
+		if ( ! $located && ! is_readable( $plugin_template ) ) {
 			return $template;
 		}
 
 		$slug      = 'player-' . $sub;
 		$hierarchy = array( "{$slug}.php", 'index.php' );
 
-		$found = function_exists( 'locate_block_template' )
-			? locate_block_template( $located, $slug, $hierarchy )
-			: $located;
-		if ( ! $found && is_readable( $located ) ) {
-			$found = $located;
-		}
+		$found = clanbite_locate_block_or_plugin_template( $located, $plugin_template, $slug, $hierarchy );
 
 		/**
 		 * Filter the resolved player subpage template path.
@@ -1277,14 +1332,13 @@ class Players extends Skeleton {
 			'player-profile.php',
 		);
 		$located   = locate_template( $templates );
-		if ( ! $located ) {
-			$located = clanbite()->path . 'templates/players/player-profile.php';
-		}
 
-		$found = locate_block_template( $located, 'players-player-profile', $templates );
-		if ( ! $found && is_readable( $located ) ) {
-			$found = $located;
-		}
+		$found = clanbite_locate_block_or_plugin_template(
+			$located,
+			clanbite()->path . 'templates/players/player-profile.php',
+			'players-player-profile',
+			$templates
+		);
 
 		return $found ? $found : $template;
 	}
@@ -1298,6 +1352,13 @@ class Players extends Skeleton {
 		$nav   = sanitize_key( (string) get_query_var( 'players_settings_nav' ) );
 		$panel = sanitize_key( (string) get_query_var( 'players_settings_panel' ) );
 
+		/**
+		 * Filters the top-level player settings navigation.
+		 *
+		 * Add entries keyed by slug, each with `label` and `description`.
+		 *
+		 * @param array<string, array<string, string>> $items Navigation items.
+		 */
 		$nav_items = (array) apply_filters( 'clanbite_players_settings_nav_items', array() );
 		if ( empty( $nav_items ) ) {
 			return array( '', '' );
@@ -1309,6 +1370,13 @@ class Players extends Skeleton {
 		}
 
 		if ( $nav && $panel ) {
+			/**
+			 * Filters the sub-navigation of one player settings section.
+			 *
+			 * The dynamic portion is the top-level navigation slug (for example `profile`, `account`).
+			 *
+			 * @param array<string, array<string, string>> $items Sub-navigation items keyed by slug (`label`, `description`).
+			 */
 			$sub = (array) apply_filters( "clanbite_players_settings_nav_{$nav}_sub_items", array() );
 			if ( ! isset( $sub[ $panel ] ) ) {
 				$panel = '';
@@ -1316,13 +1384,13 @@ class Players extends Skeleton {
 		}
 
 		if ( $nav && ! $panel ) {
-			$sub = (array) apply_filters( "clanbite_players_settings_nav_{$nav}_sub_items", array() );
+			$sub   = (array) apply_filters( "clanbite_players_settings_nav_{$nav}_sub_items", array() );
 			$panel = (string) array_key_first( $sub );
 		}
 
 		if ( ! $nav || ! $panel ) {
-			$nav = (string) array_key_first( $nav_items );
-			$sub = (array) apply_filters( "clanbite_players_settings_nav_{$nav}_sub_items", array() );
+			$nav   = (string) array_key_first( $nav_items );
+			$sub   = (array) apply_filters( "clanbite_players_settings_nav_{$nav}_sub_items", array() );
 			$panel = (string) array_key_first( $sub );
 		}
 
@@ -1368,12 +1436,18 @@ class Players extends Skeleton {
 		}
 	}
 
+	/**
+	 * Load the player settings template when `players_settings` is set; guests are sent to the login screen.
+	 *
+	 * @param string $template Template path resolved by core.
+	 * @return string
+	 */
 	public function maybe_load_player_settings_template( $template ) {
 		if ( ! get_query_var( 'players_settings' ) ) {
 			return $template;
 		}
 
-		// Redirect to login if user is not logged in
+		// Redirect to login if user is not logged in.
 		if ( ! is_user_logged_in() ) {
 			wp_safe_redirect( wp_login_url( get_permalink() ) ); // Redirect back after login
 			exit;
@@ -1387,20 +1461,28 @@ class Players extends Skeleton {
 
 		// First, search for PHP templates, which block themes can also use.
 		$located = locate_template( $templates );
-		if ( ! $located ) {
-			$located = clanbite()->path . 'templates/players/player-settings.php';
-		}
 
-		// Pass the result into the block template locator and let it figure
-		// out whether block templates are supported and this template exists.
-		$resolved = locate_block_template( $located, 'player-settings', $templates );
-		if ( ! $resolved && is_readable( $located ) ) {
-			$resolved = $located;
-		}
+		// Let the block template locator decide whether block templates are supported and this template exists.
+		$resolved = clanbite_locate_block_or_plugin_template(
+			$located,
+			clanbite()->path . 'templates/players/player-settings.php',
+			'player-settings',
+			$templates
+		);
 
+		/**
+		 * Filters the template used for the player settings route.
+		 *
+		 * @param string $template Resolved template path.
+		 */
 		return apply_filters( 'clanbite_load_player_settings_template', $resolved ? $resolved : $template );
 	}
 
+	/**
+	 * Register the Players FSE templates (see {@see self::get_profile_templates()}).
+	 *
+	 * @return void
+	 */
 	public function register_profile_templates() {
 		$this->register_extension_templates( $this->get_profile_templates() );
 	}
@@ -1412,7 +1494,7 @@ class Players extends Skeleton {
 	 */
 	protected function get_profile_templates(): array {
 		return array(
-			'player-settings' => array(
+			'player-settings'        => array(
 				'title' => __( 'Player Settings', 'clanbite' ),
 				'path'  => clanbite()->path . 'templates/players/player-settings.html',
 			),
@@ -1420,13 +1502,18 @@ class Players extends Skeleton {
 				'title' => __( 'Player Profile', 'clanbite' ),
 				'path'  => clanbite()->path . 'templates/players/player-profile.html',
 			),
-			'players-directory' => array(
+			'players-directory'      => array(
 				'title' => __( 'Players Directory', 'clanbite' ),
 				'path'  => clanbite()->path . 'templates/players/players-directory.html',
 			),
 		);
 	}
 
+	/**
+	 * Register the cover and avatar image sizes used by player profiles.
+	 *
+	 * @return void
+	 */
 	public function register_image_sizes() {
 		add_image_size(
 			'clanbite-cover',
@@ -1439,6 +1526,11 @@ class Players extends Skeleton {
 		add_image_size( 'clanbite-avatar-small', 96, 96, true );
 	}
 
+	/**
+	 * Register the Players blocks from `build/players` and hook the front-end script enqueue.
+	 *
+	 * @return void
+	 */
 	public function register_profile_blocks() {
 		$this->register_extension_block_types_from_metadata_collection( 'build/players' );
 
@@ -1496,6 +1588,11 @@ class Players extends Skeleton {
 		return (bool) apply_filters( 'clanbite_should_enqueue_player_settings_frontend_assets', $enqueue );
 	}
 
+	/**
+	 * Register and localize `CLANBITEPLAYERSETTINGS` when {@see self::should_enqueue_player_settings_frontend_assets()} allows it.
+	 *
+	 * @return void
+	 */
 	public function enqueue_scripts() {
 		if ( ! $this->should_enqueue_player_settings_frontend_assets() ) {
 			return;
@@ -1518,11 +1615,18 @@ class Players extends Skeleton {
 
 		if ( get_query_var( 'players_settings' ) ) {
 			list( $settings_nav, $settings_panel ) = $this->get_resolved_player_settings_route();
-			$config['settings_url_base']      = trailingslashit( home_url( '/players/settings' ) );
-			$config['settings_initial_nav']   = $settings_nav;
-			$config['settings_initial_panel'] = $settings_panel;
+			$config['settings_url_base']           = trailingslashit( home_url( '/players/settings' ) );
+			$config['settings_initial_nav']        = $settings_nav;
+			$config['settings_initial_panel']      = $settings_panel;
 		}
 
+		/**
+		 * Filters the data localized as `CLANBITEPLAYERSETTINGS` for the player settings front end.
+		 *
+		 * Keys include `ajax_url`, `nonce`, `rest_url`, `rest_nonce` and, on the settings screen, `settings_url_base`, `settings_initial_nav`, `settings_initial_panel`.
+		 *
+		 * @param array<string, mixed> $config Localized configuration.
+		 */
 		wp_localize_script(
 			'clanbite-player-settings-localize',
 			'CLANBITEPLAYERSETTINGS',
@@ -1535,6 +1639,12 @@ class Players extends Skeleton {
 		wp_enqueue_script( 'clanbite-player-settings-localize' );
 	}
 
+	/**
+	 * Add the core Profile and Account sections to the player settings navigation.
+	 *
+	 * @param array<string, array<string, string>> $items Nav items keyed by slug (`label`, `description`).
+	 * @return array<string, array<string, string>>
+	 */
 	public function register_player_settings_nav_items( array $items ) {
 		$items['profile'] = array(
 			'label'       => __( 'Profile', 'clanbite' ),
@@ -1549,6 +1659,11 @@ class Players extends Skeleton {
 		return $items;
 	}
 
+	/**
+	 * Register Players user meta (avatar, cover and profile fields) for REST and sanitization.
+	 *
+	 * @return void
+	 */
 	public function register_user_meta_keys() {
 		register_meta(
 			'user',
@@ -1796,6 +1911,12 @@ class Players extends Skeleton {
 		// );
 	}
 
+	/**
+	 * Add the Profile sub-items (profile info, social networks) to the player settings navigation.
+	 *
+	 * @param array<string, array<string, string>> $items Sub-nav items keyed by slug.
+	 * @return array<string, array<string, string>>
+	 */
 	public function register_profile_nav_items( array $items ) {
 		$items['profile-info'] = array(
 			'label'       => __( 'Profile Info', 'clanbite' ),
@@ -1810,6 +1931,12 @@ class Players extends Skeleton {
 		return $items;
 	}
 
+	/**
+	 * Add the Account sub-items to the player settings navigation.
+	 *
+	 * @param array<string, array<string, string>> $items Sub-nav items keyed by slug.
+	 * @return array<string, array<string, string>>
+	 */
 	public function register_account_nav_items( array $items ) {
 		$items['account-info'] = array(
 			'label'       => __( 'Account Info', 'clanbite' ),
@@ -1819,11 +1946,18 @@ class Players extends Skeleton {
 		return $items;
 	}
 
+	/**
+	 * Render the avatar and cover upload fields on the Profile Info settings panel.
+	 *
+	 * Hooked to `clanbite_player_settings_panel_profile-info`; outputs nothing for guests.
+	 *
+	 * @return void
+	 */
 	public function do_profile_avatar_fields() {
 		$user_id = get_current_user_id();
 
 		if ( ! $user_id ) {
-			return null;
+			return;
 		}
 
 		$user_avatar           = clanbite_players_get_display_avatar( $user_id, true, '', '', 'large' );
@@ -1833,6 +1967,11 @@ class Players extends Skeleton {
 
 		$background_position = $background_position_x . ' ' . $background_position_y;
 
+		/**
+		 * Fires before the avatar and cover upload fields on the Profile Info settings panel.
+		 *
+		 * @param int $user_id Profile owner user ID.
+		 */
 		do_action( 'clanbite_before_profile_avatar_fields', $user_id );
 
 		$avatars_enabled = $this->admin->get( 'enable_avatars' );
@@ -1882,11 +2021,18 @@ class Players extends Skeleton {
 			<?php
 	}
 
+	/**
+	 * Render the display name, tagline, bio, website, country, city and birthday fields on the Profile Info settings panel.
+	 *
+	 * Hooked to `clanbite_player_settings_panel_profile-info` (priority 20); outputs nothing for guests.
+	 *
+	 * @return void
+	 */
 	public function do_profile_info_fields() {
 		$user_id = get_current_user_id();
 
 		if ( ! $user_id ) {
-			return null;
+			return;
 		}
 
 		$user          = get_userdata( $user_id );
@@ -1897,6 +2043,12 @@ class Players extends Skeleton {
 		$user_city     = clanbite_players_get_display_city( $user_id, true );
 		$user_birthday = clanbite_players_get_display_birthday( $user_id, true );
 
+		/**
+		 * Fires before the fields on the Profile Info settings panel.
+		 *
+		 * @param int      $user_id Profile owner user ID.
+		 * @param \WP_User $user    Profile owner.
+		 */
 		do_action( 'clanbite_before_profile_info_fields', $user_id, $user );
 		?>
 		<div class="settings-section">
@@ -1972,20 +2124,39 @@ class Players extends Skeleton {
 		</div>
 		<?php
 
+		/**
+		 * Fires after the fields on the Profile Info settings panel.
+		 *
+		 * @param int      $user_id Profile owner user ID.
+		 * @param \WP_User $user    Profile owner.
+		 */
 		do_action( 'clanbite_after_profile_info_fields', $user_id, $user );
 	}
 
+	/**
+	 * Render the first/last name fields (and the read-only email and profile URL) on the Account Info settings panel.
+	 *
+	 * Hooked to `clanbite_player_settings_panel_account-info`; outputs nothing for guests.
+	 *
+	 * @return void
+	 */
 	public function do_account_info_fields() {
 		$user_id = get_current_user_id();
 
 		if ( ! $user_id ) {
-			return null;
+			return;
 		}
 
 		$user            = get_userdata( $user_id );
 		$user_first_name = clanbite_players_get_account_firstname( $user_id, true );
 		$user_last_name  = clanbite_players_get_account_lastname( $user_id, true );
 
+		/**
+		 * Fires before the fields on the Account Info settings panel.
+		 *
+		 * @param int      $user_id Profile owner user ID.
+		 * @param \WP_User $user    Profile owner.
+		 */
 		do_action( 'clanbite_before_account_info_fields', $user_id, $user );
 		?>
 		<div class="settings-section">
@@ -2026,6 +2197,12 @@ class Players extends Skeleton {
 		</div>
 		<?php
 
+		/**
+		 * Fires after the fields on the Account Info settings panel.
+		 *
+		 * @param int      $user_id Profile owner user ID.
+		 * @param \WP_User $user    Profile owner.
+		 */
 		do_action( 'clanbite_after_account_info_fields', $user_id, $user );
 	}
 
@@ -2046,6 +2223,11 @@ class Players extends Skeleton {
 			return;
 		}
 
+		/**
+		 * Fires before the Social Networks fields on the player settings screen.
+		 *
+		 * @param int $user_id Profile owner user ID.
+		 */
 		do_action( 'clanbite_before_social_networks_fields', $user_id );
 		?>
 		<div class="settings-section">
@@ -2093,9 +2275,26 @@ class Players extends Skeleton {
 			?>
 		</div>
 		<?php
+		/**
+		 * Fires after the Social Networks fields on the player settings screen.
+		 *
+		 * @param int $user_id Profile owner user ID.
+		 */
 		do_action( 'clanbite_after_social_networks_fields', $user_id );
 	}
 
+	/**
+	 * Save the Profile Info panel (avatar, cover and profile fields).
+	 *
+	 * Hooked to `clanbite_save_player_settings`. Extensions can veto individual values via the
+	 * `clanbite_player_settings_update_*` filters (return a `WP_Error`).
+	 *
+	 * @param array<string, mixed> $filtered_data Sanitized request fields.
+	 * @param array<string, mixed> $data          Raw request data.
+	 * @param array<string, mixed> $files         Uploaded files keyed by field name.
+	 * @param int                  $user_id       User being updated.
+	 * @return void
+	 */
 	public function save_player_profile_settings( $filtered_data, $data, $files, $user_id ) {
 		$errors = array();
 
@@ -2173,6 +2372,12 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_cover_position_x'] ) ) {
+			/**
+			 * Filters the horizontal cover focal position before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$profile_cover_position_x = apply_filters( 'clanbite_player_settings_update_display_cover_position_x', $filtered_data['profile_cover_position_x'], $user_id );
 
 			if ( ! is_wp_error( $profile_cover_position_x ) ) {
@@ -2183,6 +2388,12 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_cover_position_y'] ) ) {
+			/**
+			 * Filters the vertical cover focal position before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$profile_cover_position_y = apply_filters( 'clanbite_player_settings_update_display_cover_position_y', $filtered_data['profile_cover_position_y'], $user_id );
 
 			if ( ! is_wp_error( $profile_cover_position_y ) ) {
@@ -2193,6 +2404,12 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['display_name'] ) ) {
+			/**
+			 * Filters the display name before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$display_name = apply_filters( 'clanbite_player_settings_update_display_name', sanitize_user( $filtered_data['display_name'] ), $user_id );
 
 			if ( ! is_wp_error( $display_name ) ) {
@@ -2215,7 +2432,15 @@ class Players extends Skeleton {
 						clean_user_cache( $user_id );
 						/** This action is documented in wp-includes/user.php */
 						// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core action name; must remain `profile_update` for hooks expecting core’s user update flow.
-						do_action( 'profile_update', $user_id, $old_user, array( 'ID' => $user_id, 'display_name' => $display_name ) );
+						do_action(
+							'profile_update',
+							$user_id,
+							$old_user,
+							array(
+								'ID'           => $user_id,
+								'display_name' => $display_name,
+							)
+						);
 					}
 				}
 			} else {
@@ -2224,6 +2449,12 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_tagline'] ) ) {
+			/**
+			 * Filters the profile tagline before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$display_tagline = apply_filters( 'clanbite_player_settings_update_tagline', sanitize_text_field( $filtered_data['profile_tagline'] ), $user_id );
 
 			if ( ! is_wp_error( $display_tagline ) ) {
@@ -2234,6 +2465,12 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_description'] ) ) {
+			/**
+			 * Filters the profile description before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$display_description = apply_filters( 'clanbite_player_settings_update_description', wp_kses_post( $filtered_data['profile_description'] ), $user_id );
 
 			if ( ! is_wp_error( $display_description ) ) {
@@ -2244,6 +2481,12 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_website'] ) ) {
+			/**
+			 * Filters the profile website before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$display_website = apply_filters( 'clanbite_player_settings_update_website', sanitize_text_field( $filtered_data['profile_website'] ), $user_id );
 
 			if ( ! is_wp_error( $display_website ) ) {
@@ -2254,6 +2497,12 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_country'] ) ) {
+			/**
+			 * Filters the profile country code before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$display_country = apply_filters( 'clanbite_player_settings_update_country', sanitize_text_field( $filtered_data['profile_country'] ), $user_id );
 
 			if ( ! is_wp_error( $display_country ) ) {
@@ -2264,6 +2513,12 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_city'] ) ) {
+			/**
+			 * Filters the profile city before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$display_city = apply_filters( 'clanbite_player_settings_update_city', sanitize_text_field( $filtered_data['profile_city'] ), $user_id );
 
 			if ( ! is_wp_error( $display_city ) ) {
@@ -2274,6 +2529,12 @@ class Players extends Skeleton {
 		}
 
 		if ( isset( $filtered_data['profile_birthday'] ) ) {
+			/**
+			 * Filters the profile birthday before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$display_birthday = apply_filters( 'clanbite_player_settings_update_birthday', sanitize_text_field( $filtered_data['profile_birthday'] ), $user_id );
 
 			if ( ! is_wp_error( $display_birthday ) ) {
@@ -2328,20 +2589,43 @@ class Players extends Skeleton {
 		}
 	}
 
+	/**
+	 * Save the Account Info panel (first and last name).
+	 *
+	 * Hooked to `clanbite_save_player_settings`.
+	 *
+	 * @param array<string, mixed> $filtered_data Sanitized request fields.
+	 * @param array<string, mixed> $data          Raw request data.
+	 * @param array<string, mixed> $files         Uploaded files keyed by field name.
+	 * @param int                  $user_id       User being updated.
+	 * @return void
+	 */
 	public function save_player_account_info_settings( $filtered_data, $data, $files, $user_id ) {
 		$errors = array();
 
 		if ( isset( $filtered_data['account_first_name'] ) ) {
+			/**
+			 * Filters the account first name before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$account_first_name = apply_filters( 'clanbite_player_settings_update_account_firstname', sanitize_text_field( $filtered_data['account_first_name'] ), $user_id );
 
 			if ( ! is_wp_error( $account_first_name ) ) {
 				update_user_meta( $user_id, 'cp_player_first_name', $account_first_name );
 			} else {
-				$errors['account_fist_name'] = $account_first_name->get_error_message();
+				$errors['account_first_name'] = $account_first_name->get_error_message();
 			}
 		}
 
 		if ( isset( $filtered_data['account_last_name'] ) ) {
+			/**
+			 * Filters the account last name before it is saved from player settings.
+			 *
+			 * @param mixed $value   Sanitized value; return a `WP_Error` to reject it (its message is shown next to the field).
+			 * @param int   $user_id Profile owner user ID.
+			 */
 			$account_last_name = apply_filters( 'clanbite_player_settings_update_account_lastname', sanitize_text_field( $filtered_data['account_last_name'] ), $user_id );
 
 			if ( ! is_wp_error( $account_last_name ) ) {
@@ -2413,7 +2697,21 @@ class Players extends Skeleton {
 		 */
 		do_action( 'clanbite_save_player_settings', $filtered_data, $data, $files, $user_id );
 
-		$saved  = apply_filters( 'clanbite_save_player_settings_save_status', true );
+		/**
+		 * Filters whether a player settings save is considered successful.
+		 *
+		 * Handlers hooked to `clanbite_save_player_settings` return false here to fail the request.
+		 *
+		 * @param bool $saved Whether the save succeeded (default true).
+		 */
+		$saved = apply_filters( 'clanbite_save_player_settings_save_status', true );
+		/**
+		 * Filters the field errors reported after a player settings save.
+		 *
+		 * Keys are input names (for example `account_first_name`); a non-empty array fails the request.
+		 *
+		 * @param array<string, string> $errors Error messages keyed by input name.
+		 */
 		$errors = apply_filters( 'clanbite_save_player_settings_errors', array() );
 
 		if ( ! empty( $errors ) || ! $saved ) {
@@ -2556,7 +2854,7 @@ class Players extends Skeleton {
 		$template->is_custom      = true;
 		$template->area           = \WP_TEMPLATE_PART_AREA_UNCATEGORIZED;
 
-		$content = get_comment_delimited_block_content(
+		$content           = get_comment_delimited_block_content(
 			'core/template-part',
 			array(),
 			$template->content

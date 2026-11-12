@@ -1,12 +1,11 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Default permalinks and attributes for “link to entity” block options.
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Resolved profile URL for a user (player blocks).
@@ -59,10 +58,10 @@ function clanbite_block_entity_link_rel( array $attributes ): string {
 /**
  * Filterable URL used when a block’s “link” option is enabled.
  *
- * @param string               $url        Default URL.
- * @param string               $block_name Block name, e.g. `clanbite/player-display-name`.
- * @param int                  $entity_id  User ID or team post ID.
- * @param \WP_Block|null       $block      Block instance.
+ * @param string         $url        Default URL.
+ * @param string         $block_name Block name, e.g. `clanbite/player-display-name`.
+ * @param int            $entity_id  User ID or team post ID.
+ * @param \WP_Block|null $block      Block instance.
  * @return string
  */
 function clanbite_block_entity_link_url( string $url, string $block_name, int $entity_id, $block = null ): string {

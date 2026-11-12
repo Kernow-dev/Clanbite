@@ -1,33 +1,32 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Classic template locals in the loop scope.
-
 /**
  * Single match template (Clanbite Matches extension).
  *
  * @package clanbite
  */
 
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Classic template locals in the loop scope.
+
 get_header();
 
 while ( have_posts() ) {
 	the_post();
-	$match_id = (int) get_the_ID();
-	$home_id  = (int) get_post_meta( $match_id, 'cp_match_home_team_id', true );
-	$away_id  = (int) get_post_meta( $match_id, 'cp_match_away_team_id', true );
-	$status   = (string) get_post_meta( $match_id, 'cp_match_status', true );
-	$hs       = (int) get_post_meta( $match_id, 'cp_match_home_score', true );
-	$as       = (int) get_post_meta( $match_id, 'cp_match_away_score', true );
-	$venue    = (string) get_post_meta( $match_id, 'cp_match_venue', true );
+	$match_id   = (int) get_the_ID();
+	$home_id    = (int) get_post_meta( $match_id, 'cp_match_home_team_id', true );
+	$away_id    = (int) get_post_meta( $match_id, 'cp_match_away_team_id', true );
+	$status     = (string) get_post_meta( $match_id, 'cp_match_status', true );
+	$hs         = (int) get_post_meta( $match_id, 'cp_match_home_score', true );
+	$as         = (int) get_post_meta( $match_id, 'cp_match_away_score', true );
+	$venue      = (string) get_post_meta( $match_id, 'cp_match_venue', true );
 	$raw_when   = (string) get_post_meta( $match_id, 'cp_match_scheduled_at', true );
 	$fmt        = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
 	$away_title = function_exists( 'clanbite_matches_resolve_away_team_title' )
 		? clanbite_matches_resolve_away_team_title( $match_id )
 		: clanbite_matches_team_title( $away_id );
-	$away_logo = $away_id < 1 ? (string) get_post_meta( $match_id, 'cp_match_away_external_logo_url', true ) : '';
-	$away_link = $away_id < 1 ? (string) get_post_meta( $match_id, 'cp_match_away_external_profile_url', true ) : '';
+	$away_logo  = $away_id < 1 ? (string) get_post_meta( $match_id, 'cp_match_away_external_logo_url', true ) : '';
+	$away_link  = $away_id < 1 ? (string) get_post_meta( $match_id, 'cp_match_away_external_profile_url', true ) : '';
 	?>
 	<article id="post-<?php the_ID(); ?>" <?php post_class( 'clanbite-single-match' ); ?>>
 		<header class="entry-header">

@@ -39,5 +39,6 @@
 		},
 		"typography": ".wp-block-clanbite-team-profile-nav .clanbite-team-profile-nav__link",
 		"border": ".wp-block-clanbite-team-profile-nav"
-	}
+	},
+	"version": "1.0.0"
 }

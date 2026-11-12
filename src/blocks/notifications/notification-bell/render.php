@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Notification Bell block render.
  *
  * @package Clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 if ( ! is_user_logged_in() ) {
 	return;
@@ -39,6 +38,12 @@ $context = array(
 	'nonce'              => wp_create_nonce( 'wp_rest' ),
 	'i18n'               => array(
 		'noNotifications' => __( 'No notifications yet.', 'clanbite' ),
+		'bellLabel'       => __( 'Notifications', 'clanbite' ),
+		/* translators: %d: number of unread notifications. */
+		'bellLabelUnread' => __( 'Notifications, %d unread', 'clanbite' ),
+		'confirmTitle'    => __( 'Confirm action', 'clanbite' ),
+		'confirmCancel'   => __( 'Cancel', 'clanbite' ),
+		'confirmOk'       => __( 'OK', 'clanbite' ),
 		'statusLabels'    => array(
 			'accepted'  => __( 'Accepted', 'clanbite' ),
 			'declined'  => __( 'Declined', 'clanbite' ),
@@ -54,7 +59,7 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	),
 	$block
 );
-$dropdown_id = wp_unique_id( 'clanbite-notification-bell-dropdown-' );
+$dropdown_id        = wp_unique_id( 'clanbite-notification-bell-dropdown-' );
 
 $notification_bell_root_open = '<div '
 	. trim( (string) $wrapper_attributes )
@@ -64,6 +69,7 @@ $notification_bell_root_open = '<div '
 	. ' data-wp-on-document--click="actions.handleOutsideClick"'
 	. ' data-wp-on-document--keydown="actions.handleKeydown"'
 	. ' data-wp-class--is-open="context.isOpen"'
+	. ' data-wp-watch="callbacks.announcePopup"'
 	. ' data-wp-class--has-unread="context.unreadCount"'
 	. '>';
 ?>
@@ -72,11 +78,12 @@ $notification_bell_root_open = '<div '
 	<button
 		type="button"
 		class="clanbite-notification-bell__trigger"
-		aria-label="<?php esc_attr_e( 'Notifications', 'clanbite' ); ?>"
+		aria-label="<?php echo esc_attr( $unread_count > 0 ? sprintf( $context['i18n']['bellLabelUnread'], $unread_count ) : $context['i18n']['bellLabel'] ); ?>"
 		aria-expanded="false"
-		aria-haspopup="menu"
+		aria-haspopup="dialog"
 		aria-controls="<?php echo esc_attr( $dropdown_id ); ?>"
 		data-wp-on--click="actions.toggleDropdown"
+		data-wp-bind--aria-label="state.triggerLabel"
 		data-wp-bind--aria-expanded="context.isOpen"
 	>
 		<svg
@@ -102,7 +109,7 @@ $notification_bell_root_open = '<div '
 		<div
 			id="<?php echo esc_attr( $dropdown_id ); ?>"
 			class="clanbite-notification-bell__dropdown"
-			role="menu"
+			role="dialog"
 			aria-label="<?php esc_attr_e( 'Notifications', 'clanbite' ); ?>"
 			hidden
 			data-wp-bind--hidden="!context.isOpen"
@@ -113,7 +120,7 @@ $notification_bell_root_open = '<div '
 				</span>
 				<button
 					type="button"
-					class="clanbite-notification-bell__mark-all-read"
+					class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-notification-bell__mark-all-read"
 					data-wp-on--click="actions.markAllRead"
 					data-wp-bind--disabled="!context.unreadCount"
 				>
@@ -156,4 +163,4 @@ $notification_bell_root_open = '<div '
 		</div>
 	<?php endif; ?>
 </div>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

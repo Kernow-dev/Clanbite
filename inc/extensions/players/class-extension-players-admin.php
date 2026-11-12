@@ -1,4 +1,9 @@
 <?php
+/**
+ * Players extension admin settings tab.
+ *
+ * @package clanbite
+ */
 
 namespace Kernowdev\Clanbite\Extensions\Players;
 defined( 'ABSPATH' ) || exit;
@@ -9,19 +14,50 @@ use Kernowdev\Clanbite\Extensions\Abstract_Settings;
  * Players admin settings and functionality.
  */
 class Admin extends Abstract_Settings {
-	protected string $option_key     = 'clanbite_players_settings';
-	protected string $settings_group = 'clanbite_players';
-	protected string $page_slug      = 'clanbite-players';
+	/**
+	 * Option name storing this settings bucket.
+	 *
+	 * @var string
+	 */
+	protected string $option_key = 'clanbite_players_settings';
 
+	/**
+	 * Settings API group for `register_setting()`.
+	 *
+	 * @var string
+	 */
+	protected string $settings_group = 'clanbite_players';
+
+	/**
+	 * Settings page slug.
+	 *
+	 * @var string
+	 */
+	protected string $page_slug = 'clanbite-players';
+
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_page_title(): string {
 		return __( 'Players', 'clanbite' );
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_menu_title(): string {
 		return __( 'Players', 'clanbite' );
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_defaults(): array {
+		/**
+		 * Filters the default Players settings.
+		 *
+		 * @param array<string, mixed> $defaults Defaults keyed by setting.
+		 */
 		return apply_filters(
 			'clanbite_players_defaults',
 			array(
@@ -40,44 +76,47 @@ class Admin extends Abstract_Settings {
 		);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_sections(): array {
 		$sections = array(
-				'general'  => array(
-					'title'  => __( 'General', 'clanbite' ),
-					'fields' => array(
-						'enable_profiles' => array(
-							'label'       => __( 'Enable profiles', 'clanbite' ),
-							'type'        => 'checkbox',
-							'description' => __( 'Enable public player pages.', 'clanbite' ),
-							'default'     => true,
-							'sanitize'    => 'rest_sanitize_boolean',
-						),
-						'enable_avatars'  => array(
-							'label'       => __( 'Enable avatars', 'clanbite' ),
-							'type'        => 'checkbox',
-							'description' => __( 'Enable player custom avatars.', 'clanbite' ),
-							'default'     => true,
-							'sanitize'    => 'rest_sanitize_boolean',
-						),
-						'enable_covers'   => array(
-							'label'       => __( 'Enable cover images', 'clanbite' ),
-							'type'        => 'checkbox',
-							'description' => __( 'Enable player custom cover images.', 'clanbite' ),
-							'default'     => true,
-							'sanitize'    => 'rest_sanitize_boolean',
-						),
+			'general'           => array(
+				'title'  => __( 'General', 'clanbite' ),
+				'fields' => array(
+					'enable_profiles' => array(
+						'label'       => __( 'Enable profiles', 'clanbite' ),
+						'type'        => 'checkbox',
+						'description' => __( 'Enable public player pages.', 'clanbite' ),
+						'default'     => true,
+						'sanitize'    => 'rest_sanitize_boolean',
+					),
+					'enable_avatars'  => array(
+						'label'       => __( 'Enable avatars', 'clanbite' ),
+						'type'        => 'checkbox',
+						'description' => __( 'Enable player custom avatars.', 'clanbite' ),
+						'default'     => true,
+						'sanitize'    => 'rest_sanitize_boolean',
+					),
+					'enable_covers'   => array(
+						'label'       => __( 'Enable cover images', 'clanbite' ),
+						'type'        => 'checkbox',
+						'description' => __( 'Enable player custom cover images.', 'clanbite' ),
+						'default'     => true,
+						'sanitize'    => 'rest_sanitize_boolean',
 					),
 				),
-				'integrations' => array(
-					'title'  => __( 'Extension integrations', 'clanbite' ),
-					'fields' => array(
-						'events_profile_subpage' => array(
-							'label'       => __( 'Player profile: Events tab', 'clanbite' ),
-							'type'        => 'checkbox',
-							'description' => __( 'When the Events extension is enabled, show the Events tab and /players/{user}/events/. When off, that URL redirects to the profile root.', 'clanbite' ),
-							'default'     => true,
-							'sanitize'    => 'rest_sanitize_boolean',
-						),
+			),
+			'integrations'      => array(
+				'title'  => __( 'Extension integrations', 'clanbite' ),
+				'fields' => array(
+					'events_profile_subpage' => array(
+						'label'       => __( 'Player profile: Events tab', 'clanbite' ),
+						'type'        => 'checkbox',
+						'description' => __( 'When the Events extension is enabled, show the Events tab and /players/{user}/events/. When off, that URL redirects to the profile root.', 'clanbite' ),
+						'default'     => true,
+						'sanitize'    => 'rest_sanitize_boolean',
+					),
 				),
 			),
 			'avatar_appearance' => array(
@@ -106,57 +145,57 @@ class Admin extends Abstract_Settings {
 					),
 				),
 			),
-			'avatar_sizes' => array(
-					'title'  => __( 'Player avatar image sizes', 'clanbite' ),
-					'fields' => array(
-						'player_avatar_image_size_large'  => array(
-							'label'       => __( 'Large — player profiles', 'clanbite' ),
-							'type'        => 'select',
-							'description' => __( 'Used for profile pages, the player avatar block, and other prominent displays. Code may request this with preset “large”.', 'clanbite' ),
-							'default'     => 'clanbite-avatar-large',
-							'options'     => $this->get_avatar_image_size_options(),
-							'sanitize'    => array( $this, 'sanitize_player_avatar_size_large' ),
-						),
-						'player_avatar_image_size_medium' => array(
-							'label'       => __( 'Medium — forums and social-style feeds', 'clanbite' ),
-							'type'        => 'select',
-							'description' => __( 'Typical size for post authors in forums, activity feeds, and similar layouts. Preset “medium”.', 'clanbite' ),
-							'default'     => 'clanbite-avatar-medium',
-							'options'     => $this->get_avatar_image_size_options(),
-							'sanitize'    => array( $this, 'sanitize_player_avatar_size_medium' ),
-						),
-						'player_avatar_image_size_small'  => array(
-							'label'       => __( 'Small — comments and replies', 'clanbite' ),
-							'type'        => 'select',
-							'description' => __( 'Compact UI such as comment threads, notifications, and nav. Preset “small”.', 'clanbite' ),
-							'default'     => 'clanbite-avatar-small',
-							'options'     => $this->get_avatar_image_size_options(),
-							'sanitize'    => array( $this, 'sanitize_player_avatar_size_small' ),
-						),
+			'avatar_sizes'      => array(
+				'title'  => __( 'Player avatar image sizes', 'clanbite' ),
+				'fields' => array(
+					'player_avatar_image_size_large'  => array(
+						'label'       => __( 'Large — player profiles', 'clanbite' ),
+						'type'        => 'select',
+						'description' => __( 'Used for profile pages, the player avatar block, and other prominent displays. Code may request this with preset “large”.', 'clanbite' ),
+						'default'     => 'clanbite-avatar-large',
+						'options'     => $this->get_avatar_image_size_options(),
+						'sanitize'    => array( $this, 'sanitize_player_avatar_size_large' ),
+					),
+					'player_avatar_image_size_medium' => array(
+						'label'       => __( 'Medium — forums and social-style feeds', 'clanbite' ),
+						'type'        => 'select',
+						'description' => __( 'Typical size for post authors in forums, activity feeds, and similar layouts. Preset “medium”.', 'clanbite' ),
+						'default'     => 'clanbite-avatar-medium',
+						'options'     => $this->get_avatar_image_size_options(),
+						'sanitize'    => array( $this, 'sanitize_player_avatar_size_medium' ),
+					),
+					'player_avatar_image_size_small'  => array(
+						'label'       => __( 'Small — comments and replies', 'clanbite' ),
+						'type'        => 'select',
+						'description' => __( 'Compact UI such as comment threads, notifications, and nav. Preset “small”.', 'clanbite' ),
+						'default'     => 'clanbite-avatar-small',
+						'options'     => $this->get_avatar_image_size_options(),
+						'sanitize'    => array( $this, 'sanitize_player_avatar_size_small' ),
 					),
 				),
-				'branding' => array(
-					'title'  => __( 'Branding defaults', 'clanbite' ),
-					'fields' => array(
-						'default_avatar' => array(
-							'label'       => __( 'Default player avatar image', 'clanbite' ),
-							'type'        => 'image',
-							'description' => __( 'Shown when a player has no custom avatar. Leave empty to use the plugin bundled image.', 'clanbite' ),
-							'default'     => '',
-							'fallback_url' => \clanbite_players_get_bundled_default_avatar_url(),
-							'sanitize'    => 'esc_url_raw',
-						),
-						'default_cover'  => array(
-							'label'       => __( 'Default player cover image', 'clanbite' ),
-							'type'        => 'image',
-							'description' => __( 'Shown when a player has no custom cover. Leave empty to use the plugin bundled image.', 'clanbite' ),
-							'default'     => '',
-							'fallback_url' => \clanbite_players_get_bundled_default_cover_url(),
-							'sanitize'    => 'esc_url_raw',
-						),
+			),
+			'branding'          => array(
+				'title'  => __( 'Branding defaults', 'clanbite' ),
+				'fields' => array(
+					'default_avatar' => array(
+						'label'        => __( 'Default player avatar image', 'clanbite' ),
+						'type'         => 'image',
+						'description'  => __( 'Shown when a player has no custom avatar. Leave empty to use the plugin bundled image.', 'clanbite' ),
+						'default'      => '',
+						'fallback_url' => \clanbite_players_get_bundled_default_avatar_url(),
+						'sanitize'     => 'esc_url_raw',
+					),
+					'default_cover'  => array(
+						'label'        => __( 'Default player cover image', 'clanbite' ),
+						'type'         => 'image',
+						'description'  => __( 'Shown when a player has no custom cover. Leave empty to use the plugin bundled image.', 'clanbite' ),
+						'default'      => '',
+						'fallback_url' => \clanbite_players_get_bundled_default_cover_url(),
+						'sanitize'     => 'esc_url_raw',
 					),
 				),
-			);
+			),
+		);
 
 		if ( $this->is_ranks_extension_available() ) {
 			$sections['integrations']['fields']['rank_status_updates_enabled'] = array(
@@ -168,6 +207,11 @@ class Admin extends Abstract_Settings {
 			);
 		}
 
+		/**
+		 * Filters the Players settings sections and fields shown in the admin.
+		 *
+		 * @param array<string, array<string, mixed>> $sections Sections keyed by id.
+		 */
 		return apply_filters( 'clanbite_players_sections', $sections );
 	}
 
@@ -186,6 +230,9 @@ class Admin extends Abstract_Settings {
 		return is_array( $installed ) && array_key_exists( 'cp_ranks', $installed );
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function render_page(): void {
 		$this->render_settings_page( __( 'Players', 'clanbite' ) );
 	}
@@ -305,7 +352,7 @@ class Admin extends Abstract_Settings {
 				if ( ! is_admin() && $query->is_main_query()
 					&& get_query_var( 'post_type' ) === 'player_list'
 				) {
-					// Modify main query to return all users
+					// Modify main query to return all users.
 					$query->set( 'author', '' ); // all authors
 					$query->set(
 						'post_type',

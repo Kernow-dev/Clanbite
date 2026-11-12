@@ -1,11 +1,13 @@
+@use "../../shared/styles/reduced-motion";
+
 /**
  * Align with Social feed / composer surfaces (see clanbite-social-kit social-feed).
  */
 .wp-block-clanbite-player-settings {
-	--feed-surface: color-mix(in srgb, currentColor 6%, transparent);
-	--feed-border: color-mix(in srgb, currentColor 14%, transparent);
-	--feed-muted: color-mix(in srgb, currentColor 55%, transparent);
-	--feed-canvas: var(--wp--preset--color--background, #fff);
+	--feed-surface: color-mix(in srgb, currentcolor 6%, transparent);
+	--feed-border: color-mix(in srgb, currentcolor 14%, transparent);
+	--feed-muted: color-mix(in srgb, currentcolor 55%, transparent);
+	--feed-canvas: var(--wp--preset--color--background, var(--wp--preset--color--base, Canvas));
 
 	box-sizing: border-box;
 	width: 100%;
@@ -27,11 +29,12 @@
 		border: 1px solid var(--feed-border);
 		border-radius: 12px;
 		background: var(--feed-canvas);
-		box-shadow: 0 1px 4px color-mix(in srgb, currentColor 8%, transparent);
+		box-shadow: 0 1px 4px color-mix(in srgb, currentcolor 8%, transparent);
 		overflow: hidden;
 	}
 
 	.nav {
+
 		.nav-item {
 			display: flex;
 			flex-direction: column;
@@ -43,36 +46,16 @@
 
 			&.controls {
 				padding: 1rem 1.15rem 1.1rem;
-				background: color-mix(in srgb, currentColor 3%, transparent);
+				background: color-mix(in srgb, currentcolor 3%, transparent);
 
 				button {
 					width: 100%;
 					text-align: center;
-					font: inherit;
 
-					&:hover {
-						cursor: pointer;
-					}
-
-					&.save {
-						padding: 0.45rem 1rem;
-						border: none;
-						border-radius: 8px;
-						font-weight: 600;
-						cursor: pointer;
-						background: color-mix(in srgb, currentColor 18%, transparent);
+					&.saving,
+					&.saved {
+						background: color-mix(in srgb, var(--wp--preset--color--success, #00a32a) 18%, transparent);
 						color: inherit;
-
-						&:hover:not(:disabled),
-						&:focus-visible:not(:disabled) {
-							background: color-mix(in srgb, currentColor 26%, transparent);
-						}
-
-						&.saving,
-						&.saved {
-							background: color-mix(in srgb, #00a32a 14%, transparent);
-							color: inherit;
-						}
 					}
 				}
 			}
@@ -85,31 +68,25 @@
 				gap: 0.25rem;
 				padding: 0.85rem 1rem;
 				text-align: left;
-				background-color: var(
-					--wp--custom--clanbite--player--settings--nav-item-header--background-color,
-					transparent
-				);
-				color: var(
-					--wp--custom--clanbite--player--settings--nav-item-header--color,
-					inherit
-				);
+				background-color: var(--wp--custom--clanbite--player--settings--nav-item-header--background-color, transparent);
+				color: var(--wp--custom--clanbite--player--settings--nav-item-header--color, inherit);
 				cursor: pointer;
 				font: inherit;
 				box-sizing: border-box;
 
 				&:hover,
 				&:focus-visible {
-					background: color-mix(in srgb, currentColor 5%, transparent);
+					background: color-mix(in srgb, currentcolor 5%, transparent);
 				}
 
-				&:before {
-					content: '';
+				&::before {
+					content: "";
 					position: absolute;
 					right: 1rem;
 					top: 1rem;
 					width: 1.25rem;
 					height: 1.25rem;
-					background-color: currentColor;
+					background-color: currentcolor;
 					opacity: 0.85;
 					mask-repeat: no-repeat;
 					mask-position: center;
@@ -117,7 +94,7 @@
 					mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='white' d='M16 10c0 .553-.048 1-.601 1H11v4.399c0 .552-.447.601-1 .601s-1-.049-1-.601V11H4.601C4.049 11 4 10.553 4 10s.049-1 .601-1H9V4.601C9 4.048 9.447 4 10 4s1 .048 1 .601V9h4.399c.553 0 .601.447.601 1'/%3E%3C/svg%3E");
 				}
 
-				&.active:before {
+				&.active::before {
 					mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='white' d='M16 10c0 .553-.048 1-.601 1H4.601C4.049 11 4 10.553 4 10s.049-1 .601-1H15.4c.552 0 .6.447.6 1'/%3E%3C/svg%3E");
 				}
 
@@ -142,10 +119,7 @@
 				transition: max-height 0.3s ease-in-out, padding 0.3s ease;
 				max-height: 0;
 				overflow: hidden;
-				background-color: var(
-					--wp--custom--clanbite--player--settings--nav-sub-items--background-color,
-					color-mix(in srgb, currentColor 3%, transparent)
-				);
+				background-color: var(--wp--custom--clanbite--player--settings--nav-sub-items--background-color, color-mix(in srgb, currentColor 3%, transparent));
 				padding: 0 1rem;
 
 				&.show {
@@ -154,10 +128,7 @@
 
 				.nav-sub-item {
 					all: unset;
-					color: var(
-						--wp--custom--clanbite--player--settings--nav-sub-item--color,
-						inherit
-					);
+					color: var(--wp--custom--clanbite--player--settings--nav-sub-item--color, inherit);
 					font-size: var(--wp--custom--clanbite--player--settings--nav-sub-item--font-size, 0.9rem);
 					line-height: 1.4;
 					cursor: pointer;
@@ -194,7 +165,7 @@
 		border: 1px solid var(--feed-border);
 		border-radius: 12px;
 		background: var(--feed-canvas);
-		box-shadow: 0 1px 4px color-mix(in srgb, currentColor 8%, transparent);
+		box-shadow: 0 1px 4px color-mix(in srgb, currentcolor 8%, transparent);
 		padding: 1rem 1.15rem 1.15rem;
 
 		&[hidden] {
@@ -270,7 +241,7 @@
 						gap: 0.4rem;
 						position: relative;
 
-						> input[type='hidden'] {
+						> input[type="hidden"] {
 							display: none;
 						}
 
@@ -306,7 +277,7 @@
 							}
 
 							&.error {
-								border-color: #b32d2e;
+								border-color: var(--clanbite-danger, #b32d2e);
 							}
 						}
 
@@ -329,13 +300,13 @@
 							}
 
 							&.error {
-								border-color: #b32d2e;
+								border-color: var(--clanbite-danger, #b32d2e);
 							}
 						}
 
 						/* Keep binary controls inline; do not inherit text-input sizing. */
-						input[type='checkbox'],
-						input[type='radio'] {
+						input[type="checkbox"],
+						input[type="radio"] {
 							width: auto;
 							min-height: 1rem;
 							padding: 0;
@@ -346,8 +317,8 @@
 							flex: 0 0 auto;
 						}
 
-						label:has(input[type='checkbox']),
-						label:has(input[type='radio']) {
+						label:has(input[type="checkbox"]),
+						label:has(input[type="radio"]) {
 							position: static;
 							top: auto;
 							left: auto;
@@ -361,12 +332,12 @@
 							line-height: 1.4;
 						}
 
-						input[type='text'] {
+						input[type="text"] {
 							min-height: 2.75rem;
 						}
 
 						.error-message {
-							color: #b32d2e;
+							color: var(--clanbite-danger, #b32d2e);
 							font-size: 0.875rem;
 							font-weight: 600;
 							padding: 0.35rem 0.25rem 0;
@@ -409,7 +380,7 @@
 					transform: translate(-50%, -50%);
 					border-radius: 50%;
 					border: 2px solid var(--feed-canvas);
-					box-shadow: 0 1px 4px color-mix(in srgb, currentColor 12%, transparent);
+					box-shadow: 0 1px 4px color-mix(in srgb, currentcolor 12%, transparent);
 				}
 			}
 
@@ -420,34 +391,37 @@
 				justify-content: center;
 				padding-top: 5rem;
 				border-radius: 8px;
+				border: 1px solid var(--feed-border);
+				background: var(--feed-surface);
+				font: inherit;
 				color: inherit;
 
 				&:hover {
 					cursor: pointer;
-					background: color-mix(in srgb, currentColor 5%, transparent);
+					background: color-mix(in srgb, currentcolor 5%, transparent);
 				}
 
-				&:before {
+				&::before {
 					display: block;
-					content: '';
+					content: "";
 					position: absolute;
 					top: 30%;
 					left: 50%;
 					transform: translate(-50%, -15%);
 					width: 2rem;
 					height: 2rem;
-					background-color: currentColor;
+					background-color: currentcolor;
 					opacity: 0.75;
 					mask-repeat: no-repeat;
 					mask-position: center;
 					mask-size: contain;
 				}
 
-				&.avatar:before {
+				&.avatar::before {
 					mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Ccircle cx='12' cy='10' r='3' fill='currentColor'/%3E%3Cpath fill='currentColor' d='M12 13c-2.761 0-5 1.79-5 4h10c0-2.21-2.239-4-5-4'/%3E%3Crect width='18' height='18' x='3' y='3' rx='3'/%3E%3C/g%3E%3C/svg%3E");
 				}
 
-				&.cover:before {
+				&.cover::before {
 					mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='currentColor' fill-rule='evenodd' d='M2 5a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v6.5a1 1 0 0 1-.032.25A1 1 0 0 1 22 12v7a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-3a1 1 0 0 1 .032-.25A1 1 0 0 1 2 15.5zm2.994 9.83q-.522.01-.994.046V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6.016c-4.297.139-7.4 1.174-9.58 2.623c.826.293 1.75.71 2.656 1.256c1.399.84 2.821 2.02 3.778 3.583a1 1 0 1 1-1.706 1.044c-.736-1.203-1.878-2.178-3.102-2.913c-1.222-.734-2.465-1.192-3.327-1.392a15.5 15.5 0 0 0-3.703-.386h-.022zm1.984-8.342A2.67 2.67 0 0 1 8.5 6c.41 0 1.003.115 1.522.488c.57.41.978 1.086.978 2.012s-.408 1.601-.978 2.011A2.67 2.67 0 0 1 8.5 11c-.41 0-1.003-.115-1.522-.489C6.408 10.101 6 9.427 6 8.5c0-.926.408-1.601.978-2.012' clip-rule='evenodd'/%3E%3C/svg%3E");
 				}
 			}
@@ -478,22 +452,22 @@
 		font-size: 0.875rem;
 		line-height: 1.4;
 		color: inherit;
-		box-shadow: 0 8px 24px color-mix(in srgb, currentColor 18%, transparent);
+		box-shadow: 0 8px 24px color-mix(in srgb, currentcolor 18%, transparent);
 
 		&:not([hidden]) {
 			opacity: 1;
 			transform: translateY(0);
 		}
 
-		.toast-box-icon:before {
+		.toast-box-icon::before {
 			display: block;
-			content: '';
+			content: "";
 			width: 1.25rem;
 			height: 1.25rem;
 			mask-repeat: no-repeat;
 			mask-position: center;
 			mask-size: contain;
-			background-color: currentColor;
+			background-color: currentcolor;
 			opacity: 0.9;
 		}
 
@@ -517,19 +491,19 @@
 		}
 
 		&.success {
-			background: color-mix(in srgb, #00a32a 12%, transparent);
-			border: 1px solid color-mix(in srgb, #00a32a 25%, transparent);
+			background: color-mix(in srgb, var(--clanbite-success, #00a32a) 12%, transparent);
+			border: 1px solid color-mix(in srgb, var(--clanbite-success, #00a32a) 25%, transparent);
 
-			.toast-box-icon:before {
+			.toast-box-icon::before {
 				mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='black' d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417L5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z'/></svg>");
 			}
 		}
 
 		&.error {
-			background: color-mix(in srgb, #b32d2e 12%, transparent);
-			border: 1px solid color-mix(in srgb, #b32d2e 28%, transparent);
+			background: color-mix(in srgb, var(--clanbite-danger, #b32d2e) 12%, transparent);
+			border: 1px solid color-mix(in srgb, var(--clanbite-danger, #b32d2e) 28%, transparent);
 
-			.toast-box-icon:before {
+			.toast-box-icon::before {
 				mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='black' d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z'/></svg>");
 			}
 		}

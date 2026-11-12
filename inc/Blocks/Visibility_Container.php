@@ -96,7 +96,7 @@ final class Visibility_Container {
 		$logged_in  = is_user_logged_in();
 		$user_roles = array();
 		if ( $logged_in ) {
-			$user = wp_get_current_user();
+			$user       = wp_get_current_user();
 			$user_roles = is_array( $user->roles ) ? $user->roles : array();
 		}
 

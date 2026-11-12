@@ -1,4 +1,9 @@
 <?php
+/**
+ * Teams extension: teams CPT, membership, profiles and front-end team management.
+ *
+ * @package clanbite
+ */
 
 namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
@@ -23,6 +28,13 @@ require_once __DIR__ . '/class-team-challenges.php';
  * All extensions will need to extend this class.
  */
 class Teams extends Skeleton {
+	/**
+	 * Team post type slug.
+	 *
+	 * @var string
+	 */
+	public const POST_TYPE = 'clanbite_team';
+
 	public const TEAM_ROLE_ADMIN  = 'admin';
 	public const TEAM_ROLE_EDITOR = 'editor';
 	public const TEAM_ROLE_MEMBER = 'member';
@@ -103,12 +115,24 @@ class Teams extends Skeleton {
 		add_filter( 'clanbite_official_registered_extensions', array( $this, 'register_extension' ) );
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function run_installer(): void {}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function run_uninstaller(): void {}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function run_updater(): void {}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function run(): void {
 		$this->admin = new Admin();
 
@@ -225,7 +249,7 @@ class Teams extends Skeleton {
 		}
 
 		$team_ids = clanbite_teams_global_auto_join_team_ids();
-		if ( $team_ids === array() ) {
+		if ( array() === $team_ids ) {
 			return;
 		}
 
@@ -802,18 +826,18 @@ class Teams extends Skeleton {
 
 		status_header( 200 );
 		nocache_headers();
-		$wp_query->is_404              = false;
-		$wp_query->is_home             = false;
-		$wp_query->is_front_page       = false;
-		$wp_query->is_posts_page       = false;
-		$wp_query->is_page             = false;
-		$wp_query->is_singular         = false;
-		$wp_query->is_single           = false;
-		$wp_query->is_archive         = false;
+		$wp_query->is_404               = false;
+		$wp_query->is_home              = false;
+		$wp_query->is_front_page        = false;
+		$wp_query->is_posts_page        = false;
+		$wp_query->is_page              = false;
+		$wp_query->is_singular          = false;
+		$wp_query->is_single            = false;
+		$wp_query->is_archive           = false;
 		$wp_query->is_post_type_archive = false;
-		$wp_query->found_posts         = 0;
-		$wp_query->max_num_pages       = 0;
-		$wp_query->posts               = array();
+		$wp_query->found_posts          = 0;
+		$wp_query->max_num_pages        = 0;
+		$wp_query->posts                = array();
 
 		set_query_var( 'clanbite_team_create', '1' );
 	}
@@ -855,18 +879,18 @@ class Teams extends Skeleton {
 
 		status_header( 200 );
 		nocache_headers();
-		$wp_query->is_404              = false;
-		$wp_query->is_home             = false;
-		$wp_query->is_front_page       = false;
-		$wp_query->is_posts_page       = false;
-		$wp_query->is_page             = false;
-		$wp_query->is_singular         = false;
-		$wp_query->is_single           = false;
-		$wp_query->is_archive          = false;
+		$wp_query->is_404               = false;
+		$wp_query->is_home              = false;
+		$wp_query->is_front_page        = false;
+		$wp_query->is_posts_page        = false;
+		$wp_query->is_page              = false;
+		$wp_query->is_singular          = false;
+		$wp_query->is_single            = false;
+		$wp_query->is_archive           = false;
 		$wp_query->is_post_type_archive = false;
-		$wp_query->found_posts         = 0;
-		$wp_query->max_num_pages       = 0;
-		$wp_query->posts               = array();
+		$wp_query->found_posts          = 0;
+		$wp_query->max_num_pages        = 0;
+		$wp_query->posts                = array();
 
 		set_query_var( 'clanbite_team_slug', $slug );
 		set_query_var( 'clanbite_team_action', 'events' );
@@ -949,7 +973,7 @@ class Teams extends Skeleton {
 			$permalink = get_permalink( $post );
 			$url       = is_string( $permalink ) ? $permalink : '';
 		} else {
-			$pto = get_post_type_object( 'clanbite_team' );
+			$pto  = get_post_type_object( 'clanbite_team' );
 			$base = ( $pto && is_array( $pto->rewrite ) && ! empty( $pto->rewrite['slug'] ) )
 				? (string) $pto->rewrite['slug']
 				: 'teams';
@@ -1077,19 +1101,17 @@ class Teams extends Skeleton {
 				exit;
 			}
 
-			$hierarchy = array( 'teams-create.php', 'index.php' );
-			$located   = locate_template( array( 'teams-create.php' ) );
-			if ( ! $located ) {
-				$located = clanbite()->path . 'templates/teams/teams-create.php';
-			}
+			$hierarchy       = array( 'teams-create.php', 'index.php' );
+			$located         = locate_template( array( 'teams-create.php' ) );
+			$plugin_template = clanbite()->path . 'templates/teams/teams-create.php';
 
-			$resolved = function_exists( 'locate_block_template' )
-				? locate_block_template( $located, 'teams-create', $hierarchy )
-				: $located;
-			if ( ! $resolved && is_readable( $located ) ) {
-				$resolved = $located;
-			}
+			$resolved = clanbite_locate_block_or_plugin_template( $located, $plugin_template, 'teams-create', $hierarchy );
 
+			/**
+			 * Filters the template used for the create-team route.
+			 *
+			 * @param string $template Resolved template path.
+			 */
 			return (string) apply_filters(
 				'clanbite_load_team_create_template',
 				$resolved ? $resolved : $template
@@ -1168,15 +1190,13 @@ class Teams extends Skeleton {
 						exit;
 					}
 
-					$hierarchy = array( 'teams-events-create.php', 'index.php' );
-					$located   = locate_template( array( 'teams-events-create.php' ) );
-					if ( ! $located ) {
-						$located = clanbite()->path . 'templates/teams/teams-events-create.php';
-					}
+					$hierarchy       = array( 'teams-events-create.php', 'index.php' );
+					$located         = locate_template( array( 'teams-events-create.php' ) );
+					$plugin_template = clanbite()->path . 'templates/teams/teams-events-create.php';
 
 					return (string) apply_filters(
 						'clanbite_load_team_action_template',
-						function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-events-create', $hierarchy ) : $located,
+						clanbite_locate_block_or_plugin_template( $located, $plugin_template, 'teams-events-create', $hierarchy ),
 						$team_action,
 						$team_id,
 						$this
@@ -1185,30 +1205,26 @@ class Teams extends Skeleton {
 
 				$event_id = (int) get_query_var( 'clanbite_team_event_id' );
 				if ( $event_id > 0 ) {
-					$hierarchy = array( 'teams-events-single.php', 'index.php' );
-					$located   = locate_template( array( 'teams-events-single.php' ) );
-					if ( ! $located ) {
-						$located = clanbite()->path . 'templates/teams/teams-events-single.php';
-					}
+					$hierarchy       = array( 'teams-events-single.php', 'index.php' );
+					$located         = locate_template( array( 'teams-events-single.php' ) );
+					$plugin_template = clanbite()->path . 'templates/teams/teams-events-single.php';
 
 					return (string) apply_filters(
 						'clanbite_load_team_action_template',
-						function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-events-single', $hierarchy ) : $located,
+						clanbite_locate_block_or_plugin_template( $located, $plugin_template, 'teams-events-single', $hierarchy ),
 						$team_action,
 						$team_id,
 						$this
 					);
 				}
 
-				$hierarchy = array( 'teams-events.php', 'index.php' );
-				$located   = locate_template( array( 'teams-events.php' ) );
-				if ( ! $located ) {
-					$located = clanbite()->path . 'templates/teams/teams-events.php';
-				}
+				$hierarchy       = array( 'teams-events.php', 'index.php' );
+				$located         = locate_template( array( 'teams-events.php' ) );
+				$plugin_template = clanbite()->path . 'templates/teams/teams-events.php';
 
 				return (string) apply_filters(
 					'clanbite_load_team_action_template',
-					function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-events', $hierarchy ) : $located,
+					clanbite_locate_block_or_plugin_template( $located, $plugin_template, 'teams-events', $hierarchy ),
 					$team_action,
 					$team_id,
 					$this
@@ -1231,15 +1247,13 @@ class Teams extends Skeleton {
 
 				set_query_var( 'clanbite_matches_team_id', $team_id );
 
-				$hierarchy = array( 'teams-matches.php', 'index.php' );
-				$located   = locate_template( array( 'teams-matches.php' ) );
-				if ( ! $located ) {
-					$located = clanbite()->path . 'templates/teams/teams-matches.php';
-				}
+				$hierarchy       = array( 'teams-matches.php', 'index.php' );
+				$located         = locate_template( array( 'teams-matches.php' ) );
+				$plugin_template = clanbite()->path . 'templates/teams/teams-matches.php';
 
 				return (string) apply_filters(
 					'clanbite_load_team_action_template',
-					function_exists( 'locate_block_template' ) ? locate_block_template( $located, 'teams-matches', $hierarchy ) : $located,
+					clanbite_locate_block_or_plugin_template( $located, $plugin_template, 'teams-matches', $hierarchy ),
 					$team_action,
 					$team_id,
 					$this
@@ -1255,15 +1269,20 @@ class Teams extends Skeleton {
 				set_query_var( 'clanbite_manage_team_id', $team_id );
 
 				// Hierarchy slug must match register_block_template id segment (teams-manage), not team-manage.
-				$templates = array( 'teams-manage.php', 'index.php' );
-				$located   = locate_template( $templates );
-				if ( ! $located ) {
-					$located = clanbite()->path . 'templates/teams/teams-manage.php';
-				}
+				$templates       = array( 'teams-manage.php', 'index.php' );
+				$located         = locate_template( $templates );
+				$plugin_template = clanbite()->path . 'templates/teams/teams-manage.php';
 
+				/**
+				 * Filters the template used for the team management route.
+				 *
+				 * @param string                               $template  Resolved template path.
+				 * @param int                                  $team_id   Team post ID.
+				 * @param \Kernowdev\Clanbite\Extensions\Teams $extension Teams extension.
+				 */
 				$loaded = apply_filters(
 					'clanbite_load_team_manage_template',
-					locate_block_template( $located, 'teams-manage', $templates ),
+					clanbite_locate_block_or_plugin_template( $located, $plugin_template, 'teams-manage', $templates ),
 					$team_id,
 					$this
 				);
@@ -1343,6 +1362,12 @@ class Teams extends Skeleton {
 	public function get_team_create_url(): string {
 		$url = home_url( '/teams/create/' );
 
+		/**
+		 * Filters the URL of the create-team page.
+		 *
+		 * @param string                               $url       Create-team URL.
+		 * @param \Kernowdev\Clanbite\Extensions\Teams $extension Teams extension.
+		 */
 		return (string) apply_filters( 'clanbite_team_create_url', $url, $this );
 	}
 
@@ -1387,6 +1412,13 @@ class Teams extends Skeleton {
 	public function get_team_manage_url( int $team_id ): string {
 		$url = $this->get_team_action_url( $team_id, 'manage' );
 
+		/**
+		 * Filters the front-end management URL of a team.
+		 *
+		 * @param string                               $url       Management URL.
+		 * @param int                                  $team_id   Team post ID.
+		 * @param \Kernowdev\Clanbite\Extensions\Teams $extension Teams extension.
+		 */
 		return (string) apply_filters( 'clanbite_team_manage_url', $url, $team_id, $this );
 	}
 
@@ -1482,6 +1514,14 @@ class Teams extends Skeleton {
 			++$n;
 		}
 
+		/**
+		 * Filters the number of members counted for a team.
+		 *
+		 * @param int                                  $count          Member count.
+		 * @param int                                  $team_id        Team post ID.
+		 * @param bool                                 $exclude_banned Whether banned members were excluded.
+		 * @param \Kernowdev\Clanbite\Extensions\Teams $extension      Teams extension.
+		 */
 		return (int) apply_filters( 'clanbite_team_member_count', $n, $team_id, $exclude_banned, $this );
 	}
 
@@ -1731,6 +1771,13 @@ class Teams extends Skeleton {
 			}
 		}
 
+		/**
+		 * Fires after a team's roster has been saved.
+		 *
+		 * @param int                                  $team_id   Team post ID.
+		 * @param array<int,                           string>    $roster Saved roster: user ID => role slug.
+		 * @param \Kernowdev\Clanbite\Extensions\Teams $extension Teams extension.
+		 */
 		do_action( 'clanbite_team_roster_updated', $team_id, $clean, $this );
 
 		return true;
@@ -1793,7 +1840,7 @@ class Teams extends Skeleton {
 	 * @return array<int, int>
 	 */
 	protected function get_user_ids_for_team_membership_cleanup( int $team_id ): array {
-		$uids = array_map( 'intval', array_keys( $this->get_team_member_roles_map( $team_id ) ) );
+		$uids   = array_map( 'intval', array_keys( $this->get_team_member_roles_map( $team_id ) ) );
 		$author = (int) get_post_field( 'post_author', $team_id );
 		if ( $author > 0 && ! in_array( $author, $uids, true ) ) {
 			$uids[] = $author;
@@ -2102,6 +2149,26 @@ class Teams extends Skeleton {
 	}
 
 	/**
+	 * Plain text for the description textarea.
+	 *
+	 * Descriptions saved from the block editor carry block comments and paragraph tags; showing those raw in a textarea
+	 * looks broken, so they are reduced to paragraphs separated by blank lines. Other markup is left as stored.
+	 *
+	 * @param string $content Stored post content.
+	 * @return string
+	 */
+	protected function get_team_description_for_form( string $content ): string {
+		$content = trim( (string) preg_replace( '/<!--.*?-->/s', '', $content ) );
+		if ( preg_match( '/^(?:<p>.*?<\/p>\s*)+$/s', $content ) ) {
+			$content = (string) preg_replace( '/<\/p>\s*<p>/', "\n\n", $content );
+			$content = (string) preg_replace( '/^<p>|<\/p>$/', '', $content );
+			$content = (string) preg_replace( '/<br\s*\/?>/i', "\n", $content );
+		}
+
+		return trim( $content );
+	}
+
+	/**
 	 * Team profile fields (name, code, motto, description, country, record).
 	 *
 	 * @param int   $team_id Team post ID.
@@ -2134,7 +2201,7 @@ class Teams extends Skeleton {
 			</p>
 			<p>
 				<label for="clanbite-manage-team-description"><?php esc_html_e( 'Description', 'clanbite' ); ?></label><br />
-				<textarea id="clanbite-manage-team-description" name="team_description" class="widefat" rows="6"><?php echo esc_textarea( (string) $post->post_content ); ?></textarea>
+				<textarea id="clanbite-manage-team-description" name="team_description" class="widefat" rows="6"><?php echo esc_textarea( $this->get_team_description_for_form( (string) $post->post_content ) ); ?></textarea>
 			</p>
 			<p>
 				<label for="clanbite-manage-team-country"><?php esc_html_e( 'Country', 'clanbite' ); ?></label><br />
@@ -2416,10 +2483,14 @@ class Teams extends Skeleton {
 	/**
 	 * Enqueue styles and the Interactivity module for the tabbed team manage screen.
 	 *
+	 * Hooked to `wp_enqueue_scripts`, where the manage query var may not be set yet on block themes, so the render
+	 * callback also calls it with `$force` (late-enqueued styles are printed in the footer).
+	 *
+	 * @param bool $force Skip the query-var check (called from the render callback).
 	 * @return void
 	 */
-	public function maybe_enqueue_team_manage_form_assets(): void {
-		if ( (int) get_query_var( 'clanbite_manage_team_id' ) < 1 ) {
+	public function maybe_enqueue_team_manage_form_assets( bool $force = false ): void {
+		if ( ! $force && (int) get_query_var( 'clanbite_manage_team_id' ) < 1 ) {
 			return;
 		}
 
@@ -2429,7 +2500,7 @@ class Teams extends Skeleton {
 		wp_enqueue_style(
 			'clanbite-team-create-form-style',
 			$create_form_style_url,
-			array(),
+			array( 'clanbite-buttons', 'clanbite-forms' ),
 			Main::VERSION
 		);
 
@@ -2488,6 +2559,9 @@ class Teams extends Skeleton {
 			return;
 		}
 
+		wp_enqueue_style( 'clanbite-forms' );
+		$this->maybe_enqueue_team_manage_form_assets( true );
+
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Display-only status query arg after save redirect; value is `sanitize_key()`-ed.
 		$manage_status = isset( $_GET['clanbite_team_manage_status'] )
 			? sanitize_key( wp_unslash( $_GET['clanbite_team_manage_status'] ) )
@@ -2505,6 +2579,14 @@ class Teams extends Skeleton {
 				continue;
 			}
 
+			/**
+			 * Filters whether a section of the front-end team management screen is rendered.
+			 *
+			 * @param bool                                 $render     Whether to render the section (default true).
+			 * @param string                               $section_id Section identifier.
+			 * @param int                                  $team_id    Team post ID.
+			 * @param \Kernowdev\Clanbite\Extensions\Teams $extension  Teams extension.
+			 */
 			if ( ! apply_filters( 'clanbite_team_manage_should_render_section', true, (string) $section_id, $team_id, $this ) ) {
 				continue;
 			}
@@ -2592,17 +2674,17 @@ class Teams extends Skeleton {
 				<?php
 				$tab_index = 1;
 				foreach ( $tabs as $tab ) :
-					$tab_id      = isset( $tab['id'] ) ? sanitize_key( (string) $tab['id'] ) : '';
-					$tab_title   = isset( $tab['title'] ) && $tab['title'] !== ''
+					$tab_id    = isset( $tab['id'] ) ? sanitize_key( (string) $tab['id'] ) : '';
+					$tab_title = isset( $tab['title'] ) && '' !== $tab['title']
 						? (string) $tab['title']
 						: sprintf(
 							/* translators: %d: tab index */
 							__( 'Step %d', 'clanbite' ),
 							$tab_index
 						);
-					$tab_desc    = isset( $tab['description'] ) ? (string) $tab['description'] : '';
-					$is_first    = 1 === $tab_index;
-					$tab_class   = 'clanbite-team-create-form__tab' . ( $is_first ? ' is-active' : ' is-upcoming' );
+					$tab_desc  = isset( $tab['description'] ) ? (string) $tab['description'] : '';
+					$is_first  = 1 === $tab_index;
+					$tab_class = 'clanbite-team-create-form__tab' . ( $is_first ? ' is-active' : ' is-upcoming' );
 					?>
 					<button
 						type="button"
@@ -2619,7 +2701,7 @@ class Teams extends Skeleton {
 						<span class="clanbite-team-create-form__tab-index" aria-hidden="true"><?php echo esc_html( (string) $tab_index ); ?></span>
 						<span class="clanbite-team-create-form__tab-text">
 							<span class="clanbite-team-create-form__tab-title"><?php echo esc_html( $tab_title ); ?></span>
-							<?php if ( $tab_desc !== '' ) : ?>
+							<?php if ( '' !== $tab_desc ) : ?>
 								<span class="clanbite-team-create-form__tab-description"><?php echo esc_html( $tab_desc ); ?></span>
 							<?php endif; ?>
 						</span>
@@ -2690,16 +2772,23 @@ class Teams extends Skeleton {
 			?>
 
 			<div class="clanbite-team-create-form__actions clanbite-team-create-form__actions--split clanbite-team-manage-form__step-actions" role="navigation" aria-label="<?php esc_attr_e( 'Step navigation', 'clanbite' ); ?>">
-				<button type="button" class="button clanbite-team-create-form__nav-btn" data-wp-on--click="actions.previousStep" data-wp-bind--hidden="!state.canGoBack()"><?php esc_html_e( 'Back', 'clanbite' ); ?></button>
+				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-team-create-form__nav-btn" data-wp-on--click="actions.previousStep" data-wp-bind--hidden="!state.canGoBack"><?php esc_html_e( 'Back', 'clanbite' ); ?></button>
 				<div class="clanbite-team-create-form__actions-end">
-					<button type="button" class="button clanbite-team-create-form__nav-btn" data-wp-on--click="actions.nextStep" data-wp-bind--hidden="!state.canGoNext()"><?php esc_html_e( 'Next', 'clanbite' ); ?></button>
-					<button type="submit" class="button button-primary clanbite-team-create-form__nav-btn clanbite-team-create-form__nav-btn--primary"><?php esc_html_e( 'Save changes', 'clanbite' ); ?></button>
-					<a class="button clanbite-team-create-form__nav-btn" href="<?php echo esc_url( get_permalink( $team_id ) ); ?>"><?php esc_html_e( 'View team', 'clanbite' ); ?></a>
+					<button type="button" class="wp-element-button clanbite-button clanbite-button--primary clanbite-team-create-form__nav-btn" data-wp-on--click="actions.nextStep" data-wp-bind--hidden="!state.canGoNext"><?php esc_html_e( 'Next', 'clanbite' ); ?></button>
+					<button type="submit" class="wp-element-button clanbite-button clanbite-button--primary clanbite-team-create-form__nav-btn clanbite-team-create-form__nav-btn--primary"><?php esc_html_e( 'Save changes', 'clanbite' ); ?></button>
+					<a class="wp-element-button clanbite-button clanbite-button--ghost clanbite-team-create-form__nav-btn" href="<?php echo esc_url( get_permalink( $team_id ) ); ?>"><?php esc_html_e( 'View team', 'clanbite' ); ?></a>
 				</div>
 			</div>
 		</form>
 		</div>
 		<?php
+		/**
+		 * Filters whether the delete-team form is shown on the front-end management screen.
+		 *
+		 * @param bool                                 $show      Whether to show the form (defaults to the current user's delete capability).
+		 * @param int                                  $team_id   Team post ID.
+		 * @param \Kernowdev\Clanbite\Extensions\Teams $extension Teams extension.
+		 */
 		$show_delete = (bool) apply_filters(
 			'clanbite_team_manage_should_render_delete_form',
 			$this->user_can_delete_team_on_frontend( $team_id ),
@@ -2750,7 +2839,7 @@ class Teams extends Skeleton {
 					</label>
 				</p>
 				<p>
-					<button type="submit" class="button button-secondary clanbite-team-manage-form__delete-submit">
+					<button type="submit" class="wp-element-button clanbite-button clanbite-button--danger clanbite-team-manage-form__delete-submit">
 						<?php esc_html_e( 'Delete team permanently', 'clanbite' ); ?>
 					</button>
 				</p>
@@ -2879,7 +2968,7 @@ class Teams extends Skeleton {
 		$this->get_team_data_store()->update( $team_entity );
 
 		$has_avatar_upload = $this->team_manage_form_has_image_upload( 'team_avatar' );
-		$has_cover_upload    = $this->team_manage_form_has_image_upload( 'team_cover' );
+		$has_cover_upload  = $this->team_manage_form_has_image_upload( 'team_cover' );
 
 		if ( ! $has_avatar_upload && clanbite_request_post_flag( 'team_avatar_remove' ) ) {
 			$this->maybe_remove_team_manage_image( $team_id, 'cp_team_avatar_id' );
@@ -2906,7 +2995,7 @@ class Teams extends Skeleton {
 		if ( $this->user_is_team_admin_on_frontend( $team_id, $user_id )
 			&& isset( $_POST['member_roles'] )
 			&& is_array( $_POST['member_roles'] ) ) {
-			$new_map       = array();
+			$new_map = array();
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Unslashed map; each role string is sanitized in the loop.
 			$member_roles = wp_unslash( $_POST['member_roles'] );
 			foreach ( $member_roles as $mid => $role ) {
@@ -3333,7 +3422,7 @@ class Teams extends Skeleton {
 	/**
 	 * Save the team events meta box.
 	 *
-	 * @param int     $post_id Post ID.
+	 * @param int      $post_id Post ID.
 	 * @param \WP_Post $post    Post object.
 	 * @return void
 	 */
@@ -3398,7 +3487,7 @@ class Teams extends Skeleton {
 	 *
 	 * @param \WP_REST_Response $response Response.
 	 * @param \WP_Post          $post     Post object.
-	 * @param \WP_REST_Request    $request  Request.
+	 * @param \WP_REST_Request  $request  Request.
 	 * @return \WP_REST_Response
 	 */
 	public function rest_prepare_clanbite_team_merge_meta( $response, $post, $request ) {
@@ -3512,7 +3601,7 @@ class Teams extends Skeleton {
 			clanbite()->url . 'assets/js/admin/team-options-editor.js',
 			array(
 				'wp-plugins',
-				'wp-edit-post',
+				'wp-editor',
 				'wp-element',
 				'wp-components',
 				'wp-data',
@@ -3627,7 +3716,7 @@ class Teams extends Skeleton {
 	 * @return array<string, mixed>
 	 */
 	public function get_team_options( int $team_id ): array {
-		$accept_raw = get_post_meta( $team_id, 'cp_team_accept_challenges', true );
+		$accept_raw        = get_post_meta( $team_id, 'cp_team_accept_challenges', true );
 		$accept_challenges = ( '' === $accept_raw ) ? true : rest_sanitize_boolean( $accept_raw );
 
 		$team_obj = $this->get_team( $team_id );
@@ -3723,6 +3812,14 @@ class Teams extends Skeleton {
 		$options = $this->get_team_options( $team_id );
 		$allowed = (bool) $options['allow_invites'];
 
+		/**
+		 * Filters whether players can be invited to a team (defaults to the team's `allow_invites` option).
+		 *
+		 * @param bool                                 $allowed   Whether inviting is allowed.
+		 * @param int                                  $team_id   Team post ID.
+		 * @param array<string,                        mixed>     $options Team options.
+		 * @param \Kernowdev\Clanbite\Extensions\Teams $extension Teams extension.
+		 */
 		return (bool) apply_filters( 'clanbite_team_can_invite_players', $allowed, $team_id, $options, $this );
 	}
 
@@ -3736,6 +3833,14 @@ class Teams extends Skeleton {
 		$options = $this->get_team_options( $team_id );
 		$allowed = (bool) $options['allow_frontend_edit'];
 
+		/**
+		 * Filters whether a team may be edited on the front end (defaults to the team's `allow_frontend_edit` option).
+		 *
+		 * @param bool                                 $allowed   Whether front-end editing is allowed.
+		 * @param int                                  $team_id   Team post ID.
+		 * @param array<string,                        mixed>     $options Team options.
+		 * @param \Kernowdev\Clanbite\Extensions\Teams $extension Teams extension.
+		 */
 		return (bool) apply_filters( 'clanbite_team_can_edit_frontend', $allowed, $team_id, $options, $this );
 	}
 
@@ -3749,6 +3854,14 @@ class Teams extends Skeleton {
 		$options = $this->get_team_options( $team_id );
 		$allowed = (bool) $options['allow_ban_players'];
 
+		/**
+		 * Filters whether players can be banned from a team (defaults to the team's `allow_ban_players` option).
+		 *
+		 * @param bool                                 $allowed   Whether banning is allowed.
+		 * @param int                                  $team_id   Team post ID.
+		 * @param array<string,                        mixed>     $options Team options.
+		 * @param \Kernowdev\Clanbite\Extensions\Teams $extension Teams extension.
+		 */
 		return (bool) apply_filters( 'clanbite_team_can_ban_players', $allowed, $team_id, $options, $this );
 	}
 
@@ -3797,8 +3910,21 @@ class Teams extends Skeleton {
 		}
 
 		$team_slug = sanitize_title( $team_name );
+		/**
+		 * Filters the slug of a team that is about to be created.
+		 *
+		 * @param string $slug      Sanitized slug derived from the name.
+		 * @param string $team_name Submitted team name.
+		 * @param int    $user_id   Creating user ID.
+		 */
 		$team_slug = (string) apply_filters( 'clanbite_pre_insert_team_slug', $team_slug, $team_name, $user_id );
 
+		/**
+		 * Filters the post status of a newly created team (for example `pending` to require moderation).
+		 *
+		 * @param string $post_status Post status (default `publish`).
+		 * @param int    $user_id     Creating user ID.
+		 */
 		$post_status = (string) apply_filters( 'clanbite_create_team_post_status', 'publish', $user_id );
 
 		$team = new Team();
@@ -4389,8 +4515,8 @@ class Teams extends Skeleton {
 		}
 
 		if ( ! $this->is_team_directories_mode() ) {
-			$supports          = isset( $args['supports'] ) && is_array( $args['supports'] ) ? $args['supports'] : array();
-			$args['supports']  = array_merge( $supports, array( 'inserter' => false ) );
+			$supports         = isset( $args['supports'] ) && is_array( $args['supports'] ) ? $args['supports'] : array();
+			$args['supports'] = array_merge( $supports, array( 'inserter' => false ) );
 		}
 
 		return $args;
@@ -4445,7 +4571,7 @@ class Teams extends Skeleton {
 			$context = array();
 		}
 
-		$block_name = isset( $parsed_block['blockName'] ) ? (string) $parsed_block['blockName'] : '';
+		$block_name           = isset( $parsed_block['blockName'] ) ? (string) $parsed_block['blockName'] : '';
 		$is_team_block_family = ( '' !== $block_name && strpos( $block_name, 'clanbite/team-' ) === 0 );
 		$is_player_query      = ( 'clanbite/player-query' === $block_name );
 		$is_player_template   = ( 'clanbite/player-template' === $block_name );
@@ -4552,32 +4678,32 @@ class Teams extends Skeleton {
 			),
 			// Virtual routes (create / manage / events) stay gated by `is_team_directories_mode()` in rewrites
 			// and template loaders; templates are always registered so they remain editable in the Site Editor.
-			'teams-create'          => array(
+			'teams-create'         => array(
 				'title'       => __( 'Teams — Create', 'clanbite' ),
 				'description' => __( 'Create team screen at /teams/create/ when team directory mode is enabled.', 'clanbite' ),
 				'path'        => clanbite()->path . 'templates/teams/teams-create.html',
 			),
-			'teams-manage'          => array(
+			'teams-manage'         => array(
 				'title'       => __( 'Teams — Manage', 'clanbite' ),
 				'description' => __( 'Team management and settings at /teams/{slug}/manage/ when directory mode is enabled.', 'clanbite' ),
 				'path'        => clanbite()->path . 'templates/teams/teams-manage.html',
 			),
-			'teams-events'          => array(
+			'teams-events'         => array(
 				'title'       => __( 'Teams — Events', 'clanbite' ),
 				'description' => __( 'Team events list at /teams/{slug}/events/ (block theme).', 'clanbite' ),
 				'path'        => clanbite()->path . 'templates/teams/teams-events.html',
 			),
-			'teams-events-single'   => array(
+			'teams-events-single'  => array(
 				'title'       => __( 'Teams — Event', 'clanbite' ),
 				'description' => __( 'Single team event at /teams/{slug}/events/{id}/ (block theme).', 'clanbite' ),
 				'path'        => clanbite()->path . 'templates/teams/teams-events-single.html',
 			),
-			'teams-events-create'   => array(
+			'teams-events-create'  => array(
 				'title'       => __( 'Teams — Create event', 'clanbite' ),
 				'description' => __( 'Create team event at /teams/{slug}/events/create/ (managers only).', 'clanbite' ),
 				'path'        => clanbite()->path . 'templates/teams/teams-events-create.html',
 			),
-			'teams-matches'         => array(
+			'teams-matches'        => array(
 				'title'       => __( 'Teams — Matches', 'clanbite' ),
 				'description' => __( 'Team match list at /teams/{slug}/matches/ when the Matches extension team subpage is enabled.', 'clanbite' ),
 				'path'        => clanbite()->path . 'templates/teams/teams-matches.html',
@@ -4708,7 +4834,7 @@ class Teams extends Skeleton {
 		$template->is_custom      = true;
 		$template->area           = \WP_TEMPLATE_PART_AREA_UNCATEGORIZED;
 
-		$content = get_comment_delimited_block_content(
+		$content           = get_comment_delimited_block_content(
 			'core/template-part',
 			array(),
 			$template->content

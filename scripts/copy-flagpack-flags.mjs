@@ -8,7 +8,14 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 const root = path.resolve( __dirname, '..' );
-const srcDir = path.join( root, 'node_modules', 'flagpack-core', 'lib', 'flags', 'm' );
+const srcDir = path.join(
+	root,
+	'node_modules',
+	'flagpack-core',
+	'lib',
+	'flags',
+	'm'
+);
 const destDir = path.join( root, 'assets', 'flags' );
 
 if ( ! fs.existsSync( srcDir ) ) {
@@ -39,5 +46,9 @@ for ( const f of files ) {
 const attribution = `Flag SVGs are from Flagpack (https://flagpack.xyz / https://github.com/Yummygum/flagpack-core), used under the MIT License.
 `;
 
-fs.writeFileSync( path.join( destDir, 'ATTRIBUTION.txt' ), attribution, 'utf8' );
+fs.writeFileSync(
+	path.join( destDir, 'ATTRIBUTION.txt' ),
+	attribution,
+	'utf8'
+);
 console.log( `copy-flagpack-flags: copied ${ n } SVGs to assets/flags/` );

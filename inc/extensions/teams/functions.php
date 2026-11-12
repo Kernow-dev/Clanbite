@@ -1,7 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Procedural API for the Teams extension (themes and third-party plugins).
  *
@@ -11,6 +8,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanbite\Extensions\Teams;
 
@@ -458,8 +457,8 @@ function clanbite_get_team_subpage( string $slug ): ?array {
  * @return string Registered size name or `full`.
  */
 function clanbite_teams_resolve_team_avatar_image_size( string $preset ): string {
-	$preset = sanitize_key( $preset );
-	$keys   = array(
+	$preset   = sanitize_key( $preset );
+	$keys     = array(
 		'large'  => 'team_avatar_image_size_large',
 		'medium' => 'team_avatar_image_size_medium',
 		'small'  => 'team_avatar_image_size_small',
@@ -789,16 +788,16 @@ function clanbite_team_get_member_count( int $team_id ): int {
  * @return string Avatar shape: 'circle', 'square', or 'hexagon'. Default 'circle'.
  */
 function clanbite_teams_get_avatar_shape(): string {
-	// Get directly from the database to avoid caching issues
+	// Get directly from the database to avoid caching issues.
 	$all_settings = get_option( 'clanbite_teams_settings', array() );
 	$shape        = isset( $all_settings['team_avatar_shape'] ) ? $all_settings['team_avatar_shape'] : 'circle';
-	
-	// Sanitize and validate
+
+	// Sanitize and validate.
 	$shape = sanitize_key( $shape );
 	if ( ! in_array( $shape, array( 'circle', 'square', 'hexagon' ), true ) ) {
 		$shape = 'circle';
 	}
-	
+
 	/**
 	 * Filter the team avatar shape.
 	 *
@@ -806,4 +805,3 @@ function clanbite_teams_get_avatar_shape(): string {
 	 */
 	return (string) apply_filters( 'clanbite_teams_avatar_shape', $shape );
 }
-

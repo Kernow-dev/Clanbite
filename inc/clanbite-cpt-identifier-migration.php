@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Option key storing the migration marker (value matches plugin version when complete).
  */
-const CLANBITE_CPT_IDS_MIGRATION_OPTION = 'clanbite_cpt_identifiers_v202602';
+const CLANBITE_CPT_IDS_MIGRATION_OPTION = 'clanbite_cpt_identifiers_v202611';
 
 /**
  * Map legacy CPT slugs to prefixed slugs (longest legacy slug first).
@@ -21,10 +21,12 @@ const CLANBITE_CPT_IDS_MIGRATION_OPTION = 'clanbite_cpt_identifiers_v202602';
  */
 function clanbite_cpt_identifier_migration_map(): array {
 	return array(
-		'cp_team_challenge' => 'clanbite_team_challenge',
-		'cp_team'           => 'clanbite_team',
-		'cp_match'          => 'clanbite_match',
-		'cp_event'          => 'clanbite_event',
+		// `clanbite_team_challenge` (23 chars) exceeds the 20-character post type limit and never registered.
+		'clanbite_team_challenge' => 'clanbite_challenge',
+		'cp_team_challenge'       => 'clanbite_challenge',
+		'cp_team'                 => 'clanbite_team',
+		'cp_match'                => 'clanbite_match',
+		'cp_event'                => 'clanbite_event',
 	);
 }
 
@@ -35,7 +37,7 @@ function clanbite_cpt_identifier_migration_map(): array {
  */
 function clanbite_migrate_cpt_identifiers_for_current_site(): void {
 	$done_for = get_option( CLANBITE_CPT_IDS_MIGRATION_OPTION, '' );
-	if ( $done_for === \Kernowdev\Clanbite\Main::VERSION ) {
+	if ( \Kernowdev\Clanbite\Main::VERSION === $done_for ) {
 		return;
 	}
 

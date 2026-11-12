@@ -1,7 +1,7 @@
 .clanbite-match-list-editor-note {
 	margin: 0;
 	padding: 1rem;
-	background: #f0f0f1;
+	background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
 	border-radius: 2px;
 	font-size: 13px;
 }

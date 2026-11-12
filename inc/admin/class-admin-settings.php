@@ -34,6 +34,11 @@ class Settings {
 
 	protected Admin_Rest $rest;
 
+	/**
+	 * Get the singleton.
+	 *
+	 * @return Settings
+	 */
 	public static function instance(): Settings {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -42,6 +47,9 @@ class Settings {
 		return self::$instance;
 	}
 
+	/**
+	 * Build the settings registry from the General and Groups settings plus every installed extension that exposes a settings admin.
+	 */
 	protected function __construct() {
 		$this->general_settings = new General_Settings();
 		$this->groups_settings  = new Groups_Settings();
@@ -113,6 +121,11 @@ class Settings {
 		exit;
 	}
 
+	/**
+	 * Add the top-level Clanbite menu and its first (Settings) submenu entry.
+	 *
+	 * @return void
+	 */
 	public function register_admin_pages(): void {
 		add_menu_page(
 			__( 'Clanbite', 'clanbite' ),
@@ -138,6 +151,9 @@ class Settings {
 
 	/**
 	 * Enqueue the unified settings app on the main Clanbite screen only.
+	 *
+	 * @param string $hook_suffix Current admin page hook suffix.
+	 * @return void
 	 */
 	public function maybe_enqueue_admin_app( string $hook_suffix ): void {
 		// Top-level only: toplevel_page_clanbite.
@@ -205,6 +221,11 @@ class Settings {
 		);
 	}
 
+	/**
+	 * Output the mount point for the React settings app.
+	 *
+	 * @return void
+	 */
 	public function render_main_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;

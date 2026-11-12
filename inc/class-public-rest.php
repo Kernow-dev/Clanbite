@@ -91,8 +91,8 @@ final class Public_Rest {
 	public static function build_discovery_payload(): array {
 		$discovery = array(
 			'clanbite' => true,
-			'name'       => 'Clanbite',
-			'version'    => Main::VERSION,
+			'name'     => 'Clanbite',
+			'version'  => Main::VERSION,
 		);
 
 		if ( function_exists( 'sodium_crypto_sign_keypair' ) ) {

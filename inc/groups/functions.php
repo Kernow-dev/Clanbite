@@ -1,7 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Integration API for group profiles (no `cp_group` CPT and no group templates or blocks in core).
  *
@@ -13,6 +10,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Register a group profile subpage (tab) for front-end group profiles.
@@ -191,16 +190,16 @@ function clanbite_group_profile_route_current_slug(): string {
 function clanbite_groups_get_avatar_shape(): string {
 	$settings = get_option( 'clanbite_groups_settings', array() );
 	$shape    = 'circle';
-	
+
 	if ( is_array( $settings ) && isset( $settings['group_avatar_shape'] ) ) {
 		$shape = sanitize_key( (string) $settings['group_avatar_shape'] );
 	}
-	
-	// Sanitize and validate
+
+	// Sanitize and validate.
 	if ( ! in_array( $shape, array( 'circle', 'square', 'hexagon' ), true ) ) {
 		$shape = 'circle';
 	}
-	
+
 	/**
 	 * Filter the group avatar shape.
 	 *
@@ -208,4 +207,3 @@ function clanbite_groups_get_avatar_shape(): string {
 	 */
 	return (string) apply_filters( 'clanbite_groups_avatar_shape', $shape );
 }
-

@@ -20,6 +20,13 @@ final class Notification_Schema {
 	public const DB_VERSION        = '1.0.0';
 
 	/**
+	 * Tables already confirmed to exist during this request, keyed by table name.
+	 *
+	 * @var array<string, true>
+	 */
+	private static array $verified_tables = array();
+
+	/**
 	 * Create or upgrade the notifications table.
 	 *
 	 * @return void
@@ -71,7 +78,7 @@ final class Notification_Schema {
 	public static function maybe_upgrade(): void {
 		$stored = get_option( self::OPTION_DB_VERSION, '' );
 
-		if ( $stored === self::DB_VERSION ) {
+		if ( self::DB_VERSION === $stored ) {
 			return;
 		}
 
@@ -97,11 +104,18 @@ final class Notification_Schema {
 		global $wpdb;
 
 		$table = self::table_name();
+		// Verified once per request and table (the name follows `$wpdb->prefix`, which changes under `switch_to_blog()`); data access calls this before every query, including each long-poll iteration.
+		if ( isset( self::$verified_tables[ $table ] ) ) {
+			return;
+		}
+
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$found = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 		if ( $found !== $table ) {
 			self::create_tables();
 		}
+
+		self::$verified_tables[ $table ] = true;
 	}
 
 	/**
@@ -115,6 +129,7 @@ final class Notification_Schema {
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
 		delete_option( self::OPTION_DB_VERSION );
+		unset( self::$verified_tables[ $table ] );
 	}
 }
 

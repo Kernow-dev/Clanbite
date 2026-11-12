@@ -2,9 +2,9 @@
 Contributors: kernowdev
 Tags: community, teams, esports, gaming
 Requires at least: 6.9
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,12 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 2. Team and player blocks in the block editor.
 
 == Changelog ==
+
+= 1.3.0 =
+* Tested up to WordPress 7.1.
+* New shared avatar system: shaped frame (circle, square, hexagon), XP progress ring and level badge, filterable with `clanbite_avatar_data`.
+* New shared form layout (`clanbite-forms`) for team and group management; fixes for the team cover and profile header on dark themes.
+* Shared button variant `clanbite-button--plain`.
 
 = 1.1.0 =
 * WordPress 7.0 compatibility verified.

@@ -3,9 +3,9 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
- * Version: 1.2.0
+ * Version: 1.3.0
  * Requires at least: 6.9
- * Tested up to: 7.0
+ * Tested up to: 7.1
  * Requires PHP: 8.2
  * Author: kernow.dev
  * Author URI: https://kernow.dev
@@ -18,7 +18,7 @@
  * @link    https://clanbite.com/
  *
  * @package clanbite
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 namespace Kernowdev\Clanbite;
@@ -67,7 +67,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.2.0';
+	public const VERSION = '1.3.0';
 
 	/**
 	 * Maintenance upgrade counter (single step for 1.0.0 public release).
@@ -138,7 +138,7 @@ final class Main {
 	 * @return Main A single instance of this class.
 	 */
 	public static function instance(): Main {
-		if ( self::$instance === null ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 
@@ -272,6 +272,20 @@ final class Main {
 	 * Hooks run at 0.
 	 */
 	public function early_hooks(): void {
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ), 1 );
+	}
+
+	/**
+	 * Load translations early (`plugins_loaded`, priority 1).
+	 *
+	 * Since WordPress 6.7, translating a string before its text domain is loaded logs a "too early" notice. Every Clanbite
+	 * plugin uses this same loader; WordPress still finds language packs in `WP_LANG_DIR` on its own.
+	 *
+	 * @return void
+	 */
+	public function load_textdomain(): void {
+		// phpcs:ignore PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound -- Registers the plugin's languages path.
+		load_plugin_textdomain( 'clanbite', false, dirname( $this->basename ) . '/languages' );
 	}
 
 	/**
@@ -288,6 +302,8 @@ final class Main {
 
 		add_action( 'init', array( Front_Seo::class, 'register' ), 20 );
 
+		add_action( 'init', array( $this, 'register_shared_styles' ), 5 );
+		add_filter( 'template_include', array( $this, 'enqueue_interactivity_for_plugin_templates' ), 9999 );
 		add_action( 'init', array( $this, 'register_core_blocks' ), 20 );
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'localize_visibility_container_block_editor' ) );
@@ -470,6 +486,79 @@ final class Main {
 			$handle,
 			'clanbiteVisibilityContainer',
 			array( 'roles' => $roles_out )
+		);
+	}
+
+	/**
+	 * Make the Interactivity API available to blocks rendered by a Clanbite plugin's own PHP template.
+	 *
+	 * Plugin PHP templates (group pages, classic-theme fallbacks) call `get_header()` first and render blocks afterwards, so
+	 * script modules enqueued by those blocks come too late for the import map that `wp_head` prints. Without it the
+	 * browser cannot resolve `@wordpress/interactivity` and every interactive block stays inert. Enqueuing a tiny module
+	 * that depends on it before `wp_head` puts it in the import map; blocks enqueued later then resolve it.
+	 *
+	 * @param string $template Template file chosen for the request.
+	 * @return string Unchanged template path.
+	 */
+	public function enqueue_interactivity_for_plugin_templates( string $template ): string {
+		$plugins_dir = trailingslashit( wp_normalize_path( WP_PLUGIN_DIR ) ) . 'clanbite';
+
+		if ( str_starts_with( wp_normalize_path( $template ), $plugins_dir ) ) {
+			add_action(
+				'wp_enqueue_scripts',
+				static function (): void {
+					wp_enqueue_script_module( 'clanbite-interactivity-bootstrap' );
+				},
+				1
+			);
+		}
+
+		return $template;
+	}
+
+	/**
+	 * Register stylesheets shared by Clanbite and its companion plugins.
+	 *
+	 * `clanbite-tokens` holds the theme-adaptive colour tokens (surface, text, border, accent, danger). `clanbite-buttons`
+	 * is the button contract (defaults, variants, states, focus ring on top of theme.json button styles) and depends on the
+	 * tokens. List a handle in a block's `style` array in `block.json`, or call `wp_enqueue_style()` from template output.
+	 *
+	 * @return void
+	 */
+	public function register_shared_styles(): void {
+		wp_register_script_module(
+			'clanbite-interactivity-bootstrap',
+			$this->url . 'assets/js/clanbite-interactivity-bootstrap.js',
+			array( '@wordpress/interactivity' ),
+			self::VERSION
+		);
+
+		wp_register_style(
+			'clanbite-tokens',
+			$this->url . 'assets/css/clanbite-tokens.css',
+			array(),
+			self::VERSION
+		);
+
+		wp_register_style(
+			'clanbite-buttons',
+			$this->url . 'assets/css/clanbite-buttons.css',
+			array( 'clanbite-tokens' ),
+			self::VERSION
+		);
+
+		wp_register_style(
+			'clanbite-forms',
+			$this->url . 'assets/css/clanbite-forms.css',
+			array( 'clanbite-tokens', 'clanbite-buttons' ),
+			self::VERSION
+		);
+
+		wp_register_style(
+			'clanbite-avatars',
+			$this->url . 'assets/css/clanbite-avatars.css',
+			array( 'clanbite-tokens' ),
+			self::VERSION
 		);
 	}
 

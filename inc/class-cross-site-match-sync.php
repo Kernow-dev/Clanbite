@@ -95,10 +95,10 @@ final class Cross_Site_Match_Sync {
 
 		return new WP_REST_Response(
 			array(
-				'v'           => 1,
-				'algorithm'   => 'ed25519',
-				'public_key'  => base64_encode( $pk ),
-				'clanbite'  => true,
+				'v'          => 1,
+				'algorithm'  => 'ed25519',
+				'public_key' => base64_encode( $pk ),
+				'clanbite'   => true,
 			),
 			200
 		);
@@ -219,35 +219,37 @@ final class Cross_Site_Match_Sync {
 			return $cached;
 		}
 
+		// Short negative cache: this runs before the signature is verified, so unauthenticated callers must not be able to trigger an outbound request per hit.
+		$fail_key = $cache_key . '_fail';
+		if ( get_transient( $fail_key ) ) {
+			return '';
+		}
+
+		// `source_site` is attacker-controlled until the signature checks out: use the safe HTTP API (blocks private/loopback hosts) and cap the response size.
 		$url = $source_site . 'wp-json/clanbite/v1/site-sync-public-key';
-		$res = wp_remote_get(
+		$res = wp_safe_remote_get(
 			$url,
 			array(
-				'timeout'     => 10,
-				'redirection' => 2,
-				'sslverify'   => true,
-				'headers'     => array(
+				'timeout'             => 10,
+				'redirection'         => 2,
+				'sslverify'           => true,
+				'limit_response_size' => 16 * KB_IN_BYTES,
+				'headers'             => array(
 					'Accept' => 'application/json',
 				),
 			)
 		);
 
-		if ( is_wp_error( $res ) ) {
-			return '';
+		$pk   = false;
+		$json = null;
+		if ( ! is_wp_error( $res ) && 200 === (int) wp_remote_retrieve_response_code( $res ) ) {
+			$json = json_decode( (string) wp_remote_retrieve_body( $res ), true );
 		}
-
-		$code = (int) wp_remote_retrieve_response_code( $res );
-		if ( 200 !== $code ) {
-			return '';
+		if ( is_array( $json ) && ! empty( $json['public_key'] ) && ! empty( $json['clanbite'] ) ) {
+			$pk = base64_decode( (string) $json['public_key'], true );
 		}
-
-		$json = json_decode( (string) wp_remote_retrieve_body( $res ), true );
-		if ( ! is_array( $json ) || empty( $json['public_key'] ) || empty( $json['clanbite'] ) ) {
-			return '';
-		}
-
-		$pk = base64_decode( (string) $json['public_key'], true );
 		if ( false === $pk || SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES !== strlen( $pk ) ) {
+			set_transient( $fail_key, 1, MINUTE_IN_SECONDS );
 			return '';
 		}
 
@@ -318,7 +320,7 @@ final class Cross_Site_Match_Sync {
 
 		$opponent_label = get_the_title( $challenged_team_id );
 		$opponent_url   = get_permalink( $challenged_team_id ) ?: home_url( '/' );
-		$opponent_logo = function_exists( 'clanbite_teams_get_display_team_avatar' )
+		$opponent_logo  = function_exists( 'clanbite_teams_get_display_team_avatar' )
 			? clanbite_teams_get_display_team_avatar( $challenged_team_id, false, '', 'cross_site_match_sync', 'medium' )
 			: '';
 		if ( '' === $opponent_logo && has_post_thumbnail( $challenged_team_id ) ) {
@@ -382,9 +384,9 @@ final class Cross_Site_Match_Sync {
 			array(
 				'timeout' => 20,
 				'headers' => array(
-					'Content-Type'      => 'application/json',
+					'Content-Type'    => 'application/json',
 					'X-Clanbite-Sync' => $header,
-					'User-Agent'        => 'Clanbite/' . Main::VERSION . '; ' . home_url( '/' ),
+					'User-Agent'      => 'Clanbite/' . Main::VERSION . '; ' . home_url( '/' ),
 				),
 				'body'    => $canonical,
 			)
@@ -563,7 +565,7 @@ final class Cross_Site_Match_Sync {
 			}
 
 			list( $ts_raw, $sig_in ) = array_map( 'trim', explode( ':', $header, 2 ) );
-			$ts = (int) $ts_raw;
+			$ts                      = (int) $ts_raw;
 			if ( $ts < 1 || ! isset( $body['ts'] ) || (int) $body['ts'] !== $ts ) {
 				return new WP_Error(
 					'clanbite_sync_ts',
@@ -626,7 +628,7 @@ final class Cross_Site_Match_Sync {
 			);
 		}
 
-		if ( $source_site === '' || $source_match_id < 1 || $home_team_id < 1 ) {
+		if ( '' === $source_site || $source_match_id < 1 || $home_team_id < 1 ) {
 			return new WP_Error(
 				'clanbite_sync_fields',
 				__( 'Missing required sync fields.', 'clanbite' ),

@@ -259,8 +259,8 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 			$offset
 		);
 
-		$user_ids   = array();
-		$attendees  = array();
+		$user_ids  = array();
+		$attendees = array();
 		foreach ( $rows as $row ) {
 			$uid = (int) $row['user_id'];
 			if ( $uid < 1 ) {
@@ -292,4 +292,3 @@ final class Event_Rsvp_Rest_Controller extends WP_REST_Controller {
 		);
 	}
 }
-

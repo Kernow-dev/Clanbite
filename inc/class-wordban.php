@@ -187,7 +187,7 @@ final class Wordban {
 	 * Block banned words in team titles via REST.
 	 *
 	 * @param \stdClass|\WP_Post|\WP_Error $prepared_post Prepared post.
-	 * @param \WP_REST_Request            $request Request.
+	 * @param \WP_REST_Request             $request Request.
 	 * @return \stdClass|\WP_Post|\WP_Error
 	 */
 	public static function filter_rest_pre_insert_team( $prepared_post, $request ) {
@@ -208,7 +208,7 @@ final class Wordban {
 	 * Block banned words in group titles via REST.
 	 *
 	 * @param \stdClass|\WP_Post|\WP_Error $prepared_post Prepared post.
-	 * @param \WP_REST_Request            $request Request.
+	 * @param \WP_REST_Request             $request Request.
 	 * @return \stdClass|\WP_Post|\WP_Error
 	 */
 	public static function filter_rest_pre_insert_group( $prepared_post, $request ) {
@@ -228,7 +228,8 @@ final class Wordban {
 	/**
 	 * Reject value if any banned whole-token (or phrase) matches.
 	 *
-	 * @param string $text Text to check.
+	 * @param string             $text                  Text to check.
+	 * @param array<int, string> $extra_canonical_words Extra banned words/phrases merged with the defaults and option list.
 	 * @return \WP_Error|null Null when allowed.
 	 */
 	public static function validate_strict_text( string $text, array $extra_canonical_words = array() ): ?WP_Error {
@@ -236,7 +237,7 @@ final class Wordban {
 			return null;
 		}
 
-		$wordset = self::get_merged_canonical_words( $extra_canonical_words );
+		$wordset         = self::get_merged_canonical_words( $extra_canonical_words );
 		$use_cached_maps = ( array() === $extra_canonical_words );
 		return self::validate_strict_text_with_wordset( $text, $wordset, $use_cached_maps );
 	}
@@ -266,7 +267,8 @@ final class Wordban {
 
 	/**
 	 * @param string             $text    Text to validate.
-	 * @param array<int, string> $wordset Canonical banned words/phrases.
+	 * @param array<int, string> $wordset         Canonical banned words/phrases.
+	 * @param bool               $use_cached_maps Reuse the cached single-token map instead of rebuilding it from $wordset.
 	 * @return \WP_Error|null
 	 */
 	private static function validate_strict_text_with_wordset( string $text, array $wordset, bool $use_cached_maps = false ): ?WP_Error {
@@ -412,8 +414,8 @@ final class Wordban {
 	 * @return void
 	 */
 	public static function clear_caches(): void {
-		self::$single_token_cache = null;
-		self::$phrase_cache       = null;
+		self::$single_token_cache    = null;
+		self::$phrase_cache          = null;
 		self::$canonical_words_cache = null;
 	}
 
@@ -452,8 +454,8 @@ final class Wordban {
 	 * @return array<int, string> Normalized tokens.
 	 */
 	private static function tokenize_for_strict( string $text ): array {
-		$text = strtolower( (string) wp_strip_all_tags( $text ) );
-		$text = remove_accents( $text );
+		$text  = strtolower( (string) wp_strip_all_tags( $text ) );
+		$text  = remove_accents( $text );
 		$parts = preg_split( '/[^\p{L}\p{N}]+/u', $text, -1, PREG_SPLIT_NO_EMPTY );
 		if ( ! is_array( $parts ) ) {
 			return array();
@@ -634,6 +636,7 @@ final class Wordban {
 	/**
 	 * Default + custom list, normalized (lowercase, leet-collapsed; phrases keep spaces).
 	 *
+	 * @param array<int, string> $extra_canonical_words Extra words/phrases merged after the defaults and option list.
 	 * @return array<int, string>
 	 */
 	private static function get_merged_canonical_words( array $extra_canonical_words = array() ): array {
@@ -740,8 +743,8 @@ final class Wordban {
 	 * @return array<int, string>
 	 */
 	private static function parse_raw_list_to_canonical_words( string $raw ): array {
-		$raw      = str_replace( array( "\r\n", "\r" ), "\n", $raw );
-		$bits     = preg_split( '/[,\n]+/', $raw, -1, PREG_SPLIT_NO_EMPTY );
+		$raw  = str_replace( array( "\r\n", "\r" ), "\n", $raw );
+		$bits = preg_split( '/[,\n]+/', $raw, -1, PREG_SPLIT_NO_EMPTY );
 		if ( ! is_array( $bits ) ) {
 			return array();
 		}
@@ -758,7 +761,7 @@ final class Wordban {
 				}
 				$norm = array();
 				foreach ( $parts as $p ) {
-					$p    = preg_replace( '/[^\p{L}\p{N}]+/u', '', (string) $p );
+					$p      = preg_replace( '/[^\p{L}\p{N}]+/u', '', (string) $p );
 					$norm[] = self::canonicalize_alnum_token( (string) $p );
 				}
 				$norm = array_values( array_filter( $norm ) );
@@ -794,7 +797,7 @@ final class Wordban {
 	}
 
 	/**
-	 * @param string            $token Canonical token to test.
+	 * @param string             $token Canonical token to test.
 	 * @param array<int, string> $roots Banned root tokens (length >= 4).
 	 * @return bool
 	 */
@@ -811,7 +814,8 @@ final class Wordban {
 	}
 
 	/**
-	 * @param string $canonical Lowercase letters only.
+	 * @param string $canonical       Lowercase letters only.
+	 * @param bool   $with_boundaries Require the match not to be adjacent to letters or digits.
 	 * @return string Regex with `u` modifier recommended.
 	 */
 	private static function build_flexible_word_pattern( string $canonical, bool $with_boundaries = true ): string {
@@ -821,9 +825,9 @@ final class Wordban {
 		}
 		$chunks = array();
 		foreach ( $chars as $ch ) {
-			$ch     = strtolower( $ch );
-			$alts   = self::leet_class_alternatives( $ch );
-			$quoted = array_map(
+			$ch       = strtolower( $ch );
+			$alts     = self::leet_class_alternatives( $ch );
+			$quoted   = array_map(
 				static function ( string $a ): string {
 					return preg_quote( $a, '/' );
 				},

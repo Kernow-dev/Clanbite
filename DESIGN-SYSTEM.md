@@ -32,6 +32,20 @@ All UI components support plugin-specific modifiers to enable per-plugin customi
 
 All buttons should use WordPress core button classes for theme.json support, plus a Clanbite-specific modifier:
 
+**Fits any theme by default:**
+- `clanbite-buttons` has a zero-specificity defaults layer (`:where()`): padding, radius, accent background and a readable text colour computed from that accent. It only shows when the theme says nothing about buttons (classic themes, block themes without `styles.elements.button`); any theme rule or theme.json overrides it with no `!important`.
+- `clanbite-tokens` (`assets/css/clanbite-tokens.css`) holds the colour tokens: `--clanbite-surface`, `-on-surface`, `-surface-alt`, `-border`, `-muted`, `-accent`, `-on-accent`, `-danger`, `-warning`, `-success`. They are derived from the page (theme presets `background`/`base`, `primary`/`accent`, `danger`, `success`, with `-on-*` text computed for contrast), so panels and popovers adapt to light and dark themes without configuration. A theme overrides any token in `:root`.
+- In block SCSS always write `var(--clanbite-x, <fallback>)` with a standalone fallback (for example `var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent))`). Never hard-code a light or dark palette (`#fff`, `#1d2327`, `rgba(0,0,0,.x)`); use `currentcolor`/`color-mix()` or a token. Surfaces that sit on a differently coloured background (grid gaps) must be opaque: mix with the surface token, not `transparent`.
+- List `clanbite-tokens` (or `clanbite-buttons`, which depends on it) in `block.json` `style`.
+
+**Delivery and theming (single contract):**
+- The variants, states and focus ring are one plain stylesheet, `assets/css/clanbite-buttons.css`, registered by core as the style handle `clanbite-buttons`. List it in the `style` array of every `block.json` that renders buttons (`"style": ["file:./style-index.css", "clanbite-buttons"]`), or call `wp_enqueue_style( 'clanbite-buttons' )` from template output. Companion plugins reuse the core handle; they never ship their own button colours.
+- Font, padding, radius and the primary colours always come from the theme (`styles.elements.button` and `styles.blocks.core/button` in theme.json). The contract only adds layout, the `--ghost` / `--secondary` outline, `--danger`, `--small` (padding only), `.is-active` / `[aria-pressed]` toggle state, disabled and `:focus-visible`.
+- Themes can retune it with custom properties (`--clanbite-button-danger`, `--clanbite-button-wash`, `--clanbite-focus-ring`) or by targeting the variant classes. The danger colour follows the palette slug `danger`, then core `vivid-red`.
+- **Block SCSS must never set background, colour, border, padding, radius or font on a button class**: that overrides the theme. Block SCSS may position buttons only (margin, flex, grid, width).
+- Utility controls that are not actions (tabs, menu triggers, kebab/overflow, icon dismiss, rich-text toolbar tools, media tiles) are not `wp-element-button`; style them from `currentcolor` and theme tokens so they follow the theme too.
+- Use `.is-active` for the selected choice in a segmented control and also set `aria-pressed` for assistive technology.
+
 **Base Structure:**
 ```html
 <div class="wp-block-button clanbite-button [clanbite-button--variant]">
@@ -450,3 +464,17 @@ Clanbite blocks should respect WordPress custom properties:
 - Update when WordPress core classes change
 - Keep backward compatibility for at least one major version
 - Document all breaking changes in changelog
+
+## Avatar frame, progress ring and level badge
+
+Every avatar goes through `clanbite_render_avatar()` / `clanbite_render_avatar_for_interactivity()` (`inc/avatar-helpers.php`) and is styled by the shared handle `clanbite-avatars` (`assets/css/clanbite-avatars.css`, also enqueued by the helpers). Add the handle to a block's `block.json` `style` array when the block outputs avatar markup from JS/templates.
+
+- Shape: `circle`, `square` or `hexagon` (Players/Teams avatar-shape settings). Frame, ring and badge are SVG in a 100×100 box; the photo is clipped with a matching `clip-path`.
+- Progress ring: drawn around the photo when **Ranks** (and Points) are active and a rank type has **Show progress on avatar** on; the arc starts at the top and runs clockwise.
+- Level badge: small shape-matched badge at the lower right showing the rank level, when a rank type has **Show avatar icon** on.
+- Data: `clanbite_get_avatar_badge()` (filter `clanbite_avatar_badge`), fed by `clanbite_ranks_get_avatar_badge()` (filter `clanbite_ranks_avatar_badge`). Without Ranks nothing extra is rendered.
+- Theme: `--clanbite-avatar-frame`, `--clanbite-avatar-ring`, `--clanbite-avatar-ring-track`, `--clanbite-avatar-ring-width`, `--clanbite-avatar-badge-bg`, `--clanbite-avatar-badge-color`, `--clanbite-avatar-size`.
+
+## Form layout (`clanbite-forms`)
+
+`assets/css/clanbite-forms.css` (style handle `clanbite-forms`, depends on the tokens and buttons) lays out the team create/manage forms and the group settings form: label above a full-width control, helper text under its field, checkbox rows, media cards, roster table and a danger zone. Colours come from the shared tokens. Give any other form the `clanbite-form-layout` class (and `clanbite-form-layout__field` on field wrappers) to opt in, and enqueue the handle from its template.

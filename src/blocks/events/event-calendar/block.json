@@ -53,7 +53,7 @@
 	},
 	"editorScript": "file:./index.js",
 	"viewScriptModule": "file:./view.js",
-	"style": "file:./style-index.css",
+	"style": ["file:./style-index.css", "clanbite-buttons"],
 	"render": "file:./render.php",
 	"selectors": {
 		"root": ".wp-block-clanbite-event-calendar",

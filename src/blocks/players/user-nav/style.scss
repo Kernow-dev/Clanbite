@@ -1,5 +1,6 @@
-@import '../../shared/styles/buttons';
-@import '../../shared/styles/avatars';
+@use "../../shared/styles/reduced-motion";
+@use "../../shared/styles/buttons";
+@use "../../shared/styles/avatars";
 
 // User navigation specific styles
 
@@ -37,7 +38,7 @@
 	transition: background-color 0.2s;
 
 	&:hover {
-		background-color: rgba(0, 0, 0, 0.05);
+		background-color: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
 	}
 
 	&:focus {
@@ -68,8 +69,8 @@
 	top: 100%;
 	right: 0;
 	margin-top: 0.5rem;
-	background: #fff;
-	border: 1px solid #ddd;
+	background: var(--clanbite-surface, Canvas);
+	border: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 	border-radius: 8px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 	min-width: 200px;
@@ -83,7 +84,7 @@
 
 .clanbite-user-nav__dropdown-header {
 	padding: 1rem;
-	border-bottom: 1px solid #eee;
+	border-bottom: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 }
 
 .clanbite-user-nav__profile-link {
@@ -94,6 +95,7 @@
 	color: inherit;
 
 	&:hover {
+
 		.clanbite-user-nav__profile-name {
 			text-decoration: underline;
 		}
@@ -117,11 +119,11 @@
 
 .clanbite-user-nav__profile-label {
 	font-size: 0.85rem;
-	color: #666;
+	color: var(--clanbite-muted, color-mix(in srgb, currentcolor 62%, transparent));
 }
 
 .clanbite-user-nav__menu-group {
-	border-top: 1px solid #eee;
+	border-top: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 
 	&:first-child {
 		border-top: none;
@@ -138,7 +140,7 @@
 	transition: background-color 0.2s;
 
 	&:hover {
-		background-color: #f5f5f5;
+		background-color: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
 	}
 }
 
@@ -148,7 +150,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: #666;
+	color: var(--clanbite-muted, color-mix(in srgb, currentcolor 62%, transparent));
 }
 
 .clanbite-user-nav__menu-label {
@@ -169,17 +171,17 @@
 
 	&--secondary {
 		color: inherit;
-		border: 1px solid currentColor;
+		border: 1px solid currentcolor;
 		background: transparent;
 
 		&:hover {
-			background-color: rgba(0, 0, 0, 0.05);
+			background-color: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
 		}
 	}
 
 	&--primary {
-		background-color: var(--wp--preset--color--primary, #0073aa);
-		color: #fff;
+		background-color: var(--clanbite-accent, var(--wp--preset--color--primary, #0073aa));
+		color: var(--clanbite-on-accent, #fff);
 		border: none;
 
 		&:hover {

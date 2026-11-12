@@ -33,7 +33,7 @@ final class Block_Patterns {
 
 		$base = clanbite()->path . 'patterns/';
 		$defs = array(
-			'clanbite/team-profile-header-nav' => array(
+			'clanbite/team-profile-header-nav'   => array(
 				'title'       => __( 'Team profile shell & navigation', 'clanbite' ),
 				'description' => __( 'Team cover, avatar, name blocks, and horizontal section tabs. Insert into templates or pages, then edit blocks or detach from the pattern wrapper in the site editor.', 'clanbite' ),
 				'categories'  => array( 'clanbite-teams' ),

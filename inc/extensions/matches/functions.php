@@ -1,12 +1,11 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Procedural helpers for the Matches extension (themes and integrations).
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanbite\Extensions\Matches;
 

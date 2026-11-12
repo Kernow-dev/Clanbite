@@ -18,9 +18,26 @@ use Kernowdev\Clanbite\Extensions\Abstract_Settings;
 class General_Settings extends Abstract_Settings {
 	public const OPTION_KEY = 'clanbite_general_settings';
 
-	protected string $option_key     = self::OPTION_KEY;
+	/**
+	 * Option name storing this settings bucket.
+	 *
+	 * @var string
+	 */
+	protected string $option_key = self::OPTION_KEY;
+
+	/**
+	 * Settings API group for `register_setting()`.
+	 *
+	 * @var string
+	 */
 	protected string $settings_group = 'clanbite_general';
-	protected string $page_slug      = 'clanbite-general';
+
+	/**
+	 * Settings page slug.
+	 *
+	 * @var string
+	 */
+	protected string $page_slug = 'clanbite-general';
 
 	/**
 	 * Unified React admin: do not add a separate submenu.
@@ -29,6 +46,9 @@ class General_Settings extends Abstract_Settings {
 	 */
 	protected bool $register_standalone_submenu = false;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function hooks(): void {
 		parent::hooks();
 		add_filter( 'show_admin_bar', array( $this, 'filter_show_admin_bar' ), 99 );
@@ -67,14 +87,23 @@ class General_Settings extends Abstract_Settings {
 		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_page_title(): string {
 		return __( 'Clanbite', 'clanbite' );
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_menu_title(): string {
 		return __( 'General', 'clanbite' );
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_defaults(): array {
 		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanbite_general_settings_clanbite_persisted_option_default_map`.
 		return array(
@@ -86,20 +115,23 @@ class General_Settings extends Abstract_Settings {
 		);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function get_sections(): array {
 		// Filters run once in {@see Abstract_Settings::register_settings()} as `clanbite_general_settings_clanbite_settings_ui_section_registry`.
 		return array(
-			'overview' => array(
+			'overview'   => array(
 				'title'  => __( 'Overview', 'clanbite' ),
 				'fields' => array(
-					'admin_notes'    => array(
+					'admin_notes'                      => array(
 						'label'       => __( 'Internal notes', 'clanbite' ),
 						'type'        => 'textarea',
 						'description' => __( 'Optional notes for other site administrators (not shown on the front end).', 'clanbite' ),
 						'default'     => '',
 						'sanitize'    => 'sanitize_textarea_field',
 					),
-					'events_enabled' => array(
+					'events_enabled'                   => array(
 						'label'       => __( 'Enable scheduled events', 'clanbite' ),
 						'type'        => 'checkbox',
 						'description' => __( 'When off, team and group events, REST endpoints, and front-end event routes are disabled site-wide. Individual teams and groups can still turn events off when this is on.', 'clanbite' ),
@@ -138,6 +170,9 @@ class General_Settings extends Abstract_Settings {
 		);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function render_page(): void {
 		$this->render_settings_page( __( 'Clanbite', 'clanbite' ) );
 	}

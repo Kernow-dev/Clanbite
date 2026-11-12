@@ -34,8 +34,8 @@ final class Event_Permissions {
 		$visibility = (string) get_post_meta( $post->ID, 'cp_event_visibility', true );
 		$visibility = $visibility ? $visibility : Event_Post_Type::VISIBILITY_PUBLIC;
 
-		$scope   = (string) get_post_meta( $post->ID, 'cp_event_scope', true );
-		$team_id = (int) get_post_meta( $post->ID, 'cp_event_team_id', true );
+		$scope    = (string) get_post_meta( $post->ID, 'cp_event_scope', true );
+		$team_id  = (int) get_post_meta( $post->ID, 'cp_event_team_id', true );
 		$group_id = (int) get_post_meta( $post->ID, 'cp_event_group_id', true );
 
 		if ( Event_Post_Type::VISIBILITY_PUBLIC === $visibility ) {

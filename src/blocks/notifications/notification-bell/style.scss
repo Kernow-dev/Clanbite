@@ -1,3 +1,5 @@
+@use "../../shared/styles/reduced-motion";
+
 /**
  * Notification Bell block styles.
  */
@@ -6,15 +8,15 @@
 	--bell-size: 24px;
 	--badge-size: 18px;
 	--dropdown-width: 380px;
-	--notification-bg: #fff;
-	--notification-border: rgba(0, 0, 0, 0.1);
-	--notification-hover: rgba(0, 0, 0, 0.03);
-	--notification-unread-bg: rgba(0, 115, 170, 0.05);
-	--notification-text: #1e1e1e;
-	--notification-muted: #757575;
-	--notification-accent: #0073aa;
-	--notification-success: #00a32a;
-	--notification-danger: #d63638;
+	--notification-bg: var(--clanbite-surface, Canvas);
+	--notification-border: var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
+	--notification-hover: color-mix(in srgb, var(--notification-text) 6%, transparent);
+	--notification-unread-bg: color-mix(in srgb, var(--notification-accent) 10%, transparent);
+	--notification-text: var(--clanbite-on-surface, CanvasText);
+	--notification-muted: var(--clanbite-muted, color-mix(in srgb, currentcolor 62%, transparent));
+	--notification-accent: var(--clanbite-accent, #0073aa);
+	--notification-success: var(--clanbite-success, #00a32a);
+	--notification-danger: var(--clanbite-danger, #d63638);
 
 	position: relative;
 	display: inline-block;
@@ -43,11 +45,12 @@
 	&:hover,
 	&:focus {
 		background: var(--notification-hover);
-		outline: none;
 	}
 
+	// Outline (not box-shadow) so the ring survives forced-colors mode.
 	&:focus-visible {
-		box-shadow: 0 0 0 2px var(--notification-accent);
+		outline: 2px solid var(--notification-accent);
+		outline-offset: 2px;
 	}
 }
 
@@ -67,7 +70,7 @@
 	font-weight: 600;
 	line-height: var(--badge-size);
 	text-align: center;
-	color: #fff;
+	color: var(--clanbite-on-danger, #fff);
 	background: var(--notification-danger);
 	border-radius: calc(var(--badge-size) / 2);
 
@@ -106,25 +109,6 @@
 	font-size: 14px;
 	font-weight: 600;
 	color: var(--notification-text);
-}
-
-.clanbite-notification-bell__mark-all-read {
-	padding: 4px 8px;
-	font-size: 12px;
-	color: var(--notification-accent);
-	background: transparent;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-
-	&:hover:not(:disabled) {
-		background: var(--notification-hover);
-	}
-
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
 }
 
 .clanbite-notification-bell__dropdown-content {
@@ -170,6 +154,7 @@
 }
 
 @keyframes spin {
+
 	to {
 		transform: rotate(360deg);
 	}
@@ -297,51 +282,6 @@
 	margin-top: 8px;
 }
 
-.clanbite-notification__action {
-	padding: 6px 12px;
-	font-size: 12px;
-	font-weight: 500;
-	border-radius: 4px;
-	cursor: pointer;
-	transition: all 0.15s ease;
-
-	&--primary {
-		background: var(--notification-accent);
-		color: #fff;
-		border: none;
-
-		&:hover:not(:disabled) {
-			background: color-mix(in srgb, var(--notification-accent) 85%, #000);
-		}
-	}
-
-	&--secondary {
-		background: transparent;
-		color: var(--notification-text);
-		border: 1px solid var(--notification-border);
-
-		&:hover:not(:disabled) {
-			background: var(--notification-hover);
-		}
-	}
-
-	&--danger {
-		background: transparent;
-		color: var(--notification-danger);
-		border: 1px solid var(--notification-danger);
-
-		&:hover:not(:disabled) {
-			background: var(--notification-danger);
-			color: #fff;
-		}
-	}
-
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-}
-
 .clanbite-notification__status {
 	margin-top: 6px;
 	font-size: 11px;
@@ -360,12 +300,14 @@
 
 // Actioned states.
 .clanbite-notification.is-accepted {
+
 	.clanbite-notification__status {
 		color: var(--notification-success);
 	}
 }
 
 .clanbite-notification.is-declined {
+
 	.clanbite-notification__status {
 		color: var(--notification-danger);
 	}
@@ -439,7 +381,7 @@
 }
 
 .clanbite-notification-bell__confirm-btn--ok {
-	color: #fff;
+	color: var(--clanbite-on-accent, #fff);
 	background: var(--notification-accent);
 	border: 1px solid var(--notification-accent);
 
@@ -476,12 +418,14 @@
 }
 
 @keyframes clanbite-notification-toast-in {
+
 	from {
 		opacity: 0;
-		transform: translateY( 4px );
+		transform: translateY(4px);
 	}
+
 	to {
 		opacity: 1;
-		transform: translateY( 0 );
+		transform: translateY(0);
 	}
 }

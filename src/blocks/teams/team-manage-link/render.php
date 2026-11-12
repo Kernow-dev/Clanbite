@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Render callback: “Manage team” link (only when the viewer may manage the team).
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $team_id = clanbite_team_single_block_team_id( $block );
 
@@ -33,4 +32,4 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	$block
 );
 
-echo wp_kses( '<div ' . $wrapper_attributes . '><div class="wp-block-button clanbite-button clanbite-button--manage"><a class="wp-block-button__link wp-element-button clanbite-button__element" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></div></div>', clanbite_block_fragment_allowed_html());
+echo wp_kses( '<div ' . $wrapper_attributes . '><div class="wp-block-button clanbite-button clanbite-button--manage"><a class="wp-block-button__link wp-element-button clanbite-button__element" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></div></div>', clanbite_block_fragment_allowed_html() );

@@ -10,6 +10,16 @@ defined( 'ABSPATH' ) || exit;
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 if ( 'team_directories' !== clanbite_teams_get_team_mode() ) {
+	// Initial wizard state for the server (it only knows PHP state and data-wp-context): step 1 of N.
+	$step_total = count( $steps );
+	wp_interactivity_state(
+		'clanbite-team-create-form',
+		array(
+			'canGoBack' => false,
+			'canGoNext' => static fn() => $step_total > 1,
+		)
+	);
+
 	$wrapper_attributes = get_block_wrapper_attributes(
 		array(
 			'class' => 'clanbite-team-create-form clanbite-team-create-form--unavailable',
@@ -30,8 +40,8 @@ if ( ! is_user_logged_in() ) {
 
 $wrapper_attributes = get_block_wrapper_attributes( array( 'class' => 'clanbite-team-create-form' ), $block );
 
-$status       = '';
-$status_code  = '';
+$status      = '';
+$status_code = '';
 if ( isset( $_GET['_clanbite_team_notice'] ) ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only other `$_GET` keys are read after this nonce succeeds (flash notice from `redirect_after_team_create()`).
 	$notice_nonce = sanitize_text_field( wp_unslash( (string) $_GET['_clanbite_team_notice'] ) );
@@ -58,6 +68,11 @@ $steps = array(
 	),
 );
 
+/**
+ * Filters whether the Player invites step is part of the create-team wizard.
+ *
+ * @param bool $enabled Default true.
+ */
 if ( (bool) apply_filters( 'clanbite_enable_team_create_invites_step', true ) ) {
 	$steps['invites'] = array(
 		'label'       => __( 'Step 3: Player invites', 'clanbite' ),
@@ -79,7 +94,7 @@ if ( (bool) apply_filters( 'clanbite_enable_team_create_invites_step', true ) ) 
  */
 $steps = (array) apply_filters( 'clanbite_team_create_form_steps', $steps );
 
-$context             = array(
+$context = array(
 	'stepCount'         => count( $steps ),
 	'inviteSearchUrl'   => admin_url( 'admin-ajax.php' ),
 	'inviteSearchNonce' => wp_create_nonce( 'clanbite_team_invite_search' ),
@@ -94,7 +109,12 @@ $team_create_form_root_open = '<div '
 ?>
 <?php ob_start(); ?>
 <?php clanbite_echo_block_fragment_html( $team_create_form_root_open ); ?>
-	<?php do_action( 'clanbite_before_team_create_form' ); ?>
+	<?php
+	/**
+	 * Fires before the create-team form markup.
+	 */
+	do_action( 'clanbite_before_team_create_form' );
+	?>
 	<?php if ( 'success' === $status ) : ?>
 		<p id="clanbite-team-create-notice" class="clanbite-team-create-form__notice is-success" role="status" tabindex="-1"><?php esc_html_e( 'Team created successfully.', 'clanbite' ); ?></p>
 	<?php elseif ( 'error' === $status ) : ?>
@@ -112,7 +132,7 @@ $team_create_form_root_open = '<div '
 			<?php
 			$tab_index = 1;
 			foreach ( $steps as $tab_step ) :
-				$tab_title = isset( $tab_step['title'] ) && $tab_step['title'] !== ''
+				$tab_title = isset( $tab_step['title'] ) && '' !== $tab_step['title']
 					? $tab_step['title']
 					: ( $tab_step['label'] ?? sprintf(
 						/* translators: %d: Step number (1-based) in the create-team flow. */
@@ -138,7 +158,7 @@ $team_create_form_root_open = '<div '
 					<span class="clanbite-team-create-form__tab-index" aria-hidden="true"><?php echo esc_html( (string) $tab_index ); ?></span>
 					<span class="clanbite-team-create-form__tab-text">
 						<span class="clanbite-team-create-form__tab-title"><?php echo esc_html( $tab_title ); ?></span>
-						<?php if ( $tab_description !== '' ) : ?>
+						<?php if ( '' !== $tab_description ) : ?>
 							<span class="clanbite-team-create-form__tab-description"><?php echo esc_html( $tab_description ); ?></span>
 						<?php endif; ?>
 					</span>
@@ -202,7 +222,7 @@ $team_create_form_root_open = '<div '
 						<div class="clanbite-team-create-form__media-buttons">
 							<button
 								type="button"
-								class="clanbite-team-create-form__change-media clanbite-team-create-form__change-media--avatar"
+								class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-team-create-form__change-media clanbite-team-create-form__change-media--avatar"
 								data-wp-on--click="actions.selectTeamAvatar"
 							><?php esc_html_e( 'Set team avatar', 'clanbite' ); ?></button>
 							<input
@@ -215,7 +235,7 @@ $team_create_form_root_open = '<div '
 							/>
 							<button
 								type="button"
-								class="clanbite-team-create-form__change-media clanbite-team-create-form__change-media--cover"
+								class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-team-create-form__change-media clanbite-team-create-form__change-media--cover"
 								data-wp-on--click="actions.selectTeamCover"
 							><?php esc_html_e( 'Set cover image', 'clanbite' ); ?></button>
 							<input
@@ -245,6 +265,16 @@ $team_create_form_root_open = '<div '
 							data-wp-on--keydown="actions.onInviteKeydown"
 						/>
 					</p>
+					<?php
+					/* translators: %d: number of matching players. */
+					$invite_found_label = __( '%d players found. Use the up and down arrow keys to review them.', 'clanbite' );
+					?>
+					<p
+						class="screen-reader-text"
+						role="status"
+						data-team-invite-status
+						data-found-template="<?php echo esc_attr( $invite_found_label ); ?>"
+					></p>
 					<ul
 						id="clanbite-team-invite-suggestions-list"
 						class="clanbite-team-create-form__invite-suggestions"
@@ -281,26 +311,39 @@ $team_create_form_root_open = '<div '
 					 * @param int    $step_number Step number.
 					 */
 					do_action( 'clanbite_team_create_form_step', $step_key, $step, $step_number );
+					/**
+					 * Fires inside one step of the create-team wizard.
+					 *
+					 * The dynamic portion is the step key (for example `basic_details`, `invites`, `matches`). Step-specific variant of `clanbite_team_create_form_step`.
+					 *
+					 * @param array<string, mixed>       $step Step configuration.
+					 * @param int           $step_number 1-based step number.
+					 */
 					do_action( "clanbite_team_create_form_step_{$step_key}", $step, $step_number );
 					?>
 				<?php endif; ?>
 			</div>
 			<?php
-			$step_number++;
+			++$step_number;
 		endforeach;
 		?>
 
 		<div class="clanbite-team-create-form__actions clanbite-team-create-form__actions--split" role="navigation" aria-label="<?php esc_attr_e( 'Step navigation', 'clanbite' ); ?>">
-			<button type="button" class="clanbite-team-create-form__nav-btn" data-wp-on--click="actions.previousStep" data-wp-bind--hidden="!state.canGoBack()" hidden><?php esc_html_e( 'Back', 'clanbite' ); ?></button>
+			<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-team-create-form__nav-btn" data-wp-on--click="actions.previousStep" data-wp-bind--hidden="!state.canGoBack" hidden><?php esc_html_e( 'Back', 'clanbite' ); ?></button>
 			<div class="clanbite-team-create-form__actions-end">
-				<button type="button" class="clanbite-team-create-form__nav-btn" data-wp-on--click="actions.nextStep" data-wp-bind--hidden="!state.canGoNext()"><?php esc_html_e( 'Next', 'clanbite' ); ?></button>
-				<button type="submit" class="clanbite-team-create-form__nav-btn clanbite-team-create-form__nav-btn--primary" data-wp-bind--hidden="state.canGoNext()" hidden><?php esc_html_e( 'Create team', 'clanbite' ); ?></button>
+				<button type="button" class="wp-element-button clanbite-button clanbite-button--primary clanbite-team-create-form__nav-btn" data-wp-on--click="actions.nextStep" data-wp-bind--hidden="!state.canGoNext"><?php esc_html_e( 'Next', 'clanbite' ); ?></button>
+				<button type="submit" class="wp-element-button clanbite-button clanbite-button--primary clanbite-team-create-form__nav-btn clanbite-team-create-form__nav-btn--primary" data-wp-bind--hidden="state.canGoNext" hidden><?php esc_html_e( 'Create team', 'clanbite' ); ?></button>
 			</div>
 		</div>
 
 		<?php wp_nonce_field( 'clanbite_create_team_action', '_clanbite_create_team_nonce' ); ?>
 		<input type="hidden" name="action" value="clanbite_create_team" />
 	</form>
-	<?php do_action( 'clanbite_after_team_create_form' ); ?>
+	<?php
+	/**
+	 * Fires after the create-team form markup.
+	 */
+	do_action( 'clanbite_after_team_create_form' );
+	?>
 </div>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

@@ -305,6 +305,7 @@ function syncViewButtons( root, view ) {
 	root.querySelectorAll( '[data-cal-view]' ).forEach( ( btn ) => {
 		const v = btn.getAttribute( 'data-cal-view' );
 		btn.classList.toggle( 'is-active', v === view );
+		btn.setAttribute( 'aria-pressed', v === view ? 'true' : 'false' );
 	} );
 }
 

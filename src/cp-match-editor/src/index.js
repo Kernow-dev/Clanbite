@@ -17,7 +17,11 @@ const STATUS_OPTIONS = [
 ];
 
 function MatchMetaFields() {
-	const [ meta, setMeta ] = useEntityProp( 'postType', 'clanbite_match', 'meta' );
+	const [ meta, setMeta ] = useEntityProp(
+		'postType',
+		'clanbite_match',
+		'meta'
+	);
 
 	const patch = ( key, value ) => {
 		setMeta( { ...meta, [ key ]: value } );
@@ -73,7 +77,7 @@ function MatchMetaFields() {
 				/>
 			</PanelRow>
 			<PanelRow>
-				<SelectControl
+				<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
 					label={ __( 'Match status', 'clanbite' ) }
 					value={ status }
 					options={ STATUS_OPTIONS }

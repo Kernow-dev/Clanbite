@@ -1,9 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * PHP file to use when rendering the block type on the server to show on the front end.
  *
@@ -13,7 +8,13 @@ defined( 'ABSPATH' ) || exit;
  *     $block (WP_Block): The block instance.
  *
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
+ *
+ * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
 	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
@@ -33,13 +34,13 @@ $object_position = $background_position_x . ' ' . $background_position_y;
 
 $position = $attributes['contentPosition'] ?? 'center center';
 
-// Map human-readable 'bottom center' -> 'is-position-bottom-center'
+// Map human-readable 'bottom center' -> 'is-position-bottom-center'.
 $position_class = 'is-position-' . str_replace( ' ', '-', strtolower( (string) $position ) );
 
 $min_h = '220px';
 if ( isset( $attributes['minHeight'] ) && (int) $attributes['minHeight'] > 0 ) {
-	$unit = isset( $attributes['minHeightUnit'] ) ? (string) $attributes['minHeightUnit'] : 'px';
-	$unit = preg_match( '/^(px|em|rem|vh|vw|%)$/', $unit ) ? $unit : 'px';
+	$unit  = isset( $attributes['minHeightUnit'] ) ? (string) $attributes['minHeightUnit'] : 'px';
+	$unit  = preg_match( '/^(px|em|rem|vh|vw|%)$/', $unit ) ? $unit : 'px';
 	$min_h = (int) $attributes['minHeight'] . $unit;
 }
 
@@ -57,10 +58,10 @@ if ( ! $has_cover ) {
 		),
 		$block
 	);
-	$cover_placeholder = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+	$cover_placeholder  = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 	ob_start();
 	?>
-<?php clanbite_echo_block_fragment_html( '<div ' . trim( (string) $wrapper_attributes ) . '>' ); ?>
+	<?php clanbite_echo_block_fragment_html( '<div ' . trim( (string) $wrapper_attributes ) . '>' ); ?>
 	<div class="clanbite-cover__media-clip">
 		<img
 			class="clanbite-cover__media clanbite-cover__media--empty"
@@ -71,11 +72,11 @@ if ( ! $has_cover ) {
 		/>
 	</div>
 	<div class="clanbite-cover__content">
-		<?php echo wp_kses_post( $content ); ?>
+		<?php echo wp_kses( $content, clanbite_block_fragment_allowed_html() ); ?>
 	</div>
 </div>
 	<?php
-	echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html());
+	echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -100,9 +101,9 @@ ob_start();
 		/>
 	</div>
 	<div class="clanbite-cover__content">
-		<?php echo wp_kses_post( $content ); ?>
+		<?php echo wp_kses( $content, clanbite_block_fragment_allowed_html() ); ?>
 	</div>
 </div>
 <?php
-echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html());
+echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() );
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

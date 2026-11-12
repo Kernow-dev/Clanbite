@@ -22,10 +22,10 @@ const { state, actions } = store( 'clanbite-team-create-form', {
 			const total = Number( state.stepCount );
 			return total > 0 ? total : 1;
 		},
-		canGoNext() {
+		get canGoNext() {
 			return state.step < state.maxStep();
 		},
-		canGoBack() {
+		get canGoBack() {
 			return state.step > 1;
 		},
 	},
@@ -351,12 +351,30 @@ const { state, actions } = store( 'clanbite-team-create-form', {
 
 			clearDomNode( list );
 
+			const status = state.root?.querySelector(
+				'[data-team-invite-status]'
+			);
+
 			if ( state.inviteSuggestions.length < 1 ) {
+				if ( status ) {
+					status.textContent = '';
+				}
 				if ( input ) {
 					input.setAttribute( 'aria-expanded', 'false' );
 					input.removeAttribute( 'aria-activedescendant' );
 				}
 				return;
+			}
+
+			// Announce how many suggestions appeared (screen readers do not see the list change otherwise).
+			if ( status ) {
+				const template = status.getAttribute( 'data-found-template' );
+				status.textContent = template
+					? template.replace(
+							'%d',
+							String( state.inviteSuggestions.length )
+					  )
+					: '';
 			}
 
 			if (
@@ -378,6 +396,8 @@ const { state, actions } = store( 'clanbite-team-create-form', {
 
 				const btn = document.createElement( 'button' );
 				btn.type = 'button';
+				// Focus stays in the combobox input (aria-activedescendant), so options are not tab stops.
+				btn.tabIndex = -1;
 				btn.setAttribute( 'role', 'option' );
 				btn.id = `clanbite-invite-option-${ index }`;
 				btn.className =

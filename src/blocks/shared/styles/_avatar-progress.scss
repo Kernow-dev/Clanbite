@@ -1,115 +1,35 @@
+@use "reduced-motion";
+
 /**
- * Avatar Progress Bar Styles
- * 
- * Progress rings that adapt to avatar shapes (circle, square, hexagon)
- * with smooth real-time fill animations.
+ * Avatar XP ring
+ *
+ * The ring is part of the avatar frame (an SVG in the avatar's own shape: circle, square or hexagon). A faint track runs
+ * all the way round; the progress arc starts at the top and runs clockwise, `stroke-dasharray` being "<percent> 100" on a
+ * path of length 100. Colours follow the theme tokens; restyle with the custom properties:
+ *
+ *   --clanbite-avatar-ring        arc colour (default: accent)
+ *   --clanbite-avatar-ring-track  track colour
+ *   --clanbite-avatar-ring-width  stroke width in frame units (default 5, of 100)
  */
 
-/* ==========================================================================
-   BASE PROGRESS RING CONTAINER
-   ========================================================================== */
-
-.clanbite-avatar__progress-ring {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	pointer-events: none;
-	z-index: 1;
-	
-	svg {
-		display: block;
-		overflow: visible;
-	}
-}
-
-/* ==========================================================================
-   PROGRESS PATH STYLES
-   ========================================================================== */
-
-.clanbite-avatar__progress-path {
+.clanbite-avatar__ring-track,
+.clanbite-avatar__ring-progress {
 	fill: none;
-	stroke: var(--clanbite-avatar-progress-bg, rgba(0, 0, 0, 0.1));
-	stroke-width: var(--clanbite-avatar-progress-width, 4);
-}
-
-.clanbite-avatar__progress-fill {
-	fill: none;
-	stroke: var(--clanbite-avatar-progress-color, var(--wp--preset--color--primary, #0073aa));
-	stroke-width: var(--clanbite-avatar-progress-width, 4);
-	stroke-linecap: round;
-	transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ==========================================================================
-   CIRCLE SHAPE PROGRESS
-   ========================================================================== */
-
-.clanbite-avatar--shape-circle .clanbite-avatar__progress-ring {
-	// Circle-specific adjustments handled via SVG viewBox
-}
-
-/* ==========================================================================
-   SQUARE SHAPE PROGRESS
-   ========================================================================== */
-
-.clanbite-avatar--shape-square .clanbite-avatar__progress-ring {
-	// Square uses rounded rect path
-}
-
-.clanbite-avatar--shape-square .clanbite-avatar__progress-fill {
+	stroke-width: var(--clanbite-avatar-ring-width, 5);
 	stroke-linejoin: round;
 }
 
-/* ==========================================================================
-   HEXAGON SHAPE PROGRESS
-   ========================================================================== */
-
-.clanbite-avatar--shape-hexagon .clanbite-avatar__progress-ring {
-	// Hexagon uses polygon path
+.clanbite-avatar__ring-track {
+	stroke: var(--clanbite-avatar-ring-track, color-mix(in srgb, var(--clanbite-on-surface, #1e1e1e) 14%, transparent));
 }
 
-.clanbite-avatar--shape-hexagon .clanbite-avatar__progress-fill {
-	stroke-linejoin: miter;
+.clanbite-avatar__ring-progress {
+	stroke: var(--clanbite-avatar-ring, var(--clanbite-accent, #2271b1));
+	stroke-linecap: round;
+	transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ==========================================================================
-   REAL-TIME FILL ANIMATION
-   ========================================================================== */
-
-// Progress ring animates on load
-.clanbite-avatar__progress-ring {
-	animation: clanbite-progress-fade-in 0.3s ease-out;
-}
-
-@keyframes clanbite-progress-fade-in {
-	from {
-		opacity: 0;
-		transform: translate(-50%, -50%) scale(0.95);
-	}
-	to {
-		opacity: 1;
-		transform: translate(-50%, -50%) scale(1);
-	}
-}
-
-// Smooth stroke animation (triggered by stroke-dashoffset change)
-.clanbite-avatar__progress-fill {
-	// The transition on stroke-dashoffset creates the smooth fill effect
-	// When PHP updates data-progress attribute, CSS updates stroke-dashoffset
-	transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ==========================================================================
-   SIZE VARIANTS
-   ========================================================================== */
-
-// Only show progress on large avatars
-.clanbite-avatar--large .clanbite-avatar__progress-ring {
-	display: block;
-}
-
-.clanbite-avatar--medium .clanbite-avatar__progress-ring,
-.clanbite-avatar--small .clanbite-avatar__progress-ring {
-	display: none;
+// A ring at 0% would still draw a round cap dot; hide the arc until there is progress.
+.clanbite-avatar__ring-progress[stroke-dasharray^="0 "] {
+	stroke-opacity: 0;
 }

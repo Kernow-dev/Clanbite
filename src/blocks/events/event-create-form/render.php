@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Server render: Create or edit event form (team/group managers).
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 use Kernowdev\Clanbite\Events\Event_Permissions;
 use Kernowdev\Clanbite\Events\Event_Post_Type;
@@ -18,11 +17,11 @@ $viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
 $edit_event_id = (int) ( $attributes['eventId'] ?? 0 );
 $is_edit       = $edit_event_id > 0;
 
-$scope       = sanitize_key( (string) ( $attributes['scopeType'] ?? 'team' ) );
-$team_id     = (int) ( $attributes['teamId'] ?? 0 );
-$group_id    = (int) ( $attributes['groupId'] ?? 0 );
-$id_suffix   = '';
-$edit_post   = null;
+$scope     = sanitize_key( (string) ( $attributes['scopeType'] ?? 'team' ) );
+$team_id   = (int) ( $attributes['teamId'] ?? 0 );
+$group_id  = (int) ( $attributes['groupId'] ?? 0 );
+$id_suffix = '';
+$edit_post = null;
 
 $pf_title    = '';
 $pf_content  = '';
@@ -46,14 +45,14 @@ if ( $is_edit ) {
 	}
 	if ( ! Event_Permissions::user_can_manage_event( $edit_event_id, $viewer_id ) ) {
 		$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-create-form clanbite-event-create-form--locked' ), $block );
-		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'You cannot edit this event.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'You cannot edit this event.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 		return;
 	}
 
 	$scope_meta = sanitize_key( (string) get_post_meta( $edit_event_id, 'cp_event_scope', true ) );
 	if ( Event_Post_Type::SCOPE_TEAM === $scope_meta ) {
-		$scope   = 'team';
-		$team_id = (int) get_post_meta( $edit_event_id, 'cp_event_team_id', true );
+		$scope    = 'team';
+		$team_id  = (int) get_post_meta( $edit_event_id, 'cp_event_team_id', true );
 		$group_id = 0;
 		if ( function_exists( 'clanbite_events_are_enabled_for_team' ) && ! clanbite_events_are_enabled_for_team( $team_id ) ) {
 			return '';
@@ -69,10 +68,10 @@ if ( $is_edit ) {
 		return '';
 	}
 
-	$id_suffix   = '-' . $edit_event_id;
-	$pf_title    = get_the_title( $edit_post );
-	$pf_content  = (string) $edit_post->post_content;
-	$pf_mode     = sanitize_key( (string) get_post_meta( $edit_event_id, 'cp_event_mode', true ) );
+	$id_suffix  = '-' . $edit_event_id;
+	$pf_title   = get_the_title( $edit_post );
+	$pf_content = (string) $edit_post->post_content;
+	$pf_mode    = sanitize_key( (string) get_post_meta( $edit_event_id, 'cp_event_mode', true ) );
 	if ( '' === $pf_mode ) {
 		$pf_mode = Event_Post_Type::MODE_IN_PERSON;
 	}
@@ -132,7 +131,7 @@ if ( $is_edit ) {
 
 	if ( ! $can ) {
 		$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-create-form clanbite-event-create-form--locked' ), $block );
-		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Only team or group managers can create events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Only team or group managers can create events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 		return;
 	}
 }
@@ -150,20 +149,20 @@ $config = array(
 	'nonce'     => wp_create_nonce( 'wp_rest' ),
 	'stepCount' => 4,
 	'i18n'      => array(
-		'next'          => __( 'Next', 'clanbite' ),
-		'submit'        => $is_edit ? __( 'Save changes', 'clanbite' ) : __( 'Create event', 'clanbite' ),
-		'success'       => $is_edit ? __( 'Event updated.', 'clanbite' ) : __( 'Event created.', 'clanbite' ),
-		'error'         => $is_edit ? __( 'Could not update event.', 'clanbite' ) : __( 'Could not create event.', 'clanbite' ),
-		'titleRequired' => __( 'Title required.', 'clanbite' ),
-		'viewEvent'     => __( 'View event', 'clanbite' ),
-		'createAnother' => __( 'Create another', 'clanbite' ),
-		'stepsLabel'    => $is_edit ? __( 'Edit event steps', 'clanbite' ) : __( 'Create event steps', 'clanbite' ),
-		'memberOutreachLabel'    => __( 'Roster outreach', 'clanbite' ),
-		'memberOutreachHelpTeam' => __( 'Optionally notify everyone on this team (in-app) or add them as tentative attendees so they can confirm in RSVP.', 'clanbite' ),
+		'next'                    => __( 'Next', 'clanbite' ),
+		'submit'                  => $is_edit ? __( 'Save changes', 'clanbite' ) : __( 'Create event', 'clanbite' ),
+		'success'                 => $is_edit ? __( 'Event updated.', 'clanbite' ) : __( 'Event created.', 'clanbite' ),
+		'error'                   => $is_edit ? __( 'Could not update event.', 'clanbite' ) : __( 'Could not create event.', 'clanbite' ),
+		'titleRequired'           => __( 'Title required.', 'clanbite' ),
+		'viewEvent'               => __( 'View event', 'clanbite' ),
+		'createAnother'           => __( 'Create another', 'clanbite' ),
+		'stepsLabel'              => $is_edit ? __( 'Edit event steps', 'clanbite' ) : __( 'Create event steps', 'clanbite' ),
+		'memberOutreachLabel'     => __( 'Roster outreach', 'clanbite' ),
+		'memberOutreachHelpTeam'  => __( 'Optionally notify everyone on this team (in-app) or add them as tentative attendees so they can confirm in RSVP.', 'clanbite' ),
 		'memberOutreachHelpGroup' => __( 'Recipients come from integrations that filter clanbite_group_event_member_user_ids. Without that, outreach has no members to target.', 'clanbite' ),
-		'memberOutreachNone'     => __( 'None', 'clanbite' ),
-		'memberOutreachNotify'  => __( 'Notify all roster members', 'clanbite' ),
-		'memberOutreachRsvp'    => __( 'Tentative RSVP + notify (full invite)', 'clanbite' ),
+		'memberOutreachNone'      => __( 'None', 'clanbite' ),
+		'memberOutreachNotify'    => __( 'Notify all roster members', 'clanbite' ),
+		'memberOutreachRsvp'      => __( 'Tentative RSVP + notify (full invite)', 'clanbite' ),
 	),
 );
 
@@ -171,6 +170,15 @@ $wrapper_classes = array( 'clanbite-event-create-form' );
 if ( $is_edit ) {
 	$wrapper_classes[] = 'clanbite-event-create-form--edit';
 }
+// Initial wizard state for the server: step 1 of the configured step count.
+wp_interactivity_state(
+	'clanbite-event-create-form',
+	array(
+		'canGoBack' => false,
+		'canGoNext' => static fn() => ( (int) ( wp_interactivity_get_context( 'clanbite-event-create-form' )['stepCount'] ?? 1 ) ) > 1,
+	)
+);
+
 $wrapper = get_block_wrapper_attributes( array( 'class' => implode( ' ', $wrapper_classes ) ), $block );
 
 $event_create_form_root_open = '<div '
@@ -319,18 +327,18 @@ $event_create_form_root_open = '<div '
 
 		<div class="clanbite-event-create-form__actions clanbite-event-create-form__actions--split">
 			<div class="wp-block-button clanbite-button clanbite-button--secondary">
-				<button type="button" class="wp-block-button__link wp-element-button clanbite-button__element" data-wp-on--click="actions.previousStep" data-wp-bind--hidden="!state.canGoBack()" hidden>
+				<button type="button" class="wp-block-button__link wp-element-button clanbite-button__element" data-wp-on--click="actions.previousStep" data-wp-bind--hidden="!state.canGoBack" hidden>
 					<?php esc_html_e( 'Back', 'clanbite' ); ?>
 				</button>
 			</div>
 			<div class="clanbite-event-create-form__actions-end">
 				<div class="wp-block-button clanbite-button clanbite-button--secondary">
-					<button type="button" class="wp-block-button__link wp-element-button clanbite-button__element" data-wp-on--click="actions.nextStep" data-wp-bind--hidden="!state.canGoNext()">
+					<button type="button" class="wp-block-button__link wp-element-button clanbite-button__element" data-wp-on--click="actions.nextStep" data-wp-bind--hidden="!state.canGoNext">
 						<?php echo esc_html( $config['i18n']['next'] ); ?>
 					</button>
 				</div>
 				<div class="wp-block-button clanbite-button clanbite-button--primary clanbite-button--submit">
-					<button type="submit" class="wp-block-button__link wp-element-button clanbite-button__element" data-wp-bind--hidden="state.canGoNext()" hidden>
+					<button type="submit" class="wp-block-button__link wp-element-button clanbite-button__element" data-wp-bind--hidden="state.canGoNext" hidden>
 						<?php echo esc_html( $config['i18n']['submit'] ); ?>
 					</button>
 				</div>
@@ -369,4 +377,4 @@ $event_create_form_root_open = '<div '
 		</div>
 	</div>
 </div>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

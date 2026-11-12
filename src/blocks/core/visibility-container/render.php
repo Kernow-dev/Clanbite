@@ -42,5 +42,6 @@ echo wp_kses(
 		'<div %1$s>%2$s</div>',
 		$wrapper_attributes,
 		$inner_html
-	), clanbite_block_fragment_allowed_html()
+	),
+	clanbite_block_fragment_allowed_html()
 );

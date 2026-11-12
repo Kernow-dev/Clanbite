@@ -149,7 +149,7 @@ class Rest_Controller {
 				'pending',
 				'private',
 			);
-			$args['perm']       = 'readable';
+			$args['perm']        = 'readable';
 		}
 
 		$meta_query = $this->build_list_meta_query( $team_id, $status );

@@ -1,8 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Renders social profile links for the resolved player (profile, loops, post author fallback).
  *
@@ -11,6 +7,10 @@ defined( 'ABSPATH' ) || exit;
  * @var array    $attributes Block attributes.
  * @var WP_Block $block      Block instance.
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $user_id = function_exists( 'clanbite_player_blocks_resolve_subject_user_id' )
 	? (int) clanbite_player_blocks_resolve_subject_user_id( $block )
@@ -28,7 +28,7 @@ if ( $user_id < 1 ) {
 		),
 		$block
 	);
-	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Player social links', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'Player social links', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
@@ -53,7 +53,7 @@ foreach ( $definitions as $slug => $def ) {
 	}
 
 	$label = isset( $def['label'] ) ? (string) $def['label'] : $slug;
-	$label = $label !== '' ? $label : $slug;
+	$label = '' !== $label ? $label : $slug;
 
 	$items[] = array(
 		'slug'  => $slug,
@@ -111,5 +111,5 @@ $wrapper_attributes = get_block_wrapper_attributes(
 	</ul>
 </div>
 <?php
-echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html());
+echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() );
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

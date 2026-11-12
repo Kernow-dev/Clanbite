@@ -130,9 +130,7 @@ const { state, actions } = store( 'clanbite-event-list', {
 			);
 			state.timeScope = 'all';
 			state.page = 1;
-			const timeSel = root.querySelector(
-				'.clanbite-event-list__time'
-			);
+			const timeSel = root.querySelector( '.clanbite-event-list__time' );
 			if ( timeSel ) {
 				timeSel.value = 'all';
 			}

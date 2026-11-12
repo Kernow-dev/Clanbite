@@ -41,17 +41,18 @@
 			"email": "wasson@kernow.dev"
 		}
 	],
-	"minimum-stability": "dev",
 	"require-dev": {
 		"php-stubs/wordpress-stubs": "^6.8",
-		"phpcompatibility/phpcompatibility-wp": "dev-master",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"phpstan/phpstan": "^2.1",
-		"squizlabs/php_codesniffer": "3.x-dev",
-		"wp-coding-standards/wpcs": "dev-develop"
+		"squizlabs/php_codesniffer": "^3.10",
+		"wp-coding-standards/wpcs": "^3.1"
 	},
 	"scripts": {
 		"lint:php": "phpcs",
 		"lint:php:fix": "phpcbf",
+		"docs:hooks": "php scripts/generate-hooks-doc.php",
+		"docs:hooks:check": "php scripts/generate-hooks-doc.php --check",
 		"phpstan": "phpstan analyse --memory-limit=1024M"
 	},
 	"config": {

@@ -97,17 +97,17 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 					'callback'            => array( $this, 'poll_updates' ),
 					'permission_callback' => array( $this, 'notifications_access_permissions_check' ),
 					'args'                => array(
-						'since'    => array(
+						'since'   => array(
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
 						),
-						'last_id'  => array(
+						'last_id' => array(
 							'type'              => 'integer',
 							'default'           => 0,
 							'sanitize_callback' => 'absint',
 						),
-						'timeout'  => array(
+						'timeout' => array(
 							'type'              => 'integer',
 							'default'           => self::MAX_POLL_WAIT,
 							'sanitize_callback' => 'absint',
@@ -339,7 +339,13 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		 */
 		$default_blocking = function_exists( 'clanbite_notifications_poll_long_polling_enabled' )
 			&& clanbite_notifications_poll_long_polling_enabled();
-		$blocking_wait    = (bool) apply_filters( 'clanbite_notification_poll_blocking_wait', $default_blocking, $user_id );
+		/**
+		 * Filters whether `/notifications/poll` may sleep in a loop until it times out or new items arrive (long-polling).
+		 *
+		 * @param bool $blocking Defaults to the Notifications setting `poll_long_polling`.
+		 * @param int  $user_id  Polling user ID.
+		 */
+		$blocking_wait = (bool) apply_filters( 'clanbite_notification_poll_blocking_wait', $default_blocking, $user_id );
 
 		if ( ! $blocking_wait ) {
 			$new_notifications = $this->get_new_notifications( $user_id, $since, $last_id );
@@ -429,14 +435,14 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 		// Hydrate rows.
 		return array_map(
 			function ( $row ) {
-				$row->id        = (int) $row->id;
-				$row->user_id   = (int) $row->user_id;
-				$row->actor_id  = $row->actor_id ? (int) $row->actor_id : null;
-				$row->object_id = $row->object_id ? (int) $row->object_id : null;
-				$row->is_read   = (bool) $row->is_read;
-				$row->data      = $row->data ? json_decode( $row->data, true ) : null;
-				$row->actions   = $row->actions ? json_decode( $row->actions, true ) : null;
-				$row->status    = $row->status ?? 'pending';
+				$row->id            = (int) $row->id;
+				$row->user_id       = (int) $row->user_id;
+				$row->actor_id      = $row->actor_id ? (int) $row->actor_id : null;
+				$row->object_id     = $row->object_id ? (int) $row->object_id : null;
+				$row->is_read       = (bool) $row->is_read;
+				$row->data          = $row->data ? json_decode( $row->data, true ) : null;
+				$row->actions       = $row->actions ? json_decode( $row->actions, true ) : null;
+				$row->status        = $row->status ?? 'pending';
 				$row->is_actionable = is_array( $row->actions ) && ! empty( $row->actions ) && 'pending' === $row->status;
 
 				if ( $row->actor_id ) {
@@ -490,7 +496,7 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 			return new WP_Error( 'not_found', __( 'Notification not found.', 'clanbite' ), array( 'status' => 404 ) );
 		}
 
-		if ( (int) $notification->user_id !== get_current_user_id() ) {
+		if ( get_current_user_id() !== (int) $notification->user_id ) {
 			return new WP_Error( 'forbidden', __( 'You cannot view this notification.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
@@ -621,23 +627,23 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 	 */
 	private function format_notification( object $notification ): array {
 		$formatted = array(
-			'id'           => $notification->id,
-			'type'         => $notification->type,
-			'title'        => $notification->title,
-			'message'      => $notification->message,
-			'url'          => $notification->url,
-			'actor_id'     => $notification->actor_id,
-			'actor'        => isset( $notification->actor ) ? (array) $notification->actor : null,
-			'object_type'  => $notification->object_type,
-			'object_id'    => $notification->object_id,
-			'data'         => $notification->data,
-			'actions'      => $notification->actions,
-			'status'       => $notification->status,
-			'is_read'      => $notification->is_read,
+			'id'            => $notification->id,
+			'type'          => $notification->type,
+			'title'         => $notification->title,
+			'message'       => $notification->message,
+			'url'           => $notification->url,
+			'actor_id'      => $notification->actor_id,
+			'actor'         => isset( $notification->actor ) ? (array) $notification->actor : null,
+			'object_type'   => $notification->object_type,
+			'object_id'     => $notification->object_id,
+			'data'          => $notification->data,
+			'actions'       => $notification->actions,
+			'status'        => $notification->status,
+			'is_read'       => $notification->is_read,
 			'is_actionable' => $notification->is_actionable,
-			'created_at'   => $notification->created_at,
-			'read_at'      => $notification->read_at,
-			'time_ago'     => human_time_diff( strtotime( $notification->created_at ), time() ),
+			'created_at'    => $notification->created_at,
+			'read_at'       => $notification->read_at,
+			'time_ago'      => human_time_diff( strtotime( $notification->created_at ), time() ),
 		);
 
 		/**

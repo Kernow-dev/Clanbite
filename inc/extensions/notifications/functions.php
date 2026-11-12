@@ -1,12 +1,11 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Notification helper functions for developers.
  *
  * @package Clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanbite\Extensions\Notification\Notification_Data_Access;
 
@@ -44,7 +43,7 @@ function clanbite_notifications_extension_active(): bool {
  */
 function clanbite_notifications_settings_values(): array {
 	$defaults = array(
-		'subpage_player'   => true,
+		'subpage_player'    => true,
 		'poll_long_polling' => false,
 	);
 	$stored   = get_option( 'clanbite_notifications_settings', array() );
@@ -383,7 +382,7 @@ function clanbite_get_notifications_url( ?int $user_id = null ): string {
 	}
 	if ( '' === $profile_url ) {
 		$user = get_userdata( $user_id );
-		if ( $user instanceof \WP_User && is_string( $user->user_nicename ) && $user->user_nicename !== '' ) {
+		if ( $user instanceof \WP_User && is_string( $user->user_nicename ) && '' !== $user->user_nicename ) {
 			$profile_url = home_url( '/players/' . $user->user_nicename );
 		}
 	}
@@ -402,23 +401,23 @@ function clanbite_get_notifications_url( ?int $user_id = null ): string {
  */
 function clanbite_get_notification_types(): array {
 	$types = array(
-		'team_invite'     => array(
+		'team_invite'      => array(
 			'label' => __( 'Team Invite', 'clanbite' ),
 			'icon'  => 'groups',
 		),
-		'team_join'       => array(
+		'team_join'        => array(
 			'label' => __( 'Team Join', 'clanbite' ),
 			'icon'  => 'groups',
 		),
-		'team_role'       => array(
+		'team_role'        => array(
 			'label' => __( 'Team Role Change', 'clanbite' ),
 			'icon'  => 'admin-users',
 		),
-		'team_removed'    => array(
+		'team_removed'     => array(
 			'label' => __( 'Removed from Team', 'clanbite' ),
 			'icon'  => 'dismiss',
 		),
-		'team_challenge'  => array(
+		'team_challenge'   => array(
 			'label' => __( 'Team Challenge', 'clanbite' ),
 			'icon'  => 'flag',
 		),
@@ -434,11 +433,11 @@ function clanbite_get_notification_types(): array {
 			'label' => __( 'Group Event', 'clanbite' ),
 			'icon'  => 'calendar-alt',
 		),
-		'mention'         => array(
+		'mention'          => array(
 			'label' => __( 'Mention', 'clanbite' ),
 			'icon'  => 'format-status',
 		),
-		'system'          => array(
+		'system'           => array(
 			'label' => __( 'System', 'clanbite' ),
 			'icon'  => 'info',
 		),
@@ -462,20 +461,20 @@ function clanbite_get_notification_types(): array {
 function clanbite_notification_allowed_html(): array {
 	return array(
 		'div'    => array(
-			'class'                  => true,
-			'data-notification-id'   => true,
+			'class'                => true,
+			'data-notification-id' => true,
 		),
 		'a'      => array(
-			'href'                   => true,
-			'class'                  => true,
-			'data-notification-id'   => true,
+			'href'                 => true,
+			'class'                => true,
+			'data-notification-id' => true,
 		),
 		'button' => array(
-			'type'                   => true,
-			'class'                  => true,
-			'data-action'            => true,
-			'data-notification-id'   => true,
-			'data-confirm'           => true,
+			'type'                 => true,
+			'class'                => true,
+			'data-action'          => true,
+			'data-notification-id' => true,
+			'data-confirm'         => true,
 		),
 		'span'   => array(
 			'class' => true,
@@ -524,7 +523,7 @@ function clanbite_register_player_notifications_page_assets(): void {
 	wp_register_style(
 		'clanbite-player-notifications-page',
 		$main->url . $css_rel,
-		array(),
+		array( 'clanbite-buttons' ),
 		$css_v
 	);
 
@@ -570,7 +569,7 @@ add_action( 'init', 'clanbite_register_player_notifications_page_assets', 20 );
  * @return string Safe HTML fragment.
  */
 function clanbite_render_notification( object $notification, bool $compact = false ): string {
-	$types = clanbite_get_notification_types();
+	$types     = clanbite_get_notification_types();
 	$type_info = $types[ $notification->type ] ?? array(
 		'label' => $notification->type,
 		'icon'  => 'bell',
@@ -578,7 +577,7 @@ function clanbite_render_notification( object $notification, bool $compact = fal
 
 	$time_ago = human_time_diff( strtotime( $notification->created_at ), time() );
 
-	$classes = array( 'clanbite-notification' );
+	$classes   = array( 'clanbite-notification' );
 	$classes[] = $notification->is_read ? 'is-read' : 'is-unread';
 	if ( $notification->is_actionable ) {
 		$classes[] = 'is-actionable';
@@ -634,12 +633,12 @@ function clanbite_render_notification( object $notification, bool $compact = fal
 				<div class="clanbite-notification__actions">
 					<?php foreach ( $notification->actions as $action ) : ?>
 						<?php
-						$style = $action['style'] ?? 'secondary';
+						$style   = $action['style'] ?? 'secondary';
 						$confirm = $action['confirm'] ?? false;
 						?>
 						<button
 							type="button"
-							class="clanbite-notification__action clanbite-notification__action--<?php echo esc_attr( $style ); ?>"
+							class="wp-element-button clanbite-button clanbite-button--small <?php echo esc_attr( 'primary' === $style ? 'clanbite-button--primary' : ( 'danger' === $style ? 'clanbite-button--danger clanbite-button--ghost' : 'clanbite-button--ghost' ) ); ?> clanbite-notification__action clanbite-notification__action--<?php echo esc_attr( $style ); ?>"
 							data-action="<?php echo esc_attr( $action['key'] ); ?>"
 							data-notification-id="<?php echo esc_attr( $notification->id ); ?>"
 							<?php if ( $confirm ) : ?>
@@ -709,7 +708,7 @@ function clanbite_render_player_notifications_page_markup(): string {
 	$unread_count  = $result['unread_count'];
 	$total_pages   = $per_page > 0 ? (int) ceil( $total / $per_page ) : 1;
 
-	$rest_root = trailingslashit( (string) rest_url( 'clanbite/v1' ) );
+	$rest_root  = trailingslashit( (string) rest_url( 'clanbite/v1' ) );
 	$rest_nonce = wp_create_nonce( 'wp_rest' );
 
 	ob_start();
@@ -725,7 +724,7 @@ function clanbite_render_player_notifications_page_markup(): string {
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="clanbite-notifications-page__mark-all">
 					<?php wp_nonce_field( 'clanbite_mark_all_read', '_cpnonce' ); ?>
 					<input type="hidden" name="action" value="clanbite_mark_all_notifications_read" />
-					<button type="submit" class="clanbite-notifications-page__mark-all-btn">
+					<button type="submit" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-notifications-page__mark-all-btn">
 						<?php esc_html_e( 'Mark all as read', 'clanbite' ); ?>
 					</button>
 				</form>

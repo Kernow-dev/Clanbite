@@ -79,7 +79,7 @@ These routes are **unauthenticated** (defense in depth: nonces, rate limits, and
 
 **Cross-site mirror (two-way listings):** Each install generates an **Ed25519** keypair (PHP **sodium** extension required) stored in the `clanbite_match_sync_site_keys` option. When a challenge is accepted, if the snapshot came from another Clanbite site (`source: remote`, with `origin` + `remoteTeamId` from `public-team`), the challenged site POSTs to `{origin}/wp-json/clanbite/v1/sync-peer-match` with `X-Clanbite-Sync: v1:{timestamp}:{base64url_signature}` (detached Ed25519 over `{timestamp}\n{json body}`). The receiving site fetches the sender’s public key from `{source_site}wp-json/clanbite/v1/site-sync-public-key` (HTTPS), verifies the signature, then creates the mirror match. **No shared manual secret** — only Clanbite installs that expose the public-key route and accept verified requests participate. For legacy integrations, the `clanbite_cross_site_sync_key` filter can force the older `timestamp:hmac` header using a shared secret. Without sodium and without that filter, mirror push is skipped (the local match on the challenged site still works).
 
-**Filters / actions:** `clanbite_team_challenge_button_visible`, `clanbite_team_challenge_notify_user_ids`, `clanbite_team_challenge_created`, `clanbite_team_challenge_accepted`, `clanbite_team_challenge_declined`, `clanbite_team_challenge_rest_response`, `clanbite_cross_site_sync_key`, `clanbite_cross_site_sync_outbound_payload`, `clanbite_cross_site_sync_incoming_payload`, `clanbite_cross_site_sync_verify_source`, `clanbite_cross_site_sync_push_succeeded`, `clanbite_cross_site_sync_push_failed`, `clanbite_cross_site_sync_push_rejected`, `clanbite_cross_site_sync_incoming_created`. See `AGENTS.md` for the hook table.
+**Filters / actions:** `clanbite_team_challenge_button_visible`, `clanbite_team_challenge_notify_user_ids`, `clanbite_team_challenge_created`, `clanbite_team_challenge_accepted`, `clanbite_team_challenge_declined`, `clanbite_team_challenge_rest_response`, `clanbite_team_challenge_rate_limit`, `clanbite_team_challenge_upload_max_bytes`, `clanbite_team_challenge_remote_allow_http`, `clanbite_cross_site_sync_key`, `clanbite_cross_site_sync_outbound_payload`, `clanbite_cross_site_sync_incoming_payload`, `clanbite_cross_site_sync_verify_source`, `clanbite_cross_site_sync_push_succeeded`, `clanbite_cross_site_sync_push_failed`, `clanbite_cross_site_sync_push_rejected`, `clanbite_cross_site_sync_incoming_created`. See `AGENTS.md` for the hook table.
 
 ## Extension System
 Extensions are registered through filter-based discovery and loaded by the extension loader.
@@ -136,6 +136,8 @@ For ad-hoc or third-party blocks that ship as separate compiled folders, you can
 ### Global Styles (`theme.json`) and Clanbite blocks
 
 First-party blocks declare `supports` (spacing, color, typography, border, shadow, and link color where relevant) and `selectors` in each block’s `block.json`, so **Appearance → Editor → Styles** can target the right DOM nodes. Dynamic blocks pass the `WP_Block` instance into `get_block_wrapper_attributes( …, $block )` on the front end so those styles apply there too.
+
+**Buttons.** Every Clanbite action button (core and the Forums, Social Kit, Points and Ranks add-ons) is `wp-element-button clanbite-button clanbite-button--{primary|ghost|danger}`, so your theme styles them all with one rule: `styles.elements.button` (and `styles.blocks.core/button` for the `wp-block-button` link form). Out of the box the plugins adapt to the page: colours come from the shared `clanbite-tokens` handle (surface, text, border, accent, danger, success), derived from your theme presets with readable text computed for contrast, and buttons have a zero-specificity default look that any theme rule overrides. Set any token in `:root` (for example `--clanbite-accent`) to change it everywhere. The `clanbite-buttons` style handle (`assets/css/clanbite-buttons.css`) only adds the outline (`--ghost`), `--danger`, `--small` and toggle/disabled/focus states. Retune it with `--clanbite-button-danger`, `--clanbite-button-wash` and `--clanbite-focus-ring`, or override the variant classes. The danger colour follows your palette slug `danger`. Add-on authors list `clanbite-buttons` in the `style` array of their `block.json`; see `DESIGN-SYSTEM.md`.
 
 To set **defaults for every Clanbite block** from your theme, merge the `styles.blocks` entries into your theme’s `theme.json` under the existing `styles` key (add `styles.blocks` if it is missing). If a block name is already present, merge objects by hand or replace with your overrides.
 
@@ -618,6 +620,9 @@ On **failure**, `wp_send_json_error()` returns `success: false` and `data` typic
 
 ### Player and team avatars (URLs, presets, and markup)
 
+The **progress ring** on large avatars is drawn only from real data: the Points and Ranks extensions must both be active and **Show progress on avatar** enabled in the Ranks settings. Otherwise no ring is rendered. To force a ring while styling it, return an integer 0-100 from the `clanbite_avatar_progress_demo_value` filter (`(int|null $demo, int $user_id)`; default `null` renders nothing).
+
+
 **Admin (Clanbite → Settings → Players / Teams)** — Each extension has three dropdowns that map semantic presets to a WordPress image size (any registered intermediate size or `full`):
 
 | Preset | Intended use (defaults) |
@@ -768,7 +773,7 @@ When adding new features, expose logical hooks around:
 With the **Clanbite Points** plugin and the `cp_points` extension enabled:
 
 - **`clanbite_points_actions`** — `(array $actions)` keyed by action slug; each value is `array( 'label' => string )`. Merge additional slugs so site owners can attach rules in **Clanbite → Points**.
-- **`clanbite_points_award( int $user_id, string $action_key, array $context = array() )`** — procedural helper; awards according to configured rules and caps.
+- **`clanbite_points_award( int $user_id, string $action_key, array $context = array() )`** — procedural helper; awards according to configured rules and caps. Like the other public Points and Ranks helpers it is available under its **global name** (guard with `function_exists( 'clanbite_points_award' )`); the implementations are namespaced and `inc/functions-global.php` provides the aliases.
 - **`clanbite_points_awarded`** — action: `( int $user_id, string $points_type_key, string $action_key, int $amount, int $ledger_id, array $context )` after the ledger row is stored and balance meta is updated.
 
 Core **Players** also fires **`clanbite_player_avatar_updated`** and **`clanbite_player_cover_updated`** with `( int $user_id, int $attachment_id )` after a successful profile avatar or cover upload (used by Points built-in actions; available to other integrations).
@@ -979,6 +984,9 @@ add_action(
 ```
 
 ### Documented Hooks
+
+> **Complete reference:** [`HOOKS.md`](HOOKS.md) lists *every* filter and action this plugin fires (PHP and `wp.hooks`), with arguments, generated from the docblock above each call. The Forums, Social Kit, Points and Ranks plugins ship their own `HOOKS.md`. Regenerate with `composer docs:hooks`; `composer docs:hooks:check` fails when it is stale. The list below is a hand-written overview of the main extension flow.
+
 - `clanbite_registered_extensions`
   - Filter returning all third-party extension objects keyed by slug.
   - Args: `array $extensions`
@@ -1080,10 +1088,20 @@ add_action(
   - Args: `string $markup_file`, `string $markup`
 - `clanbite_block_fragment_allowed_html`
   - Filter the tag allow-list for `wp_kses()` on Clanbite block fragments (return a copy; avoid mutating the base array in place).
+  - The base list is core's `post` rules plus Clanbite SVG/form tags, with ARIA state attributes (`aria-selected`, `aria-modal`, `aria-haspopup`, `aria-pressed`, `aria-autocomplete`, …) and `tabindex` allowed on every tag that accepts global attributes, so interactive widgets keep their semantics. Event-handler attributes (`on*`) are never allowed; use `data-wp-on--*` Interactivity directives instead.
   - Args: `array $allowed`
 - `clanbite_team_challenge_rest_response`
   - Filter JSON payloads from challenge REST routes (`remote_team`, `upload_media`, `create_challenge`).
   - Args: `array $payload`, `string $route_key`, `\WP_REST_Request $request`
+- `clanbite_team_challenge_rate_limit`
+  - Per-IP hourly request cap for guest challenge endpoints (`challenge` bucket default 20, `remote_team` default 30).
+  - Args: `int $limit`, `string $bucket`
+- `clanbite_team_challenge_upload_max_bytes`
+  - Maximum guest challenge logo upload size in bytes (default 2 MB).
+  - Args: `int $max_bytes`, `int $team_id`, `\WP_REST_Request $request`
+- `clanbite_team_challenge_remote_allow_http`
+  - Whether plain-http remote sites may be challenged. Defaults to true only when `wp_get_environment_type()` is `local` or `development`; remote fetches use `wp_safe_remote_get()` (private/loopback hosts are blocked).
+  - Args: `bool $allow`, `string $origin`
 - `clanbite_team_challenge_declined` *(action)*
   - After a challenge is marked declined by an authorised user.
   - Args: `int $challenge_id`, `int $challenged_team_id`, `int $user_id`
@@ -1377,3 +1395,13 @@ Third-party plugins can register additional types via the `clanbite_notification
 ## Maintenance Notes
 - Keep this README updated when extension architecture, hooks, or setup requirements change.
 - Keep public hooks documented with intent and expected arguments.
+
+
+### Avatars (developer notes)
+
+All avatars (player, team, group; server-rendered or Interactivity) go through `clanbite_render_avatar()` / `clanbite_render_avatar_for_interactivity()` and share the `clanbite-avatars` stylesheet (frame, XP ring, level badge).
+
+- `clanbite_avatar_data` (plus `clanbite_{type}_avatar_data` and `clanbite_avatar_data_{context}`): filter the resolved `shape`, `show_ring`, `show_badge` before markup is built. Runs in both render modes; `$args['mode']` is `static` or `interactive`.
+- `clanbite_avatar_classes`, `clanbite_avatar_img_attributes`, `clanbite_avatar_html` (and `_{context}` / type variants) apply to both modes. The `clanbite_avatar_interactivity_*` filters are kept for back-compat and fire afterwards.
+- Ring and badge values: `clanbite_get_avatar_badge()` (filter `clanbite_avatar_badge`), supplied by Ranks via `clanbite_ranks_get_avatar_badge()`.
+- Pass a `context` (`forum`, `social_feed`, `user_nav`, `profile`, …) so integrators can target the surface.

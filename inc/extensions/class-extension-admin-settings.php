@@ -1,4 +1,9 @@
 <?php
+/**
+ * Settings API wrapper (`Abstract_Settings`) for Clanbite option buckets.
+ *
+ * @package clanbite
+ */
 
 namespace Kernowdev\Clanbite\Extensions;
 defined( 'ABSPATH' ) || exit;
@@ -20,16 +25,39 @@ abstract class Abstract_Settings {
 	private const HOOK_TAG_PERSISTED_DEFAULT_MAP      = 'clanbite_persisted_option_default_map';
 	private const HOOK_TAG_UI_SECTION_REGISTRY        = 'clanbite_settings_ui_section_registry';
 	private const HOOK_TAG_UI_SECTION_FIELD_REGISTRY  = 'clanbite_settings_ui_section_field_registry';
-	private const HOOK_TAG_SINGLE_FIELD_DEFINITION  = 'clanbite_settings_field_definition_single';
-	private const HOOK_TAG_FIELD_MARKUP_DELEGATE    = 'clanbite_settings_field_markup_delegate';
-	private const HOOK_TAG_FORM_PAYLOAD_PREFILTER   = 'clanbite_settings_form_payload_prefilter';
-	private const HOOK_TAG_FINAL_OPTION_VALUE_BUNDLE = 'clanbite_final_merged_option_values';
+	private const HOOK_TAG_SINGLE_FIELD_DEFINITION    = 'clanbite_settings_field_definition_single';
+	private const HOOK_TAG_FIELD_MARKUP_DELEGATE      = 'clanbite_settings_field_markup_delegate';
+	private const HOOK_TAG_FORM_PAYLOAD_PREFILTER     = 'clanbite_settings_form_payload_prefilter';
+	private const HOOK_TAG_FINAL_OPTION_VALUE_BUNDLE  = 'clanbite_final_merged_option_values';
 	private const HOOK_TAG_SETTINGS_PAGE_SHELL_BEFORE = 'clanbite_settings_page_shell_before';
 	private const HOOK_TAG_SETTINGS_PAGE_SHELL_AFTER  = 'clanbite_settings_page_shell_after';
 
+	/**
+	 * Option name that stores this settings bucket (a `clanbite_*` key).
+	 *
+	 * @var string
+	 */
 	protected string $option_key;
+
+	/**
+	 * Settings page slug used for `add_settings_section()` and the optional classic submenu.
+	 *
+	 * @var string
+	 */
 	protected string $page_slug;
+
+	/**
+	 * Settings API group passed to `register_setting()`.
+	 *
+	 * @var string
+	 */
 	protected string $settings_group;
+
+	/**
+	 * Capability required to manage these settings.
+	 *
+	 * @var string
+	 */
 	protected string $capability = 'manage_options';
 
 	/**
@@ -42,10 +70,20 @@ abstract class Abstract_Settings {
 		return $this->option_key . '_' . $suffix;
 	}
 
+	/**
+	 * Hooks the settings into WordPress (see {@see self::hooks()}).
+	 */
 	public function __construct() {
 		$this->hooks();
 	}
 
+	/**
+	 * Register the `admin_menu` and `admin_init` callbacks.
+	 *
+	 * Subclasses that override this should call `parent::hooks()`.
+	 *
+	 * @return void
+	 */
 	public function hooks(): void {
 		add_action( 'admin_menu', array( $this, 'register_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -59,13 +97,37 @@ abstract class Abstract_Settings {
 	 */
 	protected bool $register_standalone_submenu = false;
 
+	/**
+	 * Register the optional classic submenu page under Clanbite.
+	 *
+	 * Does nothing unless the `clanbite_extension_settings_register_submenu` filter returns true.
+	 *
+	 * @return void
+	 */
 	public function register_page(): void {
+		/**
+		 * Filters whether an extension's settings are also registered as a classic submenu under Clanbite.
+		 *
+		 * The unified React admin keeps this false.
+		 *
+		 * @param bool                                             $register Whether to register the submenu.
+		 * @param \Kernowdev\Clanbite\Extensions\Abstract_Settings $settings Settings instance.
+		 */
 		$register = (bool) apply_filters( 'clanbite_extension_settings_register_submenu', $this->register_standalone_submenu, $this );
 
 		if ( ! $register ) {
 			return;
 		}
 
+		/**
+		 * Filters the parent menu slug of the classic standalone settings submenu.
+		 *
+		 * Dynamic hook: `{option_key}_clanbite_standalone_submenu_parent_slug`, where `option_key` is this settings
+		 * bucket's option name (for example `clanbite_players_settings`). Only used when the submenu is registered.
+		 *
+		 * @param string                                           $parent_slug Parent menu slug (default `clanbite`).
+		 * @param \Kernowdev\Clanbite\Extensions\Abstract_Settings $settings    Settings instance.
+		 */
 		$parent_slug = (string) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_STANDALONE_PARENT_SLUG ), 'clanbite', $this );
 
 		add_submenu_page(
@@ -78,6 +140,11 @@ abstract class Abstract_Settings {
 		);
 	}
 
+	/**
+	 * Register the option and its sections/fields with the Settings API.
+	 *
+	 * @return void
+	 */
 	public function register_settings(): void {
 		$default_settings = $this->get_defaults();
 
@@ -193,13 +260,19 @@ abstract class Abstract_Settings {
 				$resolved_fields[ $field_id ] = (array) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_SINGLE_FIELD_DEFINITION ), $field, $field_id, $section_id, $this );
 			}
 
-			$section['fields']      = $resolved_fields;
+			$section['fields']       = $resolved_fields;
 			$resolved[ $section_id ] = $section;
 		}
 
 		return $resolved;
 	}
 
+	/**
+	 * Render one settings field (`checkbox`, `textarea`, `select`, otherwise a text input).
+	 *
+	 * @param array<string, mixed> $args Field callback args: `id` (string) and `field` (definition array).
+	 * @return void
+	 */
 	public function render_field( array $args ): void {
 		$field   = $args['field'];
 		$id      = $args['id'];
@@ -281,6 +354,16 @@ abstract class Abstract_Settings {
 		}
 	}
 
+	/**
+	 * Sanitize a submitted settings payload field by field.
+	 *
+	 * Uses the field's `sanitize` callable when set, otherwise a default per `type`. A field absent from
+	 * the payload is sanitized as `null` (an unchecked checkbox becomes false); {@see self::get_defaults()}
+	 * only fills keys that are not defined fields.
+	 *
+	 * @param array<string, mixed> $input Raw submitted values keyed by field id.
+	 * @return array<string, mixed> Sanitized values ready for storage.
+	 */
 	public function sanitize( array $input ): array {
 		$output   = array();
 		$defaults = $this->get_defaults();
@@ -303,7 +386,7 @@ abstract class Abstract_Settings {
 			if ( isset( $field['sanitize'] ) && is_callable( $field['sanitize'] ) ) {
 				$output[ $key ] = call_user_func( $field['sanitize'], $value );
 			} else {
-				// Default sanitization
+				// Default sanitization.
 				if ( ( $field['type'] ?? '' ) === 'checkbox' ) {
 					$output[ $key ] = ! empty( $value );
 				} elseif ( ( $field['type'] ?? '' ) === 'textarea' ) {
@@ -314,7 +397,7 @@ abstract class Abstract_Settings {
 			}
 		}
 
-		// Merge defaults to ensure no missing keys
+		// Merge defaults to ensure no missing keys.
 		$output = wp_parse_args( $output, $defaults );
 
 		/**
@@ -328,6 +411,11 @@ abstract class Abstract_Settings {
 		return (array) apply_filters( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_FINAL_OPTION_VALUE_BUNDLE ), $output, $input );
 	}
 
+	/**
+	 * Get every setting merged over the defaults.
+	 *
+	 * @return array<string, mixed>
+	 */
 	public function get_all(): array {
 		return wp_parse_args(
 			get_option( $this->option_key, array() ),
@@ -335,6 +423,13 @@ abstract class Abstract_Settings {
 		);
 	}
 
+	/**
+	 * Get a single setting.
+	 *
+	 * @param string $key     Field id.
+	 * @param mixed  $default Returned when the key is not set (after defaults are merged).
+	 * @return mixed
+	 */
 	public function get( string $key, $default = null ) {
 		$settings = $this->get_all();
 		return $settings[ $key ] ?? $default;
@@ -377,6 +472,11 @@ abstract class Abstract_Settings {
 		do_action( $this->clanbite_extension_settings_hook_tag( self::HOOK_TAG_SETTINGS_PAGE_SHELL_AFTER ), $this );
 	}
 
+	/**
+	 * Flatten all sections into a single field-id keyed map.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
 	protected function get_flat_fields(): array {
 		$flat = array();
 		foreach ( $this->get_resolved_sections_with_fields() as $section ) {
@@ -544,10 +644,38 @@ abstract class Abstract_Settings {
 		return $sanitized;
 	}
 
+	/**
+	 * Page heading shown on the settings screen.
+	 *
+	 * @return string
+	 */
 	abstract protected function get_page_title(): string;
+	/**
+	 * Menu label for the settings page.
+	 *
+	 * @return string
+	 */
 	abstract protected function get_menu_title(): string;
+	/**
+	 * Default values for every setting, keyed by field id.
+	 *
+	 * @return array<string, mixed>
+	 */
 	abstract protected function get_defaults(): array;
+	/**
+	 * Section and field definitions.
+	 *
+	 * Return `section_id => array( 'title' => string, 'fields' => array( field_id => array( 'label', 'type', 'description', 'default', 'sanitize', 'options' ) ) )`.
+	 * Supported `type` values include `checkbox`, `textarea`, `select` and `text`; the unified admin UI supports more (see {@see self::export_rest_schema()}).
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
 	abstract protected function get_sections(): array;
+	/**
+	 * Output the classic settings page (used only when the standalone submenu is registered).
+	 *
+	 * @return void
+	 */
 	abstract public function render_page(): void;
 }
 

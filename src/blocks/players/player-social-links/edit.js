@@ -10,7 +10,7 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Icon size', 'clanbite' ) }>
-					<SelectControl
+					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
 						label={ __( 'Size', 'clanbite' ) }
 						value={ iconSize }
 						options={ [

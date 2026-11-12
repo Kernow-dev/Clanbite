@@ -1,9 +1,4 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Server-side render: repeat inner blocks for each roster user with `clanbite/playerId` context.
  *
@@ -13,6 +8,10 @@ defined( 'ABSPATH' ) || exit;
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $inherit = isset( $block->context['clanbite/inheritTeamContext'] )
 	? (bool) $block->context['clanbite/inheritTeamContext']
@@ -61,7 +60,7 @@ foreach ( $user_ids as $member_id ) {
 
 	$row_html = '';
 	foreach ( $block->inner_blocks as $inner_block ) {
-		$inner = new WP_Block( $inner_block->parsed_block, $merged_context );
+		$inner     = new WP_Block( $inner_block->parsed_block, $merged_context );
 		$row_html .= $inner->render();
 	}
 
@@ -79,4 +78,4 @@ $wrapper = get_block_wrapper_attributes(
 	$block
 );
 
-echo wp_kses( '<ul ' . $wrapper . '>' . $items_html . '</ul>', clanbite_block_fragment_allowed_html());
+echo wp_kses( '<ul ' . $wrapper . '>' . $items_html . '</ul>', clanbite_block_fragment_allowed_html() );

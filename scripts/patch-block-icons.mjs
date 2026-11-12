@@ -5,7 +5,10 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const root = path.join( path.dirname( fileURLToPath( import.meta.url ) ), '..' );
+const root = path.join(
+	path.dirname( fileURLToPath( import.meta.url ) ),
+	'..'
+);
 const blocksRoot = path.join( root, 'src', 'blocks' );
 
 const importLine =
@@ -22,7 +25,10 @@ function patchFile( filePath ) {
 		return false;
 	}
 
-	if ( ! src.includes( "from './block.json'" ) && ! src.includes( 'from "./block.json"' ) ) {
+	if (
+		! src.includes( "from './block.json'" ) &&
+		! src.includes( 'from "./block.json"' )
+	) {
 		console.warn( 'skip (no block.json import):', filePath );
 		return false;
 	}
@@ -55,7 +61,10 @@ function walk( dir ) {
 		const full = path.join( dir, entry.name );
 		if ( entry.isDirectory() ) {
 			count += walk( full );
-		} else if ( entry.name === 'index.js' && full.includes( `${ path.sep }blocks${ path.sep }` ) ) {
+		} else if (
+			entry.name === 'index.js' &&
+			full.includes( `${ path.sep }blocks${ path.sep }` )
+		) {
 			if ( patchFile( full ) ) {
 				console.log( 'patched', path.relative( root, full ) );
 				count++;

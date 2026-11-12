@@ -5,8 +5,7 @@ import './editor.scss';
 export default function Edit( { attributes, setAttributes } ) {
 	const { prefix, postfix } = attributes;
 	const blockProps = useBlockProps( {
-		className:
-			'clanbite-team-stat-edit clanbite-team-stat-edit--losses',
+		className: 'clanbite-team-stat-edit clanbite-team-stat-edit--losses',
 	} );
 
 	return (

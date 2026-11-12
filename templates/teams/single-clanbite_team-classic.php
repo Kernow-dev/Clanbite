@@ -29,7 +29,7 @@ while ( have_posts() ) {
 		continue;
 	}
 
-	echo wp_kses( do_blocks( $markup ), clanbite_block_fragment_allowed_html());
+	echo wp_kses( do_blocks( $markup ), clanbite_block_fragment_allowed_html() );
 }
 
 // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals

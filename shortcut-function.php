@@ -1,4 +1,10 @@
 <?php
+/**
+ * `clanbite()` shortcut returning the `Main` singleton.
+ *
+ * @package clanbite
+ */
+
 defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanbite\Main;

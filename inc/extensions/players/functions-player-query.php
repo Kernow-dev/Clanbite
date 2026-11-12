@@ -1,4 +1,9 @@
 <?php
+/**
+ * Player Query block helpers: roster subset, ordering, meta filters, and exclusions.
+ *
+ * @package clanbite
+ */
 
 defined( 'ABSPATH' ) || exit;
 
@@ -354,9 +359,9 @@ function clanbite_player_query_resolve_member_user_ids( int $team_id, bool $excl
 	// Exclude by team roster role slug (additional to “exclude banned”).
 	$exclude_roles = clanbite_player_query_parse_role_slugs( (string) ( $query_options['exclude_roles'] ?? '' ) );
 	if ( array() !== $exclude_roles && function_exists( 'clanbite_teams_get_member_roles_map' ) ) {
-		$map    = clanbite_teams_get_member_roles_map( $team_id );
-		$keep   = array();
-		$bad    = array_flip( $exclude_roles );
+		$map  = clanbite_teams_get_member_roles_map( $team_id );
+		$keep = array();
+		$bad  = array_flip( $exclude_roles );
 		foreach ( $user_ids as $uid ) {
 			$uid  = (int) $uid;
 			$role = isset( $map[ $uid ] ) ? sanitize_key( (string) $map[ $uid ] ) : '';
@@ -373,7 +378,7 @@ function clanbite_player_query_resolve_member_user_ids( int $team_id, bool $excl
 		clanbite_player_query_meta_query_from_json( (string) ( $query_options['exclude_meta_query_json'] ?? '' ) )
 	);
 	if ( array() !== $exclude_meta && array() !== $user_ids ) {
-		$q = new \WP_User_Query(
+		$q      = new \WP_User_Query(
 			array(
 				'include'    => $user_ids,
 				'fields'     => 'ID',
@@ -391,7 +396,7 @@ function clanbite_player_query_resolve_member_user_ids( int $team_id, bool $excl
 		clanbite_player_query_meta_query_from_json( (string) ( $query_options['meta_query_json'] ?? '' ) )
 	);
 	if ( array() !== $include_meta && array() !== $user_ids ) {
-		$q = new \WP_User_Query(
+		$q        = new \WP_User_Query(
 			array(
 				'include'    => $user_ids,
 				'fields'     => 'ID',

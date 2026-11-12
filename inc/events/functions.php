@@ -1,12 +1,11 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
 /**
  * Procedural helpers for scheduled events (feature flags, team/group scope).
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanbite\Admin\General_Settings;
 
@@ -299,7 +298,7 @@ function clanbite_event_calendar_month_grid_markup( string $anchor_ymd, array $w
 	$html  = '<div class="clanbite-event-calendar__month">';
 	$html .= '<div class="clanbite-event-calendar__dow">';
 	for ( $i = 0; $i < 7; $i++ ) {
-		$lab = isset( $weekday_labels[ $i ] ) ? (string) $weekday_labels[ $i ] : '';
+		$lab   = isset( $weekday_labels[ $i ] ) ? (string) $weekday_labels[ $i ] : '';
 		$html .= '<div class="clanbite-event-calendar__dow-cell">' . esc_html( $lab ) . '</div>';
 	}
 	$html .= '</div><div class="clanbite-event-calendar__grid">';

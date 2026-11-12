@@ -206,7 +206,7 @@ final class Events {
 	/**
 	 * Merge player events subpage template into Players templates.
 	 *
-	 * @param array<string, array<string, string>>     $templates Template definitions keyed by slug.
+	 * @param array<string, array<string, string>>    $templates Template definitions keyed by slug.
 	 * @param \Kernowdev\Clanbite\Extensions\Skeleton $extension Calling extension.
 	 * @return array<string, array<string, string>>
 	 */
@@ -467,4 +467,3 @@ final class Events {
 		return in_array( $visibility, array( 'public', 'hidden' ), true ) ? $visibility : 'hidden';
 	}
 }
-

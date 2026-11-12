@@ -1,14 +1,13 @@
 <?php
-
-defined( 'ABSPATH' ) || exit;
-
-
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 /**
  * Server render: Event calendar (Interactivity: month / week / day, REST range queries).
  *
  * @package clanbite
  */
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
 $scope          = sanitize_key( (string) ( $attributes['scopeType'] ?? 'team' ) );
 $team_id        = (int) ( $attributes['teamId'] ?? 0 );
@@ -51,7 +50,7 @@ if ( 'player' === $scope ) {
 } elseif ( 'team' === $scope ) {
 	if ( $team_id < 1 ) {
 		$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-calendar clanbite-event-calendar--placeholder' ), $block );
-		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 		return;
 	}
 
@@ -63,7 +62,7 @@ if ( 'player' === $scope ) {
 } elseif ( 'group' === $scope ) {
 	if ( $group_id < 1 ) {
 		$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-calendar clanbite-event-calendar--placeholder' ), $block );
-		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html());
+		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 		return;
 	}
 
@@ -110,30 +109,30 @@ $range_per_page = function_exists( 'clanbite_events_rest_default_per_page_for_ra
 	: 200;
 
 $config = array(
-	'scope'       => $scope_api,
-	'teamId'      => $team_id,
-	'groupId'     => $group_id,
-	'playerId'    => 'player' === $scope_api ? $resolved_player_id : 0,
-	'view'        => $default_view,
-	'restUrl'     => esc_url_raw( rest_url( 'clanbite/v1/event-posts' ) ),
-	'nonce'       => wp_create_nonce( 'wp_rest' ),
-	'anchor'      => wp_date( 'Y-m-d' ),
+	'scope'        => $scope_api,
+	'teamId'       => $team_id,
+	'groupId'      => $group_id,
+	'playerId'     => 'player' === $scope_api ? $resolved_player_id : 0,
+	'view'         => $default_view,
+	'restUrl'      => esc_url_raw( rest_url( 'clanbite/v1/event-posts' ) ),
+	'nonce'        => wp_create_nonce( 'wp_rest' ),
+	'anchor'       => wp_date( 'Y-m-d' ),
 	'rangePerPage' => (int) $range_per_page,
-	'createUrl'   => $create_url ? esc_url_raw( $create_url ) : '',
-	'i18n'        => array(
-		'loading'     => __( 'Loading…', 'clanbite' ),
-		'error'       => __( 'Could not load events.', 'clanbite' ),
-		'noEvents'    => __( 'No events in this range.', 'clanbite' ),
-		'month'       => __( 'Month', 'clanbite' ),
-		'week'        => __( 'Week', 'clanbite' ),
-		'day'         => __( 'Day', 'clanbite' ),
-		'list'        => __( 'List', 'clanbite' ),
-		'today'       => __( 'Today', 'clanbite' ),
-		'prev'        => __( 'Previous', 'clanbite' ),
-		'next'        => __( 'Next', 'clanbite' ),
-		'addEvent'    => __( 'Add event', 'clanbite' ),
-		'untitled'    => __( '(Untitled)', 'clanbite' ),
-		'weekdays'    => array(
+	'createUrl'    => $create_url ? esc_url_raw( $create_url ) : '',
+	'i18n'         => array(
+		'loading'  => __( 'Loading…', 'clanbite' ),
+		'error'    => __( 'Could not load events.', 'clanbite' ),
+		'noEvents' => __( 'No events in this range.', 'clanbite' ),
+		'month'    => __( 'Month', 'clanbite' ),
+		'week'     => __( 'Week', 'clanbite' ),
+		'day'      => __( 'Day', 'clanbite' ),
+		'list'     => __( 'List', 'clanbite' ),
+		'today'    => __( 'Today', 'clanbite' ),
+		'prev'     => __( 'Previous', 'clanbite' ),
+		'next'     => __( 'Next', 'clanbite' ),
+		'addEvent' => __( 'Add event', 'clanbite' ),
+		'untitled' => __( '(Untitled)', 'clanbite' ),
+		'weekdays' => array(
 			__( 'Sun', 'clanbite' ),
 			__( 'Mon', 'clanbite' ),
 			__( 'Tue', 'clanbite' ),
@@ -145,12 +144,12 @@ $config = array(
 	),
 );
 
-$calendar_heading = '';
-$calendar_surface = '';
+$calendar_heading         = '';
+$calendar_surface         = '';
 $config['calSsrHydrated'] = false;
 
 if ( function_exists( 'clanbite_events_block_query_collection' ) ) {
-	$range_iso = clanbite_events_calendar_range_iso_for_view( $default_view, $config['anchor'] );
+	$range_iso  = clanbite_events_calendar_range_iso_for_view( $default_view, $config['anchor'] );
 	$query_args = array(
 		'per_page'      => (int) $range_per_page,
 		'page'          => 1,
@@ -173,8 +172,8 @@ if ( function_exists( 'clanbite_events_block_query_collection' ) ) {
 		$cal_items = $coll['items'];
 	}
 
-	$calendar_heading = clanbite_events_calendar_heading_for_view( $default_view, $config['anchor'] );
-	$calendar_surface = clanbite_event_calendar_render_surface_html(
+	$calendar_heading         = clanbite_events_calendar_heading_for_view( $default_view, $config['anchor'] );
+	$calendar_surface         = clanbite_event_calendar_render_surface_html(
 		$default_view,
 		$config['anchor'],
 		$cal_items,
@@ -187,7 +186,7 @@ if ( function_exists( 'clanbite_events_block_query_collection' ) ) {
 	);
 	$config['calSsrHydrated'] = true;
 } elseif ( 'month' === $default_view && function_exists( 'clanbite_event_calendar_month_grid_markup' ) ) {
-	$anchor_ts = strtotime( $config['anchor'] . ' 12:00:00' );
+	$anchor_ts        = strtotime( $config['anchor'] . ' 12:00:00' );
 	$calendar_heading = $anchor_ts ? wp_date( 'F Y', $anchor_ts ) : '';
 	$calendar_surface = clanbite_event_calendar_month_grid_markup(
 		$config['anchor'],
@@ -214,19 +213,19 @@ $event_calendar_root_open = '<div '
 <?php clanbite_echo_block_fragment_html( $event_calendar_root_open ); ?>
 	<div class="clanbite-event-calendar__toolbar">
 		<div class="clanbite-event-calendar__views" role="group" aria-label="<?php esc_attr_e( 'Calendar view', 'clanbite' ); ?>">
-			<button type="button" class="clanbite-event-calendar__view-btn" data-cal-view="month" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['month'] ); ?></button>
-			<button type="button" class="clanbite-event-calendar__view-btn" data-cal-view="week" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['week'] ); ?></button>
-			<button type="button" class="clanbite-event-calendar__view-btn" data-cal-view="day" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['day'] ); ?></button>
-			<button type="button" class="clanbite-event-calendar__view-btn" data-cal-view="list" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['list'] ); ?></button>
+			<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-calendar__view-btn" data-cal-view="month" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['month'] ); ?></button>
+			<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-calendar__view-btn" data-cal-view="week" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['week'] ); ?></button>
+			<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-calendar__view-btn" data-cal-view="day" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['day'] ); ?></button>
+			<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-calendar__view-btn" data-cal-view="list" data-wp-on--click="actions.setView"><?php echo esc_html( $config['i18n']['list'] ); ?></button>
 		</div>
 		<div class="clanbite-event-calendar__nav">
-			<button type="button" class="clanbite-event-calendar__nav-btn" data-wp-on--click="actions.prevPeriod" aria-label="<?php echo esc_attr( $config['i18n']['prev'] ); ?>">‹</button>
-			<button type="button" class="clanbite-event-calendar__today" data-wp-on--click="actions.goToday"><?php echo esc_html( $config['i18n']['today'] ); ?></button>
-			<button type="button" class="clanbite-event-calendar__nav-btn" data-wp-on--click="actions.nextPeriod" aria-label="<?php echo esc_attr( $config['i18n']['next'] ); ?>">›</button>
+			<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-calendar__nav-btn" data-wp-on--click="actions.prevPeriod" aria-label="<?php echo esc_attr( $config['i18n']['prev'] ); ?>">‹</button>
+			<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-calendar__today" data-wp-on--click="actions.goToday"><?php echo esc_html( $config['i18n']['today'] ); ?></button>
+			<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-calendar__nav-btn" data-wp-on--click="actions.nextPeriod" aria-label="<?php echo esc_attr( $config['i18n']['next'] ); ?>">›</button>
 		</div>
 		<?php if ( '' !== $config['createUrl'] ) : ?>
 			<div class="wp-block-button">
-				<a class="wp-block-button__link wp-element-button clanbite-event-calendar__add" href="<?php echo esc_url( $config['createUrl'] ); ?>"><?php echo esc_html( $config['i18n']['addEvent'] ); ?></a>
+				<a class="wp-block-button__link wp-element-button clanbite-button clanbite-button--small clanbite-event-calendar__add" href="<?php echo esc_url( $config['createUrl'] ); ?>"><?php echo esc_html( $config['i18n']['addEvent'] ); ?></a>
 			</div>
 		<?php endif; ?>
 	</div>
@@ -235,4 +234,4 @@ $event_calendar_root_open = '<div '
 	<p class="clanbite-event-calendar__error" hidden data-wp-bind--hidden="!context.fetchError" data-wp-text="context.fetchError" role="alert"></p>
 	<div class="clanbite-event-calendar__surface"><?php clanbite_echo_block_fragment_html( $calendar_surface ? (string) $calendar_surface : '' ); ?></div>
 </div>
-<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html()); ?>
+<?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

@@ -73,7 +73,7 @@ final class Abilities_Api {
 					'type'        => 'object',
 					'description' => __( 'Discovery payload.', 'clanbite' ),
 					'properties'  => array(
-						'clanbite' => array(
+						'clanbite'   => array(
 							'type'        => 'boolean',
 							'description' => __( 'Always true when Clanbite is active.', 'clanbite' ),
 						),
@@ -89,7 +89,7 @@ final class Abilities_Api {
 							'description' => __( 'Present when Libsodium signing is available.', 'clanbite' ),
 						),
 					),
-					'required'   => array( 'clanbite', 'name', 'version' ),
+					'required'    => array( 'clanbite', 'name', 'version' ),
 				),
 				'execute_callback'    => array( self::class, 'execute_discovery' ),
 				'permission_callback' => '__return_true',
@@ -131,7 +131,7 @@ final class Abilities_Api {
 						'country'     => array( 'type' => 'string' ),
 						'description' => array( 'type' => 'string' ),
 					),
-					'required'   => array( 'id', 'title', 'slug' ),
+					'required'    => array( 'id', 'title', 'slug' ),
 				),
 				'execute_callback'    => array( self::class, 'execute_public_team' ),
 				'permission_callback' => '__return_true',

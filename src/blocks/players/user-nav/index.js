@@ -23,7 +23,7 @@ registerBlockType( metadata, {
 			<>
 				<InspectorControls>
 					<PanelBody title={ __( 'Settings', 'clanbite' ) }>
-						<RangeControl
+						<RangeControl __nextHasNoMarginBottom
 							label={ __( 'Avatar Size', 'clanbite' ) }
 							value={ avatarSize }
 							onChange={ ( value ) =>

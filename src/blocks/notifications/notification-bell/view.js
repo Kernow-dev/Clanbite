@@ -13,6 +13,42 @@
  */
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
+/**
+ * Popup lifecycle hooks shared by every Clanbite popup (user menu, notification bell, challenge dialog, …).
+ *
+ * - `clanbite.popup.toggled` (action): fires whenever the popup opens or closes, however it was triggered.
+ *   Receives `{ name, open, root }`.
+ * - `clanbite.popup.shouldOpen` (filter): return `false` to stop a popup from opening. Receives `true`, `{ name, root }`.
+ */
+const popupLast = new WeakMap();
+
+function announcePopup( name, open, root ) {
+	if ( ! root ) {
+		return;
+	}
+	const seen = popupLast.has( root );
+	const previous = popupLast.get( root );
+	popupLast.set( root, open );
+	// The first run only records the server-rendered state; it is not a toggle.
+	if ( seen && previous !== open ) {
+		window.wp?.hooks?.doAction?.( 'clanbite.popup.toggled', {
+			name,
+			open,
+			root,
+		} );
+	}
+}
+
+function allowPopupOpen( name, root ) {
+	return (
+		false !==
+		window.wp?.hooks?.applyFilters?.( 'clanbite.popup.shouldOpen', true, {
+			name,
+			root,
+		} )
+	);
+}
+
 let notificationPollTimer = null;
 
 /**
@@ -323,10 +359,20 @@ function renderNotificationsList( ctx, ref ) {
  *
  * @param {string}           message            Plain-text message from the server.
  * @param {HTMLElement|null} restoreFocusTarget Control to restore focus after close.
+ * @param {Object}           labels             Translated `confirmTitle`, `confirmCancel`, `confirmOk` (optional).
  * @return {Promise<boolean>} Resolves true when the user confirms.
  */
-function accessibleConfirm( message, restoreFocusTarget ) {
+function accessibleConfirm( message, restoreFocusTarget, labels = {} ) {
 	return new Promise( ( resolve ) => {
+		/**
+		 * Filters the confirmation dialog shown before a notification action that asks for confirmation.
+		 *
+		 * Return a Promise that resolves to `true` (confirmed) or `false` to replace the built-in accessible dialog;
+		 * return `null` to keep it.
+		 *
+		 * @param {null}   custom  Default `null` (use the built-in dialog).
+		 * @param {string} message Plain-text confirmation message from the server.
+		 */
 		const custom = window.wp?.hooks?.applyFilters?.(
 			'clanbite.notifications.accessibleConfirm',
 			null,
@@ -352,7 +398,7 @@ function accessibleConfirm( message, restoreFocusTarget ) {
 		const title = document.createElement( 'h2' );
 		title.className = 'clanbite-notification-bell__confirm-title';
 		title.id = `${ uid }-title`;
-		title.textContent = 'Confirm action';
+		title.textContent = labels.confirmTitle || 'Confirm action';
 
 		const body = document.createElement( 'p' );
 		body.className = 'clanbite-notification-bell__confirm-message';
@@ -366,13 +412,13 @@ function accessibleConfirm( message, restoreFocusTarget ) {
 		cancelBtn.type = 'button';
 		cancelBtn.className =
 			'clanbite-notification-bell__confirm-btn clanbite-notification-bell__confirm-btn--cancel';
-		cancelBtn.textContent = 'Cancel';
+		cancelBtn.textContent = labels.confirmCancel || 'Cancel';
 
 		const okBtn = document.createElement( 'button' );
 		okBtn.type = 'button';
 		okBtn.className =
 			'clanbite-notification-bell__confirm-btn clanbite-notification-bell__confirm-btn--ok';
-		okBtn.textContent = 'OK';
+		okBtn.textContent = labels.confirmOk || 'OK';
 
 		const focusables = [ cancelBtn, okBtn ];
 
@@ -481,6 +527,16 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 			const ctx = getContext();
 			return ctx.unreadCount > 0;
 		},
+		// Accessible name for the bell trigger: includes the unread count, which the badge alone does not expose.
+		get triggerLabel() {
+			const ctx = getContext();
+			const count = Number( ctx.unreadCount ) || 0;
+			const unreadTemplate = ctx.i18n?.bellLabelUnread;
+			if ( count > 0 && unreadTemplate ) {
+				return unreadTemplate.replace( '%d', String( count ) );
+			}
+			return ctx.i18n?.bellLabel || 'Notifications';
+		},
 	},
 
 	actions: {
@@ -488,6 +544,12 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 			// Do not stopPropagation: document click handlers on other header UI (e.g. user nav)
 			// must see the bubble so they can close their popovers when this one opens.
 			const ctx = getContext();
+			if (
+				! ctx.isOpen &&
+				! allowPopupOpen( 'notification-bell', getElement().ref )
+			) {
+				return;
+			}
 			ctx.isOpen = ! ctx.isOpen;
 
 			if ( ctx.isOpen ) {
@@ -510,8 +572,19 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 		handleKeydown( event ) {
 			const ctx = getContext();
 			if ( event.key === 'Escape' && ctx.isOpen ) {
+				const { ref } = getElement();
+				const focusWasInside = !! ref?.contains(
+					ref.ownerDocument.activeElement
+				);
 				ctx.isOpen = false;
 				event.preventDefault();
+
+				// Return focus to the bell, but only when focus was inside this widget.
+				if ( focusWasInside ) {
+					ref.querySelector(
+						'.clanbite-notification-bell__trigger'
+					)?.focus();
+				}
 			}
 		},
 
@@ -605,7 +678,11 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 			const confirmMsg = button.dataset.confirm;
 
 			if ( confirmMsg ) {
-				const confirmed = await accessibleConfirm( confirmMsg, button );
+				const confirmed = await accessibleConfirm(
+					confirmMsg,
+					button,
+					getContext()?.i18n
+				);
 				if ( ! confirmed ) {
 					return;
 				}
@@ -659,6 +736,11 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 	},
 
 	callbacks: {
+		// Runs reactively whenever `context.isOpen` changes (see `data-wp-watch` on the root).
+		announcePopup() {
+			const { ref } = getElement();
+			announcePopup( 'notification-bell', !! getContext().isOpen, ref );
+		},
 		init() {
 			const ctx = getContext();
 			const { ref } = getElement();
@@ -767,7 +849,10 @@ function startPolling( ctx ) {
 		}
 
 		// Reduce background network work when the page is hidden or offline.
-		if ( document.hidden || ( typeof navigator !== 'undefined' && ! navigator.onLine ) ) {
+		if (
+			document.hidden ||
+			( typeof navigator !== 'undefined' && ! navigator.onLine )
+		) {
 			ctx.pollInterval = Math.max( ctx.pollInterval || 4000, 15000 );
 			notificationPollTimer = setTimeout( poll, ctx.pollInterval );
 			return;
@@ -801,7 +886,14 @@ function startPolling( ctx ) {
 					renderNotificationsList( ctx, ctx._ref );
 				}
 
-				// Fire event for other components.
+				/**
+				 * Fires when a poll or WebSocket message delivers new notifications (not on polls with nothing new).
+				 *
+				 * For a signal on every successful poll, use `clanbite.notifications.polled` instead.
+				 *
+				 * @param {Array<Object>} notifications New notification objects, newest first (empty when the Points
+				 *                                      companion mirrors a server-side change).
+				 */
 				window.wp?.hooks?.doAction?.(
 					'clanbite.notifications.received',
 					response.notifications
@@ -812,6 +904,13 @@ function startPolling( ctx ) {
 			ctx.lastTimestamp = response.timestamp;
 			ctx.pollInterval = response.next_poll || 4000;
 
+			/**
+			 * Fires after each successful notification poll (HTTP or WebSocket) so other UI can sync on the same cadence.
+			 *
+			 * The Points companion also fires it with `transport: 'synthetic'` after it awards points for a button click.
+			 *
+			 * @param {{ transport: string, response: Object|null, payload: Object|null }} detail `transport` is `http`, `websocket` or `synthetic`; `response` is the poll REST JSON for `http`; `payload` is the message for `websocket`.
+			 */
 			window.wp?.hooks?.doAction?.(
 				'clanbite.notifications.polled',
 				notificationsPolledDetail( 'http', response, null )

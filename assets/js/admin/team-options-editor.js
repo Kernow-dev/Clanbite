@@ -1,6 +1,7 @@
 ( function ( wp ) {
 	const { registerPlugin } = wp.plugins;
-	const { PluginDocumentSettingPanel } = wp.editPost;
+	// `wp.editPost.PluginDocumentSettingPanel` is deprecated since WordPress 6.6; the slot lives in `wp.editor`.
+	const { PluginDocumentSettingPanel } = wp.editor;
 	const { createElement: el, Fragment } = wp.element;
 	const {
 		SelectControl,
@@ -71,7 +72,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_code' },
-				el( TextControl, {
+				el( TextControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
 					label: __( 'Team code', 'clanbite' ),
 					value: meta.cp_team_code || '',
 					onChange( value ) {
@@ -82,7 +83,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_motto' },
-				el( TextareaControl, {
+				el( TextareaControl, { __nextHasNoMarginBottom: true,
 					label: __( 'Motto', 'clanbite' ),
 					value: meta.cp_team_motto || '',
 					onChange( value ) {
@@ -94,7 +95,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_country' },
-				el( SelectControl, {
+				el( SelectControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
 					label: __( 'Country', 'clanbite' ),
 					value:
 						meta.cp_team_country != null
@@ -109,7 +110,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_wins' },
-				el( TextControl, {
+				el( TextControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
 					label: __( 'Wins', 'clanbite' ),
 					type: 'number',
 					min: 0,
@@ -122,7 +123,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_losses' },
-				el( TextControl, {
+				el( TextControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
 					label: __( 'Losses', 'clanbite' ),
 					type: 'number',
 					min: 0,
@@ -135,7 +136,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_draws' },
-				el( TextControl, {
+				el( TextControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
 					label: __( 'Draws', 'clanbite' ),
 					type: 'number',
 					min: 0,
@@ -425,6 +426,12 @@
 			{ label: __( 'Invite only', 'clanbite' ), value: 'invite_only' },
 		];
 
+		/**
+		 * Filters the join-mode options offered in the team editor's Membership panel.
+		 *
+		 * @param {Array<{label: string, value: string}>} joinModes Options (`open_join`, `join_with_permission`, `invite_only` by default).
+		 * @param {Object}                                meta      Current team post meta.
+		 */
 		const joinModes = applyFilters(
 			'clanbite.teams.joinModes',
 			baseJoinModes,
@@ -435,7 +442,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_join_mode' },
-				el( SelectControl, {
+				el( SelectControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
 					label: __( 'Join mode', 'clanbite' ),
 					value: meta.cp_team_join_mode || 'open_join',
 					options: joinModes,
@@ -447,7 +454,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_allow_invites' },
-				el( ToggleControl, {
+				el( ToggleControl, { __nextHasNoMarginBottom: true,
 					label: __( 'Allow player invites', 'clanbite' ),
 					checked: boolMeta( meta, 'cp_team_allow_invites', true ),
 					onChange( value ) {
@@ -458,7 +465,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_allow_frontend_edit' },
-				el( ToggleControl, {
+				el( ToggleControl, { __nextHasNoMarginBottom: true,
 					label: __( 'Allow front-end team editing', 'clanbite' ),
 					checked: boolMeta(
 						meta,
@@ -473,7 +480,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_allow_ban_players' },
-				el( ToggleControl, {
+				el( ToggleControl, { __nextHasNoMarginBottom: true,
 					label: __( 'Allow banning players', 'clanbite' ),
 					checked: boolMeta(
 						meta,
@@ -488,7 +495,7 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_accept_challenges' },
-				el( ToggleControl, {
+				el( ToggleControl, { __nextHasNoMarginBottom: true,
 					label: __( 'Accept match challenges', 'clanbite' ),
 					checked: boolMeta(
 						meta,
@@ -502,6 +509,14 @@
 			),
 		];
 
+		/**
+		 * Filters the controls rendered in the team editor's Membership panel.
+		 *
+		 * Append `wp.element` elements to add your own options; persist them with `setMetaValue()`.
+		 *
+		 * @param {Array}                                                                                              controls React elements for the panel.
+		 * @param {{ meta: Object, setMetaValue: Function, patchMeta: Function, components: Object, element: Object }} context  Editor helpers.
+		 */
 		const filtered = applyFilters(
 			'clanbite.teams.optionControls',
 			membershipControls,

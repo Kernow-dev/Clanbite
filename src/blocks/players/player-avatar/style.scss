@@ -1,4 +1,5 @@
-@import '../../shared/styles/avatars';
+@use "../../shared/styles/avatars";
+@use "../../shared/styles/avatar-progress";
 
 // Front-end: circular avatar display (no inline editing).
 
@@ -14,8 +15,11 @@
 	position: relative;
 	flex-direction: row;
 	align-items: flex-start;
-	
-	.clanbite-avatar__media {
+
+	// Legacy aliases listed explicitly: `@extend` in the shared partial cannot reach rules defined here under `@use`.
+	.clanbite-avatar__media,
+	.clanbite-player-avatar__media,
+	.clanbite-team-avatar__media {
 		flex-shrink: 0;
 	}
 }
