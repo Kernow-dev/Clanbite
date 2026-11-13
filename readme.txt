@@ -4,7 +4,7 @@ Tags: community, teams, esports, gaming
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,12 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 2. Team and player blocks in the block editor.
 
 == Changelog ==
+
+= 1.4.0 =
+* Redesigned Clanbite → Settings to match the WordPress admin: full-width header with tabs, white cards, native buttons, toggles and modals, a responsive layout, and a save confirmation that stays in view.
+* New sub-navigation for every settings tab, for extensions to add their own views: `clanbite_register_admin_sub_tab()` and the `clanbite_admin_rest_sub_tabs` filter (see README).
+* The Clanbite menu icon now follows the admin colour scheme (hover, active and custom schemes).
+* Player avatars carry `data-clanbite-avatar-type` and `data-clanbite-avatar-id`, so the Ranks extension can update the ring and badge without a page refresh.
 
 = 1.3.0 =
 * Tested up to WordPress 7.1.

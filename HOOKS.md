@@ -4,13 +4,13 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**333 PHP hooks and 8 JavaScript hooks**.
+**334 PHP hooks and 8 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
 ## Contents
 
-- [Admin](#admin) (9)
+- [Admin](#admin) (10)
 - [Avatars](#avatars) (42)
 - [Events](#events) (19)
 - [Extensions](#extensions) (27)
@@ -89,11 +89,31 @@ Filter: `clanbite_admin_rest_settings_registry`.
 | `$registry` | `array<string, Abstract_Settings>` | Option key => handler. |
 | `$loader` | `Loader` | Extension loader. |
 
+#### `clanbite_admin_rest_sub_tabs`
+
+*Filter* · `inc/admin/class-admin-rest.php`
+
+Filter: `clanbite_admin_rest_sub_tabs` — sub-navigation entries for one tab of Clanbite → Settings.
+
+Runs once per tab (any type). Append arrays with `id`, `label`, `slotId` and optionally `capability`
+(default `manage_options`) and `priority` (default 10). Prefer `clanbite_register_admin_sub_tab()`.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$sub_tabs` | `array<int, array<string, mixed>>` | Entries registered so far for this tab. |
+| `$tab_id` | `string` | Tab id (`general`, `extensions`, `core-groups`, `ext-{slug}`, or an integration tab id). |
+| `$tab` | `array<string, mixed>` | The tab descriptor. |
+
+**Since:** 1.4.0
+
 #### `clanbite_admin_rest_tabs`
 
 *Filter* · `inc/admin/class-admin-rest.php`
 
 Filter: `clanbite_admin_rest_tabs`.
+
+Tabs may carry `settingsLabel` (label of the tab's own sub-navigation entry; default "Settings"). Add sub-navigation
+entries with `clanbite_register_admin_sub_tab()` or the `clanbite_admin_rest_sub_tabs` filter instead of editing `subTabs` here.
 
 | Parameter | Type | Description |
 | --- | --- | --- |

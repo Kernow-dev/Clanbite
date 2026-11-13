@@ -63,6 +63,36 @@ To restore a **standalone** PHP submenu for an extension settings class, filter 
 
 **Extending unified admin:** bundled extensions use `Skeleton` + `get_settings_admin()` (or `clanbite_registered_extensions` for community add-ons). Other integration points: **`clanbite_admin_rest_settings_registry`**, **`clanbite_admin_rest_tabs`** (tab `type` `integration` dispatches DOM events `clanbite:admin-integration-mount` / `unmount` on the tab container), **`clanbite_admin_rest_bootstrap`**, and **`window.clanbiteAdmin.bootstrap`** after load. Point/rank icons: filters **`clanbite_points_icon_packs`** / **`clanbite_ranks_icon_packs`** merged into **`clanbite_admin_icon_packs`**. See **`AGENTS.md`** for hook arguments.
 
+#### Admin sub-navigation (every tab)
+
+Any tab of **Clanbite → Settings** (General, Extensions, an extension's own tab, an integration tab) can carry a small sub-menu such as **Settings | Manage members**. The first entry is always the tab's own content; each plugin adds views next to it. Several plugins can register on the same tab.
+
+```php
+// On plugins_loaded or init. Tab ids: general, extensions, core-groups, ext-{extension_slug}, or an integration tab id.
+clanbite_register_admin_sub_tab(
+	'ext-my_extension',
+	array(
+		'id'         => 'reports',                 // Required. a-z0-9_- ; becomes ?view=reports
+		'label'      => __( 'Reports', 'my-addon' ), // Required.
+		'slotId'     => 'my-addon-reports',        // Required. Names the container your script mounts into.
+		'capability' => 'manage_options',          // Optional (default manage_options).
+		'priority'   => 10,                        // Optional. Lower first.
+	)
+);
+```
+
+Core prints an empty container for the active view and fires `clanbite:admin-integration-mount` on it (and `clanbite:admin-integration-unmount` when it goes away) with `event.detail.slotId`. Enqueue your script on the `toplevel_page_clanbite` screen and mount your UI from the event:
+
+```js
+document.addEventListener( 'clanbite:admin-integration-mount', ( event ) => {
+	if ( event.detail?.slotId === 'my-addon-reports' ) {
+		mountReports( event.target ); // wp.element.createRoot( event.target ).render( ... )
+	}
+} );
+```
+
+The mount event can fire **more than once for the same element** (React re-runs the container's effect), and the matching unmount arrives while React is still committing. Mount idempotently (keep one root per element) and unmount on a later tick; see `clanbite-ranks/inc/Extension/ranks-management.js` for a worked example, and `Ranks_Management` for the REST side. The active view is stored in the URL (`admin.php?page=clanbite&tab=ext-my_extension&view=reports`), so it survives refresh and can be linked. `clanbite_register_admin_sub_tab()` wraps the `clanbite_admin_rest_sub_tabs` filter `( $sub_tabs, $tab_id, $tab )`; use the filter directly when you need the tab descriptor. A tab can rename its own first entry with a `settingsLabel` key (via `clanbite_admin_rest_tabs`).
+
 ### Public REST, team challenges, and cross-site match sync
 
 These routes are **unauthenticated** (defense in depth: nonces, rate limits, and/or HMAC as documented). They exist so other Clanbite installs and the **Team challenge** block can interoperate.

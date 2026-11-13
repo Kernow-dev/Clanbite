@@ -23,6 +23,7 @@ import {
 	SelectControl,
 	TextControl,
 	TextareaControl,
+	Snackbar,
 	VisuallyHidden,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
@@ -318,6 +319,48 @@ function getTabFromLocation() {
  *
  * @param {string} tabName Valid tab id.
  */
+const VIEW_QUERY_KEY = 'view';
+
+/**
+ * Sub-view (`?view=`) inside an extension tab, or '' for the tab's own settings.
+ *
+ * @return {string} View id.
+ */
+function getViewFromLocation() {
+	try {
+		return (
+			new URLSearchParams( window.location.search ).get(
+				VIEW_QUERY_KEY
+			) || ''
+		);
+	} catch {
+		return '';
+	}
+}
+
+/**
+ * Reflect the active sub-view in the URL without adding a history entry.
+ *
+ * @param {string} view View id; empty removes the parameter.
+ */
+function replaceViewInUrl( view ) {
+	try {
+		const url = new URL( window.location.href );
+		if ( view ) {
+			url.searchParams.set( VIEW_QUERY_KEY, view );
+		} else {
+			url.searchParams.delete( VIEW_QUERY_KEY );
+		}
+		window.history.replaceState(
+			null,
+			'',
+			url.pathname + url.search + url.hash
+		);
+	} catch {
+		// Ignore invalid URLs.
+	}
+}
+
 function replaceTabInUrl( tabName ) {
 	try {
 		const url = new URL( window.location.href );
@@ -1296,7 +1339,9 @@ function FieldControl( { field, value, onChange } ) {
 			);
 		case 'select':
 			return (
-				<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
+				<SelectControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
 					{ ...common }
 					value={ String( value ?? '' ) }
 					options={ ( field.options || [] ).map( ( o ) => ( {
@@ -1623,6 +1668,82 @@ function IntegrationSlot( { slotId, bootstrap, bootstrapRevision } ) {
 	);
 }
 
+/**
+ * Body of any tab. When the tab row carries `subTabs` (see `clanbite_register_admin_sub_tab()` in PHP), a small
+ * sub-navigation switches between the tab's own content and each registered integration view.
+ *
+ * @param {Object}      props
+ * @param {Object}      props.meta              Tab descriptor from the bootstrap payload.
+ * @param {JSX.Element} props.settingsView      The tab's own content.
+ * @param {Object}      props.bootstrap         Admin bootstrap payload (passed to integration views).
+ * @param {number}      props.bootstrapRevision Bumped when the bootstrap payload reloads.
+ */
+function TabBody( { meta, settingsView, bootstrap, bootstrapRevision } ) {
+	const subTabs = Array.isArray( meta.subTabs )
+		? meta.subTabs.filter( ( t ) => t && t.id && t.slotId )
+		: [];
+	const [ view, setView ] = useState( () => {
+		const fromUrl = getViewFromLocation();
+		return subTabs.some( ( t ) => t.id === fromUrl ) ? fromUrl : '';
+	} );
+
+	if ( ! subTabs.length ) {
+		return settingsView;
+	}
+
+	const active = subTabs.find( ( t ) => t.id === view );
+	const items = [
+		{
+			id: '',
+			label: meta.settingsLabel || __( 'Settings', 'clanbite' ),
+		},
+		...subTabs,
+	];
+
+	return (
+		<>
+			<nav
+				className="clanbite-admin-subnav-wrap"
+				aria-label={ __( 'Section views', 'clanbite' ) }
+			>
+				<ul className="clanbite-admin-subnav">
+					{ items.map( ( item ) => (
+						<li key={ item.id || 'settings' }>
+							<button
+								type="button"
+								className="clanbite-admin-subnav__link"
+								aria-current={
+									item.id === ( active ? active.id : '' )
+										? 'page'
+										: undefined
+								}
+								onClick={ () => {
+									setView( item.id );
+									replaceViewInUrl( item.id );
+								} }
+							>
+								{ item.label }
+							</button>
+						</li>
+					) ) }
+				</ul>
+			</nav>
+			{ active ? (
+				<div className="clanbite-admin-section-inner">
+					<IntegrationSlot
+						key={ active.id }
+						slotId={ active.slotId }
+						bootstrap={ bootstrap }
+						bootstrapRevision={ bootstrapRevision }
+					/>
+				</div>
+			) : (
+				settingsView
+			) }
+		</>
+	);
+}
+
 function getExtensionToggleDisabledMessage(
 	ext,
 	isRequired,
@@ -1650,6 +1771,67 @@ function getExtensionToggleDisabledMessage(
 	return __( 'This extension cannot be enabled.', 'clanbite' );
 }
 
+/**
+ * Brand header shared by every state of the screen (loading, error, ready).
+ *
+ * @param {Object} props              Component props.
+ * @param {string} props.versionLabel Plugin version text, or '' while loading.
+ */
+function AdminHeader( { versionLabel } ) {
+	return (
+		<header className="clanbite-admin-header">
+			<div className="clanbite-admin-header-inner">
+				<div className="clanbite-admin-header-brand">
+					<span className="clanbite-admin-logo-wrap">
+						<img
+							src={ window.clanbiteAdmin?.logoUrl || '' }
+							alt=""
+							className="clanbite-admin-logo"
+						/>
+						<span className="clanbite-admin-brand-title">
+							{ __(
+								'Clanbite: Team Management Software',
+								'clanbite'
+							) }
+						</span>
+					</span>
+					{ versionLabel ? (
+						<div className="clanbite-admin-version">
+							{ versionLabel }
+						</div>
+					) : null }
+				</div>
+				<div className="clanbite-admin-header-actions">
+					<a
+						href="https://clanbite.com"
+						className="button clanbite-admin-header-btn"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{ __( 'Developers', 'clanbite' ) }
+					</a>
+					<a
+						href="https://github.com/Kernow-dev/Clanbite"
+						className="button clanbite-admin-header-btn"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{ __( 'GitHub', 'clanbite' ) }
+					</a>
+					<a
+						href="https://discord.gg/vCaA8JyGWh"
+						className="button clanbite-admin-header-btn"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{ __( 'Discord', 'clanbite' ) }
+					</a>
+				</div>
+			</div>
+		</header>
+	);
+}
+
 function App() {
 	const [ pluginMeta, setPluginMeta ] = useState( {
 		version: '',
@@ -1664,9 +1846,29 @@ function App() {
 	const [ error, setError ] = useState( null );
 	const [ saving, setSaving ] = useState( false );
 	const [ saveNotice, setSaveNotice ] = useState( null );
+	/** Short success message shown as a snackbar (visible wherever Save was clicked). */
+	const [ toast, setToast ] = useState( '' );
 	const [ activeTabId, setActiveTabId ] = useState( '' );
 	const [ tabPanelEpoch, setTabPanelEpoch ] = useState( 0 );
 	const capturedAdminTitleRef = useRef( '' );
+
+	useEffect( () => {
+		if ( ! toast ) {
+			return;
+		}
+		const id = window.setTimeout( () => setToast( '' ), 5000 );
+		return () => window.clearTimeout( id );
+	}, [ toast ] );
+
+	// Errors render at the top of the screen: bring them into view after Save at the bottom.
+	useEffect( () => {
+		if ( saveNotice && typeof window !== 'undefined' ) {
+			const reduce = window.matchMedia?.(
+				'(prefers-reduced-motion: reduce)'
+			)?.matches;
+			window.scrollTo( { top: 0, behavior: reduce ? 'auto' : 'smooth' } );
+		}
+	}, [ saveNotice ] );
 
 	const load = useCallback( async () => {
 		setError( null );
@@ -1768,6 +1970,10 @@ function App() {
 	}, [] );
 
 	const onTabSelect = useCallback( ( tabName ) => {
+		// TabPanel also calls this for the initial tab: keep a deep-linked ?view= unless the tab really changes.
+		if ( tabName !== getTabFromLocation() ) {
+			replaceViewInUrl( '' );
+		}
 		setActiveTabId( tabName );
 		replaceTabInUrl( tabName );
 	}, [] );
@@ -1806,15 +2012,7 @@ function App() {
 				data: values[ optionKey ] || {},
 			} );
 			setValues( ( prev ) => ( { ...prev, [ optionKey ]: res.values } ) );
-			setSaveNotice(
-				<Notice
-					status="success"
-					isDismissible
-					onRemove={ () => setSaveNotice( null ) }
-				>
-					{ __( 'Settings saved.', 'clanbite' ) }
-				</Notice>
-			);
+			setToast( __( 'Settings saved.', 'clanbite' ) );
 		} catch ( e ) {
 			setSaveNotice(
 				<Notice
@@ -1839,15 +2037,7 @@ function App() {
 				method: 'PUT',
 				data: { installed },
 			} );
-			setSaveNotice(
-				<Notice
-					status="success"
-					isDismissible
-					onRemove={ () => setSaveNotice( null ) }
-				>
-					{ __( 'Extensions updated. Reloading…', 'clanbite' ) }
-				</Notice>
-			);
+			setToast( __( 'Extensions updated. Reloading…', 'clanbite' ) );
 			setTimeout( () => window.location.reload(), 800 );
 		} catch ( e ) {
 			setSaveNotice(
@@ -1865,16 +2055,41 @@ function App() {
 		}
 	};
 
+	const versionLabel = pluginMeta.version
+		? pluginMeta.isBeta
+			? sprintf(
+					/* translators: 1: version, 2: "beta" label */
+					__( '%1$s beta', 'clanbite' ),
+					pluginMeta.version
+			  )
+			: pluginMeta.version
+		: '';
+
 	if ( error ) {
 		return (
-			<Notice status="error" isDismissible={ false }>
-				{ error }
-			</Notice>
+			<div className="clanbite-admin-app clanbite-admin-shell">
+				<AdminHeader versionLabel={ versionLabel } />
+				<div className="clanbite-admin-state">
+					<Notice status="error" isDismissible={ false }>
+						{ error }
+					</Notice>
+				</div>
+			</div>
 		);
 	}
 
 	if ( ! bootstrap?.tabs ) {
-		return <Spinner />;
+		return (
+			<div className="clanbite-admin-app clanbite-admin-shell">
+				<AdminHeader versionLabel={ versionLabel } />
+				<div className="clanbite-admin-state" role="status">
+					<Spinner />
+					<VisuallyHidden as="span">
+						{ __( 'Loading settings…', 'clanbite' ) }
+					</VisuallyHidden>
+				</div>
+			</div>
+		);
 	}
 
 	const generalKey = bootstrap.generalOptionKey;
@@ -1886,16 +2101,6 @@ function App() {
 	} ) );
 
 	const initialTabName = resolveInitialTabId( bootstrap.tabs );
-
-	const versionLabel = pluginMeta.version
-		? pluginMeta.isBeta
-			? sprintf(
-					/* translators: 1: version, 2: "beta" label */
-					__( '%1$s beta', 'clanbite' ),
-					pluginMeta.version
-			  )
-			: pluginMeta.version
-		: '';
 
 	const fromBootstrap = normalizeIconPackList(
 		bootstrap.iconPacks ?? bootstrap.icon_packs
@@ -1931,56 +2136,7 @@ function App() {
 			} }
 		>
 			<div className="clanbite-admin-app clanbite-admin-shell">
-				<header className="clanbite-admin-header">
-					<div className="clanbite-admin-header-inner">
-						<div className="clanbite-admin-header-brand">
-							<span className="clanbite-admin-logo-wrap">
-								<img
-									src={ window.clanbiteAdmin?.logoUrl || '' }
-									alt=""
-									className="clanbite-admin-logo"
-								/>
-								<span className="clanbite-admin-brand-title">
-									{ __(
-										'Clanbite: Team Management Software',
-										'clanbite'
-									) }
-								</span>
-							</span>
-							{ versionLabel ? (
-								<div className="clanbite-admin-version">
-									{ versionLabel }
-								</div>
-							) : null }
-						</div>
-						<div className="clanbite-admin-header-actions">
-							<a
-								href="https://clanbite.com"
-								className="clanbite-admin-header-btn"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{ __( 'Developers', 'clanbite' ) }
-							</a>
-							<a
-								href="https://github.com/Kernow-dev/Clanbite"
-								className="clanbite-admin-header-btn"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{ __( 'GitHub', 'clanbite' ) }
-							</a>
-							<a
-								href="https://discord.gg/vCaA8JyGWh"
-								className="clanbite-admin-header-btn"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{ __( 'Discord', 'clanbite' ) }
-							</a>
-						</div>
-					</div>
-				</header>
+				<AdminHeader versionLabel={ versionLabel } />
 				<div className="clanbite-admin-main">
 					{ saveNotice ? (
 						<div
@@ -2005,8 +2161,16 @@ function App() {
 							if ( ! meta ) {
 								return null;
 							}
+							const withViews = ( node ) => (
+								<TabBody
+									meta={ meta }
+									settingsView={ node }
+									bootstrap={ bootstrap }
+									bootstrapRevision={ bootstrapRevision }
+								/>
+							);
 							if ( meta.type === 'general' ) {
-								return (
+								return withViews(
 									<div className="clanbite-admin-section-inner">
 										<SettingsSections
 											sections={ generalSections }
@@ -2030,7 +2194,7 @@ function App() {
 								);
 							}
 							if ( meta.type === 'extensions' ) {
-								return (
+								return withViews(
 									<div className="clanbite-admin-section-inner">
 										<p className="description">
 											{ __(
@@ -2180,12 +2344,22 @@ function App() {
 																			) }
 																		</div>
 																	</td>
-																	<td>
+																	<td
+																		data-label={ __(
+																			'Description',
+																			'clanbite'
+																		) }
+																	>
 																		{
 																			ext.description
 																		}
 																	</td>
-																	<td>
+																	<td
+																		data-label={ __(
+																			'Requires',
+																			'clanbite'
+																		) }
+																	>
 																		<ExtensionRequiresCell
 																			requires={
 																				ext.requires ||
@@ -2207,7 +2381,12 @@ function App() {
 																			}
 																		/>
 																	</td>
-																	<td>
+																	<td
+																		data-label={ __(
+																			'Active',
+																			'clanbite'
+																		) }
+																	>
 																		<ToggleControl
 																			label={ __(
 																				'Installed',
@@ -2291,7 +2470,7 @@ function App() {
 								const slotId =
 									meta.slotId || meta.slot_id || '';
 								if ( ! slotId ) {
-									return (
+									return withViews(
 										<div className="clanbite-admin-section-inner">
 											<p className="description">
 												{ __(
@@ -2302,7 +2481,7 @@ function App() {
 										</div>
 									);
 								}
-								return (
+								return withViews(
 									<div className="clanbite-admin-section-inner">
 										<IntegrationSlot
 											slotId={ slotId }
@@ -2315,7 +2494,7 @@ function App() {
 								);
 							}
 							if ( meta.type === 'extension' ) {
-								return (
+								return withViews(
 									<div className="clanbite-admin-section-inner">
 										{ ( meta.sectionGroups || [] ).map(
 											( group ) => (
@@ -2363,6 +2542,13 @@ function App() {
 						} }
 					</TabPanel>
 				</div>
+				{ toast ? (
+					<div className="clanbite-admin-toast">
+						<Snackbar onRemove={ () => setToast( '' ) }>
+							{ toast }
+						</Snackbar>
+					</div>
+				) : null }
 			</div>
 		</IconPickerBootstrapContext.Provider>
 	);

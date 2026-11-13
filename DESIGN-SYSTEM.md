@@ -132,6 +132,8 @@ Unified avatar structure for players, teams, and user navigation:
 - `clanbite-avatar__img--placeholder` - Empty state styling
 - `clanbite-avatar__overlay` - Rank/status overlay container
 
+The server-rendered wrapper also carries `data-clanbite-avatar-type` (`player`, `team`, …) and `data-clanbite-avatar-id`, so scripts can find every avatar of one entity. The Ranks companion uses them to update a player's XP ring and rank badge live when their rank changes.
+
 **Backward Compatibility:**
 Original classes remain for existing customizations but map to unified system internally.
 

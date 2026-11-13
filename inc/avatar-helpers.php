@@ -267,7 +267,7 @@ function clanbite_render_avatar( array $args ): string {
 	// Build the avatar markup.
 	ob_start();
 	?>
-	<div class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $classes ) ) ); ?>">
+	<div class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $classes ) ) ); ?>" data-clanbite-avatar-type="<?php echo esc_attr( (string) $args['type'] ); ?>" data-clanbite-avatar-id="<?php echo esc_attr( (string) $id ); ?>">
 		<?php
 		/**
 		 * Action: Before avatar inner content.

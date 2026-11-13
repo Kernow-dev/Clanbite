@@ -305,6 +305,7 @@ Extension-specific hooks (e.g. teams, players) belong in PHPDoc next to each `ap
 - Prefer interface-driven stores with a WordPress default implementation; document new interfaces here and in README.
 
 ## Admin Extension Interface
+- **Sub-navigation on any tab:** third parties add views to a tab's sub-menu with `clanbite_register_admin_sub_tab( $tab_id, array( 'id', 'label', 'slotId', 'capability', 'priority' ) )` (wrapper for the `clanbite_admin_rest_sub_tabs` filter, `inc/admin/functions.php`). It works for every tab type. Core validates and orders entries in `clanbite_normalize_admin_sub_tabs()` and renders an empty integration slot for the active `?view=`; the plugin's own script mounts into it on `clanbite:admin-integration-mount` and must do so idempotently. First-party reference: Ranks → **Manage members**. Do not give a companion its own top-level or submenu page when the content belongs to an extension tab.
 - The unified **Clanbite** React settings screen keeps the active tab in the query string: `admin.php?page=clanbite&tab=<tabId>` (e.g. `general`, `extensions`, `ext-cp_teams`). Implementations should update `?tab=` when the user switches tabs and honor it on load so refresh and shared links reopen the same tab.
 - Treat the extensions screen as critical UX: clear statuses, dependency visibility, and safe install toggles.
 - Do not allow enabling extensions with unmet requirements.
