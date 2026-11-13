@@ -615,11 +615,13 @@ final class Team_Challenges {
 		}
 
 		$team_title = get_the_title( $challenged_team_id );
-		$title      = sprintf(
-			/* translators: 1: challenger name, 2: team name */
-			__( '%1$s challenged %2$s', 'clanbite' ),
-			$challenger_name,
-			$team_title
+		// Wording is customisable under Clanbite → Settings → Teams → Messages.
+		$title = clanbite_get_message(
+			'team_challenge.title',
+			array(
+				'challenger' => $challenger_name,
+				'team'       => $team_title,
+			)
 		);
 
 		$url = get_permalink( $challenged_team_id );
@@ -634,7 +636,7 @@ final class Team_Challenges {
 				'team_challenge',
 				$title,
 				array(
-					'message'     => __( 'Review the challenge and accept or decline.', 'clanbite' ),
+					'message'     => clanbite_get_message( 'team_challenge.message' ),
 					'actor_id'    => $actor_id,
 					'object_type' => 'team_challenge',
 					'object_id'   => $challenge_id,
@@ -647,7 +649,7 @@ final class Team_Challenges {
 							'style'           => 'primary',
 							'handler'         => 'team_challenge_accept',
 							'status'          => 'accepted',
-							'success_message' => __( 'Challenge accepted. Match and event were created.', 'clanbite' ),
+							'success_message' => clanbite_get_message( 'team_challenge.accept_success' ),
 						),
 						array(
 							'key'             => 'decline',
@@ -655,7 +657,7 @@ final class Team_Challenges {
 							'style'           => 'secondary',
 							'handler'         => 'team_challenge_decline',
 							'status'          => 'declined',
-							'success_message' => __( 'Challenge declined.', 'clanbite' ),
+							'success_message' => clanbite_get_message( 'team_challenge.decline_success' ),
 						),
 					),
 				)
@@ -1007,9 +1009,9 @@ final class Team_Challenges {
 					clanbite_notify(
 						$member_id,
 						'team_match_event',
-						__( 'New match scheduled for your team', 'clanbite' ),
+						clanbite_get_message( 'team_match_event.title' ),
 						array(
-							'message' => __( 'You have been added to the match event. Please confirm your attendance.', 'clanbite' ),
+							'message' => clanbite_get_message( 'team_match_event.message' ),
 							'url'     => $event_url ? $event_url : get_permalink( $match_id ),
 							'dedupe'  => false,
 						)

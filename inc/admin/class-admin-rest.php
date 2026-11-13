@@ -23,11 +23,15 @@ use WP_REST_Server;
 class Admin_Rest {
 
 	/**
+	 * Settings handlers keyed by option name.
+	 *
 	 * @var array<string, Abstract_Settings>
 	 */
 	protected array $settings_by_option = array();
 
 	/**
+	 * Create the controller with the settings handlers it can read and save.
+	 *
 	 * @param array<string, Abstract_Settings> $settings_by_option Option key => settings handler.
 	 */
 	public function __construct( array $settings_by_option ) {
@@ -153,6 +157,8 @@ class Admin_Rest {
 	}
 
 	/**
+	 * Guess an icon pack's scope (`all`, `points`, `ranks`) from its id when the pack does not declare one.
+	 *
 	 * @param string $id Sanitized pack id.
 	 * @return string
 	 */
@@ -416,6 +422,8 @@ class Admin_Rest {
 	}
 
 	/**
+	 * REST: everything the admin app needs on load (tabs, option schemas and values, extensions, icon packs).
+	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function rest_bootstrap() {
@@ -579,6 +587,8 @@ class Admin_Rest {
 			$added[ $slug ] = true;
 		}
 
+		$tabs = $this->add_messages_sub_tabs( $tabs );
+
 		/**
 		 * Filter: `clanbite_admin_rest_tabs`.
 		 *
@@ -624,6 +634,91 @@ class Admin_Rest {
 		}
 
 		return $tabs_out;
+	}
+
+	/**
+	 * Give each tab a **Messages** sub-tab holding the wording of the extensions it covers.
+	 *
+	 * Message groups are mapped to extensions by {@see clanbite_message_group_extensions()}. A group mapped to an extension
+	 * that is switched off is skipped; a group with no mapping, or whose extension has no settings tab, lands on General. The fields all save to one option,
+	 * so every Messages view uses the same option key.
+	 *
+	 * @param array<int, array<string, mixed>> $tabs Tab descriptors built so far.
+	 * @return array<int, array<string, mixed>>
+	 */
+	protected function add_messages_sub_tabs( array $tabs ): array {
+		$messages_key = Messages_Settings::OPTION_KEY;
+		if ( ! isset( $this->settings_by_option[ $messages_key ] ) ) {
+			return $tabs;
+		}
+		$handler = $this->settings_by_option[ $messages_key ];
+
+		$group_slugs = array_keys( clanbite_message_groups() );
+		$group_map   = clanbite_message_group_extensions();
+
+		// Extension slugs each tab answers for: its own and its sub-extensions'.
+		$tab_slugs = array();
+		foreach ( $tabs as $i => $tab ) {
+			if ( 'general' === ( $tab['id'] ?? '' ) ) {
+				$tab_slugs[ $i ] = array( 'general' );
+				continue;
+			}
+			$slugs = array();
+			if ( ! empty( $tab['extensionSlug'] ) ) {
+				$slugs[] = (string) $tab['extensionSlug'];
+			}
+			foreach ( (array) ( $tab['sectionGroups'] ?? array() ) as $group ) {
+				$slugs[] = (string) ( $group['slug'] ?? '' );
+			}
+			$tab_slugs[ $i ] = $slugs;
+		}
+
+		// Which tab lists each group. No mapping, or an extension that is on but has no settings tab of its own, means
+		// General; the groups of an extension that is switched off are hidden.
+		$loader = Loader::instance();
+		$by_tab = array();
+		foreach ( $group_slugs as $group ) {
+			$target = $group_map[ $group ] ?? 'general';
+			$target = '' === $target ? 'general' : $target;
+			$found  = false;
+			foreach ( $tab_slugs as $i => $slugs ) {
+				if ( in_array( $target, $slugs, true ) ) {
+					$by_tab[ $i ][] = $group;
+					$found          = true;
+					break;
+				}
+			}
+			if ( ! $found && 'general' !== $target && $loader->is_extension_installed( $target ) ) {
+				$by_tab[0][] = $group;
+			}
+		}
+
+		foreach ( $by_tab as $i => $groups ) {
+			$schema = $handler->export_rest_schema_for_groups( $groups );
+			if ( array() === $schema ) {
+				continue;
+			}
+			$sub_tabs   = is_array( $tabs[ $i ]['subTabs'] ?? null ) ? $tabs[ $i ]['subTabs'] : array();
+			$sub_tabs[] = array(
+				'id'            => 'messages',
+				'label'         => __( 'Messages', 'clanbite' ),
+				'priority'      => 90,
+				'sectionGroups' => array(
+					array(
+						'kind'      => 'primary',
+						'name'      => __( 'Messages', 'clanbite' ),
+						'slug'      => 'messages',
+						'optionKey' => $messages_key,
+						'partial'   => true,
+						'sections'  => $schema,
+					),
+				),
+			);
+
+			$tabs[ $i ]['subTabs'] = $sub_tabs;
+		}
+
+		return $tabs;
 	}
 
 	/**
@@ -838,6 +933,8 @@ class Admin_Rest {
 	}
 
 	/**
+	 * REST: validate and save one settings bucket, returning the stored values.
+	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -917,6 +1014,8 @@ class Admin_Rest {
 	}
 
 	/**
+	 * REST: save which extensions are installed (dependencies are validated).
+	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return \WP_REST_Response|WP_Error
 	 */

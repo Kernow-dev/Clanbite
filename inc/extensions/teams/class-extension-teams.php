@@ -1910,11 +1910,13 @@ class Teams extends Skeleton {
 		$team_name = $team ? $team->post_title : __( 'a team', 'clanbite' );
 		$team_url  = $team ? get_permalink( $team ) : '';
 
-		$title = sprintf(
-			/* translators: 1: inviter name, 2: team name */
-			__( '%1$s invited you to join %2$s', 'clanbite' ),
-			$inviter ? $inviter->display_name : __( 'Someone', 'clanbite' ),
-			$team_name
+		// Wording is customisable under Clanbite → Settings → Teams → Messages (see clanbite_register_message()).
+		$title = clanbite_get_message(
+			'team_invite.title',
+			array(
+				'inviter' => $inviter ? $inviter->display_name : __( 'Someone', 'clanbite' ),
+				'team'    => $team_name,
+			)
 		);
 
 		/**
@@ -1942,7 +1944,7 @@ class Teams extends Skeleton {
 						'style'           => 'primary',
 						'handler'         => 'team_invite_accept',
 						'status'          => 'accepted',
-						'success_message' => __( 'You have joined the team!', 'clanbite' ),
+						'success_message' => clanbite_get_message( 'team_invite.accept_success' ),
 					),
 					array(
 						'key'             => 'decline',
@@ -1950,7 +1952,7 @@ class Teams extends Skeleton {
 						'style'           => 'secondary',
 						'handler'         => 'team_invite_decline',
 						'status'          => 'declined',
-						'success_message' => __( 'Invitation declined.', 'clanbite' ),
+						'success_message' => clanbite_get_message( 'team_invite.decline_success' ),
 					),
 				),
 			)

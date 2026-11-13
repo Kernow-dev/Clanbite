@@ -1,0 +1,262 @@
+/**
+ * Clanbite toasts (style handle `clanbite-toasts`).
+ *
+ * Styles the popups made by `clanbite.toasts.show()` (see clanbite-toasts.js).
+ * Colours come from the shared tokens (`clanbite-tokens`), each with a
+ * standalone fallback, so a toast fits light and dark themes. Nothing here
+ * uses `!important`, and every rule is a single class, so a theme restyles a
+ * toast with plain CSS in one of two ways:
+ *
+ * - set custom properties in `:root` (or on `.clanbite-toast-stack`):
+ *   `--clanbite-toast-bg`, `--clanbite-toast-color`,
+ *   `--clanbite-toast-border`, `--clanbite-toast-radius`,
+ *   `--clanbite-toast-shadow`, `--clanbite-toast-font-size`,
+ *   `--clanbite-toast-track` (the countdown bar's track),
+ *   `--clanbite-toast-action-color`, `--clanbite-toast-close-color` and the
+ *   accent for each kind: `--clanbite-toast-info`,
+ *   `--clanbite-toast-success`, `--clanbite-toast-warning`,
+ *   `--clanbite-toast-error`; or
+ * - write your own rule for `.clanbite-toast-item` (and `--success`,
+ *   `--warning`, `--error`). A theme stylesheet loads later or can use a
+ *   stronger selector, so it wins over these.
+ *
+ * Each variable falls back to the shared token (`--clanbite-surface`,
+ * `--clanbite-on-surface`, ...), so changing a token restyles toasts together
+ * with the rest of the plugin.
+ *
+ * Position is set per stack (`.clanbite-toast-stack--top-right`, ...). Top
+ * stacks sit below the WordPress admin bar.
+ */
+
+:root {
+	--clanbite-toast-gap: 10px;
+	--clanbite-toast-offset: 16px;
+	--clanbite-toast-width: 360px;
+}
+
+.clanbite-toast-stack {
+	position: fixed;
+	z-index: 100000;
+	display: flex;
+	flex-direction: column;
+	gap: var(--clanbite-toast-gap);
+	width: min(var(--clanbite-toast-width), calc(100vw - 2 * var(--clanbite-toast-offset)));
+	margin: 0;
+	padding: 0;
+	pointer-events: none;
+}
+
+.clanbite-toast-stack--top-left,
+.clanbite-toast-stack--top-center,
+.clanbite-toast-stack--top-right {
+	top: calc(var(--clanbite-toast-offset) + var(--wp-admin--admin-bar--height, 0px));
+}
+
+.clanbite-toast-stack--bottom-left,
+.clanbite-toast-stack--bottom-center,
+.clanbite-toast-stack--bottom-right {
+	bottom: var(--clanbite-toast-offset);
+}
+
+.clanbite-toast-stack--top-left,
+.clanbite-toast-stack--bottom-left {
+	left: var(--clanbite-toast-offset);
+}
+
+.clanbite-toast-stack--top-right,
+.clanbite-toast-stack--bottom-right {
+	right: var(--clanbite-toast-offset);
+}
+
+.clanbite-toast-stack--top-center,
+.clanbite-toast-stack--bottom-center {
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.clanbite-toast-item {
+	--clanbite-toast-tone: var(--clanbite-toast-info, var(--clanbite-accent, #2271b1));
+
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 12px 36px 12px 14px;
+	border: 1px solid var(--clanbite-toast-border, var(--clanbite-border, rgba(127, 127, 127, 0.35)));
+	border-inline-start: 4px solid var(--clanbite-toast-tone);
+	border-radius: var(--clanbite-toast-radius, var(--clanbite-radius, 0.5em));
+	background: var(--clanbite-toast-bg, var(--clanbite-surface, #fff));
+	color: var(--clanbite-toast-color, var(--clanbite-on-surface, #1e1e1e));
+	box-shadow:
+		var(
+			--clanbite-toast-shadow,
+			0 8px 24px color-mix(in srgb, currentcolor 22%, transparent)
+		);
+	overflow: hidden;
+	font-size: var(--clanbite-toast-font-size, 14px);
+	line-height: 1.4;
+	pointer-events: auto;
+	animation: clanbite-toast-in 180ms ease-out;
+}
+
+.clanbite-toast-item--success {
+	--clanbite-toast-tone: var(--clanbite-toast-success, var(--clanbite-success, #00a32a));
+}
+
+.clanbite-toast-item--warning {
+	--clanbite-toast-tone: var(--clanbite-toast-warning, var(--clanbite-warning, #dba617));
+}
+
+.clanbite-toast-item--error {
+	--clanbite-toast-tone: var(--clanbite-toast-error, var(--clanbite-danger, #b32d2e));
+}
+
+.clanbite-toast-item.is-leaving {
+	opacity: 0;
+	transform: translateY(-6px);
+	transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.clanbite-toast-stack--bottom-left .clanbite-toast-item.is-leaving,
+.clanbite-toast-stack--bottom-center .clanbite-toast-item.is-leaving,
+.clanbite-toast-stack--bottom-right .clanbite-toast-item.is-leaving {
+	transform: translateY(6px);
+}
+
+.clanbite-toast-item__icon {
+	flex-shrink: 0;
+	width: 40px;
+	height: 40px;
+	object-fit: contain;
+}
+
+.clanbite-toast-item__body {
+	flex: 1;
+	min-width: 0;
+}
+
+.clanbite-toast-item__title {
+	margin: 0;
+	font-weight: 700;
+}
+
+.clanbite-toast-item__title + .clanbite-toast-item__message {
+	margin-top: 2px;
+}
+
+.clanbite-toast-item__message {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.clanbite-toast-item__track {
+	height: 6px;
+	margin-top: 8px;
+	border-radius: 999px;
+	background: var(--clanbite-toast-track, var(--clanbite-surface-alt, #8884));
+	overflow: hidden;
+}
+
+.clanbite-toast-item__fill {
+	display: block;
+	width: 0;
+	height: 100%;
+	background: var(--clanbite-toast-tone);
+	transition: width 900ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* Countdown bar along the bottom edge: fills as the toast nears expiry and freezes while paused. */
+.clanbite-toast-item__timer {
+	position: absolute;
+	inset-inline: 0;
+	bottom: 0;
+	height: 3px;
+	background: var(--clanbite-toast-track, var(--clanbite-surface-alt, #8883));
+}
+
+.clanbite-toast-item__timer-fill {
+	display: block;
+	width: 0;
+	height: 100%;
+	background: var(--clanbite-toast-tone);
+	animation: clanbite-toast-timer linear forwards;
+}
+
+.clanbite-toast-item.is-paused .clanbite-toast-item__timer-fill {
+	animation-play-state: paused;
+}
+
+.clanbite-toast-item__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 12px;
+	margin-top: 8px;
+}
+
+.clanbite-toast-item__action {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--clanbite-toast-action-color, var(--clanbite-accent, #2271b1));
+	font: inherit;
+	font-weight: 600;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.clanbite-toast-item__close {
+	position: absolute;
+	top: 6px;
+	inset-inline-end: 6px;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--clanbite-toast-close-color, var(--clanbite-muted, currentcolor));
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.clanbite-toast-item__close:hover,
+.clanbite-toast-item__close:focus-visible,
+.clanbite-toast-item__action:focus-visible {
+	outline: 2px solid var(--clanbite-accent, #2271b1);
+	outline-offset: 1px;
+}
+
+@keyframes clanbite-toast-timer {
+
+	from {
+		width: 0;
+	}
+
+	to {
+		width: 100%;
+	}
+}
+
+@keyframes clanbite-toast-in {
+
+	from {
+		opacity: 0;
+		transform: translateY(-6px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.clanbite-toast-item,
+	.clanbite-toast-item.is-leaving,
+	.clanbite-toast-item__fill {
+		animation: none;
+		transition: none;
+	}
+}

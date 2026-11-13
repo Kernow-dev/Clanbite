@@ -486,14 +486,20 @@ function accessibleConfirm( message, restoreFocusTarget, labels = {} ) {
 }
 
 /**
- * Show a toast notification.
+ * Show a popup through Clanbite's shared toast system (`clanbite.toasts`, loaded by this block's `render.php`).
  *
  * @param {string} message Toast message.
  * @param {string} type    Toast type ('info', 'success', 'error').
  */
 function showToast( message, type = 'info' ) {
 	/**
-	 * Filter to customize toast notification display.
+	 * Lets a handler show the toast itself. Return a truthy value after rendering to skip the shared popup.
+	 *
+	 * Prefer the shared `clanbite.toasts.*` filters (for example `clanbite.toasts.payload`) to change how every popup looks.
+	 *
+	 * @param {boolean} handled Default `false`.
+	 * @param {string}  message Toast message.
+	 * @param {string}  type    `info`, `success` or `error`.
 	 */
 	const handled = window.wp?.hooks?.applyFilters?.(
 		'clanbite.notifications.showToast',
@@ -506,19 +512,12 @@ function showToast( message, type = 'info' ) {
 		return;
 	}
 
-	// Simple fallback toast.
-	const toast = document.createElement( 'div' );
-	toast.className = `clanbite-toast clanbite-toast--${ type }`;
-	toast.textContent = message;
-	toast.setAttribute( 'role', 'status' );
-	toast.setAttribute( 'aria-live', 'polite' );
-
-	document.body.appendChild( toast );
-
-	setTimeout( () => {
-		toast.classList.add( 'is-closing' );
-		setTimeout( () => toast.remove(), 300 );
-	}, 3000 );
+	// Position, length and look come from Settings → Notifications → Popups.
+	window.clanbite?.toasts?.show( {
+		type,
+		message,
+		source: 'clanbite-notifications',
+	} );
 }
 
 const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
@@ -728,7 +727,14 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 				}
 			} catch ( error ) {
 				console.error( 'Failed to execute action:', error );
-				showToast( error.message || 'Action failed', 'error' );
+				const failed = ctx.i18n?.actionFailed || '';
+				// A network failure carries the browser's own wording ("Failed to fetch"): show the site's message instead.
+				showToast(
+					error instanceof TypeError
+						? failed
+						: error.message || failed,
+					'error'
+				);
 			} finally {
 				button.disabled = false;
 			}

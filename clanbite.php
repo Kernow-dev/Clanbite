@@ -3,7 +3,7 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
- * Version: 1.4.0
+ * Version: 1.5.0
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
@@ -58,6 +58,8 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 
 // Loaded here only (not via Composer's `files`), so it works with a stale vendor/ and is never declared twice.
 require_once __DIR__ . '/inc/admin/functions.php';
+require_once __DIR__ . '/inc/toasts.php';
+require_once __DIR__ . '/inc/messages.php';
 
 /**
  * Main initiation class.
@@ -69,7 +71,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.4.0';
+	public const VERSION = '1.5.0';
 
 	/**
 	 * Maintenance upgrade counter (single step for 1.0.0 public release).
@@ -521,6 +523,8 @@ final class Main {
 	/**
 	 * Register stylesheets shared by Clanbite and its companion plugins.
 	 *
+	 * `clanbite-toasts` (style and script) is the shared popup system, see `inc/toasts.php`.
+	 *
 	 * `clanbite-tokens` holds the theme-adaptive colour tokens (surface, text, border, accent, danger). `clanbite-buttons`
 	 * is the button contract (defaults, variants, states, focus ring on top of theme.json button styles) and depends on the
 	 * tokens. List a handle in a block's `style` array in `block.json`, or call `wp_enqueue_style()` from template output.
@@ -562,6 +566,23 @@ final class Main {
 			array( 'clanbite-tokens' ),
 			self::VERSION
 		);
+
+		// Shared popups. Extensions enqueue these (or call clanbite_enqueue_toasts()), or list the handle as a dependency.
+		wp_register_style(
+			'clanbite-toasts',
+			$this->url . 'assets/css/clanbite-toasts.css',
+			array( 'clanbite-tokens' ),
+			self::VERSION
+		);
+
+		wp_register_script(
+			'clanbite-toasts',
+			$this->url . 'assets/js/clanbite-toasts.js',
+			array( 'wp-hooks' ),
+			self::VERSION,
+			true
+		);
+		// The site's position and duration are attached just before the scripts print (see clanbite_attach_toast_config()).
 	}
 
 	/**

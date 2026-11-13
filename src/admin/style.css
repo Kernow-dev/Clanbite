@@ -208,7 +208,22 @@ body.toplevel_page_clanbite #wpbody-content > .notice {
 
 /* Field labels: sentence case like wp-admin, not the components' small caps. */
 .clanbite-admin-main .components-base-control__label,
+body.toplevel_page_clanbite .components-base-control__label,
 .clanbite-admin-main .components-base-control__field > .components-base-control__label {
+	margin-bottom: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: none;
+	color: var(--clanbite-admin-text);
+}
+
+/*
+ * Select and text inputs label themselves with a CSS-in-JS class repeated three
+ * times (specificity 0,3,0), so these selectors are written to out-rank it,
+ * on the page and in modals (which render outside the admin container).
+ */
+body.toplevel_page_clanbite .clanbite-admin-main .components-input-control__label,
+body.toplevel_page_clanbite .components-modal__frame .components-input-control__label {
 	margin-bottom: 6px;
 	font-size: 13px;
 	font-weight: 600;

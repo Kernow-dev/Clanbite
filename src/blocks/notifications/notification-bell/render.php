@@ -13,6 +13,9 @@ if ( ! is_user_logged_in() ) {
 	return;
 }
 
+// Action results ("Friend request accepted", "Action failed") appear as shared Clanbite popups.
+clanbite_enqueue_toasts();
+
 $user_id        = get_current_user_id();
 $show_dropdown  = $attributes['showDropdown'] ?? true;
 $dropdown_count = $attributes['dropdownCount'] ?? 10;
@@ -41,6 +44,7 @@ $context = array(
 		'bellLabel'       => __( 'Notifications', 'clanbite' ),
 		/* translators: %d: number of unread notifications. */
 		'bellLabelUnread' => __( 'Notifications, %d unread', 'clanbite' ),
+		'actionFailed'    => clanbite_get_message( 'notification_bell.action_failed' ),
 		'confirmTitle'    => __( 'Confirm action', 'clanbite' ),
 		'confirmCancel'   => __( 'Cancel', 'clanbite' ),
 		'confirmOk'       => __( 'OK', 'clanbite' ),
