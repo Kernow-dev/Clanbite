@@ -2019,7 +2019,15 @@ function App() {
 		return () => window.removeEventListener( 'popstate', onPopState );
 	}, [ bootstrap ] );
 
+	// Fields edited since the last save, per option: a "partial" option (Messages) sends only these, so saving never
+	// overwrites what another administrator saved in the meantime.
+	const dirtyFields = useRef( {} );
+
 	const onFieldChange = useCallback( ( optionKey, fieldId, v ) => {
+		dirtyFields.current[ optionKey ] = {
+			...dirtyFields.current[ optionKey ],
+			[ fieldId ]: true,
+		};
 		setValues( ( prev ) => ( {
 			...prev,
 			[ optionKey ]: {
@@ -2029,15 +2037,25 @@ function App() {
 		} ) );
 	}, [] );
 
-	const saveOption = async ( optionKey ) => {
+	const saveOption = async ( optionKey, partial = false ) => {
 		setSaving( true );
 		setSaveNotice( null );
 		try {
+			const current = values[ optionKey ] || {};
+			const sent = { ...dirtyFields.current[ optionKey ] };
+			const data = partial
+				? Object.fromEntries(
+						Object.keys( sent )
+							.filter( ( id ) => id in current )
+							.map( ( id ) => [ id, current[ id ] ] )
+				  )
+				: current;
 			const res = await apiFetch( {
 				path: `clanbite/v1/admin/settings/${ optionKey }`,
 				method: 'PUT',
-				data: values[ optionKey ] || {},
+				data,
 			} );
+			dirtyFields.current[ optionKey ] = {};
 			setValues( ( prev ) => ( { ...prev, [ optionKey ]: res.values } ) );
 			setToast( __( 'Settings saved.', 'clanbite' ) );
 		} catch ( e ) {
@@ -2175,7 +2193,9 @@ function App() {
 				/>
 				<Button
 					variant="primary"
-					onClick={ () => saveOption( group.optionKey ) }
+					onClick={ () =>
+						saveOption( group.optionKey, !! group.partial )
+					}
 					isBusy={ saving }
 					className="clanbite-extension-save"
 				>

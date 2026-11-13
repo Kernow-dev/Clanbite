@@ -17,6 +17,8 @@ use Kernowdev\Clanbite\Extensions\Abstract_Settings;
 class Admin extends Abstract_Settings {
 	/**
 	 * Option that stores these settings (also read by {@see clanbite_get_toast_settings()} for the shared popups).
+	 *
+	 * @since 1.5.0
 	 */
 	public const OPTION_KEY = 'clanbite_notifications_settings';
 

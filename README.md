@@ -100,9 +100,12 @@ The mount event can fire **more than once for the same element** (React re-runs 
 Clanbite ships **one popup system** so a rank-up, a confirmation and an error all look, move and behave the same. Site owners set it once under **Clanbite → Settings → Notifications → Popups**: on/off, position (six corners), default length (3 s to 15 s, a custom number of seconds, or until closed), **pause when hovered** and a **countdown bar** that fills as the popup nears expiry. Popups belong to the **Notifications** extension: with it off, or with **Show popups** switched off (on by default), no popup is shown and the popup options in Ranks and Points are hidden. Check `clanbite_toasts_available()` (filter `clanbite_toasts_available`) to hide your own popup options the same way. Extensions only say what to show.
 
 ```js
-// 1. Load the library: list the handle as a dependency of your script...
+// 1. Load the library (script AND stylesheet) with one call, on wp_enqueue_scripts or from a block's render.php:
+clanbite_enqueue_toasts();
+// A script dependency only loads the script: if you list the handle that way,
+// also call wp_enqueue_style( 'clanbite-toasts' ), or the popups have no positioning.
 wp_enqueue_script( 'my-addon', $url, array( 'clanbite-toasts' ), $ver, true );
-// ...or call clanbite_enqueue_toasts() from PHP (a block's render.php is a good place).
+// A block can list 'clanbite-toasts' in the "style" array of its block.json instead (core's blocks do).
 
 // 2. Show a toast (works from classic scripts, wp.element apps and Interactivity view modules).
 clanbite.toasts.show( {

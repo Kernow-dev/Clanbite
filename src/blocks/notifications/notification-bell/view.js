@@ -727,7 +727,14 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 				}
 			} catch ( error ) {
 				console.error( 'Failed to execute action:', error );
-				showToast( error.message || 'Action failed', 'error' );
+				const failed = ctx.i18n?.actionFailed || '';
+				// A network failure carries the browser's own wording ("Failed to fetch"): show the site's message instead.
+				showToast(
+					error instanceof TypeError
+						? failed
+						: error.message || failed,
+					'error'
+				);
 			} finally {
 				button.disabled = false;
 			}

@@ -16,10 +16,11 @@ defined( 'ABSPATH' ) || exit;
  */
 function clanbite_message_groups(): array {
 	$groups = array(
-		'general' => __( 'General', 'clanbite' ),
-		'teams'   => __( 'Teams', 'clanbite' ),
-		'events'  => __( 'Events', 'clanbite' ),
-		'players' => __( 'Players', 'clanbite' ),
+		'general'       => __( 'General', 'clanbite' ),
+		'teams'         => __( 'Teams', 'clanbite' ),
+		'events'        => __( 'Events', 'clanbite' ),
+		'players'       => __( 'Players', 'clanbite' ),
+		'notifications' => __( 'Notifications', 'clanbite' ),
 	);
 
 	/**
@@ -52,10 +53,11 @@ function clanbite_message_groups(): array {
  */
 function clanbite_message_group_extensions(): array {
 	$map = array(
-		'general' => 'general',
-		'teams'   => 'cp_teams',
-		'events'  => 'cp_events',
-		'players' => 'cp_players',
+		'general'       => 'general',
+		'teams'         => 'cp_teams',
+		'events'        => 'cp_events',
+		'players'       => 'cp_players',
+		'notifications' => 'cp_notifications',
 	);
 
 	/**
@@ -168,7 +170,7 @@ function clanbite_get_message_definitions(): array {
 }
 
 /**
- * Settings field id for a message key (the option array key; dots are not used in field ids).
+ * Settings field id for a message key (the option array key: the dot becomes a hyphen, which a message key cannot contain, so ids never collide).
  *
  * @since 1.5.0
  *
@@ -176,7 +178,9 @@ function clanbite_get_message_definitions(): array {
  * @return string
  */
 function clanbite_message_field_id( string $key ): string {
-	return str_replace( '.', '__', $key );
+	// A key may hold letters, numbers and underscores plus one dot, never a hyphen, so mapping the dot to a hyphen cannot
+	// make two different keys share a field id (`__` could: `a.b__c` and `a__b.c`).
+	return str_replace( '.', '-', $key );
 }
 
 /**
@@ -304,120 +308,126 @@ function clanbite_core_message_definitions( $definitions ): array {
 	return array_merge(
 		$definitions,
 		array(
-			'team_invite.title'              => array(
+			'team_invite.title'               => array(
 				'group'        => 'teams',
 				'label'        => __( 'Team invitation: notification title', 'clanbite' ),
 				'description'  => __( 'Sent to a member when they are invited to a team.', 'clanbite' ),
 				'default'      => __( '{inviter} invited you to join {team}', 'clanbite' ),
 				'placeholders' => $invite_tokens,
 			),
-			'team_invite.accept_success'     => array(
+			'team_invite.accept_success'      => array(
 				'group'       => 'teams',
 				'label'       => __( 'Team invitation: popup after Accept', 'clanbite' ),
 				'description' => __( 'Popup shown after a member accepts the invitation.', 'clanbite' ),
 				'default'     => __( 'You have joined the team!', 'clanbite' ),
 			),
-			'team_invite.decline_success'    => array(
+			'team_invite.decline_success'     => array(
 				'group'       => 'teams',
 				'label'       => __( 'Team invitation: popup after Decline', 'clanbite' ),
 				'description' => __( 'Popup shown after a member declines the invitation.', 'clanbite' ),
 				'default'     => __( 'Invitation declined.', 'clanbite' ),
 			),
-			'team_challenge.title'           => array(
+			'team_challenge.title'            => array(
 				'group'        => 'teams',
 				'label'        => __( 'Team challenge: notification title', 'clanbite' ),
 				'description'  => __( 'Sent to the challenged team’s admins.', 'clanbite' ),
 				'default'      => __( '{challenger} challenged {team}', 'clanbite' ),
 				'placeholders' => $challenge_tokens,
 			),
-			'team_challenge.message'         => array(
+			'team_challenge.message'          => array(
 				'group'       => 'teams',
 				'label'       => __( 'Team challenge: notification text', 'clanbite' ),
 				'description' => __( 'The line under the title of a challenge notification.', 'clanbite' ),
 				'default'     => __( 'Review the challenge and accept or decline.', 'clanbite' ),
 			),
-			'team_challenge.accept_success'  => array(
+			'team_challenge.accept_success'   => array(
 				'group'       => 'teams',
 				'label'       => __( 'Team challenge: popup after Accept', 'clanbite' ),
 				'description' => __( 'Popup shown after a challenge is accepted.', 'clanbite' ),
 				'default'     => __( 'Challenge accepted. Match and event were created.', 'clanbite' ),
 			),
-			'team_challenge.decline_success' => array(
+			'team_challenge.decline_success'  => array(
 				'group'       => 'teams',
 				'label'       => __( 'Team challenge: popup after Decline', 'clanbite' ),
 				'description' => __( 'Popup shown after a challenge is declined.', 'clanbite' ),
 				'default'     => __( 'Challenge declined.', 'clanbite' ),
 			),
-			'team_match_event.title'         => array(
+			'team_match_event.title'          => array(
 				'group'       => 'teams',
 				'label'       => __( 'New team match: notification title', 'clanbite' ),
 				'description' => __( 'Sent to every team member when an accepted challenge creates a match event.', 'clanbite' ),
 				'default'     => __( 'New match scheduled for your team', 'clanbite' ),
 			),
-			'team_match_event.message'       => array(
+			'team_match_event.message'        => array(
 				'group'       => 'teams',
 				'label'       => __( 'New team match: notification text', 'clanbite' ),
 				'description' => __( 'The line under the title of the new match notification.', 'clanbite' ),
 				'default'     => __( 'You have been added to the match event. Please confirm your attendance.', 'clanbite' ),
 			),
-			'event_invite.title'             => array(
+			'event_invite.title'              => array(
 				'group'        => 'events',
 				'label'        => __( 'Event invitation: notification title', 'clanbite' ),
 				'description'  => __( 'Sent when a manager asks members to confirm their attendance.', 'clanbite' ),
 				'default'      => __( 'You\'re invited: {event}', 'clanbite' ),
 				'placeholders' => $event_tokens,
 			),
-			'event_invite.message'           => array(
+			'event_invite.message'            => array(
 				'group'       => 'events',
 				'label'       => __( 'Event invitation: notification text', 'clanbite' ),
 				'description' => __( 'The line under the title of an event invitation.', 'clanbite' ),
 				'default'     => __( 'Open the event to confirm your attendance.', 'clanbite' ),
 			),
-			'team_event.title'               => array(
+			'team_event.title'                => array(
 				'group'        => 'events',
 				'label'        => __( 'New team event: notification title', 'clanbite' ),
 				'description'  => __( 'Sent to the roster when a manager posts a team event.', 'clanbite' ),
 				'default'      => __( 'New team event: {event}', 'clanbite' ),
 				'placeholders' => $event_tokens,
 			),
-			'team_event.message'             => array(
+			'team_event.message'              => array(
 				'group'       => 'events',
 				'label'       => __( 'New team event: notification text', 'clanbite' ),
 				'description' => __( 'The line under the title of a new team event.', 'clanbite' ),
 				'default'     => __( 'A manager posted a new event for your roster.', 'clanbite' ),
 			),
-			'group_event.title'              => array(
+			'group_event.title'               => array(
 				'group'        => 'events',
 				'label'        => __( 'New group event: notification title', 'clanbite' ),
 				'description'  => __( 'Sent to group members when a manager posts a group event.', 'clanbite' ),
 				'default'      => __( 'New group event: {event}', 'clanbite' ),
 				'placeholders' => $event_tokens,
 			),
-			'group_event.message'            => array(
+			'group_event.message'             => array(
 				'group'       => 'events',
 				'label'       => __( 'New group event: notification text', 'clanbite' ),
 				'description' => __( 'The line under the title of a new group event.', 'clanbite' ),
 				'default'     => __( 'A manager posted a new event for your group.', 'clanbite' ),
 			),
-			'player_settings.saved'          => array(
+			'notification_bell.action_failed' => array(
+				'group'       => 'notifications',
+				'label'       => __( 'Notification button failed: popup', 'clanbite' ),
+				'description' => __( 'Popup shown when a button on a notification (Accept, Decline, ...) fails and the server gave no reason.', 'clanbite' ),
+				'default'     => __( 'That did not work. Please try again.', 'clanbite' ),
+			),
+			'player_settings.saved'           => array(
 				'group'       => 'players',
 				'label'       => __( 'Profile settings: saved popup', 'clanbite' ),
 				'description' => __( 'Popup shown after a member saves their profile settings.', 'clanbite' ),
 				'default'     => __( 'Your changes were saved successfully.', 'clanbite' ),
 			),
-			'player_settings.save_failed'    => array(
+			'player_settings.save_failed'     => array(
 				'group'       => 'players',
 				'label'       => __( 'Profile settings: save failed popup', 'clanbite' ),
 				'description' => __( 'Popup shown when the server rejects the save.', 'clanbite' ),
 				'default'     => __( 'There was an error while saving changes.', 'clanbite' ),
 			),
-			'player_settings.network_error'  => array(
+			'player_settings.network_error'   => array(
 				'group'       => 'players',
 				'label'       => __( 'Profile settings: connection problem popup', 'clanbite' ),
 				'description' => __( 'Popup shown when the save request could not reach the server.', 'clanbite' ),
 				'default'     => __( 'Network error while saving changes.', 'clanbite' ),
 			),
-			'player_settings.bad_url'        => array(
+			'player_settings.bad_url'         => array(
 				'group'       => 'players',
 				'label'       => __( 'Profile settings: reload needed popup', 'clanbite' ),
 				'description' => __( 'Popup shown when the page cannot work out where to save.', 'clanbite' ),

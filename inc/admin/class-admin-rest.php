@@ -709,6 +709,7 @@ class Admin_Rest {
 						'name'      => __( 'Messages', 'clanbite' ),
 						'slug'      => 'messages',
 						'optionKey' => $messages_key,
+						'partial'   => true,
 						'sections'  => $schema,
 					),
 				),

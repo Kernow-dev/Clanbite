@@ -20,6 +20,11 @@ use Kernowdev\Clanbite\Extensions\Abstract_Settings;
  * An empty value means "use the default", so defaults stay translatable and keep improving with plugin updates.
  */
 class Messages_Settings extends Abstract_Settings {
+	/**
+	 * Option that stores the custom wording.
+	 *
+	 * @since 1.5.0
+	 */
 	public const OPTION_KEY = 'clanbite_messages_settings';
 
 	/**
@@ -147,6 +152,8 @@ class Messages_Settings extends Abstract_Settings {
 	 *
 	 * Each extension tab shows the groups that belong to it as its Messages sub-tab.
 	 *
+	 * @since 1.5.0
+	 *
 	 * @param array<int, string> $groups Group slugs.
 	 * @return array<int, array<string, mixed>> Same shape as {@see Abstract_Settings::export_rest_schema()}.
 	 */
@@ -162,6 +169,8 @@ class Messages_Settings extends Abstract_Settings {
 	/**
 	 * Render the classic PHP settings page shell (submenu mode only).
 	 *
+	 * @since 1.5.0
+	 *
 	 * @return void
 	 */
 	public function render_page(): void {
@@ -169,7 +178,39 @@ class Messages_Settings extends Abstract_Settings {
 	}
 
 	/**
+	 * Save only the messages that were sent, on top of what is already stored.
+	 *
+	 * Two things must survive a save: wording another administrator saved a moment ago (the admin sends just the fields
+	 * that were edited, so those are merged into the latest option rather than replacing it with a stale copy), and wording
+	 * for messages that are not registered right now (an extension that is switched off), so it is back when the extension is.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @param array<string, mixed> $input Field id => text; fields left out keep their stored value.
+	 * @return array<string, mixed> The option as stored.
+	 */
+	public function save_from_input( array $input ): array {
+		$stored = get_option( self::OPTION_KEY, array() );
+		$stored = is_array( $stored ) ? $stored : array();
+
+		$known = array_keys( $this->get_flat_fields() );
+		foreach ( $known as $field_id ) {
+			if ( array_key_exists( $field_id, $input ) ) {
+				$stored[ $field_id ] = $this->sanitize_message( $input[ $field_id ] );
+			} elseif ( ! array_key_exists( $field_id, $stored ) ) {
+				$stored[ $field_id ] = '';
+			}
+		}
+
+		update_option( self::OPTION_KEY, $stored );
+
+		return $stored;
+	}
+
+	/**
 	 * Sanitize a custom message: plain text, no markup, a sensible length.
+	 *
+	 * @since 1.5.0
 	 *
 	 * @param mixed $value Raw value.
 	 * @return string

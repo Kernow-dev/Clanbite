@@ -42,7 +42,8 @@
 	const FALLBACK_MAX = 4;
 	const EXIT_MS = 200;
 
-	const stacks = {};
+	// No prototype: a position called `constructor` or `toString` must not resolve to an inherited property.
+	const stacks = Object.create( null );
 	const live = new Map();
 	let sequence = 0;
 
@@ -118,7 +119,10 @@
 	 */
 	function safeUrl( url, context ) {
 		const value = String( url || '' ).trim();
-		let allowed = /^(https?:\/\/|\/(?!\/))/i.test( value );
+		// Browsers read a backslash as a slash, so `/\host` would leave the site; control characters are never valid either.
+		let allowed =
+			/^(https?:\/\/|\/(?![/\\]))/i.test( value ) &&
+			! /[\\\u0000-\u001f]/.test( value );
 		const h = hooks();
 		if ( value && h && h.applyFilters ) {
 			/**
@@ -391,18 +395,25 @@
 			return null;
 		}
 
-		if ( payload.id && live.has( payload.id ) ) {
-			live.get( payload.id ).dismiss( 'replaced', true );
+		sequence += 1;
+		// An automatic id never lands on a live toast (a caller may have chosen `toast-3`); a caller's own id replaces
+		// the toast that has it. Either way a live toast is dismissed before its id is reused, never orphaned.
+		let toastId = payload.id || `toast-${ sequence }`;
+		while ( ! payload.id && live.has( toastId ) ) {
+			sequence += 1;
+			toastId = `toast-${ sequence }`;
+		}
+		if ( live.has( toastId ) ) {
+			live.get( toastId ).dismiss( 'replaced', true );
 		}
 
-		sequence += 1;
 		let timer = 0;
 		let remaining = payload.duration;
 		let startedAt = 0;
 		let closed = false;
 		const stack = getStack( payload.position );
 		const handle = {
-			id: payload.id || `toast-${ sequence }`,
+			id: toastId,
 			element: null,
 			dismiss( reason = 'api', immediate = false ) {
 				if ( closed ) {

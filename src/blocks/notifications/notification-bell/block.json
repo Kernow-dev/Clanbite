@@ -42,7 +42,7 @@
 	"textdomain": "clanbite",
 	"editorScript": "file:./index.js",
 	"viewScriptModule": "file:./view.js",
-	"style": ["file:./style-index.css", "clanbite-buttons"],
+	"style": ["file:./style-index.css", "clanbite-buttons", "clanbite-toasts"],
 	"render": "file:./render.php",
 	"selectors": {
 		"root": ".wp-block-clanbite-notification-bell",

@@ -87,7 +87,11 @@
 	border-radius: var(--clanbite-toast-radius, var(--clanbite-radius, 0.5em));
 	background: var(--clanbite-toast-bg, var(--clanbite-surface, #fff));
 	color: var(--clanbite-toast-color, var(--clanbite-on-surface, #1e1e1e));
-	box-shadow: var(--clanbite-toast-shadow, 0 8px 24px rgba(0, 0, 0, 0.22));
+	box-shadow:
+		var(
+			--clanbite-toast-shadow,
+			0 8px 24px color-mix(in srgb, currentcolor 22%, transparent)
+		);
 	overflow: hidden;
 	font-size: var(--clanbite-toast-font-size, 14px);
 	line-height: 1.4;

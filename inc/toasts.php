@@ -188,7 +188,14 @@ function clanbite_get_toast_settings(): array {
  * @return bool
  */
 function clanbite_toasts_available(): bool {
-	$available = ! function_exists( 'clanbite_notifications_extension_active' ) || clanbite_notifications_extension_active();
+	// Fail closed: when neither the helper nor the loader can say, popups are off rather than assumed on.
+	if ( function_exists( 'clanbite_notifications_extension_active' ) ) {
+		$available = clanbite_notifications_extension_active();
+	} elseif ( class_exists( \Kernowdev\Clanbite\Extensions\Loader::class ) ) {
+		$available = \Kernowdev\Clanbite\Extensions\Loader::instance()->is_extension_installed( 'cp_notifications' );
+	} else {
+		$available = false;
+	}
 	if ( $available ) {
 		$stored    = get_option( \Kernowdev\Clanbite\Extensions\Notifications\Admin::OPTION_KEY, array() );
 		$available = ! is_array( $stored ) || ! array_key_exists( 'toasts_enabled', $stored ) || ! empty( $stored['toasts_enabled'] );

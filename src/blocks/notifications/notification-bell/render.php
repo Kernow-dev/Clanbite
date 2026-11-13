@@ -44,6 +44,7 @@ $context = array(
 		'bellLabel'       => __( 'Notifications', 'clanbite' ),
 		/* translators: %d: number of unread notifications. */
 		'bellLabelUnread' => __( 'Notifications, %d unread', 'clanbite' ),
+		'actionFailed'    => clanbite_get_message( 'notification_bell.action_failed' ),
 		'confirmTitle'    => __( 'Confirm action', 'clanbite' ),
 		'confirmCancel'   => __( 'Cancel', 'clanbite' ),
 		'confirmOk'       => __( 'OK', 'clanbite' ),
