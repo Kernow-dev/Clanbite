@@ -1,11 +1,31 @@
 /**
  * Clanbite toasts (style handle `clanbite-toasts`).
  *
- * Styles the popups made by `clanbite.toasts.show()` (see clanbite-toasts.js). Colours come from the shared tokens
- * (`clanbite-tokens`), each with a standalone fallback, so a toast fits light and dark themes. Override
- * `--clanbite-toast-*` in `:root` or target `.clanbite-toast-item` from a theme stylesheet.
+ * Styles the popups made by `clanbite.toasts.show()` (see clanbite-toasts.js).
+ * Colours come from the shared tokens (`clanbite-tokens`), each with a
+ * standalone fallback, so a toast fits light and dark themes. Nothing here
+ * uses `!important`, and every rule is a single class, so a theme restyles a
+ * toast with plain CSS in one of two ways:
  *
- * Position is set per stack (`.clanbite-toast-stack--top-right`, ...). Top stacks sit below the WordPress admin bar.
+ * - set custom properties in `:root` (or on `.clanbite-toast-stack`):
+ *   `--clanbite-toast-bg`, `--clanbite-toast-color`,
+ *   `--clanbite-toast-border`, `--clanbite-toast-radius`,
+ *   `--clanbite-toast-shadow`, `--clanbite-toast-font-size`,
+ *   `--clanbite-toast-track` (the countdown bar's track),
+ *   `--clanbite-toast-action-color`, `--clanbite-toast-close-color` and the
+ *   accent for each kind: `--clanbite-toast-info`,
+ *   `--clanbite-toast-success`, `--clanbite-toast-warning`,
+ *   `--clanbite-toast-error`; or
+ * - write your own rule for `.clanbite-toast-item` (and `--success`,
+ *   `--warning`, `--error`). A theme stylesheet loads later or can use a
+ *   stronger selector, so it wins over these.
+ *
+ * Each variable falls back to the shared token (`--clanbite-surface`,
+ * `--clanbite-on-surface`, ...), so changing a token restyles toasts together
+ * with the rest of the plugin.
+ *
+ * Position is set per stack (`.clanbite-toast-stack--top-right`, ...). Top
+ * stacks sit below the WordPress admin bar.
  */
 
 :root {
@@ -55,36 +75,36 @@
 }
 
 .clanbite-toast-item {
-	--clanbite-toast-tone: var(--clanbite-accent, #2271b1);
+	--clanbite-toast-tone: var(--clanbite-toast-info, var(--clanbite-accent, #2271b1));
 
 	position: relative;
 	display: flex;
 	align-items: flex-start;
 	gap: 12px;
 	padding: 12px 36px 12px 14px;
-	border: 1px solid var(--clanbite-border, rgba(127, 127, 127, 0.35));
+	border: 1px solid var(--clanbite-toast-border, var(--clanbite-border, rgba(127, 127, 127, 0.35)));
 	border-inline-start: 4px solid var(--clanbite-toast-tone);
-	border-radius: var(--clanbite-radius, 0.5em);
-	background: var(--clanbite-surface, #fff);
-	color: var(--clanbite-on-surface, #1e1e1e);
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+	border-radius: var(--clanbite-toast-radius, var(--clanbite-radius, 0.5em));
+	background: var(--clanbite-toast-bg, var(--clanbite-surface, #fff));
+	color: var(--clanbite-toast-color, var(--clanbite-on-surface, #1e1e1e));
+	box-shadow: var(--clanbite-toast-shadow, 0 8px 24px rgba(0, 0, 0, 0.22));
 	overflow: hidden;
-	font-size: 14px;
+	font-size: var(--clanbite-toast-font-size, 14px);
 	line-height: 1.4;
 	pointer-events: auto;
 	animation: clanbite-toast-in 180ms ease-out;
 }
 
 .clanbite-toast-item--success {
-	--clanbite-toast-tone: var(--clanbite-success, #00a32a);
+	--clanbite-toast-tone: var(--clanbite-toast-success, var(--clanbite-success, #00a32a));
 }
 
 .clanbite-toast-item--warning {
-	--clanbite-toast-tone: var(--clanbite-warning, #dba617);
+	--clanbite-toast-tone: var(--clanbite-toast-warning, var(--clanbite-warning, #dba617));
 }
 
 .clanbite-toast-item--error {
-	--clanbite-toast-tone: var(--clanbite-danger, #b32d2e);
+	--clanbite-toast-tone: var(--clanbite-toast-error, var(--clanbite-danger, #b32d2e));
 }
 
 .clanbite-toast-item.is-leaving {
@@ -129,7 +149,7 @@
 	height: 6px;
 	margin-top: 8px;
 	border-radius: 999px;
-	background: var(--clanbite-surface-alt, rgba(127, 127, 127, 0.25));
+	background: var(--clanbite-toast-track, var(--clanbite-surface-alt, #8884));
 	overflow: hidden;
 }
 
@@ -147,7 +167,7 @@
 	inset-inline: 0;
 	bottom: 0;
 	height: 3px;
-	background: var(--clanbite-surface-alt, rgba(127, 127, 127, 0.2));
+	background: var(--clanbite-toast-track, var(--clanbite-surface-alt, #8883));
 }
 
 .clanbite-toast-item__timer-fill {
@@ -173,7 +193,7 @@
 	padding: 0;
 	border: 0;
 	background: none;
-	color: var(--clanbite-accent, #2271b1);
+	color: var(--clanbite-toast-action-color, var(--clanbite-accent, #2271b1));
 	font: inherit;
 	font-weight: 600;
 	text-decoration: underline;
@@ -190,7 +210,7 @@
 	border: 0;
 	border-radius: 50%;
 	background: transparent;
-	color: var(--clanbite-muted, currentcolor);
+	color: var(--clanbite-toast-close-color, var(--clanbite-muted, currentcolor));
 	font-size: 18px;
 	line-height: 1;
 	cursor: pointer;
