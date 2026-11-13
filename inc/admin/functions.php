@@ -27,7 +27,8 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 1.4.0
  *
- * @param string               $tab_id Tab id: `general`, `extensions`, `core-groups`, `ext-{extension_slug}`, or an
+ * @param string               $tab_id Tab id, exactly as in the tab descriptor: `general`, `extensions`, `core-groups`,
+ *                                     `ext-{extension_slug}`, or an
  *                                     integration tab id added through `clanbite_admin_rest_tabs`.
  * @param array<string, mixed> $args   {
  *     Sub-tab definition.
@@ -41,7 +42,8 @@ defined( 'ABSPATH' ) || exit;
  * @return void
  */
 function clanbite_register_admin_sub_tab( string $tab_id, array $args ): void {
-	$tab_id = sanitize_key( $tab_id );
+	// Used verbatim: it must equal the tab descriptor's `id` (integration tabs may use any characters).
+	$tab_id = trim( $tab_id );
 	if ( '' === $tab_id ) {
 		return;
 	}

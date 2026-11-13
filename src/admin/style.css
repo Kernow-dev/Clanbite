@@ -29,10 +29,14 @@ body.toplevel_page_clanbite .wrap {
 	margin: 0;
 }
 
-/* Core moves admin notices into the wrap; keep them off the screen edge. */
+/*
+ * Core moves admin notices into the wrap; keep them off the screen edge. The
+ * gutter variable is defined on .clanbite-admin-app and notices sit outside
+ * it, hence the fallback.
+ */
 body.toplevel_page_clanbite .wrap > .notice,
 body.toplevel_page_clanbite #wpbody-content > .notice {
-	margin: 12px var(--clanbite-admin-gutter) 0;
+	margin: 12px var(--clanbite-admin-gutter, 20px) 0;
 }
 
 /* Header */

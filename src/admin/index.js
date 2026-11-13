@@ -2163,6 +2163,7 @@ function App() {
 							}
 							const withViews = ( node ) => (
 								<TabBody
+									key={ meta.id }
 									meta={ meta }
 									settingsView={ node }
 									bootstrap={ bootstrap }
