@@ -4,7 +4,7 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**334 PHP hooks and 8 JavaScript hooks**.
+**345 PHP hooks and 16 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
@@ -14,13 +14,13 @@ Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand fo
 - [Avatars](#avatars) (42)
 - [Events](#events) (19)
 - [Extensions](#extensions) (27)
-- [General](#general) (20)
+- [General](#general) (31)
 - [Matches](#matches) (18)
 - [Notifications](#notifications) (21)
 - [Players](#players) (82)
 - [Profile sub-pages and groups](#profile-sub-pages-and-groups) (12)
 - [Teams](#teams) (83)
-- [JavaScript hooks](#javascript-hooks) (8)
+- [JavaScript hooks](#javascript-hooks) (16)
 
 ## Admin
 
@@ -1282,6 +1282,81 @@ Filter serialized block markup before `do_blocks()` runs for a Clanbite template
 | `$markup` | `string` | Raw markup read from `$markup_file`. |
 | `$markup_file` | `string` | Absolute path to the template source file. |
 
+#### `clanbite_message`
+
+*Filter* · `inc/messages.php`
+
+Filters a finished message.
+
+Runs on every message, so check `$key` before changing anything.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$message` | `string` | The message with placeholders filled in. |
+| `$key` | `string` | Message key. |
+| `$vars` | `array<string, scalar>` | The values that were substituted. |
+| `$template` | `string` | The wording before substitution. |
+
+**Since:** 1.5.0
+
+#### `clanbite_message_definitions`
+
+*Filter* · `inc/messages.php`
+
+Filters the registered messages (see `clanbite_register_message()` for the shape of each entry).
+
+Core and every extension add their messages here, so a plugin can also change another plugin's default wording
+or remove a message from the Messages sub-tabs.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$definitions` | `array<string, array<string, mixed>>` | Message key => definition. |
+
+**Since:** 1.5.0
+
+#### `clanbite_message_group_extensions`
+
+*Filter* · `inc/messages.php`
+
+Filters which extension's settings tab lists each message group.
+
+Map the group you added with `clanbite_message_groups` to your extension slug so its messages appear under your
+extension's own **Messages** sub-tab. A group left out of the map is listed under General → Messages.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$map` | `array<string, string>` | Group slug => extension slug (`cp_teams`), or `general`. |
+
+**Since:** 1.5.0
+
+#### `clanbite_message_groups`
+
+*Filter* · `inc/messages.php`
+
+Filters the groups messages are listed under (one per extension; see `clanbite_message_group_extensions`).
+
+Add a group for your extension, then pass its slug as `group` when you register messages.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$groups` | `array<string, string>` | Group slug => translated label. |
+
+**Since:** 1.5.0
+
+#### `clanbite_message_template`
+
+*Filter* · `inc/messages.php`
+
+Filters a message's wording before its placeholders are filled in.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$template` | `string` | Wording: the site owner's version, or the default. |
+| `$key` | `string` | Message key, for example `team_invite.title`. |
+| `$is_default` | `bool` | Whether `$template` is the registered default (no custom wording saved). |
+
+**Since:** 1.5.0
+
 #### `clanbite_public_team_response`
 
 *Filter* · `inc/class-public-rest.php`
@@ -1387,6 +1462,88 @@ Extra JSON-LD @graph nodes for a team profile.
 | --- | --- | --- |
 | `$extra_graph` | `array<int, array<string, mixed>>` | Nodes. |
 | `$team_id` | `int` | Team post ID. |
+
+#### `clanbite_toast_config`
+
+*Filter* · `inc/toasts.php`
+
+Filters the configuration object sent to the browser as `window.clanbiteToastConfig`.
+
+This is the last word before the page prints: use it to change any value (including the `i18n` strings) or to
+pass your own keys to a script that reads the config.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$browser_config` | `array<string, mixed>` | `enabled`, `position`, `positions` (allowed slugs), `duration` (ms, 0 = until closed), `max`, `pauseOnHover`, `showTimer`, `i18n`. |
+| `$settings` | `array<string, mixed>` | The validated settings from `clanbite_get_toast_settings()`. |
+
+**Since:** 1.5.0
+
+#### `clanbite_toast_custom_duration_range`
+
+*Filter* · `inc/toasts.php`
+
+Filters the range allowed for a custom popup length (Settings → Notifications → Popups).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$range` | `array{min: int, max: int}` | Shortest and longest length in whole seconds (default 1 to 300). |
+
+**Since:** 1.5.0
+
+#### `clanbite_toast_durations`
+
+*Filter* · `inc/toasts.php`
+
+Filters how long a toast can stay on screen (the choices in Settings → Notifications → Popups).
+
+Keys are whole seconds as strings, or `custom` (the seconds typed into the custom length field); `0` means "until it
+is closed". `5` must stay in the list: it is the fallback.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$choices` | `array<string, string>` | Seconds => translated label. |
+
+**Since:** 1.5.0
+
+#### `clanbite_toast_positions`
+
+*Filter* · `inc/toasts.php`
+
+Filters the screen positions a toast can appear in (the choices in Settings → Notifications → Popups).
+
+A position you add needs a matching `.clanbite-toast-stack--{slug}` rule in your CSS. `top-right` must stay in the
+list: it is the fallback.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$positions` | `array<string, string>` | Position slug => translated label. |
+
+**Since:** 1.5.0
+
+#### `clanbite_toast_settings`
+
+*Filter* · `inc/toasts.php`
+
+Filters the toast settings before they are used (PHP) and sent to the browser (`clanbiteToastConfig`).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$settings` | `array{enabled: bool, position: string, duration_ms: int, max: int, pause_on_hover: bool, show_timer: bool}` | `enabled`; `position` (a key of `clanbite_toast_positions()`); `duration_ms` (0 = until closed); `max` (toasts shown at once per corner); `pause_on_hover` (hovering pauses the countdown); `show_timer` (the countdown bar along the bottom of each toast). |
+
+**Since:** 1.5.0
+
+#### `clanbite_toasts_available`
+
+*Filter* · `inc/toasts.php`
+
+Filters whether popups are available (Notifications is on and "Show popups" is not switched off).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$available` | `bool` | False when the Notifications extension or its "Show popups" switch is off. |
+
+**Since:** 1.5.0
 
 #### `clanbite_visibility_container_editor_script_handle`
 
@@ -4037,9 +4194,15 @@ For a signal on every successful poll, use `clanbite.notifications.polled` inste
 
 *Filter (JavaScript, `wp.hooks`)* · `src/blocks/notifications/notification-bell/view.js`
 
-Filter to customize toast notification display.
+Lets a handler show the toast itself. Return a truthy value after rendering to skip the shared popup.
 
-_No arguments._
+Prefer the shared `clanbite.toasts.*` filters (for example `clanbite.toasts.payload`) to change how every popup looks.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `handled` | `{boolean}` | Default `false`. |
+| `message` | `{string}` | Toast message. |
+| `type` | `{string}` | `info`, `success` or `error`. |
 
 #### `clanbite.popup.shouldOpen`
 
@@ -4089,3 +4252,110 @@ Append `wp.element` elements to add your own options; persist them with `setMeta
 | --- | --- | --- |
 | `controls` | `{Array}` | React elements for the panel. |
 | `context` | `{{ meta: Object, setMetaValue: Function, patchMeta: Function, components: Object, element: Object }}` | Editor helpers. |
+
+#### `clanbite.toasts.allowedUrl`
+
+*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+
+Filters whether a URL may be used in a toast (icon image or action link).
+
+The default allows `http(s)://` and root-relative URLs only. Return `true` to allow another scheme you trust
+(for example a `data:` image), or `false` to block a host.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `allowed` | `{boolean}` | Default decision. |
+| `url` | `{string}` | The URL. |
+| `context` | `{string}` | `icon` or `action`. |
+
+#### `clanbite.toasts.container`
+
+*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+
+Filters the element the toast stacks are added to (default `document.body`).
+
+Checked every time a toast is shown, and an existing stack is moved when the answer changes, so you can
+return a dialog or full-screen element only while it is open. Return another element when toasts must live
+inside something else, for example a dialog that makes the rest of the page inert.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `parent` | `{HTMLElement}` | Default parent. |
+| `position` | `{string}` | The stack's position slug. |
+
+#### `clanbite.toasts.dismissed`
+
+*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+
+Fires after a toast is dismissed.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `handle` | `{{id: string, element: HTMLElement}}` | The toast handle. |
+| `payload` | `{Object}` | Toast options. |
+| `reason` | `{string}` | `timeout`, `close`, `escape`, `action`, `replaced`, `overflow` or `api`. |
+
+#### `clanbite.toasts.element`
+
+*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+
+Lets a handler build the toast element itself (custom markup).
+
+Return an `HTMLElement` to use it instead of the default. Clanbite still places it in the stack and runs the
+timer, hover pause, `Escape` and overflow handling; add your own close control that calls `handle.dismiss()`.
+Return `null` (the default) for the standard toast.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `element` | `{HTMLElement\|null}` | Default `null`. |
+| `payload` | `{Object}` | Toast options. |
+| `handle` | `{{id: string, element: HTMLElement}}` | The toast handle (`element` is set after this filter). |
+
+#### `clanbite.toasts.payload`
+
+*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+
+Filters a toast's options before it is shown.
+
+Use it to adjust wording, duration or position for every toast, or only one `source`. Return the (modified)
+options object.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `payload` | `{Object}` | Normalised options: `id`, `type`, `title`, `message`, `icon`, `progress`, `duration` (ms), `timer`, `pauseOnHover`, `position`, `dismissible`, `actions`, `className`, `source`. |
+
+#### `clanbite.toasts.settings`
+
+*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+
+Filters the site-wide popup settings for one toast, after the server's values are applied.
+
+Use it to change the defaults for particular toasts (for example a longer time for one `source`). Settings
+an extension passes to `show()` itself still win over these.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `settings` | `{Object}` | `enabled`, `position`, `duration` (ms, 0 = until closed), `max` (toasts per corner), `timer` (countdown bar), `pauseOnHover`. |
+| `options` | `{Object}` | The options passed to `clanbite.toasts.show()`. |
+
+#### `clanbite.toasts.shouldShow`
+
+*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+
+Filters whether a toast is shown. Return `false` to suppress it.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `show` | `{boolean}` | Default `true`. |
+| `payload` | `{Object}` | Normalised toast options (see `clanbite.toasts.payload`). |
+
+#### `clanbite.toasts.shown`
+
+*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+
+Fires after a toast is on screen.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `handle` | `{{id: string, element: HTMLElement}}` | The toast handle. |
+| `payload` | `{Object}` | Toast options. |

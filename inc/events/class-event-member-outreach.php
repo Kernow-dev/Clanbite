@@ -120,26 +120,14 @@ final class Event_Member_Outreach {
 				if ( function_exists( 'clanbite_notify' ) && function_exists( 'clanbite_notifications_extension_active' ) && clanbite_notifications_extension_active() ) {
 					$is_group = Event_Post_Type::SCOPE_GROUP === $scope;
 					if ( self::MODE_RSVP_TENTATIVE === $mode ) {
-						$title = sprintf(
-							/* translators: %s: event title */
-							__( 'You\'re invited: %s', 'clanbite' ),
-							$event_title
-						);
-						$message = __( 'Open the event to confirm your attendance.', 'clanbite' );
+						$title   = clanbite_get_message( 'event_invite.title', array( 'event' => $event_title ) );
+						$message = clanbite_get_message( 'event_invite.message', array( 'event' => $event_title ) );
 					} elseif ( $is_group ) {
-						$title = sprintf(
-							/* translators: %s: event title */
-							__( 'New group event: %s', 'clanbite' ),
-							$event_title
-						);
-						$message = __( 'A manager posted a new event for your group.', 'clanbite' );
+						$title   = clanbite_get_message( 'group_event.title', array( 'event' => $event_title ) );
+						$message = clanbite_get_message( 'group_event.message', array( 'event' => $event_title ) );
 					} else {
-						$title = sprintf(
-							/* translators: %s: event title */
-							__( 'New team event: %s', 'clanbite' ),
-							$event_title
-						);
-						$message = __( 'A manager posted a new event for your roster.', 'clanbite' );
+						$title   = clanbite_get_message( 'team_event.title', array( 'event' => $event_title ) );
+						$message = clanbite_get_message( 'team_event.message', array( 'event' => $event_title ) );
 					}
 
 					$notif_type = $is_group ? 'group_event' : 'team_event';

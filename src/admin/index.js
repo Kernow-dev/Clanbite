@@ -1244,6 +1244,7 @@ function FieldControl( { field, value, onChange } ) {
 	const common = {
 		label: field.label,
 		help: field.description || undefined,
+		placeholder: field.placeholder || undefined,
 	};
 
 	switch ( field.type ) {
@@ -1463,6 +1464,8 @@ function FieldControl( { field, value, onChange } ) {
 /**
  * Check if a field's dependencies are satisfied.
  *
+ * `depends_on` is `{ field, value }` or a list of those (all must hold).
+ *
  * @param {Object} field Field config with optional `depends_on`.
  * @param {Object} data  Current values for the option key.
  * @return {boolean} True if field should be visible.
@@ -1471,18 +1474,24 @@ function isFieldVisible( field, data ) {
 	if ( ! field.depends_on ) {
 		return true;
 	}
-	const { field: depField, value: depValue } = field.depends_on;
-	if ( ! depField ) {
-		return true;
-	}
-	const currentValue = data[ depField ];
-	if ( depValue === true ) {
-		return !! currentValue;
-	}
-	if ( depValue === false ) {
-		return ! currentValue;
-	}
-	return currentValue === depValue;
+	// One rule, or a list of rules that must all hold.
+	const rules = Array.isArray( field.depends_on )
+		? field.depends_on
+		: [ field.depends_on ];
+	return rules.every( ( rule ) => {
+		const { field: depField, value: depValue } = rule || {};
+		if ( ! depField ) {
+			return true;
+		}
+		const currentValue = data[ depField ];
+		if ( depValue === true ) {
+			return !! currentValue;
+		}
+		if ( depValue === false ) {
+			return ! currentValue;
+		}
+		return currentValue === depValue;
+	} );
 }
 
 function SettingsSections( { sections, optionKey, values, onFieldChange } ) {
@@ -1677,10 +1686,24 @@ function IntegrationSlot( { slotId, bootstrap, bootstrapRevision } ) {
  * @param {JSX.Element} props.settingsView      The tab's own content.
  * @param {Object}      props.bootstrap         Admin bootstrap payload (passed to integration views).
  * @param {number}      props.bootstrapRevision Bumped when the bootstrap payload reloads.
+ * @param {Function}    props.renderGroups      Renders settings groups (used by sub-tabs that carry `sectionGroups`).
  */
-function TabBody( { meta, settingsView, bootstrap, bootstrapRevision } ) {
+function TabBody( {
+	meta,
+	settingsView,
+	bootstrap,
+	bootstrapRevision,
+	renderGroups,
+} ) {
 	const subTabs = Array.isArray( meta.subTabs )
-		? meta.subTabs.filter( ( t ) => t && t.id && t.slotId )
+		? meta.subTabs.filter(
+				( t ) =>
+					t &&
+					t.id &&
+					( t.slotId ||
+						( Array.isArray( t.sectionGroups ) &&
+							t.sectionGroups.length ) )
+		  )
 		: [];
 	const [ view, setView ] = useState( () => {
 		const fromUrl = getViewFromLocation();
@@ -1728,7 +1751,12 @@ function TabBody( { meta, settingsView, bootstrap, bootstrapRevision } ) {
 					) ) }
 				</ul>
 			</nav>
-			{ active ? (
+			{ active && active.sectionGroups ? (
+				<div className="clanbite-admin-section-inner" key={ active.id }>
+					{ renderGroups( active.sectionGroups ) }
+				</div>
+			) : null }
+			{ active && ! active.sectionGroups ? (
 				<div className="clanbite-admin-section-inner">
 					<IntegrationSlot
 						key={ active.id }
@@ -1737,9 +1765,8 @@ function TabBody( { meta, settingsView, bootstrap, bootstrapRevision } ) {
 						bootstrapRevision={ bootstrapRevision }
 					/>
 				</div>
-			) : (
-				settingsView
-			) }
+			) : null }
+			{ active ? null : settingsView }
 		</>
 	);
 }
@@ -2128,6 +2155,35 @@ function App() {
 			? window.clanbiteAdmin.iconPickerI18n
 			: {} );
 
+	/**
+	 * Settings groups (extension tabs and sub-tab views): one card per group with its own Save button.
+	 *
+	 * @param {Array} groups Section groups from the tab or sub-tab descriptor.
+	 */
+	const renderGroups = ( groups ) =>
+		( groups || [] ).map( ( group ) => (
+			<div
+				key={ `${ group.kind }-${ group.slug }` }
+				className="clanbite-settings-section"
+			>
+				{ group.kind === 'child' ? <h3>{ group.name }</h3> : null }
+				<SettingsSections
+					sections={ group.sections }
+					optionKey={ group.optionKey }
+					values={ values }
+					onFieldChange={ onFieldChange }
+				/>
+				<Button
+					variant="primary"
+					onClick={ () => saveOption( group.optionKey ) }
+					isBusy={ saving }
+					className="clanbite-extension-save"
+				>
+					{ __( 'Save', 'clanbite' ) }
+				</Button>
+			</div>
+		) );
+
 	return (
 		<IconPickerBootstrapContext.Provider
 			value={ {
@@ -2168,6 +2224,7 @@ function App() {
 									settingsView={ node }
 									bootstrap={ bootstrap }
 									bootstrapRevision={ bootstrapRevision }
+									renderGroups={ renderGroups }
 								/>
 							);
 							if ( meta.type === 'general' ) {
@@ -2497,45 +2554,7 @@ function App() {
 							if ( meta.type === 'extension' ) {
 								return withViews(
 									<div className="clanbite-admin-section-inner">
-										{ ( meta.sectionGroups || [] ).map(
-											( group ) => (
-												<div
-													key={ `${ group.kind }-${ group.slug }` }
-													className="clanbite-settings-section"
-												>
-													{ group.kind === 'child' ? (
-														<h3>{ group.name }</h3>
-													) : null }
-													<SettingsSections
-														sections={
-															group.sections
-														}
-														optionKey={
-															group.optionKey
-														}
-														values={ values }
-														onFieldChange={
-															onFieldChange
-														}
-													/>
-													<Button
-														variant="primary"
-														onClick={ () =>
-															saveOption(
-																group.optionKey
-															)
-														}
-														isBusy={ saving }
-														className="clanbite-extension-save"
-													>
-														{ __(
-															'Save',
-															'clanbite'
-														) }
-													</Button>
-												</div>
-											)
-										) }
+										{ renderGroups( meta.sectionGroups ) }
 									</div>
 								);
 							}

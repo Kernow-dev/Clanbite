@@ -21,17 +21,46 @@ require_once __DIR__ . '/class-admin-rest.php';
  */
 class Settings {
 
+	/**
+	 * The singleton.
+	 *
+	 * @var Settings|null
+	 */
 	protected static ?Settings $instance = null;
 
+	/**
+	 * General tab.
+	 *
+	 * @var General_Settings
+	 */
 	protected General_Settings $general_settings;
 
+	/**
+	 * Groups tab.
+	 *
+	 * @var Groups_Settings
+	 */
 	protected Groups_Settings $groups_settings;
 
 	/**
+	 * Messages storage (custom wording for notifications, popups and automatic posts).
+	 *
+	 * @var Messages_Settings
+	 */
+	protected Messages_Settings $messages_settings;
+
+	/**
+	 * Settings handlers keyed by option name (core tabs plus every installed extension).
+	 *
 	 * @var array<string, Abstract_Settings>
 	 */
 	protected array $settings_registry = array();
 
+	/**
+	 * REST controller for the admin app.
+	 *
+	 * @var Admin_Rest
+	 */
 	protected Admin_Rest $rest;
 
 	/**
@@ -51,11 +80,13 @@ class Settings {
 	 * Build the settings registry from the General and Groups settings plus every installed extension that exposes a settings admin.
 	 */
 	protected function __construct() {
-		$this->general_settings = new General_Settings();
-		$this->groups_settings  = new Groups_Settings();
+		$this->general_settings  = new General_Settings();
+		$this->groups_settings   = new Groups_Settings();
+		$this->messages_settings = new Messages_Settings();
 
-		$this->settings_registry[ $this->general_settings->get_option_key() ] = $this->general_settings;
-		$this->settings_registry[ $this->groups_settings->get_option_key() ]  = $this->groups_settings;
+		$this->settings_registry[ $this->general_settings->get_option_key() ]  = $this->general_settings;
+		$this->settings_registry[ $this->groups_settings->get_option_key() ]   = $this->groups_settings;
+		$this->settings_registry[ $this->messages_settings->get_option_key() ] = $this->messages_settings;
 
 		$loader = Loader::instance();
 		foreach ( $loader->get_extensions() as $slug => $extension ) {

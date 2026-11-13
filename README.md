@@ -74,7 +74,7 @@ clanbite_register_admin_sub_tab(
 	array(
 		'id'         => 'reports',                 // Required. a-z0-9_- ; becomes ?view=reports
 		'label'      => __( 'Reports', 'my-addon' ), // Required.
-		'slotId'     => 'my-addon-reports',        // Required. Names the container your script mounts into.
+		'slotId'     => 'my-addon-reports',        // Names the container your script mounts into (or pass sectionGroups, below).
 		'capability' => 'manage_options',          // Optional (default manage_options).
 		'priority'   => 10,                        // Optional. Lower first.
 	)
@@ -92,6 +92,65 @@ document.addEventListener( 'clanbite:admin-integration-mount', ( event ) => {
 ```
 
 The mount event can fire **more than once for the same element** (React re-runs the container's effect), and the matching unmount arrives while React is still committing. Mount idempotently (keep one root per element) and unmount on a later tick; see `clanbite-ranks/inc/Extension/ranks-management.js` for a worked example, and `Ranks_Management` for the REST side. The active view is stored in the URL (`admin.php?page=clanbite&tab=ext-my_extension&view=reports`), so it survives refresh and can be linked. `clanbite_register_admin_sub_tab()` wraps the `clanbite_admin_rest_sub_tabs` filter `( $sub_tabs, $tab_id, $tab )`; use the filter directly when you need the tab descriptor. A tab can rename its own first entry with a `settingsLabel` key (via `clanbite_admin_rest_tabs`).
+
+**No script needed for plain settings.** Instead of `slotId`, pass `sectionGroups` and the admin screen renders the fields itself, with a Save button per group: `'sectionGroups' => array( array( 'kind' => 'primary', 'name' => 'Reports', 'slug' => 'reports', 'optionKey' => 'my_addon_reports', 'sections' => $handler->export_rest_schema() ) )`. The option must be registered through `clanbite_admin_rest_settings_registry`. Core uses this for the **Messages** sub-tab on every extension tab.
+
+### Toasts (shared popups)
+
+Clanbite ships **one popup system** so a rank-up, a confirmation and an error all look, move and behave the same. Site owners set it once under **Clanbite → Settings → Notifications → Popups**: on/off, position (six corners), default length (3 s to 15 s, a custom number of seconds, or until closed), **pause when hovered** and a **countdown bar** that fills as the popup nears expiry. Popups belong to the **Notifications** extension: with it off, or with **Show popups** switched off (on by default), no popup is shown and the popup options in Ranks and Points are hidden. Check `clanbite_toasts_available()` (filter `clanbite_toasts_available`) to hide your own popup options the same way. Extensions only say what to show.
+
+```js
+// 1. Load the library: list the handle as a dependency of your script...
+wp_enqueue_script( 'my-addon', $url, array( 'clanbite-toasts' ), $ver, true );
+// ...or call clanbite_enqueue_toasts() from PHP (a block's render.php is a good place).
+
+// 2. Show a toast (works from classic scripts, wp.element apps and Interactivity view modules).
+clanbite.toasts.show( {
+	id: 'my-addon:saved',           // optional; the same id replaces a toast still on screen
+	type: 'success',                // info (default) | success | warning | error
+	title: 'Saved',
+	message: 'Your changes are live.',   // plain text only; never HTML
+	icon: '/wp-content/uploads/x.svg',   // http(s) or root-relative URL
+	progress: 70,                   // optional 0-100 bar (not the countdown)
+	actions: [ { label: 'View', href: '/players/me/' } ],   // or { label, onClick( event, handle ) }
+	source: 'my-addon',             // your slug, for filtering and styling
+} );
+```
+
+Leave `duration`, `position`, `timer` and `pauseOnHover` unset to follow the site's choices; pass them only when a toast really needs different behaviour (`duration: 0` stays until closed and has no countdown bar). `show()` returns a handle (`{ id, element, dismiss() }`), or `null` when popups are off or a filter suppressed it. `clanbite.toasts.dismiss( id )` closes one toast, `clanbite.toasts.dismiss()` all of them. Toasts are accessible out of the box: a labelled region, `role="status"` (`alert` for errors), a close button, `Escape`, and a pause on keyboard focus.
+
+**Everything is filterable.** Browser (`wp.hooks`): `clanbite.toasts.settings` (the site defaults for one toast), `clanbite.toasts.payload` (any toast's options), `clanbite.toasts.shouldShow` (suppress), `clanbite.toasts.element` (supply your own markup while keeping the timer, pause and stacking), `clanbite.toasts.container` (where the stacks live, checked on every show), `clanbite.toasts.allowedUrl` (the icon and link URL policy), plus the actions `clanbite.toasts.shown` and `clanbite.toasts.dismissed`. PHP: `clanbite_toast_settings` (validated settings), `clanbite_toast_positions` and `clanbite_toast_durations` (the choices offered in the settings), `clanbite_toast_custom_duration_range` (the shortest and longest custom length, default 1 to 300 seconds), and `clanbite_toast_config` (the final object printed as `window.clanbiteToastConfig`, including the `i18n` strings). Read the validated settings from PHP with `clanbite_get_toast_settings()`. All are documented in `HOOKS.md`. Style with the `--clanbite-toast-*` custom properties or `.clanbite-toast-item`; colours come from the shared tokens, so it fits light and dark themes.
+
+Popup *wording* is registered as a message (see **Messages** below) so it can be customised. Do not build another popup for a new feature: use this one. The notification bell, the player settings screen, the social feed and the Ranks rank-up popup already do.
+
+### Messages (customisable wording)
+
+Every notification title, popup and automatic post that Clanbite and its extensions write is registered as a **message**, so site owners can reword it from the **Messages** sub-tab of the extension that sends it (Teams → Messages, Ranks → Messages, Points → Messages, and so on; messages with no tab of their own are under General → Messages). A third-party extension adds a group with the `clanbite_message_groups` filter and maps it to its extension slug with `clanbite_message_group_extensions`. Each field shows the default as its placeholder and lists the `{placeholders}` it may use; an empty field keeps the default, so defaults stay translatable and keep improving with updates. The rank-up *post* keeps its own templates under Ranks → Social updates.
+
+```php
+// Register (on or after init, or add the definition through the clanbite_message_definitions filter).
+add_filter( 'clanbite_message_groups', fn( $g ) => $g + array( 'my_addon' => __( 'My add-on', 'my-addon' ) ) );
+clanbite_register_message(
+	'my_addon_trophy.title',                              // area_name.part
+	array(
+		'group'        => 'my_addon',
+		'label'        => __( 'Trophy won: notification title', 'my-addon' ),
+		'description'  => __( 'Sent when a member wins a trophy.', 'my-addon' ),
+		'default'      => __( '{user} won {trophy}', 'my-addon' ),
+		'placeholders' => array(
+			'user'   => __( 'the member', 'my-addon' ),
+			'trophy' => __( 'the trophy name', 'my-addon' ),
+		),
+		// 'multiline' => true,   // textarea instead of a single line
+	)
+);
+
+// Use it instead of a hard-coded __() string. The result is plain text: escape it where you print it.
+$title = clanbite_get_message( 'my_addon_trophy.title', array( 'user' => $name, 'trophy' => $trophy ) );
+clanbite_notify( $user_id, 'my_addon_trophy', $title, $args );
+```
+
+Use `clanbite_get_message_template( $key )` when the values are only known later (it returns the wording with the `{tokens}` still in place, which is how the Ranks popup hands its wording to JavaScript). A placeholder with no value is left as written, so a typo stays visible. **Filters:** `clanbite_message_groups` (the areas), `clanbite_message_definitions` (add, change or remove any message, including another plugin's default), `clanbite_message_template` (the wording before substitution) and `clanbite_message` (the finished text, for every message; check `$key`). All are documented in `HOOKS.md`. Custom wording is stored text, so a multilingual site should translate it with the `clanbite_message_template` filter rather than rely on `.mo` files. Do not hard-code notification, popup or automatic-post wording in a new feature: register it.
 
 ### Public REST, team challenges, and cross-site match sync
 

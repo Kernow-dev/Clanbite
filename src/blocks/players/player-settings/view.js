@@ -219,13 +219,6 @@ const { state, actions } = store( 'clanbite-player-settings', {
 		activePanel: null,
 		isSaving: false,
 		errors: {},
-		toast: {
-			visible: false,
-			type: 'success',
-			heading: '',
-			message: '',
-			timeout: null,
-		},
 
 		/**
 		 * Is the current parent nav element expanded.
@@ -310,14 +303,6 @@ const { state, actions } = store( 'clanbite-player-settings', {
 			}
 
 			return null;
-		},
-
-		isToastSuccess() {
-			return this.toast.type === 'success';
-		},
-
-		isToastError() {
-			return this.toast.type === 'error';
 		},
 	},
 
@@ -437,36 +422,19 @@ const { state, actions } = store( 'clanbite-player-settings', {
 			) })`;
 		},
 
-		showToast( {
-			type = 'success',
-			heading = '',
-			message = '',
-			duration = 6000,
-		} ) {
-			// Clear existing timeout
-			if ( state.toast.timeout ) {
-				clearTimeout( state.toast.timeout );
-			}
-
-			state.toast.type = type;
-			state.toast.heading = heading;
-			state.toast.message = message;
-			state.toast.visible = true;
-
-			// Auto-hide
-			if ( duration ) {
-				state.toast.timeout = setTimeout( () => {
-					state.toast.visible = false;
-				}, duration );
-			}
-		},
-
-		hideToast() {
-			if ( state.toast.timeout ) {
-				clearTimeout( state.toast.timeout );
-			}
-
-			state.toast.visible = false;
+		/**
+		 * Show a popup through Clanbite's shared toast system (position, length and look are site-wide settings).
+		 *
+		 * @param {Object} options         Toast options.
+		 * @param {string} options.type    `success` (default), `error`, `warning` or `info`.
+		 * @param {string} options.message Plain text.
+		 */
+		showToast( { type = 'success', message = '' } ) {
+			window.clanbite?.toasts?.show( {
+				type,
+				message,
+				source: 'clanbite-players',
+			} );
 		},
 
 		async save() {
@@ -488,9 +456,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 				ref.classList.add( 'error' );
 				actions.showToast( {
 					type: 'error',
-					heading: 'Error',
-					message:
-						'Could not resolve a valid save URL. Try reloading the page.',
+					message: state.messages?.badUrl,
 				} );
 				return;
 			}
@@ -569,8 +535,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 					state.errors = {};
 					actions.showToast( {
 						type: 'success',
-						heading: 'Success',
-						message: 'Your changes were saved successfully.',
+						message: state.messages?.saved,
 					} );
 					/*
 					 * Re-apply after store/toast updates: those can trigger another Preact pass
@@ -599,8 +564,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 					state.errors = json?.data?.errors;
 					actions.showToast( {
 						type: 'error',
-						heading: 'Error',
-						message: 'There was an error while saving changes.',
+						message: state.messages?.saveFailed,
 					} );
 				}
 			} catch ( err ) {
@@ -608,8 +572,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 				ref.classList.add( 'error' );
 				actions.showToast( {
 					type: 'error',
-					heading: 'Error',
-					message: 'Network error while saving changes.',
+					message: state.messages?.networkError,
 				} );
 				state.errors = {};
 				console.error( 'Save failed', err );
@@ -680,7 +643,6 @@ const { state, actions } = store( 'clanbite-player-settings', {
 				if ( ! response.ok ) {
 					actions.showToast( {
 						type: 'error',
-						heading: 'Error',
 						message: errorMsg,
 					} );
 					ref.disabled = false;
@@ -695,13 +657,11 @@ const { state, actions } = store( 'clanbite-player-settings', {
 				}
 				actions.showToast( {
 					type: 'success',
-					heading: 'Success',
 					message: successMsg,
 				} );
 			} catch ( err ) {
 				actions.showToast( {
 					type: 'error',
-					heading: 'Error',
 					message: errorMsg,
 				} );
 				ref.disabled = false;

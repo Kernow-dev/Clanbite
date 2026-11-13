@@ -4,7 +4,7 @@ Tags: community, teams, esports, gaming
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,12 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 2. Team and player blocks in the block editor.
 
 == Changelog ==
+
+= 1.5.0 =
+* New shared popups ("toasts") for every Clanbite extension: one position, length and look. Settings under Notifications → Popups: on/off, position (six corners), how long they stay (a preset or your own number of seconds), pause when hovered, and a countdown bar that fills as a popup nears expiry. Developers use `clanbite.toasts.show()`; everything is filterable (`clanbite.toasts.*` in the browser, `clanbite_toast_*` in PHP).
+* The notification bell and the player settings screen now use the shared popups.
+* New Messages sub-tab on each extension's settings tab (Teams → Messages, Ranks → Messages, …): customise the wording of notifications, popups and automatic posts. Teams, Events and the player settings popups are included; extensions register their own with `clanbite_register_message()` (see README).
+* Admin: dropdown labels are sentence case like the rest of the screen, and the settings code documentation was completed.
 
 = 1.4.0 =
 * Redesigned Clanbite → Settings to match the WordPress admin: full-width header with tabs, white cards, native buttons, toggles and modals, a responsive layout, and a save confirmation that stays in view.

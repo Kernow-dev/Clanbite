@@ -35,7 +35,11 @@ defined( 'ABSPATH' ) || exit;
  *
  *     @type string $id         Required. Unique id within the tab (`a-z0-9_-`); used as the `view` query value.
  *     @type string $label      Required. Translated label shown in the sub-navigation.
- *     @type string $slotId     Required. Identifier for the container your script mounts into (`a-z0-9_-`).
+ *     @type string $slotId     Identifier for the container your script mounts into (`a-z0-9_-`). Required unless you pass `sectionGroups`.
+ *     @type array  $sectionGroups Optional alternative to `slotId`: settings the admin screen renders itself, so no script is needed.
+ *                                 Each group has `kind` (`primary`), `name`, `slug`, `optionKey` and `sections` (the shape of
+ *                                 {@see \Kernowdev\Clanbite\Extensions\Abstract_Settings::export_rest_schema()}); the option must be
+ *                                 registered through `clanbite_admin_rest_settings_registry`.
  *     @type string $capability Optional. Capability required to see the entry. Default `manage_options`.
  *     @type int    $priority   Optional. Lower numbers come first. Default 10.
  * }
@@ -72,7 +76,7 @@ function clanbite_register_admin_sub_tab( string $tab_id, array $args ): void {
  * @since 1.4.0
  *
  * @param mixed $items Raw list from the `clanbite_admin_rest_sub_tabs` filter.
- * @return array<int, array{id: string, label: string, slotId: string}>
+ * @return array<int, array{id: string, label: string, slotId?: string, sectionGroups?: array<int, array<string, mixed>>}>
  */
 function clanbite_normalize_admin_sub_tabs( $items ): array {
 	if ( ! is_array( $items ) ) {
@@ -88,7 +92,8 @@ function clanbite_normalize_admin_sub_tabs( $items ): array {
 		$id      = sanitize_key( (string) ( $item['id'] ?? '' ) );
 		$label   = trim( wp_strip_all_tags( (string) ( $item['label'] ?? '' ) ) );
 		$slot_id = preg_replace( '/[^A-Za-z0-9_-]/', '', (string) ( $item['slotId'] ?? $item['slot_id'] ?? '' ) );
-		if ( '' === $id || '' === $label || '' === $slot_id || isset( $seen[ $id ] ) ) {
+		$groups  = isset( $item['sectionGroups'] ) && is_array( $item['sectionGroups'] ) ? array_values( $item['sectionGroups'] ) : array();
+		if ( '' === $id || '' === $label || ( '' === $slot_id && array() === $groups ) || isset( $seen[ $id ] ) ) {
 			continue;
 		}
 		$capability = sanitize_text_field( (string) ( $item['capability'] ?? 'manage_options' ) );
@@ -102,6 +107,7 @@ function clanbite_normalize_admin_sub_tabs( $items ): array {
 			'id'       => $id,
 			'label'    => $label,
 			'slotId'   => $slot_id,
+			'groups'   => $groups,
 		);
 	}
 
@@ -111,11 +117,20 @@ function clanbite_normalize_admin_sub_tabs( $items ): array {
 	);
 
 	return array_map(
-		static fn( array $row ): array => array(
-			'id'     => $row['id'],
-			'label'  => $row['label'],
-			'slotId' => $row['slotId'],
-		),
+		static function ( array $row ): array {
+			$out = array(
+				'id'    => $row['id'],
+				'label' => $row['label'],
+			);
+			if ( '' !== $row['slotId'] ) {
+				$out['slotId'] = $row['slotId'];
+			}
+			if ( array() !== $row['groups'] ) {
+				$out['sectionGroups'] = $row['groups'];
+			}
+
+			return $out;
+		},
 		$clean
 	);
 }

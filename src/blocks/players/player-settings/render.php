@@ -20,7 +20,21 @@ defined( 'ABSPATH' ) || exit;
 $nav_items = (array) apply_filters( 'clanbite_players_settings_nav_items', array() );
 
 // Field error boxes start hidden: `showError` is true while a field has no error (the view script computes it live).
-wp_interactivity_state( 'clanbite-player-settings', array( 'showError' => static fn() => true ) );
+// Popups use Clanbite's shared toast system; their wording is customisable under Settings → Players → Messages.
+clanbite_enqueue_toasts();
+
+wp_interactivity_state(
+	'clanbite-player-settings',
+	array(
+		'showError' => static fn() => true,
+		'messages'  => array(
+			'saved'        => clanbite_get_message( 'player_settings.saved' ),
+			'saveFailed'   => clanbite_get_message( 'player_settings.save_failed' ),
+			'networkError' => clanbite_get_message( 'player_settings.network_error' ),
+			'badUrl'       => clanbite_get_message( 'player_settings.bad_url' ),
+		),
+	)
+);
 
 $player_settings_wrapper   = get_block_wrapper_attributes( array(), $block );
 $player_settings_root_open = '<div '
@@ -129,24 +143,6 @@ ob_start();
 			</div>
 		<?php endforeach; ?>
 		<?php endforeach; ?>
-	</div>
-	<div
-		class="toast-box"
-		role="status"
-		aria-live="polite"
-		aria-atomic="true"
-		hidden
-		data-wp-bind--hidden="!state.toast.visible"
-		data-wp-class--success="state.isToastSuccess"
-		data-wp-class--error="state.isToastError"
-	>
-		<div class="toast-box-icon">
-		</div>
-
-		<div class="toast-box-text">
-			<p class="toast-heading" data-wp-text="state.toast.heading"></p>
-			<p class="toast-description" data-wp-text="state.toast.message"></p>
-		</div>
 	</div>
 </div>
 <?php echo wp_kses( (string) ob_get_clean(), clanbite_block_fragment_allowed_html() ); ?>

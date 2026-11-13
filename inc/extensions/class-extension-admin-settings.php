@@ -519,6 +519,10 @@ abstract class Abstract_Settings {
 			$row['fallback_url'] = (string) $field['fallback_url'];
 		}
 
+		if ( isset( $field['placeholder'] ) && is_string( $field['placeholder'] ) ) {
+			$row['placeholder'] = $field['placeholder'];
+		}
+
 		if ( isset( $field['depends_on'] ) && is_array( $field['depends_on'] ) ) {
 			$row['depends_on'] = $field['depends_on'];
 		}

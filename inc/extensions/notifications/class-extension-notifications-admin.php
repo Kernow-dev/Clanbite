@@ -16,11 +16,16 @@ use Kernowdev\Clanbite\Extensions\Abstract_Settings;
  */
 class Admin extends Abstract_Settings {
 	/**
+	 * Option that stores these settings (also read by {@see clanbite_get_toast_settings()} for the shared popups).
+	 */
+	public const OPTION_KEY = 'clanbite_notifications_settings';
+
+	/**
 	 * Option name storing this settings bucket.
 	 *
 	 * @var string
 	 */
-	protected string $option_key = 'clanbite_notifications_settings';
+	protected string $option_key = self::OPTION_KEY;
 
 	/**
 	 * Settings API group for `register_setting()`.
@@ -61,8 +66,14 @@ class Admin extends Abstract_Settings {
 	 */
 	protected function get_defaults(): array {
 		return array(
-			'subpage_player'    => true,
-			'poll_long_polling' => false,
+			'subpage_player'        => true,
+			'poll_long_polling'     => false,
+			'toasts_enabled'        => true,
+			'toast_position'        => 'top-right',
+			'toast_duration'        => '5',
+			'toast_duration_custom' => 8,
+			'toast_pause_on_hover'  => true,
+			'toast_show_timer'      => true,
 		);
 	}
 
@@ -97,7 +108,130 @@ class Admin extends Abstract_Settings {
 					),
 				),
 			),
+			'popups'            => array(
+				'title'  => __( 'Popups', 'clanbite' ),
+				'fields' => array(
+					'toasts_enabled'        => array(
+						'label'       => __( 'Show popups', 'clanbite' ),
+						'type'        => 'checkbox',
+						'description' => __( 'Short notices that appear on the screen, such as a rank-up, points earned, a confirmation or an error. Every Clanbite extension uses the same popups, so these settings apply to all of them. When off, no popups are shown.', 'clanbite' ),
+						'default'     => true,
+						'sanitize'    => 'rest_sanitize_boolean',
+					),
+					'toast_position'        => array(
+						'label'       => __( 'Popup position', 'clanbite' ),
+						'type'        => 'select',
+						'description' => __( 'Where on the screen popups appear.', 'clanbite' ),
+						'default'     => 'top-right',
+						'options'     => clanbite_toast_positions(),
+						'sanitize'    => array( $this, 'sanitize_toast_position' ),
+						'depends_on'  => array(
+							'field' => 'toasts_enabled',
+							'value' => true,
+						),
+					),
+					'toast_duration'        => array(
+						'label'       => __( 'Show popups for', 'clanbite' ),
+						'type'        => 'select',
+						'description' => __( 'How long a popup stays before it disappears. Choose Custom to type your own length. Visitors can always close it sooner.', 'clanbite' ),
+						'default'     => '5',
+						'options'     => clanbite_toast_durations(),
+						'sanitize'    => array( $this, 'sanitize_toast_duration' ),
+						'depends_on'  => array(
+							'field' => 'toasts_enabled',
+							'value' => true,
+						),
+					),
+					'toast_duration_custom' => array(
+						'label'       => __( 'Custom length (seconds)', 'clanbite' ),
+						'type'        => 'number',
+						'description' => sprintf(
+							/* translators: 1: shortest allowed length in seconds, 2: longest allowed length in seconds. */
+							__( 'Whole seconds, from %1$d to %2$d.', 'clanbite' ),
+							clanbite_toast_custom_duration_range()['min'],
+							clanbite_toast_custom_duration_range()['max']
+						),
+						'default'     => 8,
+						'sanitize'    => array( $this, 'sanitize_toast_duration_custom' ),
+						// Both must hold: popups on, and the length set to Custom.
+						'depends_on'  => array(
+							array(
+								'field' => 'toasts_enabled',
+								'value' => true,
+							),
+							array(
+								'field' => 'toast_duration',
+								'value' => 'custom',
+							),
+						),
+					),
+					'toast_pause_on_hover'  => array(
+						'label'       => __( 'Pause when hovered', 'clanbite' ),
+						'type'        => 'checkbox',
+						'description' => __( 'Hovering over a popup pauses its countdown so it can be read; moving away resumes it. Popups always pause while they have keyboard focus.', 'clanbite' ),
+						'default'     => true,
+						'sanitize'    => 'rest_sanitize_boolean',
+						'depends_on'  => array(
+							'field' => 'toasts_enabled',
+							'value' => true,
+						),
+					),
+					'toast_show_timer'      => array(
+						'label'       => __( 'Show a countdown bar', 'clanbite' ),
+						'type'        => 'checkbox',
+						'description' => __( 'A thin bar along the bottom of each popup fills up as it gets close to disappearing. Popups that stay until closed have no bar.', 'clanbite' ),
+						'default'     => true,
+						'sanitize'    => 'rest_sanitize_boolean',
+						'depends_on'  => array(
+							'field' => 'toasts_enabled',
+							'value' => true,
+						),
+					),
+				),
+			),
 		);
+	}
+
+	/**
+	 * Sanitize the popup position: one of the known positions, otherwise the default.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public function sanitize_toast_position( $value ): string {
+		$value = sanitize_key( (string) $value );
+
+		return array_key_exists( $value, clanbite_toast_positions() ) ? $value : 'top-right';
+	}
+
+	/**
+	 * Sanitize the popup length: one of the offered values (seconds, `custom` or `0` = until closed), otherwise the default.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public function sanitize_toast_duration( $value ): string {
+		$value = is_numeric( $value ) ? (string) (int) $value : sanitize_key( (string) $value );
+
+		return array_key_exists( $value, clanbite_toast_durations() ) ? $value : '5';
+	}
+
+	/**
+	 * Sanitize the custom popup length: whole seconds within {@see clanbite_toast_custom_duration_range()}.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @param mixed $value Raw value.
+	 * @return int
+	 */
+	public function sanitize_toast_duration_custom( $value ): int {
+		$range = clanbite_toast_custom_duration_range();
+
+		return max( $range['min'], min( $range['max'], is_numeric( $value ) ? (int) $value : 8 ) );
 	}
 
 	/**
