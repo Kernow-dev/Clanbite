@@ -582,6 +582,9 @@ class Admin_Rest {
 		/**
 		 * Filter: `clanbite_admin_rest_tabs`.
 		 *
+		 * Tabs may carry `settingsLabel` (label of the tab's own sub-navigation entry; default "Settings"). Add sub-navigation
+		 * entries with {@see clanbite_register_admin_sub_tab()} or the `clanbite_admin_rest_sub_tabs` filter instead of editing `subTabs` here.
+		 *
 		 * @param array<int, array<string, mixed>> $tabs   Tab descriptors (`type`: `general`|`extensions`|`extension`|`integration`).
 		 * @param Loader                           $loader Extension loader.
 		 */
@@ -591,7 +594,36 @@ class Admin_Rest {
 			return $tabs;
 		}
 
-		return array_values( array_filter( $filtered_tabs, 'is_array' ) );
+		$tabs_out = array_values( array_filter( $filtered_tabs, 'is_array' ) );
+
+		foreach ( $tabs_out as $i => $tab ) {
+			$tab_id = (string) ( $tab['id'] ?? '' );
+			if ( '' === $tab_id ) {
+				continue;
+			}
+
+			/**
+			 * Filter: `clanbite_admin_rest_sub_tabs` — sub-navigation entries for one tab of Clanbite → Settings.
+			 *
+			 * Runs once per tab (any type). Append arrays with `id`, `label`, `slotId` and optionally `capability`
+			 * (default `manage_options`) and `priority` (default 10). Prefer {@see clanbite_register_admin_sub_tab()}.
+			 *
+			 * @since 1.4.0
+			 *
+			 * @param array<int, array<string, mixed>> $sub_tabs Entries registered so far for this tab.
+			 * @param string                           $tab_id   Tab id (`general`, `extensions`, `core-groups`, `ext-{slug}`, or an integration tab id).
+			 * @param array<string, mixed>             $tab      The tab descriptor.
+			 */
+			$sub_tabs = apply_filters( 'clanbite_admin_rest_sub_tabs', is_array( $tab['subTabs'] ?? null ) ? $tab['subTabs'] : array(), $tab_id, $tab );
+			$sub_tabs = clanbite_normalize_admin_sub_tabs( $sub_tabs );
+			if ( array() === $sub_tabs ) {
+				unset( $tabs_out[ $i ]['subTabs'] );
+			} else {
+				$tabs_out[ $i ]['subTabs'] = $sub_tabs;
+			}
+		}
+
+		return $tabs_out;
 	}
 
 	/**

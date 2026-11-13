@@ -1,67 +1,94 @@
-.clanbite-admin-shell {
-	background-color: #1f2128;
-	color: #f5f5f7;
-	font-family:
-		system-ui,
-		-apple-system,
-		BlinkMacSystemFont,
-		"Segoe UI",
-		Roboto,
-		Helvetica,
-		Arial,
-		sans-serif;
-	border-radius: 12px;
-	overflow: hidden;
+/*
+ * Clanbite settings screen (Clanbite > Settings).
+ *
+ * Follows the WordPress admin (and WooCommerce) page pattern: a full-bleed
+ * white header with the tab bar attached, then white cards on the standard
+ * admin grey. Colours come from the admin colour scheme
+ * (--wp-admin-theme-color), so they follow the user's profile setting.
+ * Buttons, toggles and modals are left to @wordpress/components. Companion
+ * plugins render into this shell, so the class names are a public contract.
+ */
+
+.clanbite-admin-app {
+	--clanbite-admin-border: #dcdcde;
+	--clanbite-admin-text: #1d2327;
+	--clanbite-admin-muted: #646970;
+	--clanbite-admin-accent: var(--wp-admin-theme-color, #2271b1);
+	--clanbite-admin-gutter: 20px;
+
+	color: var(--clanbite-admin-text);
+	margin: 0;
 }
 
+/* Run the header edge to edge: cancel the content gutter WordPress adds. */
+body.toplevel_page_clanbite #wpcontent {
+	padding-left: 0;
+}
+
+body.toplevel_page_clanbite .wrap {
+	margin: 0;
+}
+
+/*
+ * Core moves admin notices into the wrap; keep them off the screen edge. The
+ * gutter variable is defined on .clanbite-admin-app and notices sit outside
+ * it, hence the fallback.
+ */
+body.toplevel_page_clanbite .wrap > .notice,
+body.toplevel_page_clanbite #wpbody-content > .notice {
+	margin: 12px var(--clanbite-admin-gutter, 20px) 0;
+}
+
+/* Header */
 .clanbite-admin-header {
-	background-color: #292b31;
-	padding: 16px 24px;
-	border-radius: 12px;
-	margin-bottom: 16px;
+	background: #fff;
+	padding: 0 var(--clanbite-admin-gutter);
 	position: relative;
 }
 
 .clanbite-admin-header-inner {
 	display: flex;
-	align-items: flex-end;
+	align-items: center;
 	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px;
+	min-height: 64px;
 }
 
 .clanbite-admin-header-brand {
 	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	justify-content: space-between;
-	position: relative;
+	align-items: center;
+	gap: 8px;
 }
 
 .clanbite-admin-logo-wrap {
 	display: inline-flex;
-	align-items: flex-end;
+	align-items: center;
 	gap: 12px;
 }
 
 .clanbite-admin-logo {
-	height: 128px;
+	height: 40px;
 	width: auto;
 	display: block;
-	margin-bottom: -32px;
-	image-rendering: auto;
-	transform: translateZ(0);
-	backface-visibility: hidden;
-	will-change: transform;
-	shape-rendering: geometricprecision;
-	text-rendering: geometricprecision;
 }
 
 .clanbite-admin-brand-title {
 	font-size: 18px;
 	font-weight: 600;
 	line-height: 1.2;
-	letter-spacing: 0.01em;
-	color: #f5f5f7;
-	padding-bottom: 10px;
+	color: var(--clanbite-admin-text);
+}
+
+.clanbite-admin-version {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: #f0f0f1;
+	color: var(--clanbite-admin-muted);
+	font-size: 11px;
+	line-height: 1.6;
 }
 
 .clanbite-admin-header-actions {
@@ -70,37 +97,201 @@
 	gap: 8px;
 }
 
+/* Native WordPress buttons (.button); only spacing is set here. */
 .clanbite-admin-header-btn {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 4px 10px;
-	border-radius: 999px;
-	border: 1px solid rgba(255, 255, 255, 0.16);
-	background: transparent;
-	color: #f5f5f7;
-	font-size: 11px;
-	text-decoration: none;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	transition:
-		background-color 0.15s ease,
-		color 0.15s ease,
-		border-color 0.15s ease;
+	flex-shrink: 0;
 }
 
-.clanbite-admin-header-btn:hover,
-.clanbite-admin-header-btn:focus-visible {
-	background-color: #1f2128;
-	color: #fff;
-	border-color: rgba(255, 255, 255, 0.3);
+/* Tab bar: part of the header band, with an underline on the active tab. */
+.clanbite-admin-tabs .components-tab-panel__tabs {
+	background: #fff;
+	border-bottom: 1px solid var(--clanbite-admin-border);
+	padding-block: 0;
+	padding-inline: calc(var(--clanbite-admin-gutter) - 14px) var(--clanbite-admin-gutter);
+	gap: 4px;
+	overflow-x: auto;
+	scrollbar-width: thin;
+}
+
+.clanbite-admin-tabs .components-tab-panel__tabs-item {
+	flex-shrink: 0;
+	height: 48px;
+	white-space: nowrap;
+	padding: 0 14px;
+	border-radius: 0;
+	background: transparent;
+	color: var(--clanbite-admin-text);
+	box-shadow: none;
+}
+
+.clanbite-admin-tabs .components-tab-panel__tabs-item:hover {
+	color: var(--clanbite-admin-accent);
+}
+
+.clanbite-admin-tabs .components-tab-panel__tabs-item.is-active {
+	color: var(--clanbite-admin-accent);
+	font-weight: 600;
+	box-shadow: inset 0 -3px 0 0 var(--clanbite-admin-accent);
+}
+
+.clanbite-admin-tabs .components-tab-panel__tabs-item:focus-visible {
+	box-shadow: inset 0 0 0 var(--wp-admin-border-width-focus, 2px) var(--clanbite-admin-accent);
+	outline: 2px solid transparent;
+}
+
+/* Sub-navigation in a tab, "subsubsub" style: Settings | Manage members. */
+.clanbite-admin-subnav {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0 0 16px;
+	padding: 0;
+	list-style: none;
+	font-size: 13px;
+}
+
+.clanbite-admin-subnav li {
+	margin: 0;
+}
+
+.clanbite-admin-subnav li + li::before {
+	content: "|";
+	margin: 0 8px;
+	color: #a7aaad;
+}
+
+.clanbite-admin-subnav__link {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--clanbite-admin-accent);
+	font: inherit;
+	cursor: pointer;
+}
+
+.clanbite-admin-subnav__link:hover {
+	text-decoration: underline;
+}
+
+.clanbite-admin-subnav__link:focus-visible {
+	outline: 2px solid var(--clanbite-admin-accent);
+	outline-offset: 2px;
+}
+
+.clanbite-admin-subnav__link[aria-current="page"] {
+	color: var(--clanbite-admin-text);
+	font-weight: 600;
+	text-decoration: none;
+	cursor: default;
+}
+
+/* Loading / error states keep the header so the layout does not jump. */
+.clanbite-admin-state {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: var(--clanbite-admin-gutter);
+}
+
+.clanbite-admin-state .components-notice {
+	margin: 0;
+}
+
+/* Success snackbar: fixed, so it is visible wherever Save was clicked. */
+.clanbite-admin-toast {
+	position: fixed;
+	bottom: 24px;
+	left: 50%;
+	z-index: 100001;
+	max-width: calc(100vw - 32px);
+	transform: translateX(-50%);
+}
+
+/* Field labels: sentence case like wp-admin, not the components' small caps. */
+.clanbite-admin-main .components-base-control__label,
+.clanbite-admin-main .components-base-control__field > .components-base-control__label {
+	margin-bottom: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: none;
+	color: var(--clanbite-admin-text);
+}
+
+.clanbite-admin-main .components-base-control__help {
+	margin: 6px 0 0;
+	font-size: 12px;
+	color: var(--clanbite-admin-muted);
+}
+
+/* Content area: admin grey with a gutter; sections are cards. */
+.clanbite-admin-main .components-tab-panel__tab-content {
+	padding: var(--clanbite-admin-gutter);
+}
+
+.clanbite-admin-global-notice {
+	padding: 12px var(--clanbite-admin-gutter) 0;
+}
+
+.clanbite-admin-section-inner {
+	padding-top: 0;
+}
+
+.clanbite-admin-section-inner > .description {
+	margin: 0 0 16px;
+	color: var(--clanbite-admin-muted);
+	font-size: 13px;
+}
+
+.clanbite-settings-section,
+.clanbite-admin-main .components-card,
+.clanbite-admin-main .components-panel {
+	background: #fff;
+	border: 1px solid var(--clanbite-admin-border);
+	border-radius: 4px;
+	box-shadow: none;
+}
+
+.clanbite-settings-section {
+	max-width: 960px;
+	margin-bottom: 20px;
+	padding: 20px 24px;
+}
+
+/* Extension tabs wrap their cards in another .clanbite-settings-section; that
+ * wrapper is not a card. */
+.clanbite-settings-section:has(> .clanbite-settings-section) {
+	padding: 0;
+	border: 0;
+	background: transparent;
+}
+
+.clanbite-settings-section h2,
+.clanbite-settings-section h3 {
+	margin: 0;
+	font-size: 16px;
+	line-height: 1.4;
+}
+
+.clanbite-settings-fields {
+	margin-top: 1rem;
+}
+
+.clanbite-settings-field-row {
+	margin-bottom: 1rem;
+}
+
+.clanbite-settings-field-row:last-child {
+	margin-bottom: 0;
+}
+
+.clanbite-admin-main .description {
+	color: var(--clanbite-admin-muted);
 }
 
 .clanbite-field-image-preview {
 	margin-bottom: 8px;
-	border-radius: 8px;
+	border-radius: 4px;
 	overflow: hidden;
-	border: 1px solid rgba(0, 0, 0, 0.08);
+	border: 1px solid var(--clanbite-admin-border);
 	max-width: 320px;
 }
 
@@ -117,99 +308,71 @@
 	margin-bottom: 4px;
 }
 
-.clanbite-settings-section {
-	margin-bottom: 2rem;
-}
-
-.clanbite-settings-fields {
+.clanbite-extension-save,
+.clanbite-extensions-save {
 	margin-top: 1rem;
 }
 
-.clanbite-settings-field-row {
-	margin-bottom: 1rem;
-}
-
-.clanbite-extension-requires {
-	margin: 0;
-	padding-left: 1.25rem;
-	color: #fff !important;
-}
-
-.clanbite-extension-requires .description {
-	margin-left: 4px;
-	color: #d0d2da;
-}
-
-.clanbite-extension-requires-cell .description {
-	margin-top: 0.35rem;
-	margin-bottom: 0;
-}
-
-.clanbite-extension-requires-core-miss,
-.clanbite-extension-requires-core-miss-label {
-	color: #f0b849;
-}
-
-.clanbite-admin-global-notice {
-	margin-bottom: 1rem;
-}
-
-.clanbite-admin-section-inner {
-	padding-top: 1rem;
-}
-
+/* Extensions list: a card around a native striped table. */
 .clanbite-extensions-table-wrap {
 	width: 100%;
 	max-width: 100%;
-	margin-top: 1rem;
+	margin-top: 0;
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
+	background: #fff;
+	border: 1px solid var(--clanbite-admin-border);
+	border-radius: 4px;
 }
 
 .clanbite-extensions-table {
 	width: 100%;
 	max-width: none;
 	table-layout: auto;
-	background-color: transparent !important;
-	border-collapse: collapse;
-	color: #fff;
-	border-radius: 8px;
-	overflow: hidden;
-}
-
-.clanbite-extensions-table thead th {
-	background-color: #25272c;
-	color: #fff !important;
-}
-
-.clanbite-extensions-table tbody tr:nth-child(odd) {
-	background-color: #1f2128;
-}
-
-.clanbite-extensions-table tbody tr:nth-child(even) {
-	background-color: #1f2128;
-}
-
-.clanbite-extensions-table tbody tr:hover {
-	background-color: #25272c;
+	border: 0;
+	box-shadow: none;
 }
 
 .clanbite-extensions-table th,
 .clanbite-extensions-table td {
-	color: #fff;
-	border: none !important;
 	vertical-align: top;
 	padding: 12px 14px;
 	line-height: 1.45;
 }
 
+.clanbite-extensions-table thead th {
+	border-bottom: 1px solid var(--clanbite-admin-border);
+	font-weight: 600;
+}
+
+.clanbite-extensions-table.clanbite-field-repeater__table th,
+.clanbite-extensions-table.clanbite-field-repeater__table td {
+	vertical-align: middle;
+}
+
 .clanbite-extensions-table th.clanbite-extensions-table__badges-col,
 .clanbite-extensions-table td.clanbite-extensions-table__badges-col {
-	width: 8.5rem;
-	min-width: 8.5rem;
+	width: 7.5rem;
+	min-width: 7.5rem;
 	max-width: 11rem;
 	text-align: left;
-	vertical-align: middle;
+}
+
+.clanbite-extensions-table:not(.clanbite-field-repeater__table) td:nth-child(1) {
+	min-width: 7rem;
+	white-space: normal;
+}
+
+.clanbite-extensions-table:not(.clanbite-field-repeater__table) td:nth-child(3) {
+	min-width: 12rem;
+}
+
+.clanbite-extensions-table:not(.clanbite-field-repeater__table) td:nth-child(4) {
+	min-width: 8rem;
+}
+
+.clanbite-extensions-table:not(.clanbite-field-repeater__table) td:nth-child(5) {
+	min-width: 10rem;
 }
 
 .clanbite-extension-badges {
@@ -218,33 +381,7 @@
 	gap: 6px;
 	justify-content: flex-start;
 	align-items: center;
-	min-height: 1.5rem;
-}
-
-.clanbite-extensions-table td:nth-child(1) {
-	min-width: 10rem;
-	white-space: normal;
-}
-
-.clanbite-extensions-table td:nth-child(3) {
-	min-width: 14rem;
-}
-
-.clanbite-extensions-table td:nth-child(4) {
-	min-width: 10rem;
-}
-
-.clanbite-extensions-table td:nth-child(5) {
-	min-width: 13rem;
-}
-
-.clanbite-extensions-table.widefat {
-	border: none !important;
-	box-shadow: none;
-}
-
-.clanbite-extensions-table .description {
-	color: #d0d2da;
+	min-height: 1.45em;
 }
 
 .clanbite-extension-name {
@@ -261,185 +398,45 @@
 	justify-content: center;
 	padding: 2px 8px;
 	border-radius: 999px;
-	background-color: rgba(117, 182, 220, 0.15);
-	color: #75b6dc;
+	background: #f0f6fc;
+	color: #0a4b78;
 	font-size: 10px;
 	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	border: 1px solid rgba(117, 182, 220, 0.5);
+	letter-spacing: 0.06em;
+	border: 1px solid #c5d9ed;
 }
 
 .clanbite-extension-badge--core {
-	background-color: rgba(196, 165, 116, 0.18);
-	color: #d4b896;
-	border-color: rgba(212, 184, 150, 0.55);
+	background: #fcf9e8;
+	color: #614900;
+	border-color: #e6d28a;
 }
 
 .clanbite-extension-badge-placeholder {
 	display: inline-block;
-	color: rgba(255, 255, 255, 0.28);
+	color: #a7aaad;
 	font-size: 12px;
 	line-height: 1;
 }
 
-.clanbite-extensions-save {
-	margin-top: 1rem;
-}
-
-.clanbite-extension-save {
-	margin-top: 0.5rem;
-}
-
-.clanbite-admin-version {
-	position: absolute;
-	left: 50%;
-	bottom: -26px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 4px 12px;
-	border-radius: 0 0 8px 8px;
-	background-color: #292b31;
-	color: #d4d7e0;
-	font-size: 11px;
-	letter-spacing: 0.03em;
-	text-transform: uppercase;
-	transform: translateX(-50%);
-}
-
-.clanbite-admin-main {
-	background-color: #1f2128;
-	padding: 26px 0;
+.clanbite-extension-requires {
 	margin: 0;
-	border-radius: 0;
+	padding: 0;
+	list-style: none;
 }
 
-.clanbite-admin-app {
-	margin-top: 0;
+.clanbite-extension-requires .description {
+	margin-left: 4px;
 }
 
-.clanbite-admin-tabs {
-	margin-top: 0;
+.clanbite-extension-requires-cell .description {
+	margin-top: 0.35rem;
+	margin-bottom: 0;
 }
 
-.clanbite-admin-tabs .components-tab-panel__tabs {
-	background-color: transparent;
-	border-bottom: 1px solid #343741;
-	padding: 0 24px;
-}
-
-.clanbite-admin-tabs .components-tab-panel__tabs-item {
-	border-radius: 8px 8px 0 0;
-	margin-right: 8px;
-	color: #d4d7e0;
-	background-color: #25272c;
-	border: none;
-	box-shadow: none;
-}
-
-.clanbite-admin-tabs .components-tab-panel__tabs-item.is-active {
-	background-color: #292b31;
-	color: #fff;
-	border-bottom: 2px solid #75b6dc;
-}
-
-.clanbite-admin-main .components-tab-panel__tab-content {
-	background-color: #292b31;
-	padding: 24px;
-}
-
-.clanbite-admin-main .components-tab-panel__tab-content h1,
-.clanbite-admin-main .components-tab-panel__tab-content h2,
-.clanbite-admin-main .components-tab-panel__tab-content h3,
-.clanbite-admin-main .components-tab-panel__tab-content h4,
-.clanbite-admin-main .components-tab-panel__tab-content h5,
-.clanbite-admin-main .components-tab-panel__tab-content h6 {
-	color: #fff;
-}
-
-.clanbite-admin-main .components-tab-panel__tab-content label,
-.clanbite-admin-main
-.components-tab-panel__tab-content
-.components-base-control__label {
-	color: #fff;
-}
-
-.clanbite-admin-main .components-tab-panel__tab-content input[type="text"],
-.clanbite-admin-main .components-tab-panel__tab-content input[type="number"],
-.clanbite-admin-main .components-tab-panel__tab-content input[type="email"],
-.clanbite-admin-main .components-tab-panel__tab-content input[type="url"],
-.clanbite-admin-main .components-tab-panel__tab-content input[type="password"],
-.clanbite-admin-main .components-tab-panel__tab-content select,
-.clanbite-admin-main .components-tab-panel__tab-content textarea,
-.clanbite-admin-main
-.components-tab-panel__tab-content
-.components-text-control__input,
-.clanbite-admin-main
-.components-tab-panel__tab-content
-.components-textarea-control__input,
-.clanbite-admin-main
-.components-tab-panel__tab-content
-.components-select-control__input {
-	border-radius: 8px;
-}
-
-.clanbite-admin-main
-.components-tab-panel__tab-content
-.components-form-toggle__track {
-	background-color: #3b3e46;
-}
-
-.clanbite-admin-main
-.components-tab-panel__tab-content
-.components-form-toggle__input:checked + .components-form-toggle__track {
-	background-color: #75b6dc;
-}
-
-.clanbite-admin-main .components-button.is-primary {
-	background-color: #75b6dc;
-	border-color: #75b6dc;
-	color: #020204;
-	border-radius: 8px;
-}
-
-.clanbite-admin-main .components-button.is-primary:focus-visible {
-	box-shadow: 0 0 0 2px #fff, 0 0 0 4px #75b6dc;
-}
-
-.clanbite-admin-main .components-button.is-primary:hover {
-	background-color: #67a8d0;
-	border-color: #67a8d0;
-	color: #020204;
-}
-
-.clanbite-admin-main .components-button.is-secondary {
-	border-radius: 8px;
-	border-color: #75b6dc;
-	color: #75b6dc;
-}
-
-.clanbite-admin-main .components-button.is-secondary:hover,
-.clanbite-admin-main .components-button.is-secondary:focus-visible {
-	border-color: #75b6dc;
-	color: #75b6dc;
-}
-
-.clanbite-admin-main .components-button.is-tertiary.is-destructive {
-	color: #d63638;
-}
-
-.clanbite-admin-main
-.components-button.is-tertiary.is-destructive:hover,
-.clanbite-admin-main
-.components-button.is-tertiary.is-destructive:focus-visible {
-	color: #a60000;
-}
-
-.clanbite-admin-main .components-card,
-.clanbite-admin-main .components-panel,
-.clanbite-admin-main .clanbite-settings-section {
-	background-color: #292b31;
-	border-radius: 16px;
+.clanbite-extension-requires-core-miss,
+.clanbite-extension-requires-core-miss-label {
+	color: #996800;
 }
 
 /* User ID repeater (Social Kit default feed follows, etc.) */
@@ -461,9 +458,9 @@
 	align-items: center;
 	gap: 10px;
 	padding: 8px 10px;
-	border: 1px solid rgba(255, 255, 255, 0.12);
+	border: 1px solid var(--clanbite-admin-border);
 	border-radius: 10px;
-	background: rgba(0, 0, 0, 0.15);
+	background: #f6f7f7;
 }
 
 .clanbite-field-user-id-list__avatar-wrap {
@@ -480,7 +477,7 @@
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.08);
+	background: #dcdcde;
 }
 
 .clanbite-field-user-id-list__name {
@@ -497,11 +494,11 @@
 	list-style: none;
 	margin: 6px 0 0;
 	padding: 0;
-	border: 1px solid rgba(255, 255, 255, 0.12);
+	border: 1px solid var(--clanbite-admin-border);
 	border-radius: 8px;
 	max-height: 220px;
 	overflow: auto;
-	background: #1f2128;
+	background: #fff;
 }
 
 .clanbite-field-user-id-list__suggestion {
@@ -519,14 +516,14 @@
 	font: inherit;
 }
 
-.clanbite-field-user-id-list__suggestion:hover:not(:disabled),
-.clanbite-field-user-id-list__suggestion:focus-visible:not(:disabled) {
-	background: rgba(255, 255, 255, 0.06);
-}
-
 .clanbite-field-user-id-list__suggestion:disabled {
 	cursor: not-allowed;
 	opacity: 0.55;
+}
+
+.clanbite-field-user-id-list__suggestion:hover:not(:disabled),
+.clanbite-field-user-id-list__suggestion:focus-visible:not(:disabled) {
+	background: #f0f0f1;
 }
 
 .clanbite-field-user-id-list__suggestion-avatar {
@@ -558,9 +555,9 @@
 	align-items: center;
 	gap: 10px;
 	padding: 8px 10px;
-	border: 1px solid rgba(255, 255, 255, 0.12);
+	border: 1px solid var(--clanbite-admin-border);
 	border-radius: 10px;
-	background: rgba(0, 0, 0, 0.15);
+	background: #f6f7f7;
 }
 
 .clanbite-field-post-id-list__name {
@@ -577,11 +574,11 @@
 	list-style: none;
 	margin: 6px 0 0;
 	padding: 0;
-	border: 1px solid rgba(255, 255, 255, 0.12);
+	border: 1px solid var(--clanbite-admin-border);
 	border-radius: 8px;
 	max-height: 220px;
 	overflow: auto;
-	background: #1f2128;
+	background: #fff;
 }
 
 .clanbite-field-post-id-list__suggestion {
@@ -599,22 +596,32 @@
 	font: inherit;
 }
 
-.clanbite-field-post-id-list__suggestion:hover:not(:disabled),
-.clanbite-field-post-id-list__suggestion:focus-visible:not(:disabled) {
-	background: rgba(255, 255, 255, 0.06);
-}
-
 .clanbite-field-post-id-list__suggestion:disabled {
 	cursor: not-allowed;
 	opacity: 0.55;
+}
+
+.clanbite-field-post-id-list__suggestion:hover:not(:disabled),
+.clanbite-field-post-id-list__suggestion:focus-visible:not(:disabled) {
+	background: #f0f0f1;
 }
 
 .clanbite-field-post-id-list__empty {
 	margin: 0 0 10px;
 }
 
+/* A fieldset will not shrink below its content (min-inline-size), which
+ * pushed wide tables out of their card. */
 .clanbite-field-repeater {
+	min-width: 0;
 	margin-bottom: 16px;
+}
+
+/* Tables nested in a card already sit inside its border. */
+.clanbite-settings-section .clanbite-extensions-table-wrap {
+	border: 0;
+	border-radius: 0;
+	background: transparent;
 }
 
 .clanbite-field-repeater__legend {
@@ -627,11 +634,6 @@
 .clanbite-field-repeater__table {
 	margin-top: 8px;
 	width: 100%;
-}
-
-.clanbite-field-repeater__table th,
-.clanbite-field-repeater__table td {
-	vertical-align: middle;
 }
 
 .clanbite-field-repeater__actions-cell {
@@ -653,82 +655,7 @@
 .clanbite-field-repeater__modal-actions {
 	margin-top: 14px;
 	padding-top: 12px;
-	border-top: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.clanbite-admin-main .components-modal__frame {
-	background: #292b31;
-	color: #fff;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 12px;
-}
-
-.clanbite-admin-main .components-modal__header {
-	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-	background: #292b31;
-}
-
-.clanbite-admin-main .components-modal__content {
-	background: #292b31;
-	color: #fff;
-}
-
-/*
- * WP <Modal> portals to body, outside .clanbite-admin-main — repeat shell styles on Clanbite screens.
- */
-body.toplevel_page_clanbite .components-modal__frame {
-	background: #292b31;
-	color: #fff;
-	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 12px;
-}
-
-body.toplevel_page_clanbite .components-modal__header {
-	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-	background: #292b31;
-}
-
-body.toplevel_page_clanbite .components-modal__content {
-	background: #292b31;
-	color: #fff;
-}
-
-/* Modal chrome: @wordpress/components uses dark text; our frame is dark. */
-body.toplevel_page_clanbite .components-modal__header .components-modal__header-heading {
-	color: #fff !important;
-}
-
-body.toplevel_page_clanbite .components-modal__header .components-button {
-	color: #fff !important;
-}
-
-body.toplevel_page_clanbite .components-modal__header .components-button svg,
-body.toplevel_page_clanbite .components-modal__header .components-button .dashicon {
-	fill: #fff !important;
-	color: #fff !important;
-}
-
-body.toplevel_page_clanbite .components-modal__frame .components-base-control__label {
-	color: #fff;
-}
-
-body.toplevel_page_clanbite .components-modal__frame .components-base-control__help {
-	color: rgba(255, 255, 255, 0.75);
-}
-
-body.toplevel_page_clanbite .components-modal__frame .components-button.is-secondary {
-	color: #fff;
-	border-color: rgba(255, 255, 255, 0.35);
-	background: rgba(255, 255, 255, 0.08);
-}
-
-body.toplevel_page_clanbite .components-modal__frame .components-button.is-secondary:hover,
-body.toplevel_page_clanbite .components-modal__frame .components-button.is-secondary:focus-visible {
-	background: rgba(255, 255, 255, 0.14);
-}
-
-body.toplevel_page_clanbite .components-modal__frame .components-button.is-tertiary.is-destructive {
-	color: #fca5a5;
+	border-top: 1px solid var(--clanbite-admin-border);
 }
 
 .clanbite-field-icon-url__preview {
@@ -741,7 +668,7 @@ body.toplevel_page_clanbite .components-modal__frame .components-button.is-terti
 	object-fit: contain;
 	display: block;
 	border-radius: 6px;
-	background: rgba(255, 255, 255, 0.06);
+	background: #f0f0f1;
 	padding: 6px;
 }
 
@@ -778,10 +705,10 @@ body.toplevel_page_clanbite .components-modal__frame .components-button.is-terti
 }
 
 .clanbite-icon-picker-grid__item {
-	border: 1px solid rgba(255, 255, 255, 0.14);
+	border: 1px solid var(--clanbite-admin-border);
 	border-radius: 8px;
 	padding: 8px;
-	background: rgba(255, 255, 255, 0.04);
+	background: #fff;
 	cursor: pointer;
 	display: flex;
 	flex-direction: column;
@@ -793,7 +720,7 @@ body.toplevel_page_clanbite .components-modal__frame .components-button.is-terti
 }
 
 .clanbite-icon-picker-grid__item:hover {
-	background: rgba(255, 255, 255, 0.08);
+	background: #f6f7f7;
 }
 
 .clanbite-icon-picker-grid__item img {
@@ -820,7 +747,7 @@ body.toplevel_page_clanbite .components-modal__frame .components-button.is-terti
 	align-items: center;
 	gap: 8px;
 	padding: 16px;
-	border: 2px solid #ddd;
+	border: 2px solid var(--clanbite-admin-border);
 	border-radius: 8px;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -829,14 +756,14 @@ body.toplevel_page_clanbite .components-modal__frame .components-button.is-terti
 }
 
 .clanbite-admin-avatar-shape-radio__option:hover {
-	border-color: #2271b1;
+	border-color: var(--wp-admin-theme-color, #2271b1);
 	background: #f6f7f7;
 }
 
 .clanbite-admin-avatar-shape-radio__option.is-checked {
-	border-color: #2271b1;
+	border-color: var(--wp-admin-theme-color, #2271b1);
 	background: #f0f6fc;
-	box-shadow: 0 0 0 1px #2271b1;
+	box-shadow: 0 0 0 1px var(--wp-admin-theme-color, #2271b1);
 }
 
 .clanbite-admin-avatar-shape-radio__input {
@@ -877,17 +804,91 @@ body.toplevel_page_clanbite .components-modal__frame .components-button.is-terti
 .clanbite-admin-avatar-shape-radio__label {
 	font-size: 13px;
 	font-weight: 500;
-	color: #1e1e1e;
+	color: #1d2327;
 	text-align: center;
 }
 
 .clanbite-admin-avatar-shape-radio__option.is-checked .clanbite-admin-avatar-shape-radio__label {
-	color: #2271b1;
+	color: var(--wp-admin-theme-color, #2271b1);
 	font-weight: 600;
 }
 
 
-/* Honour the OS "reduce motion" setting (collapses, rather than removes, so end states still apply). */
+/* Narrow screens: tighter gutters and header. */
+@media (max-width: 782px) {
+
+	.clanbite-admin-app {
+		--clanbite-admin-gutter: 12px;
+	}
+
+	.clanbite-admin-header-inner {
+		padding: 12px 0;
+	}
+
+	.clanbite-admin-logo {
+		height: 32px;
+	}
+
+	.clanbite-admin-brand-title {
+		font-size: 16px;
+	}
+
+	.clanbite-settings-section {
+		padding: 16px;
+	}
+}
+
+/* Below ~900px the extensions table needs more room than the page has. */
+@media (max-width: 900px) {
+
+	.clanbite-extensions-table-wrap:has(> .clanbite-extensions-table:not(.clanbite-field-repeater__table)) {
+		overflow: visible;
+	}
+
+	.clanbite-extensions-table:not(.clanbite-field-repeater__table) thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+	}
+
+	.clanbite-extensions-table:not(.clanbite-field-repeater__table),
+	.clanbite-extensions-table:not(.clanbite-field-repeater__table) tbody,
+	.clanbite-extensions-table:not(.clanbite-field-repeater__table) tr,
+	.clanbite-extensions-table:not(.clanbite-field-repeater__table) td {
+		display: block;
+		width: auto;
+		min-width: 0;
+		max-width: none;
+	}
+
+	.clanbite-extensions-table:not(.clanbite-field-repeater__table) tr {
+		padding: 12px 14px;
+		border-bottom: 1px solid var(--clanbite-admin-border);
+	}
+
+	.clanbite-extensions-table:not(.clanbite-field-repeater__table) td {
+		padding: 4px 0;
+	}
+
+	.clanbite-extensions-table:not(.clanbite-field-repeater__table) td[data-label]::before {
+		content: attr(data-label);
+		display: block;
+		margin-bottom: 2px;
+		color: var(--clanbite-admin-muted);
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+	}
+
+	.clanbite-extension-badge-placeholder {
+		display: none;
+	}
+}
+
+/* Honour the OS "reduce motion" setting. */
 @media (prefers-reduced-motion: reduce) {
 
 	[class*="clanbite-"],

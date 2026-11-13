@@ -231,7 +231,8 @@ class Settings {
 			return;
 		}
 
-		echo '<div class="wrap"><div id="clanbite-admin-root"></div></div>';
+		// The hidden heading and `wp-header-end` give core's notice relocation a target above the app header.
+		echo '<div class="wrap"><h1 class="screen-reader-text">' . esc_html__( 'Clanbite settings', 'clanbite' ) . '</h1><hr class="wp-header-end"><div id="clanbite-admin-root"></div></div>';
 	}
 
 	/**

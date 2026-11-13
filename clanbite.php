@@ -3,7 +3,7 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
- * Version: 1.3.0
+ * Version: 1.4.0
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
@@ -56,6 +56,9 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/shortcut-function.php';
 }
 
+// Loaded here only (not via Composer's `files`), so it works with a stale vendor/ and is never declared twice.
+require_once __DIR__ . '/inc/admin/functions.php';
+
 /**
  * Main initiation class.
  */
@@ -66,7 +69,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.3.0';
+	public const VERSION = '1.4.0';
 
 	/**
 	 * Maintenance upgrade counter (single step for 1.0.0 public release).
