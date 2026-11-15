@@ -3,7 +3,7 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
- * Version: 1.5.0
+ * Version: 1.6.0
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
@@ -60,6 +60,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 require_once __DIR__ . '/inc/admin/functions.php';
 require_once __DIR__ . '/inc/toasts.php';
 require_once __DIR__ . '/inc/messages.php';
+require_once __DIR__ . '/inc/updates/functions.php';
 
 /**
  * Main initiation class.
@@ -71,7 +72,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.5.0';
+	public const VERSION = '1.6.0';
 
 	/**
 	 * Maintenance upgrade counter (single step for 1.0.0 public release).
@@ -303,6 +304,12 @@ final class Main {
 		add_action( 'init', array( $this, 'init' ), 0 );
 
 		Abilities_Api::register_hooks();
+
+		// Licence activation and updates for add-ons served by the Clanbite Extension Server.
+		Updates\Updater::register();
+		Updates\License_Rest::register();
+		Updates\License_Admin::register();
+		Updates\Compat_Monitor::register();
 
 		add_action( 'init', array( Front_Seo::class, 'register' ), 20 );
 

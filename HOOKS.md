@@ -4,17 +4,17 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**345 PHP hooks and 16 JavaScript hooks**.
+**359 PHP hooks and 16 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
 ## Contents
 
-- [Admin](#admin) (10)
+- [Admin](#admin) (11)
 - [Avatars](#avatars) (42)
 - [Events](#events) (19)
 - [Extensions](#extensions) (27)
-- [General](#general) (31)
+- [General](#general) (44)
 - [Matches](#matches) (18)
 - [Notifications](#notifications) (21)
 - [Players](#players) (82)
@@ -78,6 +78,8 @@ Filter: `clanbite_admin_rest_manage_capability` — primitive capability require
 | --- | --- | --- |
 | `$capability` | `string` | Default `manage_options`. |
 
+*Also fired in:* `inc/updates/class-license-rest.php`
+
 #### `clanbite_admin_rest_settings_registry`
 
 *Filter* · `inc/admin/class-admin-settings.php`
@@ -133,6 +135,21 @@ Use associative keys meaningful to your integration (e.g. `manage`, `configure`)
 | `$capabilities` | `array<string, mixed>` | Default empty; merged keys surface on the extension row as `capabilities`. |
 | `$slug` | `string` | Extension slug. |
 | `$extension` | `Skeleton` | Extension instance. |
+
+#### `clanbite_login_redirect_url`
+
+*Filter* · `inc/admin/class-general-settings.php`
+
+Filters where a member is sent after a plain sign-in.
+
+Return an empty string to keep the WordPress default (the dashboard). The destination must be on this site or an allowed
+redirect host: WordPress passes it through `wp_safe_redirect()`.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$url` | `string` | Destination chosen in the settings (empty for "Dashboard"). |
+| `$user` | `\WP_User` | Signed-in user. |
+| `$mode` | `string` | Setting value: `dashboard`, `home` or `custom`. |
 
 #### `clanbite_validate_installed_extensions`
 
@@ -1246,6 +1263,59 @@ in the same category using slug `clanbite` via `Abilities_Api::CATEGORY`.
 
 _No arguments._
 
+#### `clanbite_addon_disabled`
+
+*Action* · `inc/updates/class-compat-monitor.php`
+
+Fires after an incompatible add-on was deactivated.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$file` | `string` | Plugin file. |
+| `$reasons` | `string[]` | Why it cannot run. |
+| `$core` | `string` | Clanbite version it was judged against. |
+
+**Since:** 1.6.0
+
+#### `clanbite_addon_guard_enabled`
+
+*Filter* · `inc/updates/class-compat-monitor.php`
+
+Filters whether incompatible add-ons are deactivated automatically.
+
+Return false to only show warnings (not recommended: an incompatible add-on can crash the site).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$enabled` | `bool` | Default true. |
+
+**Since:** 1.6.0
+
+#### `clanbite_addon_installed`
+
+*Action* · `inc/updates/class-installer.php`
+
+Fires after an add-on was installed from the Licence tab (it is installed, not yet activated).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$slug` | `string` | Plugin slug. |
+| `$file` | `string` | Plugin file relative to the plugins directory. |
+
+**Since:** 1.6.0
+
+#### `clanbite_addon_reenabled`
+
+*Action* · `inc/updates/class-compat-monitor.php`
+
+Fires after an add-on that was switched off came back because it is compatible again.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$file` | `string` | Plugin file. |
+
+**Since:** 1.6.0
+
 #### `clanbite_block_entity_link_url`
 
 *Filter* · `inc/functions-block-entity-link.php`
@@ -1281,6 +1351,69 @@ Filter serialized block markup before `do_blocks()` runs for a Clanbite template
 | --- | --- | --- |
 | `$markup` | `string` | Raw markup read from `$markup_file`. |
 | `$markup_file` | `string` | Absolute path to the template source file. |
+
+#### `clanbite_legacy_addon_constraint`
+
+*Filter* · `inc/updates/class-compat-monitor.php`
+
+Filters the Clanbite versions assumed for a first-party add-on that has no `Requires Clanbite` header.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$constraint` | `string` | Default `^1.0.0`. |
+| `$data` | `array<string, mixed>` | Plugin data. |
+
+**Since:** 1.6.0
+
+#### `clanbite_license_account_url`
+
+*Filter* · `inc/updates/class-license-client.php`
+
+Filters the URL where customers manage or renew their licence.
+
+The default is the address the update server sends (its Customer account page setting); an empty string hides the link.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$url` | `string` | An https address, or an empty string for none. |
+
+**Since:** 1.6.0
+
+#### `clanbite_license_activated`
+
+*Action* · `inc/updates/class-license-client.php`
+
+Fires after this site activated a Clanbite licence.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$license` | `array<string, mixed>` | Licence summary from the server (`status`, `plan`, `expires`, `sites_used`, …). |
+
+**Since:** 1.6.0
+
+#### `clanbite_license_can_install_addons`
+
+*Filter* · `inc/updates/class-installer.php`
+
+Filters whether the Licence tab offers to install add-ons.
+
+Return false to hide the Install buttons (for example on a managed host that handles plugins itself).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$allowed` | `bool` | Whether the current user may install plugins and file changes are allowed. |
+
+**Since:** 1.6.0
+
+#### `clanbite_license_deactivated`
+
+*Action* · `inc/updates/class-license-client.php`
+
+Fires after this site's licence was deactivated.
+
+_No arguments._
+
+**Since:** 1.6.0
 
 #### `clanbite_message`
 
@@ -1367,6 +1500,18 @@ Filter the public team payload exposed to other Clanbite sites.
 | --- | --- | --- |
 | `$data` | `array` | Response data. |
 | `$post` | `WP_Post` | Team post. |
+
+#### `clanbite_release_public_keys`
+
+*Filter* · `inc/updates/functions.php`
+
+Filters the trusted release public keys (base64 Ed25519).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$keys` | `string[]` | Public keys (Clanbite's built in key plus `CLANBITE_RELEASE_PUBLIC_KEY`). Empty means signatures are not checked. |
+
+**Since:** 1.6.0
 
 #### `clanbite_render_block_markup_file`
 
@@ -1544,6 +1689,51 @@ Filters whether popups are available (Notifications is on and "Show popups" is n
 | `$available` | `bool` | False when the Notifications extension or its "Show popups" switch is off. |
 
 **Since:** 1.5.0
+
+#### `clanbite_updatable_plugins`
+
+*Filter* · `inc/updates/class-updater.php`
+
+Filters the plugins that receive updates from the Clanbite update server.
+
+Add a plugin file here only if the plugin also carries an `Update URI` header on the server's host (WordPress asks
+wordpress.org for plugins without one).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$out` | `array<string, array<string, mixed>>` | Plugin file => plugin data. |
+| `$plugins` | `array<string, array<string, mixed>>` | Every installed plugin. |
+
+**Since:** 1.6.0
+
+#### `clanbite_update_channel`
+
+*Filter* · `inc/updates/class-license-client.php`
+
+Filters the release channel this site asks for.
+
+`beta` also offers pre-releases of add-ons the server marks as having a beta channel; anything else means `stable`.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$channel` | `string` | Default `stable`. |
+
+**Since:** 1.6.0
+
+#### `clanbite_update_server_url`
+
+*Filter* · `inc/updates/functions.php`
+
+Filters the update server URL.
+
+Only HTTPS URLs are used (plain HTTP is accepted on `local` environments). Prefer the constant: filters added by a
+theme load too late for the update check.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$url` | `string` | Base URL. |
+
+**Since:** 1.6.0
 
 #### `clanbite_visibility_container_editor_script_handle`
 
