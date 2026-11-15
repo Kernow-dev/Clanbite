@@ -52,6 +52,88 @@ class General_Settings extends Abstract_Settings {
 	public function hooks(): void {
 		parent::hooks();
 		add_filter( 'show_admin_bar', array( $this, 'filter_show_admin_bar' ), 99 );
+		add_filter( 'login_redirect', array( $this, 'filter_login_redirect' ), 20, 3 );
+	}
+
+	/**
+	 * Send members to the page chosen under Clanbite → General → Login after they sign in.
+	 *
+	 * Only a plain sign-in is redirected. When the login request already carries a `redirect_to` (for example a visitor was bounced
+	 * from a protected page, or opened `/wp-admin/`), that destination is kept.
+	 *
+	 * @param string                  $redirect_to           Destination WordPress would use.
+	 * @param string                  $requested_redirect_to Destination asked for in the request (empty for a plain sign-in).
+	 * @param \WP_User|\WP_Error|null $user                  Signed-in user, or an error.
+	 * @return string
+	 */
+	public function filter_login_redirect( $redirect_to, $requested_redirect_to, $user ) {
+		if ( ! $user instanceof \WP_User || '' !== (string) $requested_redirect_to ) {
+			return $redirect_to;
+		}
+		$mode = (string) $this->get( 'login_redirect', 'dashboard' );
+		$url  = '';
+		if ( 'home' === $mode ) {
+			$url = home_url( '/' );
+		} elseif ( 'custom' === $mode ) {
+			$url = $this->resolve_login_redirect_url( (string) $this->get( 'login_redirect_url', '' ) );
+		}
+
+		/**
+		 * Filters where a member is sent after a plain sign-in.
+		 *
+		 * Return an empty string to keep the WordPress default (the dashboard). The destination must be on this site or an allowed
+		 * redirect host: WordPress passes it through `wp_safe_redirect()`.
+		 *
+		 * @param string   $url  Destination chosen in the settings (empty for "Dashboard").
+		 * @param \WP_User $user Signed-in user.
+		 * @param string   $mode Setting value: `dashboard`, `home` or `custom`.
+		 */
+		$url = (string) apply_filters( 'clanbite_login_redirect_url', $url, $user, $mode );
+
+		return '' !== $url ? $url : $redirect_to;
+	}
+
+	/**
+	 * Turn the custom address setting into a full URL on this site.
+	 *
+	 * @param string $value Stored value: a full address or a path such as `/welcome/`.
+	 * @return string Empty when unusable.
+	 */
+	private function resolve_login_redirect_url( string $value ): string {
+		$value = trim( $value );
+		if ( '' === $value ) {
+			return '';
+		}
+		if ( str_starts_with( $value, '/' ) && ! str_starts_with( $value, '//' ) ) {
+			return home_url( $value );
+		}
+
+		return (string) wp_validate_redirect( esc_url_raw( $value ), '' );
+	}
+
+	/**
+	 * Sanitise the redirect mode.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string One of `dashboard`, `home`, `custom`.
+	 */
+	public function sanitize_login_redirect_mode( $value ): string {
+		return in_array( $value, array( 'home', 'custom' ), true ) ? (string) $value : 'dashboard';
+	}
+
+	/**
+	 * Sanitise the custom login address (a full address or a path on this site).
+	 *
+	 * @param mixed $value Raw value.
+	 * @return string
+	 */
+	public function sanitize_login_redirect_url( $value ): string {
+		$value = trim( (string) $value );
+		if ( str_starts_with( $value, '/' ) && ! str_starts_with( $value, '//' ) ) {
+			return '/' . ltrim( sanitize_text_field( $value ), '/' );
+		}
+
+		return esc_url_raw( $value );
 	}
 
 	/**
@@ -112,6 +194,8 @@ class General_Settings extends Abstract_Settings {
 			'wordban_enabled'                  => false,
 			'wordban_custom_list'              => '',
 			'hide_wp_admin_bar_for_non_admins' => false,
+			'login_redirect'                   => 'dashboard',
+			'login_redirect_url'               => '',
 		);
 	}
 
@@ -142,6 +226,34 @@ class General_Settings extends Abstract_Settings {
 						'type'        => 'checkbox',
 						'description' => __( 'When on, only users who can manage options (and super admins on multisite) see the admin bar while viewing the site. The dashboard and block editor are unchanged.', 'clanbite' ),
 						'default'     => false,
+					),
+				),
+			),
+			'login'      => array(
+				'title'  => __( 'Login', 'clanbite' ),
+				'fields' => array(
+					'login_redirect'     => array(
+						'label'       => __( 'After signing in, send members to', 'clanbite' ),
+						'type'        => 'select',
+						'description' => __( 'Where members land after they sign in from the login page. If they were sent to the login page from somewhere else, they return there instead.', 'clanbite' ),
+						'default'     => 'dashboard',
+						'options'     => array(
+							'dashboard' => __( 'The dashboard (WordPress default)', 'clanbite' ),
+							'home'      => __( 'The home page', 'clanbite' ),
+							'custom'    => __( 'A custom page', 'clanbite' ),
+						),
+						'sanitize'    => array( $this, 'sanitize_login_redirect_mode' ),
+					),
+					'login_redirect_url' => array(
+						'label'       => __( 'Custom page', 'clanbite' ),
+						'type'        => 'text',
+						'description' => __( 'A page on this site: a full address, or a path such as /members/.', 'clanbite' ),
+						'default'     => '',
+						'sanitize'    => array( $this, 'sanitize_login_redirect_url' ),
+						'depends_on'  => array(
+							'field' => 'login_redirect',
+							'value' => 'custom',
+						),
 					),
 				),
 			),

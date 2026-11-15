@@ -67,6 +67,28 @@ final class License_Client {
 	}
 
 	/**
+	 * Whether this site is missing a licence that one of its add-ons needs.
+	 *
+	 * False once the site is activated, when no add-on takes part, and when every installed add-on is one the server reported as free
+	 * on the last check. An add-on the server has not described yet counts as licensed, so the prompt errs on the side of showing.
+	 *
+	 * @return bool
+	 */
+	public static function needs_license(): bool {
+		if ( self::is_activated() ) {
+			return false;
+		}
+		$rows = (array) self::get_state()['plugins'];
+		foreach ( array_keys( Updater::discover( get_plugins() ) ) as $file ) {
+			if ( empty( $rows[ dirname( (string) $file ) ]['free'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Cheap summary for {@see clanbite_get_license_status()}.
 	 *
 	 * @return array{activated: bool, status: string, plan: string, unlimited: bool, expires: int, entitlements: list<array{slug: string, name: string, state: string, expires: int, free: bool}>}
@@ -219,11 +241,9 @@ final class License_Client {
 	 * @return array<string, array<string, mixed>>|\WP_Error Slug => update row, empty when the site is not activated.
 	 */
 	public static function check( array $plugins ) {
-		if ( ! self::is_activated() && ! self::auto_activate() ) {
-			return array();
-		}
+		$licensed = self::is_activated() || self::auto_activate();
 		if ( ! self::server_usable() ) {
-			return new \WP_Error( 'clanbite_license_server', __( 'The update server URL must use HTTPS.', 'clanbite' ) );
+			return $licensed ? new \WP_Error( 'clanbite_license_server', __( 'The update server URL must use HTTPS.', 'clanbite' ) ) : array();
 		}
 
 		/**
@@ -238,15 +258,17 @@ final class License_Client {
 		$channel = (string) apply_filters( 'clanbite_update_channel', 'stable' );
 		$state   = self::get_state();
 		$body    = array_merge(
-			self::authed(),
+			// Without a licence the site still asks, anonymously, about free add-ons (the server answers for those only).
+			$licensed ? self::authed() : self::site_payload(),
 			array(
 				'plugins' => $plugins,
 				'channel' => $channel,
 			)
 		);
-		$res     = self::request( 'updates/check', $body, '' !== $state['etag'] ? array( 'If-None-Match' => $state['etag'] ) : array() );
+		$route = $licensed ? 'updates/check' : 'free/check';
+		$res   = self::request( $route, $body, '' !== $state['etag'] ? array( 'If-None-Match' => $state['etag'] ) : array() );
 
-		if ( is_wp_error( $res ) && 'invalid_token' === $res->get_error_code() && self::key() !== '' ) {
+		if ( $licensed && is_wp_error( $res ) && 'invalid_token' === $res->get_error_code() && self::key() !== '' ) {
 			self::clear_token();
 			if ( self::auto_activate() ) {
 				$body['activation_token'] = self::token();
@@ -274,6 +296,30 @@ final class License_Client {
 		self::save_state( $state );
 
 		return (array) $state['plugins'];
+	}
+
+	/**
+	 * The extensions this site may see and install: everything for an activated licence, only free ones without one.
+	 *
+	 * @return list<array<string, mixed>>|\WP_Error
+	 */
+	public static function catalog() {
+		$licensed = self::is_activated();
+		$res      = self::request(
+			$licensed ? 'catalog' : 'free/catalog',
+			array_merge( $licensed ? self::authed() : self::site_payload(), array( 'plugins' => Compat_Guard::installed_addons() ) )
+		);
+		if ( $licensed && is_wp_error( $res ) && 'invalid_token' === $res->get_error_code() && self::key() !== '' ) {
+			self::clear_token();
+			if ( self::auto_activate() ) {
+				$res = self::request( 'catalog', array_merge( self::authed(), array( 'plugins' => Compat_Guard::installed_addons() ) ) );
+			}
+		}
+		if ( is_wp_error( $res ) ) {
+			return $res;
+		}
+
+		return array_values( array_filter( (array) ( $res['data']['extensions'] ?? array() ), 'is_array' ) );
 	}
 
 	/**
@@ -317,10 +363,12 @@ final class License_Client {
 	 * @return array{url: string, sha256: string, signature: string, size: int}|\WP_Error
 	 */
 	public static function request_package( string $slug, string $version ) {
-		$res = self::request(
-			'updates/package',
+		// A site without a licence can still install free add-ons; the server refuses anything else on this route.
+		$licensed = self::is_activated();
+		$res      = self::request(
+			$licensed ? 'updates/package' : 'free/package',
 			array_merge(
-				self::authed(),
+				$licensed ? self::authed() : self::site_payload(),
 				array(
 					'slug'    => $slug,
 					'version' => $version,
@@ -328,7 +376,7 @@ final class License_Client {
 				)
 			)
 		);
-		if ( is_wp_error( $res ) && 'invalid_token' === $res->get_error_code() && self::key() !== '' ) {
+		if ( $licensed && is_wp_error( $res ) && 'invalid_token' === $res->get_error_code() && self::key() !== '' ) {
 			self::clear_token();
 			if ( self::auto_activate() ) {
 				$res = self::request(
@@ -372,7 +420,10 @@ final class License_Client {
 	 */
 	public static function plugin_info( string $slug ) {
 		if ( ! self::is_activated() ) {
-			return new \WP_Error( 'clanbite_license_inactive', __( 'Activate your licence to see details.', 'clanbite' ) );
+			// Free add-ons describe themselves to anyone; anything else asks for a licence.
+			$res = self::request( 'free/info', array_merge( self::site_payload(), array( 'slug' => $slug ) ) );
+
+			return is_wp_error( $res ) ? new \WP_Error( 'clanbite_license_inactive', __( 'Activate your licence to see details.', 'clanbite' ) ) : (array) $res['data'];
 		}
 		$res = self::request( 'plugins/info', array_merge( self::authed(), array( 'slug' => $slug ) ) );
 
@@ -421,11 +472,13 @@ final class License_Client {
 			/**
 			 * Filters the URL where customers manage or renew their licence.
 			 *
+			 * The default is the address the update server sends (its Customer account page setting); an empty string hides the link.
+			 *
 			 * @since 1.6.0
 			 *
-			 * @param string $url Default the Clanbite account page.
+			 * @param string $url An https address, or an empty string for none.
 			 */
-			'account_url'  => (string) apply_filters( 'clanbite_license_account_url', 'https://clanbite.com/account/' ),
+			'account_url'  => esc_url_raw( (string) apply_filters( 'clanbite_license_account_url', (string) ( $license['account_url'] ?? '' ) ), array( 'https' ) ),
 		);
 	}
 

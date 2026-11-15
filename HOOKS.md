@@ -4,17 +4,17 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**356 PHP hooks and 16 JavaScript hooks**.
+**359 PHP hooks and 16 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
 ## Contents
 
-- [Admin](#admin) (10)
+- [Admin](#admin) (11)
 - [Avatars](#avatars) (42)
 - [Events](#events) (19)
 - [Extensions](#extensions) (27)
-- [General](#general) (42)
+- [General](#general) (44)
 - [Matches](#matches) (18)
 - [Notifications](#notifications) (21)
 - [Players](#players) (82)
@@ -135,6 +135,21 @@ Use associative keys meaningful to your integration (e.g. `manage`, `configure`)
 | `$capabilities` | `array<string, mixed>` | Default empty; merged keys surface on the extension row as `capabilities`. |
 | `$slug` | `string` | Extension slug. |
 | `$extension` | `Skeleton` | Extension instance. |
+
+#### `clanbite_login_redirect_url`
+
+*Filter* · `inc/admin/class-general-settings.php`
+
+Filters where a member is sent after a plain sign-in.
+
+Return an empty string to keep the WordPress default (the dashboard). The destination must be on this site or an allowed
+redirect host: WordPress passes it through `wp_safe_redirect()`.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$url` | `string` | Destination chosen in the settings (empty for "Dashboard"). |
+| `$user` | `\WP_User` | Signed-in user. |
+| `$mode` | `string` | Setting value: `dashboard`, `home` or `custom`. |
 
 #### `clanbite_validate_installed_extensions`
 
@@ -1276,6 +1291,19 @@ Return false to only show warnings (not recommended: an incompatible add-on can 
 
 **Since:** 1.6.0
 
+#### `clanbite_addon_installed`
+
+*Action* · `inc/updates/class-installer.php`
+
+Fires after an add-on was installed from the Licence tab (it is installed, not yet activated).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$slug` | `string` | Plugin slug. |
+| `$file` | `string` | Plugin file relative to the plugins directory. |
+
+**Since:** 1.6.0
+
 #### `clanbite_addon_reenabled`
 
 *Action* · `inc/updates/class-compat-monitor.php`
@@ -1343,9 +1371,11 @@ Filters the Clanbite versions assumed for a first-party add-on that has no `Requ
 
 Filters the URL where customers manage or renew their licence.
 
+The default is the address the update server sends (its Customer account page setting); an empty string hides the link.
+
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `$url` | `string` | Default the Clanbite account page. |
+| `$url` | `string` | An https address, or an empty string for none. |
 
 **Since:** 1.6.0
 
@@ -1358,6 +1388,20 @@ Fires after this site activated a Clanbite licence.
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `$license` | `array<string, mixed>` | Licence summary from the server (`status`, `plan`, `expires`, `sites_used`, …). |
+
+**Since:** 1.6.0
+
+#### `clanbite_license_can_install_addons`
+
+*Filter* · `inc/updates/class-installer.php`
+
+Filters whether the Licence tab offers to install add-ons.
+
+Return false to hide the Install buttons (for example on a managed host that handles plugins itself).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$allowed` | `bool` | Whether the current user may install plugins and file changes are allowed. |
 
 **Since:** 1.6.0
 
@@ -1465,7 +1509,7 @@ Filters the trusted release public keys (base64 Ed25519).
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `$keys` | `string[]` | Public keys. Empty means signatures are not checked. |
+| `$keys` | `string[]` | Public keys (Clanbite's built in key plus `CLANBITE_RELEASE_PUBLIC_KEY`). Empty means signatures are not checked. |
 
 **Since:** 1.6.0
 

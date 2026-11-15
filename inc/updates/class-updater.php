@@ -92,6 +92,17 @@ final class Updater {
 	}
 
 	/**
+	 * Placeholder package address for a release; {@see Updater::pre_download()} swaps it for the real single-use download.
+	 *
+	 * @param string $slug    Plugin slug.
+	 * @param string $version Version to install.
+	 * @return string
+	 */
+	public static function package_url( string $slug, string $version ): string {
+		return clanbite_update_server_url() . self::PLACEHOLDER . rawurlencode( $slug ) . '/' . rawurlencode( $version );
+	}
+
+	/**
 	 * `update_plugins_{host}` callback.
 	 *
 	 * @param array<string, mixed>|false $update      Update data so far.
@@ -119,18 +130,67 @@ final class Updater {
 			}
 		}
 
-		return array(
+		$update = array(
 			'id'             => 'cbes/' . $slug,
 			'slug'           => $slug,
 			'plugin'         => $plugin_file,
 			'version'        => $version,
 			'url'            => (string) ( $plugin_data['PluginURI'] ?? '' ),
-			'package'        => ! empty( $row['package_available'] ) ? clanbite_update_server_url() . self::PLACEHOLDER . rawurlencode( $slug ) . '/' . rawurlencode( $version ) : '',
-			'tested'         => (string) ( $row['tested'] ?? '' ),
+			'package'        => ! empty( $row['package_available'] ) ? self::package_url( $slug, $version ) : '',
+			'tested'         => self::normalise_tested( (string) ( $row['tested'] ?? '' ) ),
 			'requires'       => (string) ( $row['requires'] ?? '' ),
 			'requires_php'   => (string) ( $row['requires_php'] ?? '' ),
 			'upgrade_notice' => (string) ( $row['upgrade_notice'] ?? '' ),
 		);
+		$icon   = self::image_url( (string) ( $row['icon'] ?? '' ) );
+		if ( '' !== $icon ) {
+			$update['icons'] = array(
+				'1x'      => $icon,
+				'2x'      => $icon,
+				'default' => $icon,
+			);
+		}
+		$banner = self::image_url( (string) ( $row['banner'] ?? '' ) );
+		if ( '' !== $banner ) {
+			$update['banners'] = array(
+				'low'  => $banner,
+				'high' => $banner,
+			);
+		}
+
+		return $update;
+	}
+
+	/**
+	 * Only https image addresses are shown.
+	 *
+	 * @param string $url Address from the server.
+	 * @return string Empty when not usable.
+	 */
+	private static function image_url( string $url ): string {
+		return '' === $url ? '' : esc_url_raw( $url, array( 'https' ) );
+	}
+
+	/**
+	 * Turn "Tested up to: 7.1" into the running WordPress version when that release line is covered.
+	 *
+	 * WordPress warns "not tested with your current version" when `tested` is lower than the full version (7.1 < 7.1.1), although a
+	 * readme's "Tested up to" names only the release line. WordPress.org's own API applies the same rule.
+	 *
+	 * @param string $tested Value from the readme.
+	 * @return string
+	 */
+	private static function normalise_tested( string $tested ): string {
+		if ( '' === $tested ) {
+			return '';
+		}
+		$current = (string) preg_replace( '/-.*$/', '', (string) get_bloginfo( 'version' ) );
+		$line    = static fn( string $v ): string => implode( '.', array_slice( explode( '.', $v ), 0, 2 ) );
+		if ( '' !== $current && version_compare( $line( $current ), $line( $tested ), '<=' ) && 0 === strpos( $current, $line( $tested ) . '.' ) ) {
+			return $current;
+		}
+
+		return $tested;
 	}
 
 	/**
@@ -181,18 +241,35 @@ final class Updater {
 			return new \WP_Error( 'plugins_api_failed', $info->get_error_message() );
 		}
 
-		return (object) array(
+		$details = (object) array(
 			'name'         => (string) ( $info['name'] ?? $slug ),
 			'slug'         => $slug,
 			'version'      => (string) ( $info['version'] ?? '' ),
 			'author'       => (string) ( $info['author'] ?? 'kernow.dev' ),
 			'requires'     => (string) ( $info['requires'] ?? '' ),
 			'requires_php' => (string) ( $info['requires_php'] ?? '' ),
-			'tested'       => (string) ( $info['tested'] ?? '' ),
+			'tested'       => self::normalise_tested( (string) ( $info['tested'] ?? '' ) ),
 			'last_updated' => (string) ( $info['last_updated'] ?? '' ),
 			'sections'     => array_map( 'wp_kses_post', (array) ( $info['sections'] ?? array() ) ),
 			'external'     => true,
 		);
+		$icon    = self::image_url( (string) ( $info['icon'] ?? '' ) );
+		if ( '' !== $icon ) {
+			$details->icons = array(
+				'1x'      => $icon,
+				'2x'      => $icon,
+				'default' => $icon,
+			);
+		}
+		$banner = self::image_url( (string) ( $info['banner'] ?? '' ) );
+		if ( '' !== $banner ) {
+			$details->banners = array(
+				'low'  => $banner,
+				'high' => $banner,
+			);
+		}
+
+		return $details;
 	}
 
 	/**
@@ -255,6 +332,16 @@ final class Updater {
 	 */
 	public static function verify_source( $source, $remote_source, $upgrader, $hook_extra ) {
 		unset( $remote_source, $upgrader );
+		$installing = Installer::installing();
+		if ( '' !== $installing && is_string( $source ) && ! is_wp_error( $source ) && 'install' === ( $hook_extra['action'] ?? '' ) ) {
+			// A fresh install from the Licence tab: same checks as an update, against the slug that was requested.
+			if ( basename( untrailingslashit( $source ) ) !== $installing ) {
+				return new \WP_Error( 'clanbite_update_layout', __( 'The package has an unexpected folder layout and was not installed.', 'clanbite' ) );
+			}
+			$compat = Compat_Guard::check_unpacked( $source, $installing . '/' . $installing . '.php' );
+
+			return is_wp_error( $compat ) ? $compat : $source;
+		}
 		if ( is_wp_error( $source ) || empty( $hook_extra['plugin'] ) || ! is_string( $source ) ) {
 			return $source;
 		}

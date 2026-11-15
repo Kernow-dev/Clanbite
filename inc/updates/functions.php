@@ -41,15 +41,17 @@ if ( ! function_exists( 'clanbite_release_public_keys' ) ) {
 	/**
 	 * Ed25519 public keys (base64) that add-on release signatures must verify against.
 	 *
-	 * When this list is not empty every add-on update must carry a valid signature, or it is discarded before installation. Define
-	 * `CLANBITE_RELEASE_PUBLIC_KEY` in `wp-config.php`, or filter `clanbite_release_public_keys` (several keys while rotating).
+	 * Clanbite's own release key is built in, so every add-on update must carry a valid signature or it is discarded before
+	 * installation. Define `CLANBITE_RELEASE_PUBLIC_KEY` in `wp-config.php` to trust an extra key, or filter
+	 * `clanbite_release_public_keys` (several keys while rotating; return an empty array on a development site to skip the check).
 	 *
 	 * @since 1.6.0
 	 *
 	 * @return list<string>
 	 */
 	function clanbite_release_public_keys(): array {
-		$keys = array();
+		// Clanbite's release signing key (public half; the secret lives only in the add-on repositories' CI).
+		$keys = array( 'FRjLYXnZj6JUB1xD6c87OcEbi+q4lwppSRPRKzHdlcY=' );
 		if ( defined( 'CLANBITE_RELEASE_PUBLIC_KEY' ) && is_string( CLANBITE_RELEASE_PUBLIC_KEY ) && '' !== CLANBITE_RELEASE_PUBLIC_KEY ) {
 			$keys[] = CLANBITE_RELEASE_PUBLIC_KEY;
 		}
@@ -59,7 +61,7 @@ if ( ! function_exists( 'clanbite_release_public_keys' ) ) {
 		 *
 		 * @since 1.6.0
 		 *
-		 * @param string[] $keys Public keys. Empty means signatures are not checked.
+		 * @param string[] $keys Public keys (Clanbite's built in key plus `CLANBITE_RELEASE_PUBLIC_KEY`). Empty means signatures are not checked.
 		 */
 		return array_values( array_filter( array_map( 'strval', (array) apply_filters( 'clanbite_release_public_keys', $keys ) ) ) );
 	}

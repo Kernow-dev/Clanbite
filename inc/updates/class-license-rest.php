@@ -78,6 +78,36 @@ final class License_Rest {
 				'permission_callback' => $permission,
 			)
 		);
+		register_rest_route(
+			'clanbite/v1',
+			'/admin/license/catalog',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => static fn() => self::respond( Installer::catalog() ),
+				'permission_callback' => $permission,
+			)
+		);
+		foreach ( array(
+			'install'        => 'install',
+			'activate-addon' => 'activate',
+		) as $route => $method ) {
+			register_rest_route(
+				'clanbite/v1',
+				'/admin/license/' . $route,
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => static fn( WP_REST_Request $request ) => self::respond( Installer::$method( (string) $request->get_param( 'slug' ) ) ),
+					'permission_callback' => $permission,
+					'args'                => array(
+						'slug' => array(
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_key',
+						),
+					),
+				)
+			);
+		}
 	}
 
 	/**

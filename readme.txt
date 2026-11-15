@@ -85,6 +85,10 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 == Changelog ==
 
 = 1.6.0 =
+* Install add-ons from the Licence tab: it lists every add-on your licence includes (and the free ones, even without a licence) with Install and Activate buttons, so there is nothing to download by hand. Packages are checked and signed like updates.
+* New setting under Clanbite → General → Login: send members to the dashboard, the home page or a custom page after they sign in.
+* A tidier Licence tab, and updates that no longer show a "not tested with your version of WordPress" warning when the add-on is tested with your WordPress release line.
+* Free add-ons can be updated without a licence.
 * Add-on updates: Clanbite add-ons that carry a licence can now be updated from Plugins → Updates. Enter your licence key under Clanbite → Settings → Licence, or use the Activate link under the add-on on the Plugins screen. Updates are checked against your licence, verified before they install, and only offered when they work with your version of Clanbite.
 * Add-on safety guard: if an add-on declares that it cannot run on the installed Clanbite, Clanbite switches it off with a notice instead of letting it break the site, and switches it back on once it is compatible.
 

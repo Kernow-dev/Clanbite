@@ -48,8 +48,8 @@ final class License_Admin {
 	 * @return void
 	 */
 	public static function register_rows(): void {
-		if ( ! License_Rest::can_manage() ) {
-			return;
+		if ( ! License_Rest::can_manage() || ( ! License_Client::is_activated() && ! License_Client::needs_license() ) ) {
+			return; // Only free add-ons and no key: nothing to ask for.
 		}
 		foreach ( array_keys( Updater::discover( get_plugins() ) ) as $file ) {
 			add_action( 'after_plugin_row_' . $file, array( self::class, 'plugin_row' ), 10, 3 );
@@ -232,6 +232,12 @@ final class License_Admin {
 			\Kernowdev\Clanbite\Main::VERSION,
 			true
 		);
+		wp_enqueue_style(
+			'clanbite-license',
+			clanbite()->url . 'assets/css/clanbite-license.css',
+			array(),
+			\Kernowdev\Clanbite\Main::VERSION
+		);
 		wp_set_script_translations( 'clanbite-license', 'clanbite' );
 	}
 
@@ -272,6 +278,12 @@ final class License_Admin {
 		$state  = License_Client::get_state();
 		$link   = '<p><a href="' . esc_url( self::url() ) . '">' . esc_html__( 'Open the Licence tab', 'clanbite' ) . '</a></p>';
 
+		if ( ! License_Client::is_activated() && ! License_Client::needs_license() ) {
+			$result['label']       = __( 'Your Clanbite add-ons are free and need no licence', 'clanbite' );
+			$result['description'] = '<p>' . esc_html__( 'Updates for free add-ons are checked without a licence.', 'clanbite' ) . '</p>';
+
+			return $result;
+		}
 		if ( ! License_Client::is_activated() ) {
 			$result['status']      = 'recommended';
 			$result['label']       = __( 'Your Clanbite licence is not activated', 'clanbite' );
@@ -316,7 +328,7 @@ final class License_Admin {
 
 			return;
 		}
-		if ( License_Client::is_activated() || array() === Updater::discover( get_plugins() ) ) {
+		if ( ! License_Client::needs_license() ) {
 			return;
 		}
 		printf(
