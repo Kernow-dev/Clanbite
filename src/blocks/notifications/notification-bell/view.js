@@ -101,6 +101,43 @@ async function restFetch( restUrl, nonce, { path, method = 'GET', data } ) {
  * @param {string} href Raw URL.
  * @return {string} Safe absolute URL or empty string.
  */
+/**
+ * Server-built avatar markup (the shared Clanbite avatar) as a node. The server already sanitised it; this pass also drops anything
+ * executable, so a bad payload can never run script.
+ *
+ * @param {string} html Avatar HTML from the notification payload.
+ * @return {DocumentFragment|null} Nodes to insert, or null when there is nothing usable.
+ */
+function avatarFragmentFromHtml( html ) {
+	if ( ! html || typeof html !== 'string' ) {
+		return null;
+	}
+	const doc = new window.DOMParser().parseFromString( html, 'text/html' );
+	doc.querySelectorAll( 'script, style, iframe, object, embed' ).forEach(
+		( el ) => el.remove()
+	);
+	doc.body.querySelectorAll( '*' ).forEach( ( el ) => {
+		Array.from( el.attributes ).forEach( ( attr ) => {
+			const name = attr.name.toLowerCase();
+			if (
+				name.startsWith( 'on' ) ||
+				( [ 'href', 'src', 'xlink:href' ].includes( name ) &&
+					/^\s*javascript:/i.test( attr.value ) )
+			) {
+				el.removeAttribute( attr.name );
+			}
+		} );
+	} );
+	if ( ! doc.body.firstElementChild ) {
+		return null;
+	}
+	const frag = document.createDocumentFragment();
+	Array.from( doc.body.childNodes ).forEach( ( node ) =>
+		frag.appendChild( document.importNode( node, true ) )
+	);
+	return frag;
+}
+
 function safeHttpUrl( href ) {
 	if ( ! href || typeof href !== 'string' ) {
 		return '';
@@ -177,7 +214,15 @@ function createNotificationItemElement( notification, ctx ) {
 		notification.actor && notification.actor.avatar_url
 			? safeHttpUrl( notification.actor.avatar_url )
 			: '';
-	if ( notification.actor && avatarSrc ) {
+	const sharedAvatar =
+		notification.actor && notification.actor.avatar_html
+			? avatarFragmentFromHtml( notification.actor.avatar_html )
+			: null;
+	if ( notification.actor && sharedAvatar ) {
+		// Same avatar as everywhere else on the site: shape, XP ring and rank badge.
+		avatarWrap.className = 'clanbite-notification__avatar';
+		avatarWrap.appendChild( sharedAvatar );
+	} else if ( notification.actor && avatarSrc ) {
 		avatarWrap.className = 'clanbite-notification__avatar';
 		const img = document.createElement( 'img' );
 		img.src = avatarSrc;
