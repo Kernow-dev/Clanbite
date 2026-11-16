@@ -556,6 +556,8 @@ function clanbite_register_player_notifications_page_assets(): void {
  */
 function clanbite_enqueue_player_notifications_page_assets(): void {
 	clanbite_register_player_notifications_page_assets();
+	// The page shows the shared avatar (frame, ring, badge) for each actor.
+	wp_enqueue_style( 'clanbite-avatars' );
 	wp_enqueue_style( 'clanbite-player-notifications-page' );
 	wp_enqueue_script( 'clanbite-player-notifications-page' );
 }
@@ -564,6 +566,8 @@ add_action( 'init', 'clanbite_register_player_notifications_page_assets', 20 );
 
 /**
  * The actor's avatar as the shared Clanbite avatar (shape, XP ring and rank badge), so notifications match the rest of the site.
+ *
+ * @since 1.6.2
  *
  * @param int $user_id Actor user ID.
  * @return string Sanitised HTML, or an empty string when the avatar system is unavailable.

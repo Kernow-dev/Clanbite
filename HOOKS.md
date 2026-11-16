@@ -151,6 +151,8 @@ redirect host: WordPress passes it through `wp_safe_redirect()`.
 | `$user` | `\WP_User` | Signed-in user. |
 | `$mode` | `string` | Setting value: `dashboard`, `home` or `custom`. |
 
+**Since:** 1.6.0
+
 #### `clanbite_validate_installed_extensions`
 
 *Filter* · `inc/admin/class-admin-rest.php`
