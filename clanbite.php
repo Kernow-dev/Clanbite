@@ -3,7 +3,7 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
- * Version: 1.6.0
+ * Version: 1.6.1
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
@@ -72,7 +72,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.6.0';
+	public const VERSION = '1.6.1';
 
 	/**
 	 * Maintenance upgrade counter (single step for 1.0.0 public release).

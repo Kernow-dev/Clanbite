@@ -58,16 +58,28 @@ class General_Settings extends Abstract_Settings {
 	/**
 	 * Send members to the page chosen under Clanbite → General → Login after they sign in.
 	 *
-	 * Only a plain sign-in is redirected. When the login request already carries a `redirect_to` (for example a visitor was bounced
-	 * from a protected page, or opened `/wp-admin/`), that destination is kept.
+	 * Only a plain sign-in is redirected (no destination, or just the dashboard). When the login request carries another `redirect_to`
+	 * (a visitor was bounced from a protected page, or opened a specific admin screen), or an earlier `login_redirect` callback already
+	 * changed the destination, that destination is kept.
 	 *
 	 * @param string                  $redirect_to           Destination WordPress would use.
-	 * @param string                  $requested_redirect_to Destination asked for in the request (empty for a plain sign-in).
+	 * @param string                  $requested_redirect_to Destination asked for in the request An empty value or the dashboard address both mean a plain sign-in.
 	 * @param \WP_User|\WP_Error|null $user                  Signed-in user, or an error.
 	 * @return string
 	 */
 	public function filter_login_redirect( $redirect_to, $requested_redirect_to, $user ) {
-		if ( ! $user instanceof \WP_User || '' !== (string) $requested_redirect_to ) {
+		if ( ! $user instanceof \WP_User ) {
+			return $redirect_to;
+		}
+		// The login form always posts a `redirect_to`: the dashboard address when nobody asked for anything else. That counts as a
+		// plain sign-in; any other destination (a protected page, a specific admin screen) is kept.
+		$dashboard = untrailingslashit( admin_url() );
+		$requested = untrailingslashit( (string) $requested_redirect_to );
+		if ( '' !== $requested && $dashboard !== $requested ) {
+			return $redirect_to;
+		}
+		// Another `login_redirect` callback (running earlier) already chose a destination: leave it alone.
+		if ( untrailingslashit( (string) $redirect_to ) !== $dashboard ) {
 			return $redirect_to;
 		}
 		$mode = (string) $this->get( 'login_redirect', 'dashboard' );

@@ -10,9 +10,16 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Option key storing the migration marker (value matches plugin version when complete).
+ * Option key storing the migration marker (the migration logic version, see CLANBITE_CPT_IDS_MIGRATION_LOGIC).
  */
 const CLANBITE_CPT_IDS_MIGRATION_OPTION = 'clanbite_cpt_identifiers_v202611';
+
+/**
+ * Version of the migration's own logic. Raise it only when the migration map changes: the stored marker is compared with this number,
+ * not with the plugin version, so ordinary releases never rerun the migration. Markers written by earlier releases (a plugin version
+ * string) count as logic version 1.
+ */
+const CLANBITE_CPT_IDS_MIGRATION_LOGIC = 1;
 
 /**
  * Map legacy CPT slugs to prefixed slugs (longest legacy slug first).
@@ -36,8 +43,9 @@ function clanbite_cpt_identifier_migration_map(): array {
  * @return void
  */
 function clanbite_migrate_cpt_identifiers_for_current_site(): void {
-	$done_for = get_option( CLANBITE_CPT_IDS_MIGRATION_OPTION, '' );
-	if ( \Kernowdev\Clanbite\Main::VERSION === $done_for ) {
+	$done_for   = (string) get_option( CLANBITE_CPT_IDS_MIGRATION_OPTION, '' );
+	$done_logic = '' === $done_for ? 0 : ( ctype_digit( $done_for ) ? (int) $done_for : 1 );
+	if ( $done_logic >= CLANBITE_CPT_IDS_MIGRATION_LOGIC ) {
 		return;
 	}
 
@@ -62,7 +70,7 @@ function clanbite_migrate_cpt_identifiers_for_current_site(): void {
 		);
 	}
 
-	update_option( CLANBITE_CPT_IDS_MIGRATION_OPTION, \Kernowdev\Clanbite\Main::VERSION, true );
+	update_option( CLANBITE_CPT_IDS_MIGRATION_OPTION, (string) CLANBITE_CPT_IDS_MIGRATION_LOGIC, true );
 
 	// CPT rewrite tags register on `init`; flush afterward so rules include new slugs.
 	update_option( 'clanbite_pending_rewrite_flush', '1', false );
