@@ -96,6 +96,8 @@ class General_Settings extends Abstract_Settings {
 		 * Return an empty string to keep the WordPress default (the dashboard). The destination must be on this site or an allowed
 		 * redirect host: WordPress passes it through `wp_safe_redirect()`.
 		 *
+		 * @since 1.6.0
+		 *
 		 * @param string   $url  Destination chosen in the settings (empty for "Dashboard").
 		 * @param \WP_User $user Signed-in user.
 		 * @param string   $mode Setting value: `dashboard`, `home` or `custom`.

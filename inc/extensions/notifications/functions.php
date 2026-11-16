@@ -459,7 +459,7 @@ function clanbite_get_notification_types(): array {
  * @return array<string, array<string, bool>>
  */
 function clanbite_notification_allowed_html(): array {
-	return array(
+	$own = array(
 		'div'    => array(
 			'class'                => true,
 			'data-notification-id' => true,
@@ -493,6 +493,11 @@ function clanbite_notification_allowed_html(): array {
 			'height'   => true,
 		),
 	);
+
+	// The shared avatar (hexagon frame, ring, badge) is built from SVG and nested elements; take its allowed tags from the block list.
+	$shared = function_exists( 'clanbite_block_fragment_allowed_html' ) ? clanbite_block_fragment_allowed_html() : array();
+
+	return array_replace_recursive( $shared, $own );
 }
 
 /**
@@ -551,11 +556,39 @@ function clanbite_register_player_notifications_page_assets(): void {
  */
 function clanbite_enqueue_player_notifications_page_assets(): void {
 	clanbite_register_player_notifications_page_assets();
+	// The page shows the shared avatar (frame, ring, badge) for each actor.
+	wp_enqueue_style( 'clanbite-avatars' );
 	wp_enqueue_style( 'clanbite-player-notifications-page' );
 	wp_enqueue_script( 'clanbite-player-notifications-page' );
 }
 
 add_action( 'init', 'clanbite_register_player_notifications_page_assets', 20 );
+
+/**
+ * The actor's avatar as the shared Clanbite avatar (shape, XP ring and rank badge), so notifications match the rest of the site.
+ *
+ * @since 1.6.2
+ *
+ * @param int $user_id Actor user ID.
+ * @return string Sanitised HTML, or an empty string when the avatar system is unavailable.
+ */
+function clanbite_notification_actor_avatar_html( int $user_id ): string {
+	if ( $user_id < 1 || ! function_exists( 'clanbite_render_avatar' ) ) {
+		return '';
+	}
+
+	return wp_kses(
+		clanbite_render_avatar(
+			array(
+				'type'    => 'player',
+				'id'      => $user_id,
+				'size'    => 'small',
+				'context' => 'notifications',
+			)
+		),
+		clanbite_notification_allowed_html()
+	);
+}
 
 /**
  * Render a notification for display.
@@ -608,7 +641,11 @@ function clanbite_render_notification( object $notification, bool $compact = fal
 	<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-notification-id="<?php echo esc_attr( $notification->id ); ?>">
 		<?php if ( isset( $notification->actor ) ) : ?>
 			<div class="clanbite-notification__avatar">
-				<img src="<?php echo esc_url( $notification->actor->avatar_url ); ?>" alt="<?php echo esc_attr( $avatar_alt ); ?>" loading="lazy" decoding="async" />
+				<?php if ( ! empty( $notification->actor->avatar_html ) ) : ?>
+					<?php echo wp_kses( (string) $notification->actor->avatar_html, clanbite_notification_allowed_html() ); ?>
+				<?php else : ?>
+					<img src="<?php echo esc_url( $notification->actor->avatar_url ); ?>" alt="<?php echo esc_attr( $avatar_alt ); ?>" loading="lazy" decoding="async" />
+				<?php endif; ?>
 			</div>
 		<?php else : ?>
 			<div class="clanbite-notification__icon">

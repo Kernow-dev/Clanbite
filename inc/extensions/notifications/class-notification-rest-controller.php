@@ -449,9 +449,10 @@ final class Notification_Rest_Controller extends WP_REST_Controller {
 					$actor = get_userdata( $row->actor_id );
 					if ( $actor ) {
 						$row->actor = (object) array(
-							'id'         => $actor->ID,
-							'name'       => $actor->display_name,
-							'avatar_url' => function_exists( 'clanbite_players_get_display_avatar' )
+							'id'          => $actor->ID,
+							'name'        => $actor->display_name,
+							'avatar_html' => function_exists( 'clanbite_notification_actor_avatar_html' ) ? clanbite_notification_actor_avatar_html( (int) $actor->ID ) : '',
+							'avatar_url'  => function_exists( 'clanbite_players_get_display_avatar' )
 								? clanbite_players_get_display_avatar( (int) $actor->ID, false, '', 'notifications', 'small' )
 								: get_avatar_url( $actor->ID, array( 'size' => 48 ) ),
 						);

@@ -220,6 +220,20 @@
 	}
 }
 
+/* The shared avatar draws its own frame, ring and badge: no round mask around it, or the badge is cut off. */
+.clanbite-notification__avatar:has(.clanbite-avatar) {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: visible;
+	border-radius: 0;
+
+	.clanbite-avatar {
+		width: 100%;
+		height: 100%;
+	}
+}
+
 .clanbite-notification__icon {
 	display: flex;
 	align-items: center;
