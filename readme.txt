@@ -85,7 +85,7 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 == Changelog ==
 
 = 1.6.1 =
-* Fixes: the "After signing in, send members to" setting now works with the normal login form (it was ignored because the form always sends the dashboard address). Plain and ghost buttons stay plain or outlined when a theme paints every Clanbite button solid.
+* Fixes: the "After signing in, send members to" setting now works with the normal login form (it was ignored because the form always sends the dashboard address). Settings that move members after sign-in leave a destination chosen by another plugin alone, and updating Clanbite no longer reruns the one-time post-type migration.
 
 = 1.6.0 =
 * Install add-ons from the Licence tab: it lists every add-on your licence includes (and the free ones, even without a licence) with Install and Activate buttons, so there is nothing to download by hand. Packages are checked and signed like updates.

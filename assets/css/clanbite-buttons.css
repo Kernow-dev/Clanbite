@@ -14,8 +14,7 @@
  *      about buttons (classic themes, or block themes without `styles.elements.button`), so the plugin looks finished
  *      on any theme. Any theme rule, theme.json included, overrides them without needing !important.
  *   2. Variants and states (`--ghost`, `--danger`, `--small`, toggle, disabled, focus). These layer on whatever the
- *      theme set and only change what must differ. Their variant class is doubled in the selectors so a theme's general
- *      `.clanbite-button` button rule (same weight as a single class pair) cannot paint a plain or ghost button solid.
+ *      theme set and only change what must differ.
  *
  * Override the custom properties below (for example `--clanbite-accent: #e11d48` on :root), or target the
  * classes from a theme stylesheet. See DESIGN-SYSTEM.md.
@@ -76,10 +75,10 @@
 
 /* Secondary / ghost: outline in the current text colour. */
 :is(
-	.wp-element-button.clanbite-button--ghost.clanbite-button--ghost,
-	.wp-element-button.clanbite-button--secondary.clanbite-button--secondary,
-	.clanbite-button--ghost.clanbite-button--ghost > .wp-element-button,
-	.clanbite-button--secondary.clanbite-button--secondary > .wp-element-button
+	.wp-element-button.clanbite-button--ghost,
+	.wp-element-button.clanbite-button--secondary,
+	.clanbite-button--ghost > .wp-element-button,
+	.clanbite-button--secondary > .wp-element-button
 ) {
 	background: transparent;
 	border: 1px solid currentcolor;
@@ -87,10 +86,10 @@
 }
 
 :is(
-	.wp-element-button.clanbite-button--ghost.clanbite-button--ghost,
-	.wp-element-button.clanbite-button--secondary.clanbite-button--secondary,
-	.clanbite-button--ghost.clanbite-button--ghost > .wp-element-button,
-	.clanbite-button--secondary.clanbite-button--secondary > .wp-element-button
+	.wp-element-button.clanbite-button--ghost,
+	.wp-element-button.clanbite-button--secondary,
+	.clanbite-button--ghost > .wp-element-button,
+	.clanbite-button--secondary > .wp-element-button
 ):is(:hover, :focus-visible):not(:disabled, [aria-disabled="true"]) {
 	background: var(--clanbite-button-wash);
 	color: inherit;
@@ -98,8 +97,8 @@
 
 /* Plain / text button: no fill or outline until hovered (post actions, toolbars). */
 :is(
-	.wp-element-button.clanbite-button--plain.clanbite-button--plain,
-	.clanbite-button--plain.clanbite-button--plain > .wp-element-button
+	.wp-element-button.clanbite-button--plain,
+	.clanbite-button--plain > .wp-element-button
 ) {
 	background: transparent;
 	border-color: transparent;
@@ -107,15 +106,15 @@
 }
 
 :is(
-	.wp-element-button.clanbite-button--plain.clanbite-button--plain,
-	.clanbite-button--plain.clanbite-button--plain > .wp-element-button
+	.wp-element-button.clanbite-button--plain,
+	.clanbite-button--plain > .wp-element-button
 ):is(:hover, :focus-visible):not(:disabled, [aria-disabled="true"]) {
 	background: var(--clanbite-button-wash);
 	color: inherit;
 }
 
 /* Danger: solid destructive colour. */
-:is(.wp-element-button.clanbite-button--danger.clanbite-button--danger, .clanbite-button--danger.clanbite-button--danger > .wp-element-button) {
+:is(.wp-element-button.clanbite-button--danger, .clanbite-button--danger > .wp-element-button) {
 	background: var(--clanbite-button-danger);
 	border-color: var(--clanbite-button-danger);
 	color: var(--clanbite-button-danger-contrast);
@@ -131,7 +130,7 @@
 }
 
 /* Compact size for toolbars, pagination and segmented controls (padding only: font size stays the theme's). */
-:is(.wp-element-button.clanbite-button--small.clanbite-button--small, .clanbite-button--small.clanbite-button--small > .wp-element-button) {
+:is(.wp-element-button.clanbite-button--small, .clanbite-button--small > .wp-element-button) {
 	min-height: 0;
 	padding: 0.35em 0.75em;
 }
