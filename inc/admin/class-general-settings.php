@@ -58,8 +58,8 @@ class General_Settings extends Abstract_Settings {
 	/**
 	 * Send members to the page chosen under Clanbite → General → Login after they sign in.
 	 *
-	 * Only a plain sign-in is redirected. When the login request already carries a `redirect_to` (for example a visitor was bounced
-	 * from a protected page, or opened `/wp-admin/`), that destination is kept.
+	 * Only a plain sign-in is redirected (no destination, or just the dashboard). When the login request carries another `redirect_to`
+	 * (a visitor was bounced from a protected page, or opened a specific admin screen), that destination is kept.
 	 *
 	 * @param string                  $redirect_to           Destination WordPress would use.
 	 * @param string                  $requested_redirect_to Destination asked for in the request (empty for a plain sign-in).
@@ -67,7 +67,13 @@ class General_Settings extends Abstract_Settings {
 	 * @return string
 	 */
 	public function filter_login_redirect( $redirect_to, $requested_redirect_to, $user ) {
-		if ( ! $user instanceof \WP_User || '' !== (string) $requested_redirect_to ) {
+		if ( ! $user instanceof \WP_User ) {
+			return $redirect_to;
+		}
+		// The login form always posts a `redirect_to`: the dashboard address when nobody asked for anything else. That counts as a
+		// plain sign-in; any other destination (a protected page, a specific admin screen) is kept.
+		$requested = untrailingslashit( (string) $requested_redirect_to );
+		if ( '' !== $requested && untrailingslashit( admin_url() ) !== $requested ) {
 			return $redirect_to;
 		}
 		$mode = (string) $this->get( 'login_redirect', 'dashboard' );
