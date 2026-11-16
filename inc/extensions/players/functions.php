@@ -1118,6 +1118,39 @@ function clanbite_players_get_display_cover_position_y( int $player_id = 0, bool
 }
 
 /**
+ * Returns how far the player zoomed into their cover image (1 shows the whole cover, up to 4).
+ *
+ * The zoom is applied around the focal point ({@see clanbite_players_get_display_cover_position_x()} and `_y`).
+ *
+ * @since 1.6.3
+ *
+ * @param int  $player_id        The Player/User unique identifier (0 for the current user).
+ * @param bool $suppress_filters Disallows filtering of the value.
+ * @return float Zoom between 1 and 4.
+ */
+function clanbite_players_get_display_cover_zoom( int $player_id = 0, bool $suppress_filters = false ): float {
+	if ( ! $player_id ) {
+		$player_id = get_current_user_id();
+	}
+
+	$zoom = min( 4.0, max( 1.0, (float) get_user_meta( $player_id, 'cp_player_cover_zoom', true ) ) );
+
+	if ( $suppress_filters ) {
+		return $zoom;
+	}
+
+	/**
+	 * Filters the zoom of a player's cover image.
+	 *
+	 * @since 1.6.3
+	 *
+	 * @param float $zoom      Zoom between 1 and 4.
+	 * @param int   $player_id Player (user) ID.
+	 */
+	return (float) apply_filters( 'clanbite_players_get_display_cover_zoom', $zoom, $player_id );
+}
+
+/**
  * Returns the players display name.
  *
  * @param int  $player_id The Player/User unique identifier.

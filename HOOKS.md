@@ -4,7 +4,7 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**359 PHP hooks and 16 JavaScript hooks**.
+**363 PHP hooks and 16 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
@@ -17,7 +17,7 @@ Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand fo
 - [General](#general) (44)
 - [Matches](#matches) (18)
 - [Notifications](#notifications) (21)
-- [Players](#players) (82)
+- [Players](#players) (86)
 - [Profile sub-pages and groups](#profile-sub-pages-and-groups) (12)
 - [Teams](#teams) (83)
 - [JavaScript hooks](#javascript-hooks) (16)
@@ -2401,6 +2401,18 @@ Fires before the player avatar &lt;img&gt; is built (URL is resolved).
 | `$args` | `array` | Arguments passed to `clanbite_players_get_player_avatar_img_html()`. |
 | `$url` | `string` | Avatar URL. |
 
+#### `clanbite_player_avatar_removed`
+
+*Action* · `inc/extensions/players/class-player-media.php`
+
+Fires after a player removed their avatar (the default avatar is shown again).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$user_id` | `int` | Player. |
+
+**Since:** 1.6.3
+
 #### `clanbite_player_avatar_updated`
 
 *Action* · `inc/extensions/players/class-extension-players.php`
@@ -2411,6 +2423,18 @@ Fires after the player successfully uploads a new profile avatar attachment.
 | --- | --- | --- |
 | `$user_id` | `int` | Profile owner user ID. |
 | `$attachment_id` | `int` | New attachment ID. |
+
+#### `clanbite_player_cover_removed`
+
+*Action* · `inc/extensions/players/class-player-media.php`
+
+Fires after a player removed their cover image (the default cover is shown again).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$user_id` | `int` | Player. |
+
+**Since:** 1.6.3
 
 #### `clanbite_player_cover_updated`
 
@@ -2537,6 +2561,19 @@ Renders the content of one player settings sub-panel.
 The dynamic portion is the sub-navigation slug (for example `profile-info`, `account-info`).
 
 _No arguments._
+
+#### `clanbite_player_settings_success_data`
+
+*Filter* · `inc/extensions/players/class-extension-players.php`
+
+Filters the data sent back after player settings were saved (the page uses it to refresh previews).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$success_data` | `array<string, mixed>` | Data so far (`avatarUrl`, `coverUrl`). |
+| `$user_id` | `int` | Player. |
+
+**Since:** 1.6.3
 
 #### `clanbite_player_settings_update_account_firstname`
 
@@ -2908,6 +2945,19 @@ Allows filtering of the players display cover position on the Y axis, this can b
 | --- | --- | --- |
 | `$position` | `float` | Vertical focal position, 0 to 1. |
 | `$player_id` | `int` | Player (user) ID. |
+
+#### `clanbite_players_get_display_cover_zoom`
+
+*Filter* · `inc/extensions/players/functions.php`
+
+Filters the zoom of a player's cover image.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$zoom` | `float` | Zoom between 1 and 4. |
+| `$player_id` | `int` | Player (user) ID. |
+
+**Since:** 1.6.3
 
 #### `clanbite_players_get_display_name`
 

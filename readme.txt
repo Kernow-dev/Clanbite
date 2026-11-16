@@ -4,7 +4,7 @@ Tags: community, teams, esports, gaming
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.6.2
+Stable tag: 1.6.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,9 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 2. Team and player blocks in the block editor.
 
 == Changelog ==
+
+= 1.6.3 =
+* Players can position their avatar and cover image: in Player settings → Profile, choose which part of a large image is shown with a draggable focal point and a zoom slider, reset the position, or remove the image to go back to the default. The avatar is cut to the chosen square and kept alongside the original so it can be repositioned later.
 
 = 1.6.2 =
 * Notifications now show the same avatar as the rest of the site (shape, XP ring and rank badge), in the bell and on the notifications page.

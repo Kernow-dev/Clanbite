@@ -136,6 +136,21 @@ const applyPlayerSettingsPayloadToFields = ( root, payload ) => {
  * @param {HTMLInputElement|null}                   avatarInput
  * @param {HTMLInputElement|null}                   coverInput
  */
+/**
+ * Show an image in an avatar or cover preview (an `<img>` inside the frame; older markup used a background image).
+ *
+ * @param {HTMLElement} preview Preview frame.
+ * @param {string}      url     Image address.
+ */
+const setPreviewImage = ( preview, url ) => {
+	const img = preview.querySelector( 'img' );
+	if ( img instanceof HTMLImageElement ) {
+		img.src = url;
+	} else {
+		preview.style.backgroundImage = `url(${ url })`;
+	}
+};
+
 const updateAvatarCoverPreviewsAfterSave = (
 	root,
 	data,
@@ -149,7 +164,7 @@ const updateAvatarCoverPreviewsAfterSave = (
 	if ( data.avatarUrl ) {
 		const preview = root.querySelector( '.avatar-preview' );
 		if ( preview instanceof HTMLElement ) {
-			preview.style.backgroundImage = `url(${ data.avatarUrl })`;
+			setPreviewImage( preview, data.avatarUrl );
 		}
 		if ( avatarInput ) {
 			avatarInput.value = '';
@@ -159,12 +174,20 @@ const updateAvatarCoverPreviewsAfterSave = (
 	if ( data.coverUrl ) {
 		const preview = root.querySelector( '.cover-preview' );
 		if ( preview instanceof HTMLElement ) {
-			preview.style.backgroundImage = `url(${ data.coverUrl })`;
+			setPreviewImage( preview, data.coverUrl );
 		}
 		if ( coverInput ) {
 			coverInput.value = '';
 		}
 	}
+
+	// Tell the avatar / cover position editor what is stored now (positions, whether a custom image exists).
+	root.dispatchEvent(
+		new CustomEvent( 'clanbite:player-settings-saved', {
+			bubbles: true,
+			detail: data,
+		} )
+	);
 };
 
 /**
@@ -382,10 +405,12 @@ const { state, actions } = store( 'clanbite-player-settings', {
 				return;
 			}
 
-			// Update preview using object URL
-			preview.style.backgroundImage = `url(${ URL.createObjectURL(
-				file
-			) })`;
+			// The position editor script (change listener) refreshes the preview image; this keeps older markup working.
+			if ( ! preview.querySelector( 'img' ) ) {
+				preview.style.backgroundImage = `url(${ URL.createObjectURL(
+					file
+				) })`;
+			}
 		},
 
 		selectCover() {
@@ -416,10 +441,11 @@ const { state, actions } = store( 'clanbite-player-settings', {
 				return;
 			}
 
-			// Update preview using object URL
-			preview.style.backgroundImage = `url(${ URL.createObjectURL(
-				file
-			) })`;
+			if ( ! preview.querySelector( 'img' ) ) {
+				preview.style.backgroundImage = `url(${ URL.createObjectURL(
+					file
+				) })`;
+			}
 		},
 
 		/**
