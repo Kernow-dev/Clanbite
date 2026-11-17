@@ -38,6 +38,10 @@ final class Event_Permissions {
 		$team_id  = (int) get_post_meta( $post->ID, 'cp_event_team_id', true );
 		$group_id = (int) get_post_meta( $post->ID, 'cp_event_group_id', true );
 
+		if ( Event_Post_Type::SCOPE_PLAYER === $scope ) {
+			return self::viewer_can_see_player_event( $post, $viewer_id, $visibility );
+		}
+
 		if ( Event_Post_Type::VISIBILITY_PUBLIC === $visibility ) {
 			return true;
 		}
@@ -80,6 +84,42 @@ final class Event_Permissions {
 		 * @param int      $viewer_id Viewer user ID.
 		 */
 		return (bool) apply_filters( 'clanbite_cp_event_viewer_can_see', false, $post, $viewer_id );
+	}
+
+	/**
+	 * Whether the viewer can see a published player-owned event.
+	 *
+	 * The owner and site administrators always can. Otherwise the owner's choice applies: `public` (anyone, signed in or not),
+	 * `friends` (accepted friends only) or `only_me` (nobody else).
+	 *
+	 * @param \WP_Post $post       Event post.
+	 * @param int      $viewer_id  Viewer user ID (0 = guest).
+	 * @param string   $visibility Stored `cp_event_visibility`.
+	 * @return bool
+	 */
+	private static function viewer_can_see_player_event( \WP_Post $post, int $viewer_id, string $visibility ): bool {
+		$owner_id = (int) $post->post_author;
+		$can      = false;
+
+		if ( $viewer_id > 0 && ( $viewer_id === $owner_id || user_can( $viewer_id, 'manage_options' ) ) ) {
+			$can = true;
+		} elseif ( Event_Post_Type::VISIBILITY_PUBLIC === $visibility ) {
+			$can = true;
+		} elseif ( Event_Post_Type::VISIBILITY_FRIENDS === $visibility && $viewer_id > 0 ) {
+			// Friends, and anyone the owner invited (invitations only exist on events that are not `only_me`).
+			$can = ( function_exists( 'clanbite_players_are_friends' ) && clanbite_players_are_friends( $owner_id, $viewer_id ) )
+				|| ( function_exists( 'clanbite_events_get_invited_user_ids' ) && in_array( $viewer_id, clanbite_events_get_invited_user_ids( $post->ID ), true ) );
+		}
+
+		/**
+		 * Filter whether a viewer can see a player-owned event.
+		 *
+		 * @param bool     $can        Whether the viewer can see the event.
+		 * @param \WP_Post $post       Event post.
+		 * @param int      $viewer_id  Viewer user ID (0 for guests).
+		 * @param string   $visibility `public`, `friends` or `only_me`.
+		 */
+		return (bool) apply_filters( 'clanbite_player_event_viewer_can_see', $can, $post, $viewer_id, $visibility );
 	}
 
 	/**
@@ -161,6 +201,10 @@ final class Event_Permissions {
 		$scope    = (string) get_post_meta( $post->ID, 'cp_event_scope', true );
 		$team_id  = (int) get_post_meta( $post->ID, 'cp_event_team_id', true );
 		$group_id = (int) get_post_meta( $post->ID, 'cp_event_group_id', true );
+
+		if ( Event_Post_Type::SCOPE_PLAYER === $scope ) {
+			return function_exists( 'clanbite_events_get_invited_user_ids' ) && in_array( $viewer_id, clanbite_events_get_invited_user_ids( $post->ID ), true );
+		}
 
 		if ( Event_Post_Type::SCOPE_TEAM === $scope && $team_id > 0 && function_exists( 'clanbite_teams_get_member_role' ) ) {
 			return null !== clanbite_teams_get_member_role( $team_id, $viewer_id );

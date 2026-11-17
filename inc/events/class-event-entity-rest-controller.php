@@ -144,7 +144,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * List events for a team, group, or merged player calendar (filtered by visibility per item).
+	 * List events for a team, group, or a player calendar (filtered by visibility per item).
 	 *
 	 * @param \WP_REST_Request $request Request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -223,28 +223,32 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	private function get_items_for_profile_owner( WP_REST_Request $request, int $player_user_id ) {
-		if ( ! is_user_logged_in() ) {
-			return new WP_Error(
-				'clanbite_not_logged_in',
-				__( 'You must be logged in.', 'clanbite' ),
-				array( 'status' => 401 )
-			);
-		}
-
-		$viewer = (int) get_current_user_id();
-		if ( $player_user_id !== $viewer && ! current_user_can( 'edit_users' ) ) {
-			return new WP_Error(
-				'clanbite_event_forbidden',
-				__( 'You can only load your own event calendar.', 'clanbite' ),
-				array( 'status' => 403 )
-			);
-		}
+		$viewer  = is_user_logged_in() ? (int) get_current_user_id() : 0;
+		$is_self = $viewer > 0 && ( $player_user_id === $viewer || current_user_can( 'edit_users' ) );
 
 		if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
 			return new WP_Error(
 				'clanbite_events_disabled',
 				__( 'Events are disabled on this site.', 'clanbite' ),
 				array( 'status' => 403 )
+			);
+		}
+
+		if ( ! $is_self ) {
+			// Someone else's profile: only that player's own events, each checked against the owner's privacy choice.
+			return $this->query_events_with_request_filters(
+				$request,
+				array(
+					'relation' => 'AND',
+					array(
+						'key'   => 'cp_event_scope',
+						'value' => Event_Post_Type::SCOPE_PLAYER,
+					),
+					array(
+						'key'   => 'cp_event_owner_id',
+						'value' => $player_user_id,
+					),
+				)
 			);
 		}
 
@@ -296,15 +300,15 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			);
 		}
 
-		if ( count( $meta_or ) <= 1 ) {
-			return new WP_REST_Response(
-				array(
-					'items' => array(),
-					'total' => 0,
-				),
-				200
-			);
-		}
+		// The player's own events and the ones they were invited to (one `cp_event_invited` row per invitee).
+		$meta_or[] = array(
+			'key'   => 'cp_event_owner_id',
+			'value' => $player_user_id,
+		);
+		$meta_or[] = array(
+			'key'   => 'cp_event_invited',
+			'value' => $player_user_id,
+		);
 
 		$meta_query   = array(
 			'relation' => 'AND',
@@ -570,11 +574,19 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 				|| ! clanbite_groups_user_can_manage( $group_id, $user_id ) ) {
 				return new WP_Error( 'clanbite_event_forbidden', __( 'You cannot create events for this group.', 'clanbite' ), array( 'status' => 403 ) );
 			}
+		} elseif ( Event_Post_Type::SCOPE_PLAYER === $scope ) {
+			if ( ! function_exists( 'clanbite_player_events_enabled' ) || ! clanbite_player_events_enabled() ) {
+				return new WP_Error( 'clanbite_events_disabled', __( 'Events are disabled on this site.', 'clanbite' ), array( 'status' => 403 ) );
+			}
+			$team_id  = 0;
+			$group_id = 0;
 		} else {
 			return new WP_Error( 'clanbite_event_invalid_scope', __( 'Invalid scope.', 'clanbite' ), array( 'status' => 400 ) );
 		}
 
-		if ( Event_Post_Type::SCOPE_TEAM === $scope ) {
+		if ( Event_Post_Type::SCOPE_PLAYER === $scope ) {
+			$err = null;
+		} elseif ( Event_Post_Type::SCOPE_TEAM === $scope ) {
 			$err = $this->assert_team_events_allowed( $team_id );
 			if ( $err instanceof WP_Error ) {
 				return $err;
@@ -621,12 +633,21 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		if ( Event_Post_Type::SCOPE_TEAM === $scope ) {
 			update_post_meta( $post_id, 'cp_event_team_id', $team_id );
 			update_post_meta( $post_id, 'cp_event_group_id', 0 );
-		} else {
+		} elseif ( Event_Post_Type::SCOPE_GROUP === $scope ) {
 			update_post_meta( $post_id, 'cp_event_group_id', $group_id );
 			update_post_meta( $post_id, 'cp_event_team_id', 0 );
+		} else {
+			update_post_meta( $post_id, 'cp_event_group_id', 0 );
+			update_post_meta( $post_id, 'cp_event_team_id', 0 );
+			update_post_meta( $post_id, 'cp_event_owner_id', $user_id );
 		}
 
 		$this->persist_meta_from_request( $post_id, $request, false );
+
+		if ( Event_Post_Type::SCOPE_PLAYER === $scope ) {
+			$this->normalize_player_event_visibility( $post_id );
+			clanbite_events_set_invited_user_ids( $post_id, $user_id, (array) $request->get_param( 'invite_user_ids' ) );
+		}
 
 		$post = get_post( $post_id );
 		if ( ! ( $post instanceof \WP_Post ) ) {
@@ -700,6 +721,14 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		}
 
 		$this->persist_meta_from_request( $id, $request, true );
+
+		if ( Event_Post_Type::SCOPE_PLAYER === sanitize_key( (string) get_post_meta( $id, 'cp_event_scope', true ) ) ) {
+			$this->normalize_player_event_visibility( $id );
+			if ( null !== $request->get_param( 'invite_user_ids' ) || Event_Post_Type::VISIBILITY_ONLY_ME === (string) get_post_meta( $id, 'cp_event_visibility', true ) ) {
+				$wanted = null !== $request->get_param( 'invite_user_ids' ) ? (array) $request->get_param( 'invite_user_ids' ) : clanbite_events_get_invited_user_ids( $id );
+				clanbite_events_set_invited_user_ids( $id, (int) get_post_field( 'post_author', $id ), $wanted );
+			}
+		}
 
 		$post = get_post( $id );
 
@@ -781,6 +810,22 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			return new WP_Error( 'clanbite_not_logged_in', __( 'You must be logged in.', 'clanbite' ), array( 'status' => 401 ) );
 		}
 		return true;
+	}
+
+	/**
+	 * Keep a player event's visibility to the three choices players have: anyone, friends or only me.
+	 *
+	 * Team-style values (members, team admins...) mean nothing on a player event, so they fall back to `friends`.
+	 *
+	 * @param int $post_id Event post ID.
+	 * @return void
+	 */
+	private function normalize_player_event_visibility( int $post_id ): void {
+		$allowed = array( Event_Post_Type::VISIBILITY_PUBLIC, Event_Post_Type::VISIBILITY_FRIENDS, Event_Post_Type::VISIBILITY_ONLY_ME );
+		$current = (string) get_post_meta( $post_id, 'cp_event_visibility', true );
+		if ( ! in_array( $current, $allowed, true ) ) {
+			update_post_meta( $post_id, 'cp_event_visibility', Event_Post_Type::VISIBILITY_FRIENDS );
+		}
 	}
 
 	/**
@@ -916,6 +961,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			'attendeesVisibility' => (string) get_post_meta( $pid, 'cp_event_attendees_visibility', true ),
 			'permalink'           => self::public_permalink_for_event_post( $post ),
 			'permalinkTeam'       => '', // Deprecated; use permalink.
+			'ownerId'             => (int) $post->post_author,
+			'invitedUserIds'      => Event_Permissions::user_can_manage_event( $pid, (int) get_current_user_id() ) ? clanbite_events_get_invited_user_ids( $pid ) : array(),
 		);
 	}
 
@@ -952,6 +999,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			if ( is_string( $group_url ) && '' !== $group_url ) {
 				return trailingslashit( $group_url ) . 'events/' . $pid . '/';
 			}
+		} elseif ( Event_Post_Type::SCOPE_PLAYER === $scope && function_exists( 'clanbite_events_get_player_events_url' ) ) {
+			return clanbite_events_get_player_events_url( (int) $post->post_author, $pid );
 		}
 
 		return '';
@@ -1014,6 +1063,9 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			$group_id = (int) get_post_meta( $post->ID, 'cp_event_group_id', true );
 
 			return $this->assert_group_events_allowed( $group_id );
+		}
+		if ( Event_Post_Type::SCOPE_PLAYER === $scope && ( ! function_exists( 'clanbite_player_events_enabled' ) || ! clanbite_player_events_enabled() ) ) {
+			return new WP_Error( 'clanbite_events_disabled', __( 'Events are disabled on this site.', 'clanbite' ), array( 'status' => 403 ) );
 		}
 
 		return null;

@@ -64,6 +64,13 @@ if ( $is_edit ) {
 		if ( function_exists( 'clanbite_events_are_enabled_for_group' ) && ! clanbite_events_are_enabled_for_group( $group_id ) ) {
 			return '';
 		}
+	} elseif ( Event_Post_Type::SCOPE_PLAYER === $scope_meta ) {
+		$scope    = 'player';
+		$team_id  = 0;
+		$group_id = 0;
+		if ( function_exists( 'clanbite_player_events_enabled' ) && ! clanbite_player_events_enabled() ) {
+			return '';
+		}
 	} else {
 		return '';
 	}
@@ -114,6 +121,23 @@ if ( $is_edit ) {
 		$group_id = (int) get_query_var( 'clanbite_events_group_id' );
 	}
 
+	if ( 'player' === $scope ) {
+		// The form only takes the page when the player asked for it (`?cp_event=new`).
+		if ( ! function_exists( 'clanbite_events_requested_player_event' ) || 'new' !== clanbite_events_requested_player_event() ) {
+			return '';
+		}
+		if ( ! function_exists( 'clanbite_player_events_enabled' ) || ! clanbite_player_events_enabled() ) {
+			return '';
+		}
+		$profile_owner = function_exists( 'clanbite_player_profile_context_user_id' ) ? (int) clanbite_player_profile_context_user_id() : 0;
+		if ( $viewer_id < 1 || ( $profile_owner > 0 && $profile_owner !== $viewer_id ) ) {
+			$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-create-form clanbite-event-create-form--locked' ), $block );
+			echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'You can only create events on your own profile.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
+			return;
+		}
+		$pf_vis = Event_Post_Type::VISIBILITY_FRIENDS;
+	}
+
 	if ( 'team' === $scope && function_exists( 'clanbite_events_are_enabled_for_team' ) && ! clanbite_events_are_enabled_for_team( $team_id ) ) {
 		return '';
 	}
@@ -123,7 +147,9 @@ if ( $is_edit ) {
 	}
 
 	$can = false;
-	if ( 'team' === $scope && $team_id > 0 && function_exists( 'clanbite_teams_user_can_manage' ) ) {
+	if ( 'player' === $scope ) {
+		$can = $viewer_id > 0;
+	} elseif ( 'team' === $scope && $team_id > 0 && function_exists( 'clanbite_teams_user_can_manage' ) ) {
 		$can = clanbite_teams_user_can_manage( $team_id, $viewer_id );
 	} elseif ( 'group' === $scope && $group_id > 0 && function_exists( 'clanbite_groups_user_can_manage' ) ) {
 		$can = clanbite_groups_user_can_manage( $group_id, $viewer_id );
@@ -141,7 +167,7 @@ $rest_url = $is_edit
 	: rest_url( 'clanbite/v1/event-posts' );
 
 $config = array(
-	'scope'     => 'team' === $scope ? Event_Post_Type::SCOPE_TEAM : Event_Post_Type::SCOPE_GROUP,
+	'scope'     => 'player' === $scope ? Event_Post_Type::SCOPE_PLAYER : ( 'team' === $scope ? Event_Post_Type::SCOPE_TEAM : Event_Post_Type::SCOPE_GROUP ),
 	'teamId'    => $team_id,
 	'groupId'   => $group_id,
 	'eventId'   => $is_edit ? $edit_event_id : 0,
@@ -195,6 +221,14 @@ $event_create_form_root_open = '<div '
 		$cp_back_events = clanbite_teams_get_team_action_url( $team_id, 'events' );
 		if ( is_string( $cp_back_events ) && '' !== $cp_back_events ) {
 			echo '<p class="clanbite-event-create-form__back"><a href="' . esc_url( $cp_back_events ) . '">' . esc_html__( '← Back to events', 'clanbite' ) . '</a></p>';
+		}
+	}
+	?>
+	<?php
+	if ( ! $is_edit && 'player' === $scope && function_exists( 'clanbite_events_get_player_events_url' ) ) {
+		$cp_back_player = clanbite_events_get_player_events_url( $viewer_id );
+		if ( '' !== $cp_back_player ) {
+			echo '<p class="clanbite-event-create-form__back"><a href="' . esc_url( $cp_back_player ) . '">' . esc_html__( '← Back to events', 'clanbite' ) . '</a></p>';
 		}
 	}
 	?>
@@ -293,15 +327,26 @@ $event_create_form_root_open = '<div '
 		</div>
 
 		<div class="clanbite-event-create-form__step" role="tabpanel" data-event-step="4" hidden>
-			<p>
-				<label for="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Who can see this event', 'clanbite' ); ?></label>
-				<select id="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>" name="visibility" class="clanbite-event-create-form__input-vis">
-					<option value="public" <?php selected( $pf_vis, 'public' ); ?>><?php esc_html_e( 'Public', 'clanbite' ); ?></option>
-					<option value="members" <?php selected( $pf_vis, 'members' ); ?>><?php esc_html_e( 'Logged-in members', 'clanbite' ); ?></option>
-					<option value="team_members" <?php selected( $pf_vis, 'team_members' ); ?>><?php esc_html_e( 'Team/group members only', 'clanbite' ); ?></option>
-					<option value="team_admins" <?php selected( $pf_vis, 'team_admins' ); ?>><?php esc_html_e( 'Team/group admins only', 'clanbite' ); ?></option>
-				</select>
-			</p>
+			<?php if ( 'player' === $scope ) : ?>
+				<p>
+					<label for="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Who can see this event', 'clanbite' ); ?></label>
+					<select id="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>" name="visibility" class="clanbite-event-create-form__input-vis" data-wp-on--change="actions.onVisibilityChange">
+						<option value="public" <?php selected( $pf_vis, 'public' ); ?>><?php esc_html_e( 'Anyone', 'clanbite' ); ?></option>
+						<option value="friends" <?php selected( $pf_vis, 'friends' ); ?>><?php esc_html_e( 'Friends', 'clanbite' ); ?></option>
+						<option value="only_me" <?php selected( $pf_vis, 'only_me' ); ?>><?php esc_html_e( 'Only me', 'clanbite' ); ?></option>
+					</select>
+				</p>
+			<?php else : ?>
+				<p>
+					<label for="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Who can see this event', 'clanbite' ); ?></label>
+					<select id="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>" name="visibility" class="clanbite-event-create-form__input-vis">
+						<option value="public" <?php selected( $pf_vis, 'public' ); ?>><?php esc_html_e( 'Public', 'clanbite' ); ?></option>
+						<option value="members" <?php selected( $pf_vis, 'members' ); ?>><?php esc_html_e( 'Logged-in members', 'clanbite' ); ?></option>
+						<option value="team_members" <?php selected( $pf_vis, 'team_members' ); ?>><?php esc_html_e( 'Team/group members only', 'clanbite' ); ?></option>
+						<option value="team_admins" <?php selected( $pf_vis, 'team_admins' ); ?>><?php esc_html_e( 'Team/group admins only', 'clanbite' ); ?></option>
+					</select>
+				</p>
+			<?php endif; ?>
 			<p>
 				<label for="cp-event-attvis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Attendee list', 'clanbite' ); ?></label>
 				<select id="cp-event-attvis<?php echo esc_attr( $id_suffix ); ?>" name="attendees_visibility" class="clanbite-event-create-form__input-attvis">
@@ -309,6 +354,38 @@ $event_create_form_root_open = '<div '
 					<option value="public" <?php selected( $pf_attvis, 'public' ); ?>><?php esc_html_e( 'Public', 'clanbite' ); ?></option>
 				</select>
 			</p>
+			<?php if ( 'player' === $scope ) : ?>
+				<?php
+				$friend_ids  = function_exists( 'clanbite_players_get_friend_ids' ) ? clanbite_players_get_friend_ids( $viewer_id ) : array();
+				$invited_ids = $is_edit && function_exists( 'clanbite_events_get_invited_user_ids' ) ? clanbite_events_get_invited_user_ids( $edit_event_id ) : array();
+				?>
+				<fieldset class="clanbite-event-create-form__invites"<?php echo Event_Post_Type::VISIBILITY_ONLY_ME === $pf_vis ? ' hidden' : ''; ?>>
+					<legend class="clanbite-event-create-form__invites-legend"><?php esc_html_e( 'Invite friends', 'clanbite' ); ?></legend>
+					<?php if ( array() === $friend_ids ) : ?>
+						<p class="description"><?php esc_html_e( 'Add friends first, then you can invite them to your events.', 'clanbite' ); ?></p>
+					<?php else : ?>
+						<p class="description"><?php esc_html_e( 'Invited friends get a notification and can say whether they are coming.', 'clanbite' ); ?></p>
+						<p>
+							<label class="screen-reader-text" for="cp-event-invite-search<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Search friends', 'clanbite' ); ?></label>
+							<input type="search" id="cp-event-invite-search<?php echo esc_attr( $id_suffix ); ?>" class="clanbite-event-create-form__invite-search" placeholder="<?php esc_attr_e( 'Search friends…', 'clanbite' ); ?>" data-wp-on--input="actions.filterInvites" />
+						</p>
+						<ul class="clanbite-event-create-form__invite-list">
+							<?php foreach ( $friend_ids as $friend_id ) : ?>
+								<?php $friend = get_userdata( (int) $friend_id ); ?>
+								<?php if ( ! $friend ) : ?>
+									<?php continue; ?>
+								<?php endif; ?>
+								<li class="clanbite-event-create-form__invite" data-name="<?php echo esc_attr( strtolower( $friend->display_name ) ); ?>">
+									<label>
+										<input type="checkbox" class="clanbite-event-create-form__invite-checkbox" value="<?php echo esc_attr( (string) $friend_id ); ?>" <?php checked( in_array( (int) $friend_id, $invited_ids, true ) ); ?> />
+										<span><?php echo esc_html( $friend->display_name ); ?></span>
+									</label>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
+				</fieldset>
+			<?php else : ?>
 			<fieldset class="clanbite-event-create-form__member-outreach">
 				<legend class="clanbite-event-create-form__member-outreach-legend"><?php echo esc_html( $config['i18n']['memberOutreachLabel'] ); ?></legend>
 				<p class="clanbite-event-create-form__member-outreach-help description">
@@ -323,6 +400,7 @@ $event_create_form_root_open = '<div '
 					</select>
 				</p>
 			</fieldset>
+			<?php endif; ?>
 		</div>
 
 		<div class="clanbite-event-create-form__actions clanbite-event-create-form__actions--split">

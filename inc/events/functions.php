@@ -15,14 +15,18 @@ use Kernowdev\Clanbite\Admin\General_Settings;
  * @return bool
  */
 function clanbite_events_are_globally_enabled(): bool {
-	$defaults = array( 'events_enabled' => true );
-	$stored   = get_option( General_Settings::OPTION_KEY, array() );
-	if ( ! is_array( $stored ) ) {
-		$stored = array();
+	// Clanbite → Events. Sites that have not saved that tab yet still have the switch under General.
+	$stored = get_option( 'clanbite_events_settings', array() );
+	if ( is_array( $stored ) && array_key_exists( 'events_enabled', $stored ) ) {
+		return ! empty( $stored['events_enabled'] );
 	}
-	$merged = wp_parse_args( $stored, $defaults );
 
-	return ! empty( $merged['events_enabled'] );
+	$legacy = get_option( General_Settings::OPTION_KEY, array() );
+	if ( is_array( $legacy ) && array_key_exists( 'events_enabled', $legacy ) ) {
+		return ! empty( $legacy['events_enabled'] );
+	}
+
+	return true;
 }
 
 /**
@@ -92,9 +96,148 @@ function clanbite_events_rest_max_per_page_paginated(): int {
 }
 
 /**
+ * Whether players may create their own events (global events switch, filterable).
+ *
+ * @return bool
+ */
+function clanbite_player_events_enabled(): bool {
+	$enabled = clanbite_events_are_globally_enabled();
+	$stored  = get_option( 'clanbite_events_settings', array() );
+	if ( $enabled && is_array( $stored ) && array_key_exists( 'player_events_enabled', $stored ) ) {
+		$enabled = ! empty( $stored['player_events_enabled'] );
+	}
+
+	/**
+	 * Filters whether players can create their own events.
+	 *
+	 * @param bool $enabled Default: events are globally enabled.
+	 */
+	return (bool) apply_filters( 'clanbite_player_events_enabled', $enabled );
+}
+
+/**
+ * URL of a player's Events tab, optionally pointing at one event or the "new event" form.
+ *
+ * @param int        $owner_id Player user ID.
+ * @param int|string $event    Event post ID, `new` for the create form, or 0 for the calendar.
+ * @return string Empty when the player has no profile URL.
+ */
+function clanbite_events_get_player_events_url( int $owner_id, $event = 0 ): string {
+	if ( $owner_id < 1 || ! function_exists( 'clanbite_get_player_profile_url' ) ) {
+		return '';
+	}
+
+	$base = trailingslashit( (string) clanbite_get_player_profile_url( $owner_id ) ) . 'events/';
+	if ( 'new' === $event ) {
+		return add_query_arg( 'cp_event', 'new', $base );
+	}
+	if ( (int) $event > 0 ) {
+		return add_query_arg( 'cp_event', (int) $event, $base );
+	}
+
+	return $base;
+}
+
+/**
+ * The event a player Events page is showing: a post ID, `new`, or 0 for the calendar.
+ *
+ * Read from the `cp_event` query argument, which only selects what to display (every action behind it checks permission itself).
+ *
+ * @return int|string
+ */
+function clanbite_events_requested_player_event() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display selector only; permissions are checked by the blocks and REST routes.
+	$raw = isset( $_GET['cp_event'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['cp_event'] ) ) : '';
+	if ( 'new' === $raw ) {
+		return 'new';
+	}
+
+	return absint( $raw );
+}
+
+/**
+ * The players invited to an event (each invitation is one `cp_event_invited` meta row so lists can query it).
+ *
+ * @param int $event_id Event post ID.
+ * @return int[]
+ */
+function clanbite_events_get_invited_user_ids( int $event_id ): array {
+	return array_values( array_unique( array_filter( array_map( 'absint', (array) get_post_meta( $event_id, 'cp_event_invited', false ) ) ) ) );
+}
+
+/**
+ * Replace the invitations on an event and tell the people who were newly invited.
+ *
+ * Only the owner's accepted friends can be invited, the owner cannot invite themselves, and an `only_me` event has no invitations.
+ *
+ * @param int   $event_id Event post ID.
+ * @param int   $owner_id Owner (author) user ID.
+ * @param int[] $user_ids Wanted invitees.
+ * @return int[] The user IDs invited just now (not before).
+ */
+function clanbite_events_set_invited_user_ids( int $event_id, int $owner_id, array $user_ids ): array {
+	$allowed = array();
+	if ( Kernowdev\Clanbite\Events\Event_Post_Type::VISIBILITY_ONLY_ME !== (string) get_post_meta( $event_id, 'cp_event_visibility', true ) ) {
+		$friends = clanbite_players_get_friend_ids( $owner_id );
+		$allowed = array_values( array_intersect( array_unique( array_filter( array_map( 'absint', $user_ids ) ) ), $friends ) );
+		$allowed = array_values( array_diff( $allowed, array( $owner_id ) ) );
+	}
+
+	/**
+	 * Filters who can be invited to a player event.
+	 *
+	 * @param int[] $allowed  Friend user IDs that will be invited.
+	 * @param int   $event_id Event post ID.
+	 * @param int   $owner_id Owner user ID.
+	 */
+	$allowed = array_values( array_unique( array_filter( array_map( 'absint', (array) apply_filters( 'clanbite_player_event_invitees', $allowed, $event_id, $owner_id ) ) ) ) );
+
+	$before = clanbite_events_get_invited_user_ids( $event_id );
+	$added  = array_values( array_diff( $allowed, $before ) );
+
+	foreach ( array_diff( $before, $allowed ) as $removed ) {
+		delete_post_meta( $event_id, 'cp_event_invited', $removed );
+	}
+	foreach ( $added as $user_id ) {
+		add_post_meta( $event_id, 'cp_event_invited', $user_id );
+	}
+
+	if ( $added && 'publish' === get_post_status( $event_id ) && function_exists( 'clanbite_notify' ) && function_exists( 'clanbite_notifications_extension_active' ) && clanbite_notifications_extension_active() ) {
+		$title = get_the_title( $event_id );
+		$url   = clanbite_events_get_player_events_url( $owner_id, $event_id );
+		foreach ( $added as $user_id ) {
+			clanbite_notify(
+				$user_id,
+				'event_invite',
+				clanbite_get_message( 'event_invite.title', array( 'event' => $title ) ),
+				array(
+					'message'     => clanbite_get_message( 'event_invite.message', array( 'event' => $title ) ),
+					'url'         => '' !== $url ? $url : home_url( '/' ),
+					'dedupe'      => false,
+					'object_type' => Kernowdev\Clanbite\Events\Event_Post_Type::POST_TYPE,
+					'object_id'   => $event_id,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Fires after the invitations on a player event were saved.
+	 *
+	 * @param int   $event_id Event post ID.
+	 * @param int[] $invited  Everyone now invited.
+	 * @param int[] $added    Newly invited just now.
+	 */
+	do_action( 'clanbite_player_event_invites_saved', $event_id, $allowed, $added );
+
+	return $added;
+}
+
+/**
  * Whether the player “Events” profile tab should appear for the current viewer.
  *
- * Player-scoped calendars are owner-only; the tab is hidden for other visitors.
+ * The owner sees their own calendar (events they created or were invited to); other visitors see only the player's own events that
+ * the player's privacy setting lets them see.
  *
  * @param int $player_id Profile user ID.
  * @return bool
@@ -103,11 +246,9 @@ function clanbite_player_profile_events_subpage_visible_for_viewer( int $player_
 	if ( $player_id < 1 ) {
 		return false;
 	}
-	if ( ! is_user_logged_in() ) {
-		return false;
-	}
 
-	return (int) get_current_user_id() === $player_id;
+	// Everyone sees the tab: the owner gets their calendar, other visitors only the events the owner lets them see.
+	return clanbite_player_events_enabled();
 }
 
 /**

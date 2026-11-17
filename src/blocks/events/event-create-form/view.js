@@ -162,6 +162,42 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 			syncModeUi( root, state.mode );
 		},
 
+		/**
+		 * Player events: "Only me" has no guests, so the invite list is hidden for it.
+		 *
+		 * @param {Event} event Change event from the visibility select.
+		 */
+		onVisibilityChange( event ) {
+			const ctx = getContext();
+			const root = ctx._cpFormRoot || state.root;
+			const invites = root?.querySelector(
+				'.clanbite-event-create-form__invites'
+			);
+			if ( invites ) {
+				invites.hidden = event?.target?.value === 'only_me';
+			}
+		},
+
+		/**
+		 * Player events: narrow the friends list as the player types.
+		 *
+		 * @param {Event} event Input event from the search field.
+		 */
+		filterInvites( event ) {
+			const ctx = getContext();
+			const root = ctx._cpFormRoot || state.root;
+			const needle = String( event?.target?.value || '' )
+				.trim()
+				.toLowerCase();
+			root?.querySelectorAll(
+				'.clanbite-event-create-form__invite'
+			).forEach( ( row ) => {
+				row.hidden =
+					needle !== '' &&
+					! String( row.dataset.name || '' ).includes( needle );
+			} );
+		},
+
 		onSubmit( event ) {
 			if ( state.step < state.maxStep() ) {
 				event.preventDefault();
@@ -340,6 +376,18 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 				root.querySelector(
 					'.clanbite-event-create-form__input-member-outreach'
 				)?.value || 'none';
+
+			if ( context.scope === 'player' ) {
+				// Friends ticked in the invite list (the list is hidden, and sends nobody, for "Only me").
+				payloadBody.invite_user_ids =
+					payloadBody.visibility === 'only_me'
+						? []
+						: Array.from(
+								root.querySelectorAll(
+									'.clanbite-event-create-form__invite-checkbox:checked'
+								)
+						  ).map( ( box ) => Number( box.value ) );
+			}
 
 			let payload;
 			if ( isEdit ) {

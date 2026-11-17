@@ -69,7 +69,6 @@ class Admin extends Abstract_Settings {
 				'default_team_cover'            => '',
 				'team_name_wordban_custom_list' => '',
 				'global_auto_join_team_ids'     => \clanbite_teams_global_auto_join_team_ids(),
-				'events_profile_subpage'        => true,
 				'team_avatar_image_size_large'  => 'clanbite-team-avatar-large',
 				'team_avatar_image_size_medium' => 'clanbite-team-avatar-medium',
 				'team_avatar_image_size_small'  => 'clanbite-team-avatar-small',
@@ -128,18 +127,6 @@ class Admin extends Abstract_Settings {
 							'description' => __( 'Comma- or line-separated. These are enforced only for team names. When the global word filter is enabled, this list is added on top of it; when global is off, this list still applies to team names.', 'clanbite' ),
 							'default'     => '',
 							'sanitize'    => 'sanitize_textarea_field',
-						),
-					),
-				),
-				'integrations'           => array(
-					'title'  => __( 'Extension integrations', 'clanbite' ),
-					'fields' => array(
-						'events_profile_subpage' => array(
-							'label'       => __( 'Team profile: Events tab', 'clanbite' ),
-							'type'        => 'checkbox',
-							'description' => __( 'When the Events extension is enabled, show the team Events tab and /teams/{slug}/events/. When off, those routes redirect to the public team profile.', 'clanbite' ),
-							'default'     => true,
-							'sanitize'    => 'rest_sanitize_boolean',
 						),
 					),
 				),

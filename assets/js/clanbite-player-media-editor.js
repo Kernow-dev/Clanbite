@@ -129,11 +129,17 @@
 		img.style.transform = pos.zoom > 1 ? `scale(${ pos.zoom })` : '';
 	}
 
-	/** The image in the page preview: the cover banner or the avatar (the shared avatar's picture). */
+	/**
+	 * The image in the page preview: the cover banner or the avatar (the shared avatar's picture).
+	 * @param kind
+	 */
 	const previewImg = ( kind ) =>
 		document.querySelector( `.${ kind }-preview img` );
 
-	/** Shape and ratio: the cover frame follows the real cover on this page, so the preview is cropped the way the site crops it. */
+	/**
+	 * Shape and ratio: the cover frame follows the real cover on this page, so the preview is cropped the way the site crops it.
+	 * @param target
+	 */
 	function setCoverRatio( target ) {
 		const cover = document.querySelector( '.clanbite-cover' );
 		const rect = cover && cover.getBoundingClientRect();
@@ -160,7 +166,10 @@
 		}
 	}
 
-	/** Is there an uploaded image (stored, or chosen and not saved yet)? */
+	/**
+	 * Is there an uploaded image (stored, or chosen and not saved yet)?
+	 * @param kind
+	 */
 	function hasImage( kind ) {
 		const cfg = config();
 		if ( field( NAMES[ kind ].remove )?.value === '1' ) {
@@ -478,10 +487,10 @@
 		/**
 		 * Fires when the avatar or cover popup opens, so add-ons can add their own controls to it.
 		 *
-		 * @param {Object}      context          What is open.
-		 * @param {string}      context.kind     `avatar` or `cover`.
-		 * @param {HTMLElement} context.dialog   The popup element.
-		 * @param {HTMLElement} context.extras   An empty container for your controls.
+		 * @param {Object}      context             What is open.
+		 * @param {string}      context.kind        `avatar` or `cover`.
+		 * @param {HTMLElement} context.dialog      The popup element.
+		 * @param {HTMLElement} context.extras      An empty container for your controls.
 		 * @param {Function}    context.getPosition Returns the current `{ x, y, zoom }`.
 		 * @param {Function}    context.setPosition Sets the position (`{ x, y, zoom }`) and redraws the preview.
 		 */
@@ -512,7 +521,10 @@
 		}
 	}
 
-	/** Remove the image: the default is shown and the form is told to remove it when saved. */
+	/**
+	 * Remove the image: the default is shown and the form is told to remove it when saved.
+	 * @param kind
+	 */
 	function removeImage( kind ) {
 		const cfg = config();
 		const removeField = field( NAMES[ kind ].remove );

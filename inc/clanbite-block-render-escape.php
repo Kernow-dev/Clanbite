@@ -261,6 +261,19 @@ function clanbite_block_fragment_allowed_html(): array {
 			)
 		);
 
+		// Core's `post` list has no `form`, so block forms (event create/edit, delete confirmations) lost their `<form>` and their submit
+		// buttons did nothing. User-written content is cleaned with the stricter post rules before it reaches this list.
+		$base_allowed['form'] = clanbite_block_fragment_merge_global_attrs(
+			array(
+				'method'       => true,
+				'action'       => true,
+				'novalidate'   => true,
+				'enctype'      => true,
+				'autocomplete' => true,
+				'name'         => true,
+			)
+		);
+
 		$base_allowed['select'] = clanbite_block_fragment_merge_global_attrs(
 			array(
 				'name'         => true,

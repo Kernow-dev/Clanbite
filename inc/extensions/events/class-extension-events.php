@@ -21,6 +21,13 @@ use Kernowdev\Clanbite\Events\Events as Events_Runtime;
 class Events extends Skeleton {
 
 	/**
+	 * Settings handler (Clanbite → Events).
+	 *
+	 * @var Events_Admin
+	 */
+	protected Events_Admin $admin;
+
+	/**
 	 * Registers extension metadata and the official-extensions whitelist entry.
 	 */
 	public function __construct() {
@@ -114,6 +121,16 @@ class Events extends Skeleton {
 	 * @return void
 	 */
 	public function run(): void {
+		$this->admin = new Events_Admin();
 		Events_Runtime::instance();
+	}
+
+	/**
+	 * Settings handler for the unified React admin (own tab: root extension).
+	 *
+	 * @return Abstract_Settings|null
+	 */
+	public function get_settings_admin(): ?Abstract_Settings {
+		return isset( $this->admin ) ? $this->admin : null;
 	}
 }

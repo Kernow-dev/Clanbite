@@ -367,7 +367,7 @@ function clanbite_core_message_definitions( $definitions ): array {
 			'event_invite.title'              => array(
 				'group'        => 'events',
 				'label'        => __( 'Event invitation: notification title', 'clanbite' ),
-				'description'  => __( 'Sent when a manager asks members to confirm their attendance.', 'clanbite' ),
+				'description'  => __( 'Sent when someone invites you to an event: a manager asking members to confirm, or a player inviting friends.', 'clanbite' ),
 				'default'      => __( 'You\'re invited: {event}', 'clanbite' ),
 				'placeholders' => $event_tokens,
 			),

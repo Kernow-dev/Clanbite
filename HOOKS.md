@@ -4,7 +4,7 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**372 PHP hooks and 19 JavaScript hooks**.
+**379 PHP hooks and 19 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
@@ -12,12 +12,12 @@ Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand fo
 
 - [Admin](#admin) (11)
 - [Avatars](#avatars) (43)
-- [Events](#events) (19)
+- [Events](#events) (23)
 - [Extensions](#extensions) (27)
 - [General](#general) (51)
 - [Matches](#matches) (18)
 - [Notifications](#notifications) (21)
-- [Players](#players) (87)
+- [Players](#players) (90)
 - [Profile sub-pages and groups](#profile-sub-pages-and-groups) (12)
 - [Teams](#teams) (83)
 - [JavaScript hooks](#javascript-hooks) (19)
@@ -924,6 +924,53 @@ Default: true when the `cp_group` post type is registered (group product active)
 | --- | --- | --- |
 | `$active` | `bool` | Whether group events are included. |
 | `$user_id` | `int` | Profile owner user ID. |
+
+#### `clanbite_player_event_invitees`
+
+*Filter* · `inc/events/functions.php`
+
+Filters who can be invited to a player event.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$allowed` | `int[]` | Friend user IDs that will be invited. |
+| `$event_id` | `int` | Event post ID. |
+| `$owner_id` | `int` | Owner user ID. |
+
+#### `clanbite_player_event_invites_saved`
+
+*Action* · `inc/events/functions.php`
+
+Fires after the invitations on a player event were saved.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$event_id` | `int` | Event post ID. |
+| `$invited` | `int[]` | Everyone now invited. |
+| `$added` | `int[]` | Newly invited just now. |
+
+#### `clanbite_player_event_viewer_can_see`
+
+*Filter* · `inc/events/class-event-permissions.php`
+
+Filter whether a viewer can see a player-owned event.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$can` | `bool` | Whether the viewer can see the event. |
+| `$post` | `\WP_Post` | Event post. |
+| `$viewer_id` | `int` | Viewer user ID (0 for guests). |
+| `$visibility` | `string` | `public`, `friends` or `only_me`. |
+
+#### `clanbite_player_events_enabled`
+
+*Filter* · `inc/events/functions.php`
+
+Filters whether players can create their own events.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$enabled` | `bool` | Default: events are globally enabled. |
 
 ## Extensions
 
@@ -2838,6 +2885,18 @@ Filters the list of social links rendered by the Player Social Links block.
 | `$user_id` | `int` | Resolved player user ID. |
 | `$block` | `WP_Block` | Block instance. |
 
+#### `clanbite_players_are_friends`
+
+*Filter* · `inc/extensions/players/functions.php`
+
+Filters whether two players are accepted friends.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$are_friends` | `bool` | Default false. |
+| `$user_a` | `int` | First player user ID. |
+| `$user_b` | `int` | Second player user ID. |
+
 #### `clanbite_players_avatar_shape`
 
 *Filter* · `inc/extensions/players/functions.php`
@@ -2877,6 +2936,29 @@ Filters the page size of the players directory shortcode.
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `$per_page` | `int` | Users per page (default 20). |
+
+#### `clanbite_players_friend_ids`
+
+*Filter* · `inc/extensions/players/functions.php`
+
+Filters the accepted friends of a player.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$friend_ids` | `int[]` | Friend user IDs. Default empty. |
+| `$user_id` | `int` | Player user ID. |
+
+#### `clanbite_players_friends_available`
+
+*Filter* · `inc/extensions/players/functions.php`
+
+Filters whether player friendships are available.
+
+Core has no friendships of its own: an add-on that does (Social Kit) returns true here and answers the two filters below.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$available` | `bool` | Default false. |
 
 #### `clanbite_players_get_account_firstname`
 

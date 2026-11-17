@@ -4,7 +4,7 @@ Tags: community, teams, esports, gaming
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.6.3
+Stable tag: 1.6.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,15 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 2. Team and player blocks in the block editor.
 
 == Changelog ==
+
+= 1.6.5 =
+* Fix: block stylesheets (of Clanbite and every add-on) are now versioned by their build time, so a browser or CDN that cached the old CSS loads the new one after an update.
+
+= 1.6.4 =
+* New: players can create their own events and invite friends. Each event has a privacy setting: Anyone, Friends or Only me. Invited friends get a notification and can RSVP; the player's Events tab shows their own calendar (events they created or were invited to) and, to visitors, only the events their privacy setting allows.
+* Settings: a new **Events** tab holds everything for events: the on/off switch (was under General), "Let players create their own events", and the Events tab toggles for player, team and group profiles (were on the Players, Teams and Groups tabs). Your existing values are carried over.
+* Settings: "Enable team ranks" and the rank status-update switch now live only under Ranks (the duplicate switch on the Players tab is gone).
+* Fix: open popups (reaction tooltips and pickers, post and share menus) move into the browser's top layer so no post, card or avatar can cover or clip them.
 
 = 1.6.3 =
 * Players can choose which part of their avatar and cover image is shown: in Player settings → Profile, "Set avatar" and "Set cover image" open a popup where you choose an image, drag the focal point, zoom, reset the position or remove the image to go back to the default. The avatar is cut to the chosen square (the original is kept so you can reposition it later). Developers can add their own controls to the popup (see the README).
