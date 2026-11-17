@@ -3,7 +3,7 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
- * Version: 1.6.3
+ * Version: 1.6.5
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
@@ -74,7 +74,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.6.3';
+	public const VERSION = '1.6.5';
 
 	/**
 	 * Maintenance upgrade counter (single step for 1.0.0 public release).
@@ -316,6 +316,7 @@ final class Main {
 		add_action( 'init', array( Front_Seo::class, 'register' ), 20 );
 
 		add_action( 'init', array( $this, 'register_shared_styles' ), 5 );
+		add_filter( 'block_type_metadata', array( $this, 'version_block_assets' ) );
 		add_filter( 'template_include', array( $this, 'enqueue_interactivity_for_plugin_templates' ), 9999 );
 		add_action( 'init', array( $this, 'register_core_blocks' ), 20 );
 
@@ -527,6 +528,31 @@ final class Main {
 		}
 
 		return $template;
+	}
+
+	/**
+	 * Version the styles of every Clanbite block by its build time instead of the `version` in block.json.
+	 *
+	 * Every block.json says `1.0.0`, and WordPress prints that as the stylesheet's `ver=`. A browser or CDN that cached a block's CSS
+	 * kept serving the old file after an update because the address never changed. The file's modification time changes with each
+	 * build, so a new release always loads new CSS. Applies to blocks of this plugin and of every Clanbite add-on.
+	 *
+	 * @param array<string, mixed> $metadata Block metadata being registered.
+	 * @return array<string, mixed>
+	 */
+	public function version_block_assets( $metadata ) {
+		if ( ! is_array( $metadata ) || empty( $metadata['file'] ) || ! is_string( $metadata['file'] ) ) {
+			return $metadata;
+		}
+		if ( false === strpos( wp_normalize_path( $metadata['file'] ), '/plugins/clanbite' ) ) {
+			return $metadata;
+		}
+		$modified = @filemtime( $metadata['file'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A missing file just keeps the declared version.
+		if ( $modified ) {
+			$metadata['version'] = (string) $modified;
+		}
+
+		return $metadata;
 	}
 
 	/**

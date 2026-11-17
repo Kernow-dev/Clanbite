@@ -66,8 +66,6 @@ class Admin extends Abstract_Settings {
 				'enable_covers'                   => true,
 				'default_avatar'                  => '',
 				'default_cover'                   => '',
-				'events_profile_subpage'          => true,
-				'rank_status_updates_enabled'     => true,
 				'player_avatar_image_size_large'  => 'clanbite-avatar-large',
 				'player_avatar_image_size_medium' => 'clanbite-avatar-medium',
 				'player_avatar_image_size_small'  => 'clanbite-avatar-small',
@@ -102,18 +100,6 @@ class Admin extends Abstract_Settings {
 						'label'       => __( 'Enable cover images', 'clanbite' ),
 						'type'        => 'checkbox',
 						'description' => __( 'Enable player custom cover images.', 'clanbite' ),
-						'default'     => true,
-						'sanitize'    => 'rest_sanitize_boolean',
-					),
-				),
-			),
-			'integrations'      => array(
-				'title'  => __( 'Extension integrations', 'clanbite' ),
-				'fields' => array(
-					'events_profile_subpage' => array(
-						'label'       => __( 'Player profile: Events tab', 'clanbite' ),
-						'type'        => 'checkbox',
-						'description' => __( 'When the Events extension is enabled, show the Events tab and /players/{user}/events/. When off, that URL redirects to the profile root.', 'clanbite' ),
 						'default'     => true,
 						'sanitize'    => 'rest_sanitize_boolean',
 					),
@@ -196,16 +182,6 @@ class Admin extends Abstract_Settings {
 				),
 			),
 		);
-
-		if ( $this->is_ranks_extension_available() ) {
-			$sections['integrations']['fields']['rank_status_updates_enabled'] = array(
-				'label'       => __( 'Player profile: rank achievement status updates', 'clanbite' ),
-				'type'        => 'checkbox',
-				'description' => __( 'When the Ranks extension is enabled, allow rank promotions and manual assignments to publish a social status post for the player.', 'clanbite' ),
-				'default'     => true,
-				'sanitize'    => 'rest_sanitize_boolean',
-			);
-		}
 
 		/**
 		 * Filters the Players settings sections and fields shown in the admin.

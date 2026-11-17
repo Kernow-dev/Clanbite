@@ -73,7 +73,6 @@ class Groups_Settings extends Abstract_Settings {
 	 */
 	protected function get_defaults(): array {
 		return array(
-			'events_profile_subpage'         => true,
 			'group_name_wordban_custom_list' => '',
 			'group_avatar_shape'             => 'circle',
 		);
@@ -112,16 +111,9 @@ class Groups_Settings extends Abstract_Settings {
 					),
 				),
 			),
-			'integrations'      => array(
-				'title'  => __( 'Extension integrations', 'clanbite' ),
+			'moderation'        => array(
+				'title'  => __( 'Moderation', 'clanbite' ),
 				'fields' => array(
-					'events_profile_subpage'         => array(
-						'label'       => __( 'Group profile: Events tab', 'clanbite' ),
-						'type'        => 'checkbox',
-						'description' => __( 'When the Events extension is enabled, register the group Events subpage and block template. When off, those integrations are not loaded.', 'clanbite' ),
-						'default'     => true,
-						'sanitize'    => 'rest_sanitize_boolean',
-					),
 					'group_name_wordban_custom_list' => array(
 						'label'       => __( 'Additional banned words for group names', 'clanbite' ),
 						'type'        => 'textarea',

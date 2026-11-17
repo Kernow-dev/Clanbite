@@ -79,7 +79,113 @@
 		const name = el.getAttribute( 'data-cp-popup' );
 		if ( name ) {
 			announce( name, ! el.hidden, el );
+			float( el );
 		}
+	}
+
+	const floating = new WeakMap();
+
+	/**
+	 * Lift an open popup into the browser's top layer so no post, card or avatar can ever cover it.
+	 *
+	 * A popup that is `position: absolute` inside a post sits in that post's stacking context, so later siblings can paint over it
+	 * and `overflow` can clip it. While it is open this promotes it with the Popover API, keeps the exact spot its own CSS gave it
+	 * (above, below, left or right aligned) and follows the page as it scrolls. It reverts when it closes. Add
+	 * `data-cp-float="off"` to a popup that must stay in the flow. Browsers without the Popover API keep the old behaviour.
+	 *
+	 * @param {Element} el A marked popup.
+	 */
+	function float( el ) {
+		if (
+			typeof el.showPopover !== 'function' ||
+			el.getAttribute( 'data-cp-float' ) === 'off'
+		) {
+			return;
+		}
+		const state = floating.get( el );
+		if ( el.hidden || ! el.isConnected ) {
+			if ( state ) {
+				state.stop();
+			}
+			return;
+		}
+		if ( state ) {
+			return;
+		}
+		const anchor = el.parentElement;
+		if ( ! anchor || window.getComputedStyle( el ).position === 'fixed' ) {
+			return;
+		}
+		// Measured in its natural spot, before it moves.
+		const natural = el.getBoundingClientRect();
+		const base = anchor.getBoundingClientRect();
+		const dx = natural.left - base.left;
+		const dy = natural.top - base.top;
+		const color = window.getComputedStyle( el ).color;
+
+		el.setAttribute( 'popover', 'manual' );
+		el.style.color = color; // The popover's default styles would otherwise reset it.
+		el.style.position = 'fixed';
+		el.style.margin = '0';
+		el.style.overflow = 'visible';
+		el.style.inset = 'auto';
+		el.style.width = natural.width + 'px';
+		try {
+			el.showPopover();
+		} catch ( e ) {
+			el.removeAttribute( 'popover' );
+			el.removeAttribute( 'style' );
+			return;
+		}
+
+		let frame = 0;
+		const place = () => {
+			frame = 0;
+			if ( ! anchor.isConnected ) {
+				return;
+			}
+			const rect = anchor.getBoundingClientRect();
+			const width = el.offsetWidth;
+			const left = Math.max(
+				8,
+				Math.min( rect.left + dx, window.innerWidth - width - 8 )
+			);
+			el.style.left = left + 'px';
+			el.style.top = rect.top + dy + 'px';
+		};
+		const schedule = () => {
+			if ( ! frame ) {
+				frame = window.requestAnimationFrame( place );
+			}
+		};
+		const stop = () => {
+			window.removeEventListener( 'scroll', schedule, true );
+			window.removeEventListener( 'resize', schedule );
+			if ( frame ) {
+				window.cancelAnimationFrame( frame );
+			}
+			floating.delete( el );
+			try {
+				el.hidePopover();
+			} catch ( e ) {
+				// Already closed.
+			}
+			el.removeAttribute( 'popover' );
+			[
+				'color',
+				'position',
+				'margin',
+				'overflow',
+				'inset',
+				'width',
+				'left',
+				'top',
+			].forEach( ( property ) => el.style.removeProperty( property ) );
+		};
+		floating.set( el, { stop } );
+		window.addEventListener( 'scroll', schedule, true );
+		window.addEventListener( 'resize', schedule );
+		place();
 	}
 
 	function scan( node ) {

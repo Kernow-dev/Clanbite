@@ -18,6 +18,11 @@ final class Event_Post_Type {
 	public const SCOPE_TEAM  = 'team';
 	public const SCOPE_GROUP = 'group';
 
+	/**
+	 * A personal event owned by a player (not a team or group).
+	 */
+	public const SCOPE_PLAYER = 'player';
+
 	public const MODE_IN_PERSON = 'in_person';
 	public const MODE_VIRTUAL   = 'virtual';
 
@@ -25,6 +30,16 @@ final class Event_Post_Type {
 	public const VISIBILITY_MEMBERS      = 'members';
 	public const VISIBILITY_TEAM_MEMBERS = 'team_members';
 	public const VISIBILITY_TEAM_ADMINS  = 'team_admins';
+
+	/**
+	 * Player events only: the owner's friends can see it (the owner chooses `public` for anyone).
+	 */
+	public const VISIBILITY_FRIENDS = 'friends';
+
+	/**
+	 * Player events only: nobody but the owner can see it.
+	 */
+	public const VISIBILITY_ONLY_ME = 'only_me';
 
 	/**
 	 * Register hooks.
@@ -78,7 +93,7 @@ final class Event_Post_Type {
 	public function register_meta(): void {
 		$scope_schema = array(
 			'type' => 'string',
-			'enum' => array( self::SCOPE_TEAM, self::SCOPE_GROUP ),
+			'enum' => array( self::SCOPE_TEAM, self::SCOPE_GROUP, self::SCOPE_PLAYER ),
 		);
 
 		$mode_schema = array(
@@ -93,6 +108,8 @@ final class Event_Post_Type {
 				self::VISIBILITY_MEMBERS,
 				self::VISIBILITY_TEAM_MEMBERS,
 				self::VISIBILITY_TEAM_ADMINS,
+				self::VISIBILITY_FRIENDS,
+				self::VISIBILITY_ONLY_ME,
 			),
 		);
 
@@ -222,7 +239,7 @@ final class Event_Post_Type {
 	 */
 	public function sanitize_scope( $value ): string {
 		$value = sanitize_key( (string) $value );
-		return in_array( $value, array( self::SCOPE_TEAM, self::SCOPE_GROUP ), true ) ? $value : self::SCOPE_TEAM;
+		return in_array( $value, array( self::SCOPE_TEAM, self::SCOPE_GROUP, self::SCOPE_PLAYER ), true ) ? $value : self::SCOPE_TEAM;
 	}
 
 	/**
@@ -245,6 +262,8 @@ final class Event_Post_Type {
 			self::VISIBILITY_MEMBERS,
 			self::VISIBILITY_TEAM_MEMBERS,
 			self::VISIBILITY_TEAM_ADMINS,
+			self::VISIBILITY_FRIENDS,
+			self::VISIBILITY_ONLY_ME,
 		);
 		return in_array( $value, $allowed, true ) ? $value : self::VISIBILITY_PUBLIC;
 	}

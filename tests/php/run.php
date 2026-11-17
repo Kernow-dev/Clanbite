@@ -66,4 +66,136 @@ $t->ok( 'avatar args carry viewer and object context', is_array( $seen ) && 1 ==
 $hex_start = explode( ',', explode( ' ', clanbite_avatar_hexagon_points( 43 ) )[0] );
 $t->ok( 'hexagon ring starts at the top centre', 50.0 === (float) $hex_start[0] && (float) $hex_start[1] < 12 );
 
+// Player events: who can see them, invitations, and creating one through REST.
+use Kernowdev\Clanbite\Events\Event_Permissions;
+use Kernowdev\Clanbite\Events\Event_Post_Type;
+
+$mk_user = static function ( string $login ) use ( $t ): int {
+	$stale = get_user_by( 'login', $login );
+	if ( $stale ) {
+		wp_delete_user( $stale->ID );
+	}
+	$id = wp_insert_user(
+		array(
+			'user_login' => $login,
+			'user_pass'  => wp_generate_password(),
+			'user_email' => $login . '@example.test',
+		)
+	);
+	$t->cleanup( static fn() => wp_delete_user( (int) $id ) );
+
+	return (int) $id;
+};
+$owner    = $mk_user( 'zz_ev_owner' );
+$friend   = $mk_user( 'zz_ev_friend' );
+$stranger = $mk_user( 'zz_ev_stranger' );
+add_filter( 'clanbite_players_friends_available', '__return_true' );
+add_filter(
+	'clanbite_players_friend_ids',
+	static fn( $ids, $uid ) => (int) $uid === $owner ? array( $friend ) : ( (int) $uid === $friend ? array( $owner ) : $ids ),
+	10,
+	2
+);
+add_filter(
+	'clanbite_players_are_friends',
+	static fn( $yes, $a, $b ) => $yes || ( in_array( (int) $a, array( $owner, $friend ), true ) && in_array( (int) $b, array( $owner, $friend ), true ) && $a !== $b ),
+	10,
+	3
+);
+
+$mk_event = static function ( string $visibility ) use ( $owner, $t ): \WP_Post {
+	$id = wp_insert_post(
+		array(
+			'post_type'   => Event_Post_Type::POST_TYPE,
+			'post_status' => 'publish',
+			'post_title'  => 'zz test event',
+			'post_author' => $owner,
+		)
+	);
+	update_post_meta( $id, 'cp_event_scope', Event_Post_Type::SCOPE_PLAYER );
+	update_post_meta( $id, 'cp_event_owner_id', $owner );
+	update_post_meta( $id, 'cp_event_visibility', $visibility );
+	$t->cleanup( static fn() => wp_delete_post( (int) $id, true ) );
+
+	return get_post( $id );
+};
+$ev_any  = $mk_event( 'public' );
+$ev_fr   = $mk_event( 'friends' );
+$ev_self = $mk_event( 'only_me' );
+$t->ok( 'anyone: guest, stranger, friend, owner see it', Event_Permissions::viewer_can_see( $ev_any, 0 ) && Event_Permissions::viewer_can_see( $ev_any, $stranger ) && Event_Permissions::viewer_can_see( $ev_any, $friend ) && Event_Permissions::viewer_can_see( $ev_any, $owner ) );
+$t->ok( 'friends: friend and owner only', Event_Permissions::viewer_can_see( $ev_fr, $friend ) && Event_Permissions::viewer_can_see( $ev_fr, $owner ) && ! Event_Permissions::viewer_can_see( $ev_fr, $stranger ) && ! Event_Permissions::viewer_can_see( $ev_fr, 0 ) );
+$t->ok( 'only me: nobody else, not even a friend', Event_Permissions::viewer_can_see( $ev_self, $owner ) && ! Event_Permissions::viewer_can_see( $ev_self, $friend ) && ! Event_Permissions::viewer_can_see( $ev_self, $stranger ) && ! Event_Permissions::viewer_can_see( $ev_self, 0 ) );
+$t->ok( 'owner manages, others do not', Event_Permissions::user_can_manage_event( $ev_fr->ID, $owner ) && ! Event_Permissions::user_can_manage_event( $ev_fr->ID, $friend ) );
+
+$added = clanbite_events_set_invited_user_ids( $ev_fr->ID, $owner, array( $friend, $stranger, $owner, 999999 ) );
+$t->ok( 'only friends are invited (not strangers, the owner or unknown ids)', array( $friend ) === $added && array( $friend ) === clanbite_events_get_invited_user_ids( $ev_fr->ID ) );
+$t->ok( 'inviting again adds no one new', array() === clanbite_events_set_invited_user_ids( $ev_fr->ID, $owner, array( $friend ) ) );
+$t->ok( 'invitations can be removed', array() === clanbite_events_set_invited_user_ids( $ev_fr->ID, $owner, array() ) && array() === clanbite_events_get_invited_user_ids( $ev_fr->ID ) );
+clanbite_events_set_invited_user_ids( $ev_self->ID, $owner, array( $friend ) );
+$t->ok( 'an only-me event takes no invitations', array() === clanbite_events_get_invited_user_ids( $ev_self->ID ) );
+$t->ok( 'invitee sees a friends event and the attendee list', ( clanbite_events_set_invited_user_ids( $ev_fr->ID, $owner, array( $friend ) ) || true ) && Event_Permissions::viewer_can_see( $ev_fr, $friend ) && Event_Permissions::can_view_attendees( $ev_fr, $friend ) && ! Event_Permissions::can_view_attendees( $ev_fr, $stranger ) );
+$t->ok( 'player events URL carries the event', false !== strpos( clanbite_events_get_player_events_url( $owner, 5 ), 'cp_event=5' ) && false !== strpos( clanbite_events_get_player_events_url( $owner, 'new' ), 'cp_event=new' ) );
+
+wp_set_current_user( $owner );
+$req = new WP_REST_Request( 'POST', '/clanbite/v1/event-posts' );
+$req->set_header( 'content-type', 'application/json' );
+$req->set_body( wp_json_encode( array( 'scope' => 'player', 'title' => 'zz rest event', 'visibility' => 'friends', 'invite_user_ids' => array( $friend, $stranger ) ) ) );
+$res = rest_do_request( $req );
+$data = $res->get_data();
+if ( 201 === $res->get_status() && ! empty( $data['id'] ) ) {
+	$t->cleanup( static fn() => wp_delete_post( (int) $data['id'], true ) );
+	$t->ok( 'REST creates a player event owned by the author', 'player' === $data['scope'] && $owner === $data['ownerId'] && 'friends' === $data['visibility'] );
+	$t->ok( 'REST invites only the friend', array( $friend ) === $data['invitedUserIds'] );
+	$list = rest_do_request( new WP_REST_Request( 'GET', '/clanbite/v1/event-posts' ) );
+	wp_set_current_user( $stranger );
+	$req2 = new WP_REST_Request( 'GET', '/clanbite/v1/event-posts' );
+	$req2->set_param( 'player_user_id', $owner );
+	$stranger_list = rest_do_request( $req2 )->get_data();
+	$t->ok( "a stranger's view of the profile hides a friends-only event", 0 === count( (array) ( $stranger_list['items'] ?? array() ) ) );
+	wp_set_current_user( $friend );
+	$req3 = new WP_REST_Request( 'GET', '/clanbite/v1/event-posts' );
+	$req3->set_param( 'player_user_id', $owner );
+	$friend_list = rest_do_request( $req3 )->get_data();
+	$t->ok( "a friend's view of the profile shows it", count( (array) ( $friend_list['items'] ?? array() ) ) >= 1 );
+	$req4 = new WP_REST_Request( 'GET', '/clanbite/v1/event-posts' );
+	$req4->set_param( 'player_user_id', $friend );
+	$own_list = rest_do_request( $req4 )->get_data();
+	$ids = wp_list_pluck( (array) ( $own_list['items'] ?? array() ), 'id' );
+	$t->ok( 'the invited friend sees it in their own calendar', in_array( (int) $data['id'], array_map( 'intval', $ids ), true ), $ids );
+	wp_set_current_user( $stranger );
+	$bad = new WP_REST_Request( 'PUT', '/clanbite/v1/event-posts/' . (int) $data['id'] );
+	$bad->set_header( 'content-type', 'application/json' );
+	$bad->set_body( wp_json_encode( array( 'title' => 'hijack' ) ) );
+	$t->ok( 'a stranger cannot edit it', 403 === rest_do_request( $bad )->get_status() );
+} else {
+	$t->ok( 'REST creates a player event (events extension is installed)', false, $data );
+}
+wp_set_current_user( 1 );
+
+// Events settings moved to Clanbite → Events: the old toggles are carried over once and the helpers keep working.
+$saved = array();
+foreach ( array( 'clanbite_events_settings', 'clanbite_events_settings_migrated', 'clanbite_general_settings', 'clanbite_players_settings', 'clanbite_teams_settings', 'clanbite_groups_settings' ) as $opt ) {
+	$saved[ $opt ] = get_option( $opt, null );
+}
+$t->cleanup(
+	static function () use ( $saved ): void {
+		foreach ( $saved as $opt => $value ) {
+			null === $value ? delete_option( $opt ) : update_option( $opt, $value );
+		}
+	}
+);
+delete_option( 'clanbite_events_settings' );
+delete_option( 'clanbite_events_settings_migrated' );
+update_option( 'clanbite_general_settings', array_merge( (array) $saved['clanbite_general_settings'], array( 'events_enabled' => false ) ) );
+update_option( 'clanbite_teams_settings', array_merge( (array) $saved['clanbite_teams_settings'], array( 'events_profile_subpage' => false ) ) );
+$t->ok( 'old General switch still counts before migration', false === clanbite_events_are_globally_enabled() );
+$t->ok( 'old Teams toggle still counts before migration', false === clanbite_events_subpage_team_enabled() );
+clanbite_events_maybe_migrate_settings();
+$moved = (array) get_option( 'clanbite_events_settings', array() );
+$t->ok( 'migration copies the old values into the Events option', isset( $moved['events_enabled'], $moved['subpage_team'] ) && false === $moved['events_enabled'] && false === $moved['subpage_team'] );
+update_option( 'clanbite_events_settings', array_merge( $moved, array( 'events_enabled' => true, 'subpage_team' => true ) ) );
+$t->ok( 'the Events option wins once it exists', true === clanbite_events_are_globally_enabled() && true === clanbite_events_subpage_team_enabled() );
+update_option( 'clanbite_events_settings', array_merge( $moved, array( 'events_enabled' => true, 'player_events_enabled' => false ) ) );
+$t->ok( 'players can be switched off from creating events', false === clanbite_player_events_enabled() );
+
 exit( $t->finish() );

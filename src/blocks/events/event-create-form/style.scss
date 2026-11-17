@@ -253,3 +253,42 @@
 	font-size: 0.9rem;
 	color: var(--clanbite-muted, color-mix(in srgb, currentcolor 62%, transparent));
 }
+
+// Player events: pick friends to invite.
+.clanbite-event-create-form__invites {
+	margin: 1rem 0 0;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 20%, transparent));
+	border-radius: 8px;
+}
+
+.clanbite-event-create-form__invites[hidden] {
+	display: none;
+}
+
+.clanbite-event-create-form__invites-legend {
+	padding: 0 0.35rem;
+	font-weight: 600;
+}
+
+.clanbite-event-create-form__invite-list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+	gap: 0.25rem 1rem;
+	max-height: 14rem;
+	margin: 0;
+	padding: 0;
+	overflow-y: auto;
+	list-style: none;
+}
+
+.clanbite-event-create-form__invite[hidden] {
+	display: none;
+}
+
+.clanbite-event-create-form__invite label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+}

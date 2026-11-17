@@ -6,6 +6,9 @@ import { store, getContext, getElement } from '@wordpress/interactivity';
 /**
  * Popup lifecycle (`clanbite.popup.toggled`, `clanbite.popup.shouldOpen`) comes from the shared popups client
  * (`window.clanbite.popups`, component `popups`), so every Clanbite popup reports and can be vetoed the same way.
+ * @param name
+ * @param open
+ * @param root
  */
 const announcePopup = ( name, open, root ) =>
 	window.clanbite?.popups?.announce( name, open, root );

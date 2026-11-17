@@ -2068,3 +2068,63 @@ function clanbite_players_get_avatar_shape(): string {
 	 */
 	return (string) apply_filters( 'clanbite_players_avatar_shape', $shape );
 }
+
+/**
+ * Whether player friendships exist on this site (an add-on such as Social Kit provides them).
+ *
+ * @return bool
+ */
+function clanbite_players_friends_available(): bool {
+	/**
+	 * Filters whether player friendships are available.
+	 *
+	 * Core has no friendships of its own: an add-on that does (Social Kit) returns true here and answers the two filters below.
+	 *
+	 * @param bool $available Default false.
+	 */
+	return (bool) apply_filters( 'clanbite_players_friends_available', false );
+}
+
+/**
+ * The accepted friends of a player.
+ *
+ * @param int $user_id Player user ID.
+ * @return int[] Friend user IDs (empty when friendships are not available).
+ */
+function clanbite_players_get_friend_ids( int $user_id ): array {
+	if ( $user_id < 1 ) {
+		return array();
+	}
+
+	/**
+	 * Filters the accepted friends of a player.
+	 *
+	 * @param int[] $friend_ids Friend user IDs. Default empty.
+	 * @param int   $user_id    Player user ID.
+	 */
+	$ids = (array) apply_filters( 'clanbite_players_friend_ids', array(), $user_id );
+
+	return array_values( array_unique( array_filter( array_map( 'absint', $ids ) ) ) );
+}
+
+/**
+ * Whether two players are accepted friends.
+ *
+ * @param int $user_a First player user ID.
+ * @param int $user_b Second player user ID.
+ * @return bool
+ */
+function clanbite_players_are_friends( int $user_a, int $user_b ): bool {
+	if ( $user_a < 1 || $user_b < 1 || $user_a === $user_b ) {
+		return false;
+	}
+
+	/**
+	 * Filters whether two players are accepted friends.
+	 *
+	 * @param bool $are_friends Default false.
+	 * @param int  $user_a      First player user ID.
+	 * @param int  $user_b      Second player user ID.
+	 */
+	return (bool) apply_filters( 'clanbite_players_are_friends', false, $user_a, $user_b );
+}

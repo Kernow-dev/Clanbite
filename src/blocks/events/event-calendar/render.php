@@ -38,11 +38,16 @@ if ( 'player' === $scope ) {
 
 	$resolved_player_id = $player_user_id;
 
-	if ( ! is_user_logged_in() || (int) get_current_user_id() !== $player_user_id || $player_user_id < 1 ) {
+	if ( $player_user_id < 1 ) {
 		return '';
 	}
 
-	if ( ! function_exists( 'clanbite_events_are_globally_enabled' ) || ! clanbite_events_are_globally_enabled() ) {
+	if ( ! function_exists( 'clanbite_player_events_enabled' ) || ! clanbite_player_events_enabled() ) {
+		return '';
+	}
+
+	// An event (or the "new event" form) was chosen: the detail and form blocks take the page instead of the calendar.
+	if ( function_exists( 'clanbite_events_requested_player_event' ) && clanbite_events_requested_player_event() ) {
 		return '';
 	}
 
@@ -90,6 +95,10 @@ if ( 'group' === $scope_api && $group_id > 0 && is_user_logged_in() && function_
 		 */
 		$create_url = (string) apply_filters( 'clanbite_group_events_create_url', '', $group_id );
 	}
+}
+
+if ( 'player' === $scope_api && is_user_logged_in() && (int) get_current_user_id() === $resolved_player_id && function_exists( 'clanbite_events_get_player_events_url' ) ) {
+	$create_url = clanbite_events_get_player_events_url( $resolved_player_id, 'new' );
 }
 
 /**

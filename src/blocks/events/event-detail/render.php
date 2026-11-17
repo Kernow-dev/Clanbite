@@ -20,6 +20,14 @@ if ( $event_id < 1 ) {
 if ( $event_id < 1 ) {
 	$event_id = (int) get_query_var( 'cp_group_event_id' );
 }
+if ( $event_id < 1 && ! empty( $attributes['playerEvents'] ) && function_exists( 'clanbite_events_requested_player_event' ) ) {
+	// The player Events page picks the event with `?cp_event=ID`; "new" belongs to the create form.
+	$requested = clanbite_events_requested_player_event();
+	$event_id  = is_int( $requested ) ? $requested : 0;
+	if ( $event_id < 1 ) {
+		return '';
+	}
+}
 
 $viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
 
@@ -55,6 +63,10 @@ if ( Event_Post_Type::SCOPE_TEAM === $scope_ev ) {
 	if ( function_exists( 'clanbite_events_are_enabled_for_group' ) && ! clanbite_events_are_enabled_for_group( $gid ) ) {
 		return '';
 	}
+} elseif ( Event_Post_Type::SCOPE_PLAYER === $scope_ev ) {
+	if ( function_exists( 'clanbite_player_events_enabled' ) && ! clanbite_player_events_enabled() ) {
+		return '';
+	}
 }
 
 $mode     = (string) get_post_meta( $event_id, 'cp_event_mode', true );
@@ -84,7 +96,36 @@ $wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-detai
 ob_start();
 ?>
 <?php clanbite_echo_block_fragment_html( '<div ' . trim( (string) $wrapper ) . '>' ); ?>
+	<?php if ( Event_Post_Type::SCOPE_PLAYER === $scope_ev ) : ?>
+		<?php
+		$host_id   = (int) $post->post_author;
+		$host      = get_userdata( $host_id );
+		$back_url  = function_exists( 'clanbite_events_get_player_events_url' ) ? clanbite_events_get_player_events_url( $host_id ) : '';
+		$privacy   = (string) get_post_meta( $event_id, 'cp_event_visibility', true );
+		$privacy_l = array(
+			Event_Post_Type::VISIBILITY_PUBLIC  => __( 'Anyone', 'clanbite' ),
+			Event_Post_Type::VISIBILITY_FRIENDS => __( 'Friends', 'clanbite' ),
+			Event_Post_Type::VISIBILITY_ONLY_ME => __( 'Only me', 'clanbite' ),
+		);
+		?>
+		<?php if ( '' !== $back_url ) : ?>
+			<p class="clanbite-event-detail__back"><a href="<?php echo esc_url( $back_url ); ?>"><?php esc_html_e( '← Back to events', 'clanbite' ); ?></a></p>
+		<?php endif; ?>
+	<?php endif; ?>
 	<h1 class="clanbite-event-detail__title"><?php echo esc_html( get_the_title( $post ) ); ?></h1>
+	<?php if ( Event_Post_Type::SCOPE_PLAYER === $scope_ev && $host ) : ?>
+	<p class="clanbite-event-detail__host">
+		<?php
+		/* translators: %s: the player who hosts the event. */
+		echo esc_html( sprintf( __( 'Hosted by %s', 'clanbite' ), $host->display_name ) );
+		if ( Event_Permissions::user_can_manage_event( $event_id, $viewer_id ) && isset( $privacy_l[ $privacy ] ) ) {
+			echo ' · ';
+			/* translators: %s: who can see the event: Anyone, Friends or Only me. */
+			echo esc_html( sprintf( __( 'Visible to: %s', 'clanbite' ), $privacy_l[ $privacy ] ) );
+		}
+		?>
+	</p>
+	<?php endif; ?>
 	<?php if ( $start_label ) : ?>
 	<p class="clanbite-event-detail__meta">
 		<?php
@@ -128,6 +169,11 @@ ob_start();
 		if ( is_string( $group_permalink ) && '' !== $group_permalink ) {
 			$delete_redirect = trailingslashit( $group_permalink ) . 'events/';
 		}
+	} elseif ( Event_Post_Type::SCOPE_PLAYER === $scope_ev && function_exists( 'clanbite_events_get_player_events_url' ) ) {
+		$player_events_url = clanbite_events_get_player_events_url( (int) $post->post_author );
+		if ( '' !== $player_events_url ) {
+			$delete_redirect = $player_events_url;
+		}
 	}
 	?>
 	<?php if ( $can_manage ) : ?>
@@ -140,7 +186,7 @@ ob_start();
 						array(
 							'blockName' => 'clanbite/event-create-form',
 							'attrs'     => array(
-								'scopeType' => Event_Post_Type::SCOPE_TEAM === $scope_ev ? 'team' : 'group',
+								'scopeType' => Event_Post_Type::SCOPE_PLAYER === $scope_ev ? 'player' : ( Event_Post_Type::SCOPE_TEAM === $scope_ev ? 'team' : 'group' ),
 								'teamId'    => $tid,
 								'groupId'   => $gid,
 								'eventId'   => $event_id,

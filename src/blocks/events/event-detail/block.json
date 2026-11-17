@@ -12,6 +12,10 @@
 		"eventId": {
 			"type": "number",
 			"default": 0
+		},
+		"playerEvents": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"supports": {
