@@ -605,9 +605,9 @@ final class Main {
 		// Copy-to-clipboard (clanbite.clipboard.copy) shared by every extension.
 		wp_register_script(
 			'clanbite-clipboard',
-			$this->url . 'assets/js/clanbite-clipboard.js',
+			$this->url . 'assets/js/clanbite-copy-text.js',
 			array( 'clanbite-components' ),
-			(string) filemtime( $this->path . 'assets/js/clanbite-clipboard.js' ),
+			(string) filemtime( $this->path . 'assets/js/clanbite-copy-text.js' ),
 			true
 		);
 

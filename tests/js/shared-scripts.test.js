@@ -95,7 +95,7 @@ describe( 'popup lifecycle', () => {
 } );
 
 describe( 'clipboard', () => {
-	beforeEach( () => load( 'clanbite-clipboard.js' ) );
+	beforeEach( () => load( 'clanbite-copy-text.js' ) );
 
 	it( 'uses the async clipboard API when it exists', async () => {
 		const writeText = jest.fn().mockResolvedValue();
