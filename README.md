@@ -2,6 +2,42 @@
 
 Clanbite is a community management plugin for gaming teams, clans, and competitive communities.
 
+## Components registry (shared UI that extensions and third parties use)
+
+A component is a piece of UI or behaviour that more than one extension shows (an avatar, reaction chips, the @mention picker). It has one provider; everything else asks the registry instead of calling the provider's functions or building a copy.
+
+```php
+// Provider: register on the action.
+add_action( 'clanbite_register_components', function () {
+	clanbite_register_component( 'reaction-summary', array(
+		'label'    => __( 'Reaction chips', 'my-plugin' ),
+		'provider' => 'my_extension',
+		'version'  => '1.0.0',
+		'requires' => array( 'reactions' ),
+		'render'   => fn( array $args ): string => my_render_chips( $args ),
+		'enqueue'  => fn() => wp_enqueue_style( 'my-chips' ),
+	) );
+} );
+
+// Consumer: no function_exists() on someone else's code.
+if ( clanbite_has_component( 'reaction-summary' ) ) {
+	clanbite_enqueue_component( 'reaction-summary' );
+	echo clanbite_render_component( 'reaction-summary', array( 'surface' => 'forums', /* … */ ) );
+}
+```
+
+- **API:** `clanbite_register_component()`, `clanbite_get_component()`, `clanbite_get_components()`, `clanbite_has_component()` (false when the component or anything in its `requires` is missing), `clanbite_render_component()` (an empty string when unavailable), `clanbite_enqueue_component()` (also enqueues what it requires).
+- **Built in:** `avatar` (`mode`: `static` or `interactive`), `toasts` and `popups` (`clanbite.popups.announce()` / `allowOpen()`: the one implementation of the `clanbite.popup.toggled` action and `clanbite.popup.shouldOpen` filter, used by the user menu, the notification bell and the challenge dialog). Popovers shown by an Interactivity `hidden` binding join in by carrying `data-cp-popup="name"`: the client watches their `hidden` attribute and announces every open and close (the feed and the forums name theirs `reaction-picker`, `reaction-tooltip`, `post-menu`, `share-menu`, `composer-menu` and `forum-post-menu`; the event's `root` is that element). Open paths call `allowOpen()` first, so a `clanbite.popup.shouldOpen` filter can keep any of them closed. Social Kit adds `reactions`, `reaction-summary`, `reaction-picker` and `mentions`.
+- **Replacing one:** register the same slug with `'replace' => true` (or filter `clanbite_components`) and every consumer uses yours.
+- **Hooks:** action `clanbite_register_components`; filters `clanbite_components`, `clanbite_component_available`, `clanbite_component_args` (and `clanbite_component_args_{slug}`), `clanbite_component_html`. Pass `surface` in the arguments so the component adds `is-{surface}` for per-surface styling.
+- **Browser:** `window.clanbite.components` (`register()`, `get()`, `has()`) is the same registry for scripts (`clanbite.components.get( 'reactions' )?.toggle( … )`); handle `clanbite-components`.
+- **Support:** Tools → Site Health → Info lists every component with its provider, version and any missing requirement.
+
+## Tests
+
+- PHP: `php tests/php/run.php` boots WordPress (set `WP_LOAD_PATH` if the plugin is not under `wp-content/plugins`) and checks the components registry, relative time and avatar context. It creates and removes its own data: use a development database. Social Kit has the same runner for the shared reactions service and the comment routes.
+- JavaScript: `npx wp-scripts test-unit-js tests/js` covers the shared browser scripts (components registry, popups, clipboard; Social Kit: the reactions client).
+
 ## Development Principles
 - Built for extensibility first.
 - Uses modern WordPress APIs and coding standards.
@@ -94,6 +130,9 @@ document.addEventListener( 'clanbite:admin-integration-mount', ( event ) => {
 The mount event can fire **more than once for the same element** (React re-runs the container's effect), and the matching unmount arrives while React is still committing. Mount idempotently (keep one root per element) and unmount on a later tick; see `clanbite-ranks/inc/Extension/ranks-management.js` for a worked example, and `Ranks_Management` for the REST side. The active view is stored in the URL (`admin.php?page=clanbite&tab=ext-my_extension&view=reports`), so it survives refresh and can be linked. `clanbite_register_admin_sub_tab()` wraps the `clanbite_admin_rest_sub_tabs` filter `( $sub_tabs, $tab_id, $tab )`; use the filter directly when you need the tab descriptor. A tab can rename its own first entry with a `settingsLabel` key (via `clanbite_admin_rest_tabs`).
 
 **No script needed for plain settings.** Instead of `slotId`, pass `sectionGroups` and the admin screen renders the fields itself, with a Save button per group: `'sectionGroups' => array( array( 'kind' => 'primary', 'name' => 'Reports', 'slug' => 'reports', 'optionKey' => 'my_addon_reports', 'sections' => $handler->export_rest_schema() ) )`. The option must be registered through `clanbite_admin_rest_settings_registry`. Core uses this for the **Messages** sub-tab on every extension tab.
+
+### Avatar and cover positioning
+Player settings → Profile shows a header preview (cover with the shared avatar on it) and two buttons, **Set avatar** and **Set cover image**. Each opens a popup with the image picker, a draggable focal point, a zoom slider (the preview uses the same maths as the server), **Reset position** and **Remove image** (back to the site default); a new upload starts centred. Extend the popup with `wp.hooks`: action `clanbite.playerMedia.dialog` (`{ kind, dialog, extras, getPosition, setPosition }`, add controls into `extras`) and filter `clanbite.playerMedia.maxZoom`; PHP filter `clanbite_player_media_editor_config` changes the editor data and wording. Class: `Extensions\Players\Player_Media`. Values are saved by the normal settings save through hidden fields (`profile_avatar_focal_x/y`, `profile_avatar_zoom`, `profile_avatar_remove`, `profile_cover_position_x/y`, `profile_cover_zoom`, `profile_cover_remove`). **Cover:** the full image is kept; position and zoom are user meta (`cp_player_cover_position_x/y`, `cp_player_cover_zoom`) applied as `object-position` plus a scale around the focal point (`clanbite_players_get_display_cover_zoom()`). **Avatar:** avatars are drawn in many places from a plain URL, so the chosen square is cut from the original (512 px) and saved as the avatar (`cp_player_avatar_id`); the original stays as `cp_player_avatar_source_id` with the focal data. Hooks: `clanbite_player_avatar_removed`, `clanbite_player_cover_removed`, filters `clanbite_players_get_display_cover_zoom` and `clanbite_player_settings_success_data`.
 
 ### Where members land after signing in
 Clanbite → General → **Login → After signing in, send members to**: *the dashboard* (WordPress' default, unchanged), *the home page*, or *a custom page* (a full address or a path such as `/members/`; addresses on other hosts are ignored). Only a plain sign-in from the login page is redirected: when the login request already has a `redirect_to` (a visitor was bounced from a protected page, or opened `/wp-admin/`), that destination is kept. Options live in `clanbite_general_settings` (`login_redirect`, `login_redirect_url`). Developers can vary the destination per user with the filter `clanbite_login_redirect_url` (return an empty string to fall back to the default).
@@ -1533,6 +1572,7 @@ Third-party plugins can register additional types via the `clanbite_notification
 All avatars (player, team, group; server-rendered or Interactivity) go through `clanbite_render_avatar()` / `clanbite_render_avatar_for_interactivity()` and share the `clanbite-avatars` stylesheet (frame, XP ring, level badge).
 
 - `clanbite_avatar_data` (plus `clanbite_{type}_avatar_data` and `clanbite_avatar_data_{context}`): filter the resolved `shape`, `show_ring`, `show_badge` before markup is built. Runs in both render modes; `$args['mode']` is `static` or `interactive`.
+- **Context for every avatar.** Whatever renders an avatar (core or an extension) passes through `clanbite_avatar_resolve_context()`, so every `clanbite_avatar_*` filter and action receives the same `$args`: `type`, `id`, `size`, `context` (the surface, e.g. `social_feed`, `forum`, `group_profile_header`), `viewer_id` (defaults to the current user), `is_viewer` (the viewer is this avatar's own player), `object_type` / `object_id` (the post, reply, notification, activity… it sits in), `extension` (the plugin that rendered it, e.g. `cp_social_kit`) and `context_data` (free-form array for anything else). Filter `clanbite_avatar_args` to change them before the avatar is built. Extensions must not draw their own avatar `<img>`: call `clanbite_render_avatar()` (or `_for_interactivity()`) with these keys so third parties can change every avatar in one place.
 - `clanbite_avatar_classes`, `clanbite_avatar_img_attributes`, `clanbite_avatar_html` (and `_{context}` / type variants) apply to both modes. The `clanbite_avatar_interactivity_*` filters are kept for back-compat and fire afterwards.
 - Ring and badge values: `clanbite_get_avatar_badge()` (filter `clanbite_avatar_badge`), supplied by Ranks via `clanbite_ranks_get_avatar_badge()`.
 - Pass a `context` (`forum`, `social_feed`, `user_nav`, `profile`, …) so integrators can target the surface.

@@ -569,10 +569,11 @@ add_action( 'init', 'clanbite_register_player_notifications_page_assets', 20 );
  *
  * @since 1.6.2
  *
- * @param int $user_id Actor user ID.
+ * @param int $user_id         Actor user ID.
+ * @param int $notification_id Notification the avatar sits in (passed to avatar filters as `object_id`); 0 when unknown.
  * @return string Sanitised HTML, or an empty string when the avatar system is unavailable.
  */
-function clanbite_notification_actor_avatar_html( int $user_id ): string {
+function clanbite_notification_actor_avatar_html( int $user_id, int $notification_id = 0 ): string {
 	if ( $user_id < 1 || ! function_exists( 'clanbite_render_avatar' ) ) {
 		return '';
 	}
@@ -582,12 +583,28 @@ function clanbite_notification_actor_avatar_html( int $user_id ): string {
 			array(
 				'type'    => 'player',
 				'id'      => $user_id,
-				'size'    => 'small',
-				'context' => 'notifications',
+				'size'        => 'small',
+				'context'     => 'notifications',
+				'object_type' => 'notification',
+				'object_id'   => $notification_id,
+				'extension'   => 'cp_notifications',
 			)
 		),
 		clanbite_notification_allowed_html()
 	);
+}
+
+/**
+ * Remove the line breaks between tags in notification markup.
+ *
+ * Block themes run shortcode output through `wpautop`, which turns those line breaks into empty paragraphs (`<p></p>`) inside flex
+ * rows and headers and breaks the layout. Spaces on the same line are kept, so inline text is unchanged.
+ *
+ * @param string $html Markup built with output buffering.
+ * @return string
+ */
+function clanbite_notifications_compact_html( string $html ): string {
+	return trim( (string) preg_replace( '/>\s*[\r\n]+\s*</', '><', $html ) );
 }
 
 /**
@@ -705,7 +722,7 @@ function clanbite_render_notification( object $notification, bool $compact = fal
 		<?php endif; ?>
 	</div>
 	<?php
-	$html = ob_get_clean();
+	$html = clanbite_notifications_compact_html( (string) ob_get_clean() );
 
 	/**
 	 * Filter the rendered notification HTML.
@@ -811,7 +828,7 @@ function clanbite_render_player_notifications_page_markup(): string {
 		<?php endif; ?>
 	</div>
 	<?php
-	$html = (string) ob_get_clean();
+	$html = clanbite_notifications_compact_html( (string) ob_get_clean() );
 
 	/**
 	 * Filter the full notifications subpage markup.

@@ -3,7 +3,7 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
- * Version: 1.6.2
+ * Version: 1.6.3
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
@@ -59,6 +59,8 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 // Loaded here only (not via Composer's `files`), so it works with a stale vendor/ and is never declared twice.
 require_once __DIR__ . '/inc/admin/functions.php';
 require_once __DIR__ . '/inc/toasts.php';
+require_once __DIR__ . '/inc/components.php';
+require_once __DIR__ . '/inc/functions-time.php';
 require_once __DIR__ . '/inc/messages.php';
 require_once __DIR__ . '/inc/updates/functions.php';
 
@@ -72,7 +74,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.6.2';
+	public const VERSION = '1.6.3';
 
 	/**
 	 * Maintenance upgrade counter (single step for 1.0.0 public release).
@@ -580,6 +582,33 @@ final class Main {
 			$this->url . 'assets/css/clanbite-toasts.css',
 			array( 'clanbite-tokens' ),
 			self::VERSION
+		);
+
+		// The browser half of the components registry (window.clanbite.components); extension scripts list it as a dependency.
+		wp_register_script(
+			'clanbite-components',
+			$this->url . 'assets/js/clanbite-components.js',
+			array( 'wp-hooks' ),
+			(string) filemtime( $this->path . 'assets/js/clanbite-components.js' ),
+			true
+		);
+
+		// Popup lifecycle (clanbite.popup.toggled / clanbite.popup.shouldOpen) in one place; see clanbite_register_core_components().
+		wp_register_script(
+			'clanbite-popups',
+			$this->url . 'assets/js/clanbite-popups.js',
+			array( 'wp-hooks', 'clanbite-components' ),
+			(string) filemtime( $this->path . 'assets/js/clanbite-popups.js' ),
+			true
+		);
+
+		// Copy-to-clipboard (clanbite.clipboard.copy) shared by every extension.
+		wp_register_script(
+			'clanbite-clipboard',
+			$this->url . 'assets/js/clanbite-copy-text.js',
+			array( 'clanbite-components' ),
+			(string) filemtime( $this->path . 'assets/js/clanbite-copy-text.js' ),
+			true
 		);
 
 		wp_register_script(

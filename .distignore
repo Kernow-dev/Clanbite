@@ -35,3 +35,4 @@ vendor/wp-coding-standards/
 /VERSION-FIXES.md
 /HOOKS.md
 /DESIGN-SYSTEM.md
+tests/

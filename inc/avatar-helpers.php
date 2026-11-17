@@ -138,6 +138,40 @@ function clanbite_avatar_filter_data( array $data, array $args ): array {
 }
 
 /**
+ * Complete an avatar's arguments with who is looking and where it is shown.
+ *
+ * Every Clanbite avatar, from core or from an extension, passes through here, so every `clanbite_avatar_*` filter and action
+ * receives the same facts: `context` (the surface, e.g. `social_feed`), `viewer_id` and `is_viewer` (is the viewer the avatar's own
+ * player), `object_type` / `object_id` (the post, reply, notification… it sits in), `extension` (the plugin rendering it) and
+ * `context_data` (anything else a developer wants to hand to a filter).
+ *
+ * @param array<string, mixed> $args Avatar arguments after defaults.
+ * @return array<string, mixed> The arguments with `viewer_id`, `is_viewer`, `object_type`, `object_id`, `extension` and `context_data` normalised.
+ */
+function clanbite_avatar_resolve_context( array $args ): array {
+	$viewer_id = isset( $args['viewer_id'] ) && is_numeric( $args['viewer_id'] ) ? absint( $args['viewer_id'] ) : get_current_user_id();
+	$id        = isset( $args['id'] ) ? absint( $args['id'] ) : 0;
+	$type      = isset( $args['type'] ) ? (string) $args['type'] : 'player';
+
+	$args['viewer_id']    = $viewer_id;
+	$args['is_viewer']    = 'player' === $type && $id > 0 && $viewer_id === $id;
+	$args['object_type']  = isset( $args['object_type'] ) ? sanitize_key( (string) $args['object_type'] ) : '';
+	$args['object_id']    = isset( $args['object_id'] ) ? absint( $args['object_id'] ) : 0;
+	$args['extension']    = isset( $args['extension'] ) ? sanitize_key( (string) $args['extension'] ) : '';
+	$args['context_data'] = isset( $args['context_data'] ) && is_array( $args['context_data'] ) ? $args['context_data'] : array();
+
+	/**
+	 * Filters an avatar's arguments before it is built, in both render modes.
+	 *
+	 * Use it to add context for the other `clanbite_avatar_*` filters or to change how one avatar renders, for example to force a
+	 * smaller size in a surface you own. Keep the keys documented on {@see clanbite_render_avatar()}.
+	 *
+	 * @param array<string, mixed> $args Avatar arguments including `type`, `id`, `size`, `context`, `viewer_id`, `is_viewer`, `object_type`, `object_id`, `extension` and `context_data`.
+	 */
+	return (array) apply_filters( 'clanbite_avatar_args', $args );
+}
+
+/**
  * Render a complete avatar with all wrappers, shape classes, and optional overlays.
  *
  * This is the main function that should be used for ALL avatar rendering across
@@ -158,6 +192,11 @@ function clanbite_avatar_filter_data( array $data, array $args ): array {
  *                                    Ranks settings enable it for this avatar's player. False forces it off.
  *     @type bool|null $show_progress Show the XP ring around the avatar. Default null: automatic, shown when a Ranks
  *                                    ladder has "Show progress on avatar" enabled. False forces it off.
+ *     @type int    $viewer_id      Who is looking at the avatar. Default: the current user (0 for guests).
+ *     @type string $object_type    What the avatar is shown in, e.g. 'post', 'reply', 'notification', 'activity', 'topic', 'card'.
+ *     @type int    $object_id      ID of that object (post, reply, notification…), 0 when there is none.
+ *     @type string $extension      Slug of the extension that renders it (e.g. 'cp_social_kit'), so filters can target a plugin.
+ *     @type array  $context_data   Any extra facts a filter may need (forum ID, team ID, feed type…). Never printed.
  * }
  * @return string HTML markup.
  */
@@ -176,9 +215,14 @@ function clanbite_render_avatar( array $args ): string {
 		'extra_classes' => array(),
 		'show_rank'     => null,
 		'show_progress' => null,
+		'viewer_id'     => null,
+		'object_type'   => '',
+		'object_id'     => 0,
+		'extension'     => '',
+		'context_data'  => array(),
 	);
 
-	$args = wp_parse_args( $args, $defaults );
+	$args = clanbite_avatar_resolve_context( wp_parse_args( $args, $defaults ) );
 
 	// Validate type.
 	if ( ! in_array( $args['type'], array( 'player', 'team', 'group' ), true ) ) {
@@ -223,6 +267,10 @@ function clanbite_render_avatar( array $args ): string {
 		'clanbite-avatar--shape-' . $shape,
 		'clanbite-avatar--' . sanitize_html_class( $args['size'] ),
 	);
+	// Where the avatar is shown, as `is-{context}` (e.g. `is-social-feed`, `is-forum`) so each surface can style it on its own.
+	if ( ! empty( $args['context'] ) ) {
+		$classes[] = 'is-' . sanitize_html_class( str_replace( '_', '-', (string) $args['context'] ) );
+	}
 	if ( $has_ring ) {
 		$classes[] = 'clanbite-avatar--has-ring';
 	}
@@ -660,6 +708,11 @@ function clanbite_build_html_attributes( array $attrs ): string {
  *     @type bool   $show_rank_icons Legacy: include the rank icon stack template. Default false.
  *     @type string $rank_icons_path data-wp-each path for rank icons.
  *     @type string $rank_icons_hide data-wp-bind--hidden for rank icons.
+ *     @type int    $viewer_id      Who is looking at the avatar. Default: the current user (0 for guests).
+ *     @type string $object_type    What the avatar is shown in, e.g. 'post', 'reply', 'notification', 'activity', 'topic', 'card'.
+ *     @type int    $object_id      ID of that object (post, reply, notification…), 0 when there is none.
+ *     @type string $extension      Slug of the extension that renders it (e.g. 'cp_social_kit'), so filters can target a plugin.
+ *     @type array  $context_data   Any extra facts a filter may need (forum ID, team ID, feed type…). Never printed.
  * }
  * @return string HTML markup with Interactivity API directives.
  */
@@ -680,9 +733,14 @@ function clanbite_render_avatar_for_interactivity( array $args ): string {
 		'show_rank_icons' => false,
 		'rank_icons_path' => '',
 		'rank_icons_hide' => '',
+		'viewer_id'       => null,
+		'object_type'     => '',
+		'object_id'       => 0,
+		'extension'       => '',
+		'context_data'    => array(),
 	);
 
-	$args = wp_parse_args( $args, $defaults );
+	$args = clanbite_avatar_resolve_context( wp_parse_args( $args, $defaults ) );
 
 	$args['mode'] = 'interactive';
 
@@ -704,6 +762,10 @@ function clanbite_render_avatar_for_interactivity( array $args ): string {
 		'clanbite-avatar--shape-' . $shape,
 		'clanbite-avatar--' . sanitize_html_class( (string) $args['size'] ),
 	);
+
+	if ( ! empty( $args['context'] ) ) {
+		$classes[] = 'is-' . sanitize_html_class( str_replace( '_', '-', (string) $args['context'] ) );
+	}
 
 	if ( ! empty( $args['extra_classes'] ) ) {
 		$classes = array_merge( $classes, (array) $args['extra_classes'] );
@@ -951,6 +1013,10 @@ function clanbite_avatar_hexagon_points( float $radius ): string {
 			$points[] = round( $cx + $corner * cos( $a ), 2 ) . ',' . round( $cy + $corner * sin( $a ), 2 );
 		}
 	}
+
+	// Start at the apex of the top corner (the middle of its arc), so the progress arc begins exactly at 12 o'clock like the circle's
+	// and the square's, instead of at the left end of the rounded corner.
+	$points = array_merge( array_slice( $points, 3 ), array_slice( $points, 0, 3 ) );
 
 	return implode( ' ', $points );
 }

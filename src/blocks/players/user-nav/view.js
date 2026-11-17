@@ -8,51 +8,13 @@
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
 /**
- * Popup lifecycle hooks shared by every Clanbite popup (user menu, notification bell, challenge dialog, …).
- *
- * - `clanbite.popup.toggled` (action): fires whenever the popup opens or closes, however it was triggered.
- *   Receives `{ name, open, root }`.
- * - `clanbite.popup.shouldOpen` (filter): return `false` to stop a popup from opening. Receives `true`, `{ name, root }`.
+ * Popup lifecycle (`clanbite.popup.toggled`, `clanbite.popup.shouldOpen`) comes from the shared popups client
+ * (`window.clanbite.popups`, component `popups`), so every Clanbite popup reports and can be vetoed the same way.
  */
-const popupLast = new WeakMap();
-
-function announcePopup( name, open, root ) {
-	if ( ! root ) {
-		return;
-	}
-	const seen = popupLast.has( root );
-	const previous = popupLast.get( root );
-	popupLast.set( root, open );
-	// The first run only records the server-rendered state; it is not a toggle.
-	if ( seen && previous !== open ) {
-		/**
-		 * Fires whenever a Clanbite popup (user menu, notification bell, challenge dialog) opens or closes, however it was triggered.
-		 *
-		 * @param {{ name: string, open: boolean, root: Element }} detail `name` identifies the popup (`user-nav`, `notification-bell`, `team-challenge`); `root` is its block element.
-		 */
-		window.wp?.hooks?.doAction?.( 'clanbite.popup.toggled', {
-			name,
-			open,
-			root,
-		} );
-	}
-}
-
-function allowPopupOpen( name, root ) {
-	return (
-		false !==
-		/**
-		 * Filters whether a Clanbite popup may open. Return `false` to keep it closed.
-		 *
-		 * @param {boolean}                         allow  Default `true`.
-		 * @param {{ name: string, root: Element }} detail `name` identifies the popup; `root` is its block element.
-		 */
-		window.wp?.hooks?.applyFilters?.( 'clanbite.popup.shouldOpen', true, {
-			name,
-			root,
-		} )
-	);
-}
+const announcePopup = ( name, open, root ) =>
+	window.clanbite?.popups?.announce( name, open, root );
+const allowPopupOpen = ( name, root ) =>
+	window.clanbite?.popups?.allowOpen( name, root ) !== false;
 
 const ITEM_SELECTOR = '[role="menuitem"]';
 

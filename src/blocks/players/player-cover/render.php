@@ -32,6 +32,13 @@ $background_position_y = round( clanbite_players_get_display_cover_position_y( $
 
 $object_position = $background_position_x . ' ' . $background_position_y;
 
+// Zoom (1 to 4) scales the image around the same focal point; the clip around it hides the overflow.
+$cover_zoom  = clanbite_players_get_display_cover_zoom( $user_id );
+$cover_style = 'object-position: ' . $object_position . ';';
+if ( $cover_zoom > 1.0 ) {
+	$cover_style .= ' transform: scale(' . round( $cover_zoom, 3 ) . '); transform-origin: ' . $object_position . ';';
+}
+
 $position = $attributes['contentPosition'] ?? 'center center';
 
 // Map human-readable 'bottom center' -> 'is-position-bottom-center'.
@@ -93,7 +100,7 @@ ob_start();
 	<div class="clanbite-cover__media-clip">
 		<img
 			class="clanbite-cover__media"
-			style="object-position: <?php echo esc_attr( $object_position ); ?>;"
+			style="<?php echo esc_attr( $cover_style ); ?>"
 			src="<?php echo esc_url( $cover_image ); ?>"
 			alt="<?php echo esc_attr( $cover_alt ); ?>"
 			loading="lazy"

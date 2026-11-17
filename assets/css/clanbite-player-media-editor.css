@@ -1,0 +1,320 @@
+/*
+ * Avatar and cover editor (Player settings → Profile): the header preview, the two buttons, and the popup.
+ * Colours come from the theme-adaptive Clanbite tokens.
+ */
+
+/* Header preview: the cover with the shared avatar on it, and the two buttons on the picture. */
+.cp-media-editor {
+	margin-bottom: 1rem;
+}
+
+.cp-media-editor .cp-media-header {
+	position: relative;
+	margin-bottom: 4.25rem;
+}
+
+.cp-media-editor .cp-media-header.is-no-cover {
+	margin-bottom: 1rem;
+}
+
+.cp-media-editor .cp-media-header__cover {
+	position: relative;
+	aspect-ratio: var(--cp-media-cover-ratio, 4 / 1);
+	overflow: hidden;
+	border: 1px solid var(--clanbite-border, rgb(0 0 0 / 15%));
+	border-radius: 12px;
+	background: var(--clanbite-surface-alt, rgb(0 0 0 / 8%));
+}
+
+.cp-media-editor .cp-media-header__cover img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.cp-media-editor .cp-media-header__avatar {
+	position: absolute;
+	bottom: -3rem;
+	left: 1.5rem;
+	display: flex;
+	align-items: flex-end;
+	gap: 1rem;
+	line-height: 0;
+}
+
+/* Same size as the avatar in the player profile header, so what you set here is what visitors see. */
+.cp-media-editor .cp-media-header__avatar .clanbite-avatar {
+	--clanbite-avatar-size: 168px;
+}
+
+.cp-media-editor .cp-media-header.is-no-cover .cp-media-header__avatar {
+	position: static;
+}
+
+/* The buttons: small, calm pills that are readable on any picture. */
+.cp-media-editor .cp-media-header__button {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.4rem 0.85rem;
+	border: 1px solid rgb(255 255 255 / 35%);
+	border-radius: 999px;
+	background: rgb(0 0 0 / 55%);
+	color: #fff;
+	font: inherit;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	line-height: 1.2;
+	cursor: pointer;
+	backdrop-filter: blur(4px);
+	transition: background 0.15s ease;
+}
+
+.cp-media-editor .cp-media-header__button:hover,
+.cp-media-editor .cp-media-header__button:focus-visible {
+	background: rgb(0 0 0 / 75%);
+}
+
+.cp-media-editor .cp-media-header__button:focus-visible {
+	outline: 2px solid var(--clanbite-accent, Highlight);
+	outline-offset: 2px;
+}
+
+.cp-media-editor .cp-media-header__button--cover {
+	position: absolute;
+	top: 0.75rem;
+	right: 0.75rem;
+}
+
+/* The avatar button sits beside the avatar, under the banner. */
+.cp-media-editor .cp-media-header__button--avatar {
+	margin-bottom: 0.25rem;
+	border-color: var(--clanbite-border, rgb(0 0 0 / 25%));
+	background: var(--clanbite-surface-alt, rgb(0 0 0 / 8%));
+	color: inherit;
+	backdrop-filter: none;
+}
+
+.cp-media-editor .cp-media-header__button--avatar:hover,
+.cp-media-editor .cp-media-header__button--avatar:focus-visible {
+	background: color-mix(in srgb, currentcolor 12%, transparent);
+}
+
+.cp-media-editor .cp-media-note {
+	margin: 0.5rem 0 0;
+	color: var(--clanbite-muted, currentcolor);
+}
+
+/* ------------------------------------------------------------------ Popup */
+
+.cp-media-dialog {
+	position: fixed;
+	inset: 0;
+	z-index: 100002;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+	background: rgb(0 0 0 / 55%);
+}
+
+.cp-media-dialog__panel {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	width: min(680px, 100%);
+	max-height: calc(100vh - 32px);
+	overflow-y: auto;
+	padding: 20px 22px;
+	background: var(--clanbite-surface, #fff);
+	color: var(--clanbite-on-surface, currentcolor);
+	border: 1px solid var(--clanbite-border, rgb(0 0 0 / 15%));
+	border-radius: 12px;
+	box-shadow: 0 20px 48px rgb(0 0 0 / 35%);
+}
+
+.cp-media-dialog__title {
+	margin: 0;
+	font-size: 1.15rem;
+}
+
+.cp-media-dialog__help {
+	margin: 0;
+	opacity: 0.7;
+	font-size: 0.8125rem;
+}
+
+.cp-media-dialog__body {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 18px;
+}
+
+.cp-media-stage {
+	position: relative;
+	flex: 1 1 300px;
+	min-width: 0;
+	cursor: crosshair;
+	touch-action: none;
+	user-select: none;
+	line-height: 0;
+}
+
+.cp-media-stage img {
+	display: block;
+	width: 100%;
+	max-height: 320px;
+	object-fit: contain;
+	border-radius: 6px;
+}
+
+.cp-media-stage__dot {
+	position: absolute;
+	width: 26px;
+	height: 26px;
+	padding: 0;
+	margin: -13px 0 0 -13px;
+	border: 3px solid #fff;
+	border-radius: 50%;
+	background: rgb(0 0 0 / 25%);
+	box-shadow: 0 0 0 1px rgb(0 0 0 / 55%), 0 2px 6px rgb(0 0 0 / 45%);
+	cursor: grab;
+}
+
+.cp-media-stage.is-dragging .cp-media-stage__dot {
+	cursor: grabbing;
+}
+
+.cp-media-stage__dot:focus-visible {
+	outline: 2px solid var(--clanbite-accent, Highlight);
+	outline-offset: 2px;
+}
+
+.cp-media-stage__empty {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	min-height: 180px;
+	margin: 0;
+	padding: 16px;
+	border: 2px dashed var(--clanbite-border, rgb(0 0 0 / 25%));
+	border-radius: 8px;
+	text-align: center;
+	line-height: 1.4;
+	opacity: 0.8;
+}
+
+.cp-media-stage.is-empty {
+	cursor: default;
+}
+
+.cp-media-stage.is-empty img {
+	display: none;
+}
+
+.cp-media-stage.is-empty .cp-media-stage__empty {
+	display: flex;
+}
+
+.cp-media-preview {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.cp-media-dialog__body.is-cover .cp-media-preview {
+	flex: 1 1 100%;
+}
+
+.cp-media-preview__label {
+	opacity: 0.7;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.cp-media-preview__frame {
+	overflow: hidden;
+	background: var(--clanbite-border, rgb(0 0 0 / 12%));
+}
+
+.cp-media-preview__frame.is-avatar {
+	width: 160px;
+	height: 160px;
+	border-radius: 50%;
+}
+
+/* The popup shows the avatar in the shape the site uses. */
+.cp-media-preview__frame.is-avatar[data-shape="hexagon"] {
+	border-radius: 0;
+	clip-path: polygon(50% 1.5%, 93.3% 25%, 93.3% 75%, 50% 98.5%, 6.7% 75%, 6.7% 25%);
+}
+
+.cp-media-preview__frame.is-avatar[data-shape="rounded"],
+.cp-media-preview__frame.is-avatar[data-shape="rounded-square"] {
+	border-radius: 22%;
+}
+
+.cp-media-preview__frame.is-avatar[data-shape="square"] {
+	border-radius: 0;
+}
+
+.cp-media-preview__frame.is-cover {
+	width: 100%;
+	aspect-ratio: var(--cp-media-cover-ratio, 4 / 1);
+	border-radius: 8px;
+}
+
+.cp-media-preview__avatar {
+	flex: 0 0 auto;
+}
+
+.cp-media-preview__frame img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.cp-media-dialog__controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+}
+
+.cp-media-dialog__zoom {
+	display: flex;
+	flex: 1 1 220px;
+	align-items: center;
+	gap: 12px;
+	font-weight: 600;
+}
+
+.cp-media-dialog__zoom input[type="range"] {
+	flex: 1 1 auto;
+}
+
+.cp-media-dialog__extras:empty {
+	display: none;
+}
+
+.cp-media-dialog__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	padding-top: 4px;
+	border-top: 1px solid var(--clanbite-border, rgb(0 0 0 / 12%));
+}
+
+.cp-media-dialog__spacer {
+	flex: 1 1 auto;
+}
+
+.cp-media-dialog__remove {
+	color: var(--clanbite-danger, #b32d2e);
+}

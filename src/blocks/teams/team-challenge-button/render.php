@@ -20,6 +20,9 @@ if ( $team_id < 1 ) {
 	return;
 }
 
+// The shared popup lifecycle client (hooks `clanbite.popup.toggled` / `clanbite.popup.shouldOpen`).
+clanbite_enqueue_component( 'popups' );
+
 $team_post = get_post( $team_id );
 if ( ! $team_post instanceof WP_Post || 'publish' !== $team_post->post_status ) {
 	return;
