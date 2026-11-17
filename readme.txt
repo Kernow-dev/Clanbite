@@ -85,7 +85,16 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 == Changelog ==
 
 = 1.6.3 =
-* Players can position their avatar and cover image: in Player settings → Profile, choose which part of a large image is shown with a draggable focal point and a zoom slider, reset the position, or remove the image to go back to the default. The avatar is cut to the chosen square and kept alongside the original so it can be repositioned later.
+* Players can choose which part of their avatar and cover image is shown: in Player settings → Profile, "Set avatar" and "Set cover image" open a popup where you choose an image, drag the focal point, zoom, reset the position or remove the image to go back to the default. The avatar is cut to the chosen square (the original is kept so you can reposition it later). Developers can add their own controls to the popup (see the README).
+* Components registry: avatars, popups, clipboard, relative time and the extensions' own pieces (reactions, @mentions) are registered once and used by every extension, so third parties change them in one place. See the README (clanbite_register_component(), clanbite_render_component(), window.clanbite.components).
+* Avatars carry where they are shown (a class such as is-forum or is-social-feed) and who is looking, for per-surface styling and filters (clanbite_avatar_args).
+* Popups share one lifecycle: clanbite.popup.toggled and clanbite.popup.shouldOpen now cover the user menu, notification bell, challenge dialog and the feed and forum menus and pickers.
+* Relative time ("5 minutes ago") is built in one place with a filter (clanbite_human_time_ago).
+* Social links on player profiles show the correct icons again (Steam, Facebook, X, Instagram, Discord, TikTok, Bluesky, Reddit, Mastodon).
+* Fix: the avatar saved from the position popup is shown correctly instead of an older cached picture.
+* Fix: the XP ring around a hexagon avatar starts at the top (12 o'clock) instead of at the left of the top corner, and no longer animates on page load.
+* Fix: avatars no longer cover popups that open above them (reaction tooltips over the friends card).
+* Fix: the player notifications page layout (the "Mark all as read" button and each notification) is no longer broken by stray paragraphs.
 
 = 1.6.2 =
 * Notifications now show the same avatar as the rest of the site (shape, XP ring and rank badge), in the bell and on the notifications page.

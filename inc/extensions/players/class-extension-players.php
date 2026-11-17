@@ -1960,10 +1960,13 @@ class Players extends Skeleton {
 	 * @return array<string, mixed>
 	 */
 	private function media_editor_config( int $user_id, array $media, string $avatar, string $cover ): array {
-		wp_enqueue_style( 'clanbite-player-media-editor', clanbite()->url . 'assets/css/clanbite-player-media-editor.css', array(), \Kernowdev\Clanbite\Main::VERSION );
-		wp_enqueue_script( 'clanbite-player-media-editor', clanbite()->url . 'assets/js/clanbite-player-media-editor.js', array( 'wp-i18n' ), \Kernowdev\Clanbite\Main::VERSION, true );
+		// File times as versions: the editor files change between releases of the same version number, and a stale cached copy would break the popup.
+		$css_ver = (string) ( @filemtime( clanbite()->path . 'assets/css/clanbite-player-media-editor.css' ) ?: \Kernowdev\Clanbite\Main::VERSION ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A missing file falls back to the plugin version.
+		$js_ver  = (string) ( @filemtime( clanbite()->path . 'assets/js/clanbite-player-media-editor.js' ) ?: \Kernowdev\Clanbite\Main::VERSION ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A missing file falls back to the plugin version.
+		wp_enqueue_style( 'clanbite-player-media-editor', clanbite()->url . 'assets/css/clanbite-player-media-editor.css', array(), $css_ver );
+		wp_enqueue_script( 'clanbite-player-media-editor', clanbite()->url . 'assets/js/clanbite-player-media-editor.js', array( 'wp-i18n' ), $js_ver, true );
 
-		return array(
+		$config = array(
 			'state'          => $media + array(
 				'avatarUrl' => $avatar,
 				'coverUrl'  => $cover,
@@ -1972,21 +1975,34 @@ class Players extends Skeleton {
 			'defaultCover'   => function_exists( 'clanbite_players_get_default_cover' ) ? (string) clanbite_players_get_default_cover( $user_id ) : '',
 			'maxZoom'        => Player_Media::MAX_ZOOM,
 			'i18n'           => array(
-				'avatarTitle'   => __( 'Position your avatar', 'clanbite' ),
-				'coverTitle'    => __( 'Position your cover image', 'clanbite' ),
+				'avatarTitle'   => __( 'Your avatar', 'clanbite' ),
+				'coverTitle'    => __( 'Your cover image', 'clanbite' ),
 				'help'          => __( 'Drag the dot to choose which part of the image is shown. Use the slider to zoom in.', 'clanbite' ),
+				'noImage'       => __( 'No image yet. Choose one to get started.', 'clanbite' ),
+				'choose'        => __( 'Choose image…', 'clanbite' ),
+				'change'        => __( 'Change image…', 'clanbite' ),
 				'focalLabel'    => __( 'Focal point', 'clanbite' ),
 				'zoomLabel'     => __( 'Zoom', 'clanbite' ),
 				'previewLabel'  => __( 'Preview', 'clanbite' ),
 				'reset'         => __( 'Reset position', 'clanbite' ),
+				'remove'        => __( 'Remove image', 'clanbite' ),
+				'confirmRemove' => __( 'Click again to remove', 'clanbite' ),
 				'cancel'        => __( 'Cancel', 'clanbite' ),
 				'apply'         => __( 'Apply', 'clanbite' ),
-				'applied'       => __( 'Position set. Press “Save changes” to keep it.', 'clanbite' ),
-				'confirmRemove' => __( 'Click again to remove', 'clanbite' ),
+				'applied'       => __( 'Done. Press “Save changes” to keep it.', 'clanbite' ),
 				'removed'       => __( 'The default image will be used. Press “Save changes” to confirm.', 'clanbite' ),
-				'chosen'        => __( 'New image chosen. Use “Position” to adjust it, then press “Save changes”.', 'clanbite' ),
 			),
 		);
+
+		/**
+		 * Filters the data the avatar and cover editor popup works with (image addresses, positions, defaults and wording).
+		 *
+		 * @since 1.6.3
+		 *
+		 * @param array<string, mixed> $config  Editor configuration (`state`, `defaultAvatar`, `defaultCover`, `maxZoom`, `i18n`).
+		 * @param int                  $user_id Player.
+		 */
+		return (array) apply_filters( 'clanbite_player_media_editor_config', $config, $user_id );
 	}
 
 	/**
@@ -2024,52 +2040,44 @@ class Players extends Skeleton {
 
 		if ( $avatars_enabled || $covers_enabled ) :
 			?>
-		<div class="settings-row cp-media-editor" data-cp-media-editor="<?php echo esc_attr( (string) wp_json_encode( $this->media_editor_config( $user_id, $media, (string) $user_avatar, (string) $user_cover ) ) ); ?>">
-			<div class="avatar-cover-preview">
+		<div class="cp-media-editor" data-cp-media-editor="<?php echo esc_attr( (string) wp_json_encode( $this->media_editor_config( $user_id, $media, (string) $user_avatar, (string) $user_cover ) ) ); ?>">
+			<div class="cp-media-header<?php echo $covers_enabled ? '' : ' is-no-cover'; ?>">
 				<?php if ( $covers_enabled ) : ?>
-					<div class="cover-preview"><img class="cp-media-preview__img" src="<?php echo esc_url( $user_cover ); ?>" alt="" style="<?php echo esc_attr( $cover_css ); ?>"></div>
+					<div class="cp-media-header__cover cover-preview">
+						<img class="cp-media-preview__img" src="<?php echo esc_url( $user_cover ); ?>" alt="" style="<?php echo esc_attr( $cover_css ); ?>">
+						<button type="button" class="cp-media-header__button cp-media-header__button--cover" data-cp-media-open="cover"><?php esc_html_e( 'Set cover image', 'clanbite' ); ?></button>
+					</div>
 				<?php endif; ?>
 				<?php if ( $avatars_enabled ) : ?>
-					<div class="avatar-preview"><img class="cp-media-preview__img" src="<?php echo esc_url( $user_avatar ); ?>" alt=""></div>
+					<div class="cp-media-header__avatar avatar-preview">
+						<?php
+						if ( function_exists( 'clanbite_render_avatar' ) ) {
+							// The shared avatar (shape, ring, badge), so the preview is the avatar as the site draws it.
+							echo clanbite_render_avatar( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Markup built and escaped by the core avatar helper.
+								array(
+									'type'    => 'player',
+									'id'      => $user_id,
+									'size'    => 'large',
+									'context' => 'profile_settings',
+								)
+							);
+						} else {
+							echo '<img class="cp-media-preview__img" src="' . esc_url( $user_avatar ) . '" alt="">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
+						}
+						?>
+						<button type="button" class="cp-media-header__button cp-media-header__button--avatar" data-cp-media-open="avatar"><?php esc_html_e( 'Set avatar', 'clanbite' ); ?></button>
+					</div>
 				<?php endif; ?>
 			</div>
 			<?php if ( $avatars_enabled ) : ?>
-				<button
-						type="button"
-						class="change-media avatar"
-						data-wp-on--click="actions.selectAvatar"
-				><?php esc_html_e( 'Set avatar', 'clanbite' ); ?></button>
-				<button type="button" class="change-media avatar cp-media-position" data-cp-media-open="avatar" <?php echo $media['hasAvatar'] ? '' : 'hidden'; ?>><?php esc_html_e( 'Position avatar', 'clanbite' ); ?></button>
-				<button type="button" class="change-media avatar cp-media-remove" data-cp-media-remove="avatar" <?php echo $media['hasAvatar'] ? '' : 'hidden'; ?>><?php esc_html_e( 'Remove avatar', 'clanbite' ); ?></button>
-				<input
-						type="file"
-						accept="image/png,image/jpeg"
-						hidden
-						data-wp-on--change="actions.updateAvatar"
-						id="profile-avatar"
-						name="profile_avatar"
-				>
+				<input type="file" accept="image/png,image/jpeg" hidden data-wp-on--change="actions.updateAvatar" id="profile-avatar" name="profile_avatar">
 				<input type="hidden" name="profile_avatar_focal_x" value="<?php echo esc_attr( (string) $media['avatarFocal']['x'] ); ?>">
 				<input type="hidden" name="profile_avatar_focal_y" value="<?php echo esc_attr( (string) $media['avatarFocal']['y'] ); ?>">
 				<input type="hidden" name="profile_avatar_zoom" value="<?php echo esc_attr( (string) $media['avatarFocal']['zoom'] ); ?>">
 				<input type="hidden" name="profile_avatar_remove" value="0">
 			<?php endif; ?>
 			<?php if ( $covers_enabled ) : ?>
-				<button
-						type="button"
-						class="change-media cover"
-						data-wp-on--click="actions.selectCover"
-				><?php esc_html_e( 'Set cover image', 'clanbite' ); ?></button>
-				<button type="button" class="change-media cover cp-media-position" data-cp-media-open="cover" <?php echo $media['hasCover'] ? '' : 'hidden'; ?>><?php esc_html_e( 'Position cover', 'clanbite' ); ?></button>
-				<button type="button" class="change-media cover cp-media-remove" data-cp-media-remove="cover" <?php echo $media['hasCover'] ? '' : 'hidden'; ?>><?php esc_html_e( 'Remove cover', 'clanbite' ); ?></button>
-				<input
-						type="file"
-						accept="image/png,image/jpeg"
-						hidden
-						data-wp-on--change="actions.updateCover"
-						id="profile-cover"
-						name="profile_cover"
-				>
+				<input type="file" accept="image/png,image/jpeg" hidden data-wp-on--change="actions.updateCover" id="profile-cover" name="profile_cover">
 				<input type="hidden" name="profile_cover_position_x" value="<?php echo esc_attr( (string) $cover_pos['x'] ); ?>">
 				<input type="hidden" name="profile_cover_position_y" value="<?php echo esc_attr( (string) $cover_pos['y'] ); ?>">
 				<input type="hidden" name="profile_cover_zoom" value="<?php echo esc_attr( (string) $cover_pos['zoom'] ); ?>">
@@ -2377,7 +2385,7 @@ class Players extends Skeleton {
 					'profile_avatar',
 					0,
 					'clanbite/players/' . $user_id,
-					'avatar',
+					'avatar-' . gmdate( 'YmdHis' ), // A new name per upload, so caches never serve the previous picture.
 					'clanbite_profile_settings_save_action',
 					'nonce'
 				);
@@ -2415,7 +2423,7 @@ class Players extends Skeleton {
 					'profile_cover',
 					0,
 					'clanbite/players/' . $user_id,
-					'cover',
+					'cover-' . gmdate( 'YmdHis' ),
 					'clanbite_profile_settings_save_action',
 					'nonce'
 				);

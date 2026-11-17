@@ -61,6 +61,9 @@
 .clanbite-player-avatar__media,
 .clanbite-team-avatar__media {
 	position: relative;
+
+	/* Keep the ring, photo and badge stacking inside the avatar, so a popup above it is never covered by them. */
+	isolation: isolate;
 	display: inline-block;
 	flex: none;
 	width: var(--clanbite-avatar-size);
@@ -275,6 +278,10 @@
 .clanbite-avatar__ring-progress {
 	stroke: var(--clanbite-avatar-ring, var(--clanbite-accent, #2271b1));
 	stroke-linecap: round;
+}
+
+/* The arc only moves when XP is given in real time (the rank script adds this class for a moment); on page load it just appears. */
+.clanbite-avatar--ring-live .clanbite-avatar__ring-progress {
 	transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -285,7 +292,7 @@
 
 @media (prefers-reduced-motion: reduce) {
 
-	.clanbite-avatar__ring-progress {
+	.clanbite-avatar--ring-live .clanbite-avatar__ring-progress {
 		transition: none;
 	}
 }

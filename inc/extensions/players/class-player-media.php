@@ -49,6 +49,7 @@ final class Player_Media {
 		// After the Players extension has stored any new upload (priority 10).
 		add_action( 'clanbite_save_player_settings', array( $this, 'save_media_settings' ), 12, 4 );
 		add_filter( 'clanbite_player_settings_success_data', array( $this, 'add_success_data' ), 10, 2 );
+		add_filter( 'clanbite_players_get_display_avatar', array( $this, 'version_avatar_url' ), 20, 2 );
 	}
 
 	/**
@@ -162,9 +163,11 @@ final class Player_Media {
 		if ( function_exists( 'clanbite_require_wp_admin_media_includes' ) ) {
 			clanbite_require_wp_admin_media_includes();
 		}
-		$dir      = dirname( $path );
-		$ext      = strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) );
-		$filename = wp_unique_filename( $dir, 'avatar-crop.' . ( 'png' === $ext ? 'png' : 'jpg' ) );
+		$dir = dirname( $path );
+		$ext = strtolower( (string) pathinfo( $path, PATHINFO_EXTENSION ) );
+		// A new file name every time: the address of an avatar must change when the picture does, or browsers and caches keep showing the
+		// old one (a re-used `avatar-crop.png` came back as the previous, differently positioned image).
+		$filename = wp_unique_filename( $dir, 'avatar-crop-' . gmdate( 'YmdHis' ) . '.' . ( 'png' === $ext ? 'png' : 'jpg' ) );
 		$saved    = $editor->save( trailingslashit( $dir ) . $filename );
 		if ( is_wp_error( $saved ) ) {
 			return $saved;
@@ -347,6 +350,30 @@ final class Player_Media {
 		if ( $previous > 0 && $previous !== $source_id && $previous !== $baked ) {
 			self::delete_attachment( $previous );
 		}
+	}
+
+	/**
+	 * Add the avatar's attachment ID to its address as `ver`, so a browser or cache never shows a previous cut-out of the same picture.
+	 *
+	 * Only for avatars that were cut from an original (their file may have been re-used by an earlier release); a changed position makes a
+	 * new attachment, so the address changes with the picture.
+	 *
+	 * @param mixed $url     Avatar URL.
+	 * @param mixed $user_id Player.
+	 * @return mixed
+	 */
+	public function version_avatar_url( $url, $user_id ) {
+		$user_id = (int) $user_id;
+		if ( ! is_string( $url ) || '' === $url || $user_id < 1 || false !== strpos( $url, 'ver=' ) ) {
+			return $url;
+		}
+		$avatar_id = absint( get_user_meta( $user_id, 'cp_player_avatar_id', true ) );
+		$source_id = absint( get_user_meta( $user_id, 'cp_player_avatar_source_id', true ) );
+		if ( $avatar_id < 1 || $source_id < 1 || $avatar_id === $source_id || false === strpos( $url, '/avatar-crop' ) ) {
+			return $url;
+		}
+
+		return add_query_arg( 'ver', $avatar_id, $url );
 	}
 
 	/**

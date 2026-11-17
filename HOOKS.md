@@ -4,23 +4,23 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**363 PHP hooks and 16 JavaScript hooks**.
+**372 PHP hooks and 19 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
 ## Contents
 
 - [Admin](#admin) (11)
-- [Avatars](#avatars) (42)
+- [Avatars](#avatars) (43)
 - [Events](#events) (19)
 - [Extensions](#extensions) (27)
-- [General](#general) (44)
+- [General](#general) (51)
 - [Matches](#matches) (18)
 - [Notifications](#notifications) (21)
-- [Players](#players) (86)
+- [Players](#players) (87)
 - [Profile sub-pages and groups](#profile-sub-pages-and-groups) (12)
 - [Teams](#teams) (83)
-- [JavaScript hooks](#javascript-hooks) (16)
+- [JavaScript hooks](#javascript-hooks) (19)
 
 ## Admin
 
@@ -200,6 +200,19 @@ Filter avatar alt text.
 | `$alt` | `string` | Alt text. |
 | `$type` | `string` | Entity type. |
 | `$id` | `int` | Entity ID. |
+
+#### `clanbite_avatar_args`
+
+*Filter* · `inc/avatar-helpers.php`
+
+Filters an avatar's arguments before it is built, in both render modes.
+
+Use it to add context for the other `clanbite_avatar_*` filters or to change how one avatar renders, for example to force a
+smaller size in a surface you own. Keep the keys documented on `clanbite_render_avatar()`.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$args` | `array<string, mixed>` | Avatar arguments including `type`, `id`, `size`, `context`, `viewer_id`, `is_viewer`, `object_type`, `object_id`, `extension` and `context_data`. |
 
 #### `clanbite_avatar_badge`
 
@@ -1354,6 +1367,85 @@ Filter serialized block markup before `do_blocks()` runs for a Clanbite template
 | `$markup` | `string` | Raw markup read from `$markup_file`. |
 | `$markup_file` | `string` | Absolute path to the template source file. |
 
+#### `clanbite_component_args`
+
+*Filter* · `inc/components.php`
+
+Filters the arguments a component renders with, for every component.
+
+Runs before the provider's callback: add context (`surface`, `object_type`…), or change an argument for one place.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$args` | `array<string, mixed>` | Arguments passed by the caller. |
+| `$slug` | `string` | Component slug. |
+| `$def` | `array<string, mixed>` | Component definition. |
+
+**Since:** 1.6.3
+
+#### `clanbite_component_args_{slug}`
+
+*Filter* · `inc/components.php`
+
+This filter is documented in inc/components.php (clanbite_component_args).
+
+_No arguments._
+
+#### `clanbite_component_available`
+
+*Filter* · `inc/components.php`
+
+Filters whether a component is considered available (for example to switch one off for a site setting).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$available` | `bool` | Whether it is available so far. |
+| `$slug` | `string` | Component slug. |
+| `$def` | `array<string, mixed>` | Its definition. |
+
+**Since:** 1.6.3
+
+#### `clanbite_component_html`
+
+*Filter* · `inc/components.php`
+
+Filters a component's HTML, for every component.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$html` | `string` | Markup. |
+| `$slug` | `string` | Component slug. |
+| `$args` | `array<string, mixed>` | Arguments it was rendered with. |
+| `$def` | `array<string, mixed>` | Component definition. |
+
+**Since:** 1.6.3
+
+#### `clanbite_components`
+
+*Filter* · `inc/components.php`
+
+Filters the registered components, for example to remove or swap one site-wide.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$components` | `array<string, array<string, mixed>>` | Definitions keyed by slug. |
+
+**Since:** 1.6.3
+
+#### `clanbite_human_time_ago`
+
+*Filter* · `inc/functions-time.php`
+
+Filters relative time wording shown by Clanbite and its extensions.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$text` | `string` | Relative text such as "5 minutes ago". |
+| `$timestamp` | `int` | Unix timestamp of the moment. |
+| `$now` | `int` | Unix timestamp it was measured from. |
+
+**Since:** 1.6.3
+
 #### `clanbite_legacy_addon_constraint`
 
 *Filter* · `inc/updates/class-compat-monitor.php`
@@ -1502,6 +1594,19 @@ Filter the public team payload exposed to other Clanbite sites.
 | --- | --- | --- |
 | `$data` | `array` | Response data. |
 | `$post` | `WP_Post` | Team post. |
+
+#### `clanbite_register_components`
+
+*Action* · `inc/components.php`
+
+Fires once when components are collected: call `clanbite_register_component()` here.
+
+Core registers its own (`avatar`, `toasts`) first; extensions register theirs (Social Kit: `reactions`,
+`reaction-summary`, `reaction-picker`, `mentions`). A third party can replace one with the `replace` argument.
+
+_No arguments._
+
+**Since:** 1.6.3
 
 #### `clanbite_release_public_keys`
 
@@ -2459,6 +2564,19 @@ Filters the @ handle string for the Player @ handle block.
 | `$user_id` | `int` | Resolved player user ID. |
 | `$nicename` | `string` | Nicename without @. |
 | `$block` | `WP_Block` | Block instance. |
+
+#### `clanbite_player_media_editor_config`
+
+*Filter* · `inc/extensions/players/class-extension-players.php`
+
+Filters the data the avatar and cover editor popup works with (image addresses, positions, defaults and wording).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$config` | `array<string, mixed>` | Editor configuration (`state`, `defaultAvatar`, `defaultCover`, `maxZoom`, `i18n`). |
+| `$user_id` | `int` | Player. |
+
+**Since:** 1.6.3
 
 #### `clanbite_player_profile_home_label`
 
@@ -4394,6 +4512,17 @@ _No arguments._
 
 Registered with `wp.hooks.addFilter()` / `addAction()` on the front end or in the editor.
 
+#### `clanbite.components.registered`
+
+*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-components.js`
+
+Fires when a component registers its browser API.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `slug` | `{string}` | Component slug. |
+| `api` | `{Object}` | The registered API. |
+
 #### `clanbite.notifications.accessibleConfirm`
 
 *Filter (JavaScript, `wp.hooks`)* · `src/blocks/notifications/notification-bell/view.js`
@@ -4446,30 +4575,52 @@ Prefer the shared `clanbite.toasts.*` filters (for example `clanbite.toasts.payl
 | `message` | `{string}` | Toast message. |
 | `type` | `{string}` | `info`, `success` or `error`. |
 
+#### `clanbite.playerMedia.dialog`
+
+*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-player-media-editor.js`
+
+Fires when the avatar or cover popup opens, so add-ons can add their own controls to it.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `context` | `{Object}` | What is open. |
+| `context.kind` | `{string}` | `avatar` or `cover`. |
+| `context.dialog` | `{HTMLElement}` | The popup element. |
+| `context.extras` | `{HTMLElement}` | An empty container for your controls. |
+| `context.getPosition` | `{Function}` | Returns the current `{ x, y, zoom }`. |
+| `context.setPosition` | `{Function}` | Sets the position (`{ x, y, zoom }`) and redraws the preview. |
+
+#### `clanbite.playerMedia.maxZoom`
+
+*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-player-media-editor.js`
+
+Filters the largest zoom the avatar and cover editor offers.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `zoom` | `{number}` | Largest zoom (the server clamps to 4). |
+| `kind` | `{string}` | `avatar` or `cover`. |
+
 #### `clanbite.popup.shouldOpen`
 
-*Filter (JavaScript, `wp.hooks`)* · `src/blocks/players/user-nav/view.js`
+*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-popups.js`
 
 Filters whether a Clanbite popup may open. Return `false` to keep it closed.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `allow` | `{boolean}` | Default `true`. |
-| `detail` | `{{ name: string, root: Element }}` | `name` identifies the popup; `root` is its block element. |
-
-*Also fired in:* `src/blocks/teams/team-challenge-button/view.js`
+| `detail` | `{{ name: string, root: Element }}` | `name` identifies the popup; `root` is its element. |
 
 #### `clanbite.popup.toggled`
 
-*Action (JavaScript, `wp.hooks`)* · `src/blocks/players/user-nav/view.js`
+*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-popups.js`
 
-Fires whenever a Clanbite popup (user menu, notification bell, challenge dialog) opens or closes, however it was triggered.
+Fires whenever a Clanbite popup opens or closes, however it was triggered.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `detail` | `{{ name: string, open: boolean, root: Element }}` | `name` identifies the popup (`user-nav`, `notification-bell`, `team-challenge`); `root` is its block element. |
-
-*Also fired in:* `src/blocks/teams/team-challenge-button/view.js`
+| `detail` | `{{ name: string, open: boolean, root: Element }}` | `name` identifies the popup; `root` is its element. |
 
 #### `clanbite.teams.joinModes`
 

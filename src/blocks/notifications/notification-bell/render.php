@@ -16,6 +16,9 @@ if ( ! is_user_logged_in() ) {
 // Action results ("Friend request accepted", "Action failed") appear as shared Clanbite popups.
 clanbite_enqueue_toasts();
 
+// The shared popup lifecycle client (hooks `clanbite.popup.toggled` / `clanbite.popup.shouldOpen`).
+clanbite_enqueue_component( 'popups' );
+
 // The notifications are fetched after the page loads and carry the shared avatar (frame, ring, badge): its styles must already be on the page.
 wp_enqueue_style( 'clanbite-avatars' );
 
