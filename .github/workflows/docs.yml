@@ -2,6 +2,10 @@ name: Docs
 
 # Keeps developer.clanbite.com in step with this plugin. Pull requests and pushes are checked; publishing a release imports that
 # version into the site (see https://github.com/Kernow-dev/clanbite-docs for the setup and the secrets this needs).
+#
+# The reusable workflows and the tooling they run are pinned to one audited commit of Kernow-dev/clanbite-docs (not `main`), so a change
+# there cannot reach the release secrets of this repository unnoticed. To adopt a newer version, review the change in clanbite-docs and
+# update the commit id below (the `uses:` lines and `docs-ref`).
 
 on:
   pull_request:
@@ -21,18 +25,53 @@ permissions:
 jobs:
   check:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
-    uses: Kernow-dev/clanbite-docs/.github/workflows/check.yml@main
+    uses: Kernow-dev/clanbite-docs/.github/workflows/check.yml@110d062a71be1b9ff263e8d81cd9653fd40cf3be
+    permissions:
+      contents: read
     with:
       plugin-slug: clanbite
-    secrets: inherit
+      docs-ref: 110d062a71be1b9ff263e8d81cd9653fd40cf3be
+    secrets:
+      CLANBITE_REPOS_TOKEN: ${{ secrets.CLANBITE_REPOS_TOKEN }}
+
+  validate:
+    # A manual run may only republish a real, published, non-prerelease release: not a branch, not a draft.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Require a published release tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [[ ! "$TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::'$TAG' is not a release tag such as v1.2.3."
+            exit 1
+          fi
+          if ! UNPUBLISHED=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease --jq '.isDraft or .isPrerelease'); then
+            echo "::error::There is no release for '$TAG'."
+            exit 1
+          fi
+          if [ "$UNPUBLISHED" != "false" ]; then
+            echo "::error::The release '$TAG' is a draft or a pre-release, which is not documented."
+            exit 1
+          fi
 
   publish:
-    # Pre-releases are not documented: the site shows what site owners can install.
-    if: (github.event_name == 'release' && !github.event.release.prerelease) || github.event_name == 'workflow_dispatch'
-    uses: Kernow-dev/clanbite-docs/.github/workflows/publish.yml@main
+    needs: validate
+    # Pre-releases are not documented: the site shows what site owners can install. A manual run needs the release check to have passed.
+    if: ${{ !cancelled() && ((github.event_name == 'release' && !github.event.release.prerelease) || (github.event_name == 'workflow_dispatch' && needs.validate.result == 'success')) }}
+    uses: Kernow-dev/clanbite-docs/.github/workflows/publish.yml@110d062a71be1b9ff263e8d81cd9653fd40cf3be
     permissions:
+      # Needed only to attach docs.json to the release.
       contents: write
     with:
       plugin-slug: clanbite
-      ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
-    secrets: inherit
+      docs-ref: 110d062a71be1b9ff263e8d81cd9653fd40cf3be
+      ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.tag) || github.ref }}
+    secrets:
+      CLANBITE_DOCS_SECRET: ${{ secrets.CLANBITE_DOCS_SECRET }}
+      CLANBITE_DOCS_URL: ${{ secrets.CLANBITE_DOCS_URL }}
+      CLANBITE_REPOS_TOKEN: ${{ secrets.CLANBITE_REPOS_TOKEN }}
