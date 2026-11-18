@@ -4,7 +4,7 @@ Tags: community, teams, esports, gaming
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.6.5
+Stable tag: 1.6.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,10 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 2. Team and player blocks in the block editor.
 
 == Changelog ==
+
+= 1.6.6 =
+* Maintenance: the developer-docs workflow is pinned to a reviewed commit, passes only the secrets it needs, and a manual republish now requires a published release tag.
+* New: the official Clanbite Shop add-on is recognised as a first-party extension (`cp_shop`).
 
 = 1.6.5 =
 * Fix: block stylesheets (of Clanbite and every add-on) are now versioned by their build time, so a browser or CDN that cached the old CSS loads the new one after an update.

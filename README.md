@@ -845,6 +845,8 @@ Official extensions that ship outside the main package register on **`clanbite_o
 
 **Example — Clanbite Ranks (`cp_ranks`):** the separate plugin adds configurable rank ladders (optional Points tie-in), team ranks, and the `clanbite-ranks/rank-progress` block. Use `clanbite_ranks_extension_active()` before relying on rank helpers.
 
+**Example — Clanbite Shop (`cp_shop`):** the separate plugin adds a full shop (products, cart, checkout, orders, subscriptions, downloads, shipping, tax, reports) with Stripe and extendable gateways, an optional Points currency, and a **My purchases** tab in player settings. Use `clanbite_shop_extension_active()` before relying on shop helpers.
+
 ### Community extensions
 
 Unaffiliated or custom extensions register on **`clanbite_registered_extensions`**, own their blocks and FSE templates, and document their own hooks.
