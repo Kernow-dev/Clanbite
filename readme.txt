@@ -85,6 +85,7 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 == Changelog ==
 
 = 1.6.6 =
+* Maintenance: the developer-docs workflow is pinned to a reviewed commit, passes only the secrets it needs, and a manual republish now requires a published release tag.
 * New: the official Clanbite Shop add-on is recognised as a first-party extension (`cp_shop`).
 
 = 1.6.5 =
