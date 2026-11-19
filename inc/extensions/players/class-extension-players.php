@@ -47,7 +47,7 @@ class Players extends Skeleton {
 	public function __construct() {
 		parent::__construct(
 			'Players',
-			'cp_players',
+			'clanbite_players',
 			__(
 				'Extends user functionality to add support for players.',
 				'clanbite'
@@ -304,7 +304,7 @@ class Players extends Skeleton {
 		// 2. Players directory pagination (must run before author rules so "page" is not treated as a username).
 		add_rewrite_rule(
 			'^players/page/([0-9]+)/?$',
-			'index.php?cp_players_directory=1&paged=$matches[1]',
+			'index.php?clanbite_players_directory=1&paged=$matches[1]',
 			'top'
 		);
 
@@ -318,7 +318,7 @@ class Players extends Skeleton {
 		// 4. Player profile subpages: /players/{nicename}/{subpage}/
 		add_rewrite_rule(
 			'^players/(?!settings/?$)([^/]+)/([^/]+)/?$',
-			'index.php?author_name=$matches[1]&cp_player_subpage=$matches[2]',
+			'index.php?author_name=$matches[1]&clanbite_player_subpage=$matches[2]',
 			'top'
 		);
 
@@ -332,7 +332,7 @@ class Players extends Skeleton {
 		// 6. Players directory root (/players/).
 		add_rewrite_rule(
 			'^players/?$',
-			'index.php?cp_players_directory=1',
+			'index.php?clanbite_players_directory=1',
 			'top'
 		);
 	}
@@ -347,8 +347,8 @@ class Players extends Skeleton {
 		$vars[] = 'players_settings';
 		$vars[] = 'players_settings_nav';
 		$vars[] = 'players_settings_panel';
-		$vars[] = 'cp_player_subpage';
-		$vars[] = 'cp_players_directory';
+		$vars[] = 'clanbite_player_subpage';
+		$vars[] = 'clanbite_players_directory';
 		return $vars;
 	}
 
@@ -462,7 +462,7 @@ class Players extends Skeleton {
 			return $query_vars;
 		}
 
-		if ( ! empty( $query_vars['cp_players_directory'] ) ) {
+		if ( ! empty( $query_vars['clanbite_players_directory'] ) ) {
 			return $query_vars;
 		}
 
@@ -472,14 +472,14 @@ class Players extends Skeleton {
 		}
 
 		if ( 'players' === $path ) {
-			$query_vars['cp_players_directory'] = '1';
+			$query_vars['clanbite_players_directory'] = '1';
 
 			return $this->strip_conflicting_query_vars_for_players_virtual_routes( $query_vars );
 		}
 
 		if ( preg_match( '#^players/page/([0-9]+)/?$#', $path, $m ) ) {
-			$query_vars['cp_players_directory'] = '1';
-			$query_vars['paged']                = max( 1, (int) $m[1] );
+			$query_vars['clanbite_players_directory'] = '1';
+			$query_vars['paged']                      = max( 1, (int) $m[1] );
 
 			return $this->strip_conflicting_query_vars_for_players_virtual_routes( $query_vars );
 		}
@@ -492,21 +492,21 @@ class Players extends Skeleton {
 		if ( preg_match( '#^players/(?!settings(?:/|$))([^/]+)/page/([0-9]+)/?$#', $path, $m ) ) {
 			$query_vars['author_name'] = $m[1];
 			$query_vars['paged']       = max( 1, (int) $m[2] );
-			unset( $query_vars['cp_player_subpage'] );
+			unset( $query_vars['clanbite_player_subpage'] );
 
 			return $this->strip_conflicting_query_vars_for_players_virtual_routes( $query_vars );
 		}
 
 		if ( preg_match( '#^players/(?!settings(?:/|$))([^/]+)/([^/]+)/?$#', $path, $m ) ) {
-			$query_vars['author_name']       = $m[1];
-			$query_vars['cp_player_subpage'] = $m[2];
+			$query_vars['author_name']             = $m[1];
+			$query_vars['clanbite_player_subpage'] = $m[2];
 
 			return $this->strip_conflicting_query_vars_for_players_virtual_routes( $query_vars );
 		}
 
 		if ( preg_match( '#^players/(?!settings(?:/|$))([^/]+)/?$#', $path, $m ) ) {
 			$query_vars['author_name'] = $m[1];
-			unset( $query_vars['cp_player_subpage'] );
+			unset( $query_vars['clanbite_player_subpage'] );
 
 			return $this->strip_conflicting_query_vars_for_players_virtual_routes( $query_vars );
 		}
@@ -553,7 +553,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		if ( (int) $query->get( 'cp_players_directory' ) ) {
+		if ( (int) $query->get( 'clanbite_players_directory' ) ) {
 			return;
 		}
 
@@ -577,14 +577,14 @@ class Players extends Skeleton {
 		if ( preg_match( '#^players/(?!settings(?:/|$))([^/]+)/page/([0-9]+)/?$#', $path, $m ) ) {
 			$query->set( 'author_name', $m[1] );
 			$query->set( 'paged', max( 1, (int) $m[2] ) );
-			$query->set( 'cp_player_subpage', '' );
+			$query->set( 'clanbite_player_subpage', '' );
 			$this->scrub_main_query_conflicting_vars_for_player_routes( $query );
 			return;
 		}
 
 		if ( preg_match( '#^players/(?!settings(?:/|$))([^/]+)/([^/]+)/?$#', $path, $m ) ) {
 			$query->set( 'author_name', $m[1] );
-			$query->set( 'cp_player_subpage', $m[2] );
+			$query->set( 'clanbite_player_subpage', $m[2] );
 			$query->set( 'paged', 0 );
 			$this->scrub_main_query_conflicting_vars_for_player_routes( $query );
 			return;
@@ -592,7 +592,7 @@ class Players extends Skeleton {
 
 		if ( preg_match( '#^players/(?!settings(?:/|$))([^/]+)/?$#', $path, $m ) ) {
 			$query->set( 'author_name', $m[1] );
-			$query->set( 'cp_player_subpage', '' );
+			$query->set( 'clanbite_player_subpage', '' );
 			$query->set( 'paged', 0 );
 			$this->scrub_main_query_conflicting_vars_for_player_routes( $query );
 		}
@@ -644,7 +644,7 @@ class Players extends Skeleton {
 			return false;
 		}
 
-		$sub = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
+		$sub = sanitize_key( (string) get_query_var( 'clanbite_player_subpage' ) );
 		if ( '' !== $sub && $this->player_subpage_has_dedicated_template( $sub ) ) {
 			return false;
 		}
@@ -664,7 +664,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		if ( ! (int) $query->get( 'cp_players_directory' ) ) {
+		if ( ! (int) $query->get( 'clanbite_players_directory' ) ) {
 			return;
 		}
 
@@ -695,7 +695,7 @@ class Players extends Skeleton {
 			return $posts;
 		}
 
-		if ( (int) $query->get( 'cp_players_directory' ) ) {
+		if ( (int) $query->get( 'clanbite_players_directory' ) ) {
 			$query->found_posts   = 0;
 			$query->max_num_pages = 0;
 			return array();
@@ -736,7 +736,7 @@ class Players extends Skeleton {
 		$wp_query->max_num_pages        = 0;
 		$wp_query->posts                = array();
 
-		set_query_var( 'cp_players_directory', '1' );
+		set_query_var( 'clanbite_players_directory', '1' );
 		if ( preg_match( '#^players/page/([0-9]+)/?$#', $path, $m ) ) {
 			set_query_var( 'paged', max( 1, (int) $m[1] ) );
 		}
@@ -787,9 +787,9 @@ class Players extends Skeleton {
 			set_query_var( 'paged', 0 );
 		}
 		if ( '' !== $subpage ) {
-			set_query_var( 'cp_player_subpage', $subpage );
+			set_query_var( 'clanbite_player_subpage', $subpage );
 		} else {
-			set_query_var( 'cp_player_subpage', '' );
+			set_query_var( 'clanbite_player_subpage', '' );
 		}
 	}
 
@@ -797,7 +797,7 @@ class Players extends Skeleton {
 	 * When a hierarchical Page (or other singular) steals `/players/{nicename}/`, fix flags before the template loader.
 	 *
 	 * Core evaluates `is_page` / `is_singular` before `is_author` in {@see wp-includes/template-loader.php}, so a wrong
-	 * main query never reaches author templates. Teams avoid this by using the `cp_team` post type.
+	 * main query never reaches author templates. Teams avoid this by using the `clanbite_team` post type.
 	 *
 	 * @return void
 	 */
@@ -810,7 +810,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		if ( (int) get_query_var( 'cp_players_directory' ) || get_query_var( 'players_settings' ) ) {
+		if ( (int) get_query_var( 'clanbite_players_directory' ) || get_query_var( 'players_settings' ) ) {
 			return;
 		}
 
@@ -901,7 +901,7 @@ class Players extends Skeleton {
 	 * @return string
 	 */
 	public function maybe_load_players_directory_template( string $template ): string {
-		if ( ! (int) get_query_var( 'cp_players_directory' ) ) {
+		if ( ! (int) get_query_var( 'clanbite_players_directory' ) ) {
 			return $template;
 		}
 
@@ -1041,7 +1041,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		$requested = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
+		$requested = sanitize_key( (string) get_query_var( 'clanbite_player_subpage' ) );
 
 		// No subpage requested - this is the profile root, which is valid.
 		if ( empty( $requested ) ) {
@@ -1089,7 +1089,7 @@ class Players extends Skeleton {
 		}
 
 		$path                 = $this->get_canonical_request_path();
-		$is_players_directory = (int) get_query_var( 'cp_players_directory' )
+		$is_players_directory = (int) get_query_var( 'clanbite_players_directory' )
 			|| 'players' === $path
 			|| ( '' !== $path && preg_match( '#^players/page/[0-9]+/?$#', $path ) );
 
@@ -1099,7 +1099,7 @@ class Players extends Skeleton {
 		} elseif ( get_query_var( 'players_settings' ) ) {
 			$GLOBALS['_wp_current_template_id'] = 'clanbite//player-settings';
 		} else {
-			$sub = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
+			$sub = sanitize_key( (string) get_query_var( 'clanbite_player_subpage' ) );
 			if ( '' !== $sub && is_author() && $this->player_subpage_has_dedicated_template( $sub ) ) {
 				$GLOBALS['_wp_current_template_id'] = 'clanbite//player-' . $sub;
 			} elseif ( $this->should_use_player_profile_template() ) {
@@ -1224,7 +1224,7 @@ class Players extends Skeleton {
 			return $query_result;
 		}
 
-		$sub = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
+		$sub = sanitize_key( (string) get_query_var( 'clanbite_player_subpage' ) );
 		if ( '' === $sub || ! $this->player_subpage_has_dedicated_template( $sub ) ) {
 			return $query_result;
 		}
@@ -1283,7 +1283,7 @@ class Players extends Skeleton {
 			return $template;
 		}
 
-		$sub = sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
+		$sub = sanitize_key( (string) get_query_var( 'clanbite_player_subpage' ) );
 		if ( '' === $sub || ! $this->player_subpage_has_dedicated_template( $sub ) ) {
 			return $template;
 		}
@@ -1558,7 +1558,7 @@ class Players extends Skeleton {
 
 		if ( (int) get_query_var( 'players_settings' ) ) {
 			$enqueue = true;
-		} elseif ( (int) get_query_var( 'cp_players_directory' ) ) {
+		} elseif ( (int) get_query_var( 'clanbite_players_directory' ) ) {
 			$enqueue = false;
 		} elseif ( is_user_logged_in() ) {
 			// Author archives include `/players/{nicename}/` after the main query runs on `wp`.
@@ -1671,7 +1671,7 @@ class Players extends Skeleton {
 	public function register_user_meta_keys() {
 		register_meta(
 			'user',
-			'cp_player_avatar_id',
+			'clanbite_player_avatar_id',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -1683,7 +1683,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_avatar',
+			'clanbite_player_avatar',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player avatar url.',
@@ -1699,7 +1699,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_cover_id',
+			'clanbite_player_cover_id',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -1711,7 +1711,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_cover',
+			'clanbite_player_cover',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player cover url.',
@@ -1727,7 +1727,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_cover_position_x',
+			'clanbite_player_cover_position_x',
 			array(
 				'type'              => 'number',
 				'single'            => true,
@@ -1741,7 +1741,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_cover_position_y',
+			'clanbite_player_cover_position_y',
 			array(
 				'type'              => 'number',
 				'single'            => true,
@@ -1755,7 +1755,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_tagline',
+			'clanbite_player_tagline',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player tagline',
@@ -1771,7 +1771,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_website',
+			'clanbite_player_website',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player website',
@@ -1787,7 +1787,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_bio',
+			'clanbite_player_bio',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player biography',
@@ -1803,7 +1803,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_country',
+			'clanbite_player_country',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player country',
@@ -1819,7 +1819,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_city',
+			'clanbite_player_city',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player city',
@@ -1835,7 +1835,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_birthday',
+			'clanbite_player_birthday',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player birthday',
@@ -1851,7 +1851,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_first_name',
+			'clanbite_player_first_name',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player first name',
@@ -1867,7 +1867,7 @@ class Players extends Skeleton {
 
 		register_meta(
 			'user',
-			'cp_player_last_name',
+			'clanbite_player_last_name',
 			array(
 				'type'              => 'string',
 				'description'       => 'Player last name',
@@ -1967,14 +1967,14 @@ class Players extends Skeleton {
 		wp_enqueue_script( 'clanbite-player-media-editor', clanbite()->url . 'assets/js/clanbite-player-media-editor.js', array( 'wp-i18n' ), $js_ver, true );
 
 		$config = array(
-			'state'          => $media + array(
+			'state'         => $media + array(
 				'avatarUrl' => $avatar,
 				'coverUrl'  => $cover,
 			),
-			'defaultAvatar'  => function_exists( 'clanbite_players_get_default_avatar' ) ? (string) clanbite_players_get_default_avatar( $user_id ) : '',
-			'defaultCover'   => function_exists( 'clanbite_players_get_default_cover' ) ? (string) clanbite_players_get_default_cover( $user_id ) : '',
-			'maxZoom'        => Player_Media::MAX_ZOOM,
-			'i18n'           => array(
+			'defaultAvatar' => function_exists( 'clanbite_players_get_default_avatar' ) ? (string) clanbite_players_get_default_avatar( $user_id ) : '',
+			'defaultCover'  => function_exists( 'clanbite_players_get_default_cover' ) ? (string) clanbite_players_get_default_cover( $user_id ) : '',
+			'maxZoom'       => Player_Media::MAX_ZOOM,
+			'i18n'          => array(
 				'avatarTitle'   => __( 'Your avatar', 'clanbite' ),
 				'coverTitle'    => __( 'Your cover image', 'clanbite' ),
 				'help'          => __( 'Drag the dot to choose which part of the image is shown. Use the slider to zoom in.', 'clanbite' ),
@@ -2040,16 +2040,16 @@ class Players extends Skeleton {
 
 		if ( $avatars_enabled || $covers_enabled ) :
 			?>
-		<div class="cp-media-editor" data-cp-media-editor="<?php echo esc_attr( (string) wp_json_encode( $this->media_editor_config( $user_id, $media, (string) $user_avatar, (string) $user_cover ) ) ); ?>">
-			<div class="cp-media-header<?php echo $covers_enabled ? '' : ' is-no-cover'; ?>">
+		<div class="clanbite-media-editor" data-clanbite-media-editor="<?php echo esc_attr( (string) wp_json_encode( $this->media_editor_config( $user_id, $media, (string) $user_avatar, (string) $user_cover ) ) ); ?>">
+			<div class="clanbite-media-header<?php echo $covers_enabled ? '' : ' is-no-cover'; ?>">
 				<?php if ( $covers_enabled ) : ?>
-					<div class="cp-media-header__cover cover-preview">
-						<img class="cp-media-preview__img" src="<?php echo esc_url( $user_cover ); ?>" alt="" style="<?php echo esc_attr( $cover_css ); ?>">
-						<button type="button" class="cp-media-header__button cp-media-header__button--cover" data-cp-media-open="cover"><?php esc_html_e( 'Set cover image', 'clanbite' ); ?></button>
+					<div class="clanbite-media-header__cover cover-preview">
+						<img class="clanbite-media-preview__img" src="<?php echo esc_url( $user_cover ); ?>" alt="" style="<?php echo esc_attr( $cover_css ); ?>">
+						<button type="button" class="clanbite-media-header__button clanbite-media-header__button--cover" data-clanbite-media-open="cover"><?php esc_html_e( 'Set cover image', 'clanbite' ); ?></button>
 					</div>
 				<?php endif; ?>
 				<?php if ( $avatars_enabled ) : ?>
-					<div class="cp-media-header__avatar avatar-preview">
+					<div class="clanbite-media-header__avatar avatar-preview">
 						<?php
 						if ( function_exists( 'clanbite_render_avatar' ) ) {
 							// The shared avatar (shape, ring, badge), so the preview is the avatar as the site draws it.
@@ -2062,10 +2062,10 @@ class Players extends Skeleton {
 								)
 							);
 						} else {
-							echo '<img class="cp-media-preview__img" src="' . esc_url( $user_avatar ) . '" alt="">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
+							echo '<img class="clanbite-media-preview__img" src="' . esc_url( $user_avatar ) . '" alt="">'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 						}
 						?>
-						<button type="button" class="cp-media-header__button cp-media-header__button--avatar" data-cp-media-open="avatar"><?php esc_html_e( 'Set avatar', 'clanbite' ); ?></button>
+						<button type="button" class="clanbite-media-header__button clanbite-media-header__button--avatar" data-clanbite-media-open="avatar"><?php esc_html_e( 'Set avatar', 'clanbite' ); ?></button>
 					</div>
 				<?php endif; ?>
 			</div>
@@ -2083,7 +2083,7 @@ class Players extends Skeleton {
 				<input type="hidden" name="profile_cover_zoom" value="<?php echo esc_attr( (string) $cover_pos['zoom'] ); ?>">
 				<input type="hidden" name="profile_cover_remove" value="0">
 			<?php endif; ?>
-			<p class="description cp-media-note" role="status" hidden></p>
+			<p class="description clanbite-media-note" role="status" hidden></p>
 		</div>
 		<?php endif; ?>
 			<?php
@@ -2371,8 +2371,8 @@ class Players extends Skeleton {
 			$_FILES['profile_avatar'] = $files['profile_avatar'];
 
 			// The previous avatar and its original (when a cut-out was made from one) are replaced.
-			$old_avatar        = absint( get_user_meta( $user_id, 'cp_player_avatar_id', true ) );
-			$old_avatar_source = absint( get_user_meta( $user_id, 'cp_player_avatar_source_id', true ) );
+			$old_avatar        = absint( get_user_meta( $user_id, 'clanbite_player_avatar_id', true ) );
+			$old_avatar_source = absint( get_user_meta( $user_id, 'clanbite_player_avatar_source_id', true ) );
 			if ( $old_avatar ) {
 				wp_delete_attachment( $old_avatar, true );
 			}
@@ -2394,8 +2394,8 @@ class Players extends Skeleton {
 			}
 
 			if ( ! is_wp_error( $attachment_id ) ) {
-				update_user_meta( $user_id, 'cp_player_avatar_id', $attachment_id );
-				update_user_meta( $user_id, 'cp_player_avatar', wp_get_attachment_url( (int) $attachment_id ) );
+				update_user_meta( $user_id, 'clanbite_player_avatar_id', $attachment_id );
+				update_user_meta( $user_id, 'clanbite_player_avatar', wp_get_attachment_url( (int) $attachment_id ) );
 				// The upload is the original: the chosen part is cut from it after this handler (see Player_Media).
 				Player_Media::register_new_avatar_source( (int) $user_id, (int) $attachment_id );
 				/**
@@ -2413,7 +2413,7 @@ class Players extends Skeleton {
 		if ( isset( $files['profile_cover'] ) ) {
 			$_FILES['profile_cover'] = $files['profile_cover'];
 
-			$old_cover = absint( get_user_meta( $user_id, 'cp_player_cover_id', true ) );
+			$old_cover = absint( get_user_meta( $user_id, 'clanbite_player_cover_id', true ) );
 			if ( $old_cover ) {
 				wp_delete_attachment( $old_cover, true );
 			}
@@ -2432,8 +2432,8 @@ class Players extends Skeleton {
 			}
 
 			if ( ! is_wp_error( $attachment_id ) ) {
-				update_user_meta( $user_id, 'cp_player_cover_id', $attachment_id );
-				update_user_meta( $user_id, 'cp_player_cover', wp_get_attachment_image_url( (int) $attachment_id, 'clanbite-cover' ) );
+				update_user_meta( $user_id, 'clanbite_player_cover_id', $attachment_id );
+				update_user_meta( $user_id, 'clanbite_player_cover', wp_get_attachment_image_url( (int) $attachment_id, 'clanbite-cover' ) );
 				/**
 				 * Fires after the player successfully uploads a new profile cover attachment.
 				 *
@@ -2456,7 +2456,7 @@ class Players extends Skeleton {
 			$profile_cover_position_x = apply_filters( 'clanbite_player_settings_update_display_cover_position_x', $filtered_data['profile_cover_position_x'], $user_id );
 
 			if ( ! is_wp_error( $profile_cover_position_x ) ) {
-				update_user_meta( $user_id, 'cp_player_cover_position_x', $profile_cover_position_x );
+				update_user_meta( $user_id, 'clanbite_player_cover_position_x', $profile_cover_position_x );
 			} else {
 				$errors['profile_cover_position_x'] = $profile_cover_position_x->get_error_message();
 			}
@@ -2472,7 +2472,7 @@ class Players extends Skeleton {
 			$profile_cover_position_y = apply_filters( 'clanbite_player_settings_update_display_cover_position_y', $filtered_data['profile_cover_position_y'], $user_id );
 
 			if ( ! is_wp_error( $profile_cover_position_y ) ) {
-				update_user_meta( $user_id, 'cp_player_cover_position_y', $profile_cover_position_y );
+				update_user_meta( $user_id, 'clanbite_player_cover_position_y', $profile_cover_position_y );
 			} else {
 				$errors['profile_cover_position_y'] = $profile_cover_position_y->get_error_message();
 			}
@@ -2532,7 +2532,7 @@ class Players extends Skeleton {
 			$display_tagline = apply_filters( 'clanbite_player_settings_update_tagline', sanitize_text_field( $filtered_data['profile_tagline'] ), $user_id );
 
 			if ( ! is_wp_error( $display_tagline ) ) {
-				update_user_meta( $user_id, 'cp_player_tagline', $display_tagline );
+				update_user_meta( $user_id, 'clanbite_player_tagline', $display_tagline );
 			} else {
 				$errors['profile_tagline'] = $display_tagline->get_error_message();
 			}
@@ -2548,7 +2548,7 @@ class Players extends Skeleton {
 			$display_description = apply_filters( 'clanbite_player_settings_update_description', wp_kses_post( $filtered_data['profile_description'] ), $user_id );
 
 			if ( ! is_wp_error( $display_description ) ) {
-				update_user_meta( $user_id, 'cp_player_bio', $display_description );
+				update_user_meta( $user_id, 'clanbite_player_bio', $display_description );
 			} else {
 				$errors['profile_description'] = $display_description->get_error_message();
 			}
@@ -2564,7 +2564,7 @@ class Players extends Skeleton {
 			$display_website = apply_filters( 'clanbite_player_settings_update_website', sanitize_text_field( $filtered_data['profile_website'] ), $user_id );
 
 			if ( ! is_wp_error( $display_website ) ) {
-				update_user_meta( $user_id, 'cp_player_website', $display_website );
+				update_user_meta( $user_id, 'clanbite_player_website', $display_website );
 			} else {
 				$errors['profile_website'] = $display_website->get_error_message();
 			}
@@ -2580,7 +2580,7 @@ class Players extends Skeleton {
 			$display_country = apply_filters( 'clanbite_player_settings_update_country', sanitize_text_field( $filtered_data['profile_country'] ), $user_id );
 
 			if ( ! is_wp_error( $display_country ) ) {
-				update_user_meta( $user_id, 'cp_player_country', $display_country );
+				update_user_meta( $user_id, 'clanbite_player_country', $display_country );
 			} else {
 				$errors['profile_country'] = $display_country->get_error_message();
 			}
@@ -2596,7 +2596,7 @@ class Players extends Skeleton {
 			$display_city = apply_filters( 'clanbite_player_settings_update_city', sanitize_text_field( $filtered_data['profile_city'] ), $user_id );
 
 			if ( ! is_wp_error( $display_city ) ) {
-				update_user_meta( $user_id, 'cp_player_city', $display_city );
+				update_user_meta( $user_id, 'clanbite_player_city', $display_city );
 			} else {
 				$errors['profile_city'] = $display_city->get_error_message();
 			}
@@ -2612,7 +2612,7 @@ class Players extends Skeleton {
 			$display_birthday = apply_filters( 'clanbite_player_settings_update_birthday', sanitize_text_field( $filtered_data['profile_birthday'] ), $user_id );
 
 			if ( ! is_wp_error( $display_birthday ) ) {
-				update_user_meta( $user_id, 'cp_player_birthday', $display_birthday );
+				update_user_meta( $user_id, 'clanbite_player_birthday', $display_birthday );
 			} else {
 				$errors['profile_birthday'] = $display_birthday->get_error_message();
 			}
@@ -2687,7 +2687,7 @@ class Players extends Skeleton {
 			$account_first_name = apply_filters( 'clanbite_player_settings_update_account_firstname', sanitize_text_field( $filtered_data['account_first_name'] ), $user_id );
 
 			if ( ! is_wp_error( $account_first_name ) ) {
-				update_user_meta( $user_id, 'cp_player_first_name', $account_first_name );
+				update_user_meta( $user_id, 'clanbite_player_first_name', $account_first_name );
 			} else {
 				$errors['account_first_name'] = $account_first_name->get_error_message();
 			}
@@ -2703,7 +2703,7 @@ class Players extends Skeleton {
 			$account_last_name = apply_filters( 'clanbite_player_settings_update_account_lastname', sanitize_text_field( $filtered_data['account_last_name'] ), $user_id );
 
 			if ( ! is_wp_error( $account_last_name ) ) {
-				update_user_meta( $user_id, 'cp_player_last_name', $account_last_name );
+				update_user_meta( $user_id, 'clanbite_player_last_name', $account_last_name );
 			} else {
 				$errors['account_last_name'] = $account_last_name->get_error_message();
 			}

@@ -49,15 +49,15 @@ function clanbite_message_groups(): array {
  *
  * @since 1.5.0
  *
- * @return array<string, string> Group slug => extension slug (for example `cp_teams`), or `general`.
+ * @return array<string, string> Group slug => extension slug (for example `clanbite_teams`), or `general`.
  */
 function clanbite_message_group_extensions(): array {
 	$map = array(
 		'general'       => 'general',
-		'teams'         => 'cp_teams',
-		'events'        => 'cp_events',
-		'players'       => 'cp_players',
-		'notifications' => 'cp_notifications',
+		'teams'         => 'clanbite_teams',
+		'events'        => 'clanbite_events',
+		'players'       => 'clanbite_players',
+		'notifications' => 'clanbite_notifications',
 	);
 
 	/**
@@ -68,7 +68,7 @@ function clanbite_message_group_extensions(): array {
 	 *
 	 * @since 1.5.0
 	 *
-	 * @param array<string, string> $map Group slug => extension slug (`cp_teams`), or `general`.
+	 * @param array<string, string> $map Group slug => extension slug (`clanbite_teams`), or `general`.
 	 */
 	$map = (array) apply_filters( 'clanbite_message_group_extensions', $map );
 

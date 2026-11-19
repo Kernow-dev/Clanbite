@@ -203,7 +203,7 @@ class Admin extends Abstract_Settings {
 
 		$installed = \Kernowdev\Clanbite\Extensions\Loader::instance()->get_installed_extensions();
 
-		return is_array( $installed ) && array_key_exists( 'cp_ranks', $installed );
+		return is_array( $installed ) && array_key_exists( 'clanbite_ranks', $installed );
 	}
 
 	/**

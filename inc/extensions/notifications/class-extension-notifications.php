@@ -33,14 +33,14 @@ class Notifications extends Skeleton {
 	public function __construct() {
 		parent::__construct(
 			'Notifications',
-			'cp_notifications',
+			'clanbite_notifications',
 			__(
 				'In-site notifications, REST API, and the notification bell block.',
 				'clanbite'
 			),
 			'',
 			'1.0.0',
-			array( 'cp_players' )
+			array( 'clanbite_players' )
 		);
 	}
 

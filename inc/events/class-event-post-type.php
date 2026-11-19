@@ -119,91 +119,91 @@ final class Event_Post_Type {
 		);
 
 		$meta = array(
-			'cp_event_scope'                => array(
+			'clanbite_event_scope'                => array(
 				'type'              => 'string',
 				'default'           => self::SCOPE_TEAM,
 				'sanitize_callback' => array( $this, 'sanitize_scope' ),
 				'show_in_rest'      => array( 'schema' => $scope_schema ),
 			),
-			'cp_event_team_id'              => array(
+			'clanbite_event_team_id'              => array(
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
 			),
-			'cp_event_group_id'             => array(
+			'clanbite_event_group_id'             => array(
 				'type'              => 'integer',
 				'default'           => 0,
 				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
 			),
-			'cp_event_mode'                 => array(
+			'clanbite_event_mode'                 => array(
 				'type'              => 'string',
 				'default'           => self::MODE_IN_PERSON,
 				'sanitize_callback' => array( $this, 'sanitize_mode' ),
 				'show_in_rest'      => array( 'schema' => $mode_schema ),
 			),
-			'cp_event_virtual_url'          => array(
+			'clanbite_event_virtual_url'          => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
 				'show_in_rest'      => true,
 			),
-			'cp_event_address_line1'        => array(
+			'clanbite_event_address_line1'        => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_address_line2'        => array(
+			'clanbite_event_address_line2'        => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_locality'             => array(
+			'clanbite_event_locality'             => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_region'               => array(
+			'clanbite_event_region'               => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_postcode'             => array(
+			'clanbite_event_postcode'             => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_country'              => array(
+			'clanbite_event_country'              => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			),
-			'cp_event_starts_at'            => array(
+			'clanbite_event_starts_at'            => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => array( $this, 'sanitize_datetime_gmt' ),
 				'show_in_rest'      => true,
 			),
-			'cp_event_ends_at'              => array(
+			'clanbite_event_ends_at'              => array(
 				'type'              => 'string',
 				'default'           => '',
 				'sanitize_callback' => array( $this, 'sanitize_datetime_gmt' ),
 				'show_in_rest'      => true,
 			),
-			'cp_event_visibility'           => array(
+			'clanbite_event_visibility'           => array(
 				'type'              => 'string',
 				'default'           => self::VISIBILITY_PUBLIC,
 				'sanitize_callback' => array( $this, 'sanitize_visibility' ),
 				'show_in_rest'      => array( 'schema' => $visibility_schema ),
 			),
-			'cp_event_attendees_visibility' => array(
+			'clanbite_event_attendees_visibility' => array(
 				'type'              => 'string',
 				'default'           => 'hidden',
 				'sanitize_callback' => array( $this, 'sanitize_attendees_visibility' ),

@@ -55,7 +55,7 @@ final class Public_Rest {
 				'permission_callback' => '__return_true',
 				'args'                => array(
 					'slug' => array(
-						'description'       => __( 'Team post slug (`cp_team` post_name).', 'clanbite' ),
+						'description'       => __( 'Team post slug (`clanbite_team` post_name).', 'clanbite' ),
 						'type'              => 'string',
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_title',
@@ -127,7 +127,7 @@ final class Public_Rest {
 	/**
 	 * Resolve public team metadata by slug or absolute team profile URL.
 	 *
-	 * @param string $slug Requested `cp_team` post_name (may be empty when `url` is set).
+	 * @param string $slug Requested `clanbite_team` post_name (may be empty when `url` is set).
 	 * @param string $url  Full team profile URL (optional).
 	 * @return array<string, mixed>|\WP_Error
 	 */
@@ -189,8 +189,8 @@ final class Public_Rest {
 		$country = '';
 		if ( $team_en && method_exists( $team_en, 'get_country' ) ) {
 			$country = (string) $team_en->get_country();
-		} elseif ( '' !== (string) get_post_meta( $team_id, 'cp_team_country', true ) ) {
-			$country = (string) get_post_meta( $team_id, 'cp_team_country', true );
+		} elseif ( '' !== (string) get_post_meta( $team_id, 'clanbite_team_country', true ) ) {
+			$country = (string) get_post_meta( $team_id, 'clanbite_team_country', true );
 		}
 
 		$data = array(

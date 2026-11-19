@@ -19,7 +19,7 @@ if ( $event_id < 1 && isset( $block->context['postId'] ) ) {
 	$pt = (string) ( $block->context['postType'] ?? '' );
 	if ( 'match' === $event_type && 'clanbite_match' === $pt ) {
 		$event_id = (int) $block->context['postId'];
-	} elseif ( 'group' === $event_type && 'cp_group' === $pt ) {
+	} elseif ( 'group' === $event_type && 'clanbite_group' === $pt ) {
 		$event_id = (int) $block->context['postId'];
 	} elseif ( 'clanbite_event' === $event_type && 'clanbite_event' === $pt ) {
 		$event_id = (int) $block->context['postId'];
@@ -28,7 +28,7 @@ if ( $event_id < 1 && isset( $block->context['postId'] ) ) {
 
 if ( $event_id < 1 && 'clanbite_event' === $event_type ) {
 	$tid      = (int) get_query_var( 'clanbite_team_event_id' );
-	$gid      = (int) get_query_var( 'cp_group_event_id' );
+	$gid      = (int) get_query_var( 'clanbite_group_event_id' );
 	$event_id = $tid > 0 ? $tid : $gid;
 }
 
@@ -121,9 +121,9 @@ $event_rsvp_root_open = '<div '
 	<div class="clanbite-event-rsvp__actions">
 		<?php if ( is_user_logged_in() ) : ?>
 			<div class="clanbite-event-rsvp__buttons" role="group" aria-label="<?php esc_attr_e( 'RSVP', 'clanbite' ); ?>">
-				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__btn" data-cp-rsvp-status="accepted" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['accepted'] ); ?></button>
-				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__btn" data-cp-rsvp-status="tentative" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['tentative'] ); ?></button>
-				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__btn" data-cp-rsvp-status="declined" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['declined'] ); ?></button>
+				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__btn" data-clanbite-rsvp-status="accepted" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['accepted'] ); ?></button>
+				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__btn" data-clanbite-rsvp-status="tentative" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['tentative'] ); ?></button>
+				<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-rsvp__btn" data-clanbite-rsvp-status="declined" data-wp-on--click="actions.postRsvp"><?php echo esc_html( $config['i18n']['buttonLabels']['declined'] ); ?></button>
 			</div>
 		<?php endif; ?>
 		<p class="clanbite-event-rsvp__status" aria-live="polite">

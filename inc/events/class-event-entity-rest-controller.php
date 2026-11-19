@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API for `cp_event` posts (create/list/update from the front-end).
+ * REST API for `clanbite_event` posts (create/list/update from the front-end).
  *
  * @package clanbite
  */
@@ -15,7 +15,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * REST endpoints for scheduled events (`cp_event`).
+ * REST endpoints for scheduled events (`clanbite_event`).
  */
 final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
@@ -186,11 +186,11 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			$meta_query = array(
 				'relation' => 'AND',
 				array(
-					'key'   => 'cp_event_scope',
+					'key'   => 'clanbite_event_scope',
 					'value' => Event_Post_Type::SCOPE_TEAM,
 				),
 				array(
-					'key'   => 'cp_event_team_id',
+					'key'   => 'clanbite_event_team_id',
 					'value' => $team_id,
 				),
 			);
@@ -202,11 +202,11 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			$meta_query = array(
 				'relation' => 'AND',
 				array(
-					'key'   => 'cp_event_scope',
+					'key'   => 'clanbite_event_scope',
 					'value' => Event_Post_Type::SCOPE_GROUP,
 				),
 				array(
-					'key'   => 'cp_event_group_id',
+					'key'   => 'clanbite_event_group_id',
 					'value' => $group_id,
 				),
 			);
@@ -241,11 +241,11 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 				array(
 					'relation' => 'AND',
 					array(
-						'key'   => 'cp_event_scope',
+						'key'   => 'clanbite_event_scope',
 						'value' => Event_Post_Type::SCOPE_PLAYER,
 					),
 					array(
-						'key'   => 'cp_event_owner_id',
+						'key'   => 'clanbite_event_owner_id',
 						'value' => $player_user_id,
 					),
 				)
@@ -262,7 +262,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		/*
 		 * One IN clause per scope key (not one AND pair per team/group): WP_Query joins wp_postmeta once per clause, so a
 		 * player on many teams otherwise produced an exponentially growing join. Team events always store
-		 * `cp_event_group_id` = 0 and group events `cp_event_team_id` = 0, so matching the id alone is unambiguous.
+		 * `clanbite_event_group_id` = 0 and group events `clanbite_event_team_id` = 0, so matching the id alone is unambiguous.
 		 */
 		$enabled_team_ids = array();
 		foreach ( $team_ids as $tid ) {
@@ -284,7 +284,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		if ( $enabled_team_ids ) {
 			$meta_or[] = array(
-				'key'     => 'cp_event_team_id',
+				'key'     => 'clanbite_event_team_id',
 				'value'   => array_values( array_unique( $enabled_team_ids ) ),
 				'compare' => 'IN',
 				'type'    => 'NUMERIC',
@@ -293,20 +293,20 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		if ( $enabled_group_ids ) {
 			$meta_or[] = array(
-				'key'     => 'cp_event_group_id',
+				'key'     => 'clanbite_event_group_id',
 				'value'   => array_values( array_unique( $enabled_group_ids ) ),
 				'compare' => 'IN',
 				'type'    => 'NUMERIC',
 			);
 		}
 
-		// The player's own events and the ones they were invited to (one `cp_event_invited` row per invitee).
+		// The player's own events and the ones they were invited to (one `clanbite_event_invited` row per invitee).
 		$meta_or[] = array(
-			'key'   => 'cp_event_owner_id',
+			'key'   => 'clanbite_event_owner_id',
 			'value' => $player_user_id,
 		);
 		$meta_or[] = array(
-			'key'   => 'cp_event_invited',
+			'key'   => 'clanbite_event_invited',
 			'value' => $player_user_id,
 		);
 
@@ -376,13 +376,13 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 				'span'     => array(
 					'relation' => 'AND',
 					array(
-						'key'     => 'cp_event_starts_at',
+						'key'     => 'clanbite_event_starts_at',
 						'value'   => $starts_before,
 						'compare' => '<=',
 						'type'    => 'CHAR',
 					),
 					array(
-						'key'     => 'cp_event_ends_at',
+						'key'     => 'clanbite_event_ends_at',
 						'value'   => $starts_after,
 						'compare' => '>=',
 						'type'    => 'CHAR',
@@ -391,13 +391,13 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 				'point'    => array(
 					'relation' => 'AND',
 					array(
-						'key'     => 'cp_event_starts_at',
+						'key'     => 'clanbite_event_starts_at',
 						'value'   => $starts_after,
 						'compare' => '>=',
 						'type'    => 'CHAR',
 					),
 					array(
-						'key'     => 'cp_event_starts_at',
+						'key'     => 'clanbite_event_starts_at',
 						'value'   => $starts_before,
 						'compare' => '<=',
 						'type'    => 'CHAR',
@@ -405,11 +405,11 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 					array(
 						'relation' => 'OR',
 						array(
-							'key'     => 'cp_event_ends_at',
+							'key'     => 'clanbite_event_ends_at',
 							'compare' => 'NOT EXISTS',
 						),
 						array(
-							'key'     => 'cp_event_ends_at',
+							'key'     => 'clanbite_event_ends_at',
 							'value'   => '',
 							'compare' => '=',
 							'type'    => 'CHAR',
@@ -419,8 +419,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			);
 		} else {
 			if ( '' !== $starts_after ) {
-				$meta_query['cp_range_after'] = array(
-					'key'     => 'cp_event_starts_at',
+				$meta_query['clanbite_range_after'] = array(
+					'key'     => 'clanbite_event_starts_at',
 					'value'   => $starts_after,
 					'compare' => '>=',
 					'type'    => 'CHAR',
@@ -428,8 +428,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			}
 
 			if ( '' !== $starts_before ) {
-				$meta_query['cp_range_before'] = array(
-					'key'     => 'cp_event_starts_at',
+				$meta_query['clanbite_range_before'] = array(
+					'key'     => 'clanbite_event_starts_at',
 					'value'   => $starts_before,
 					'compare' => '<=',
 					'type'    => 'CHAR',
@@ -440,14 +440,14 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$now_gmt = current_time( 'mysql', true );
 		if ( 'upcoming' === $time_scope ) {
 			$meta_query['starts_filter'] = array(
-				'key'     => 'cp_event_starts_at',
+				'key'     => 'clanbite_event_starts_at',
 				'value'   => $now_gmt,
 				'compare' => '>=',
 				'type'    => 'CHAR',
 			);
 		} elseif ( 'past' === $time_scope ) {
 			$meta_query['starts_filter'] = array(
-				'key'     => 'cp_event_starts_at',
+				'key'     => 'clanbite_event_starts_at',
 				'value'   => $now_gmt,
 				'compare' => '<',
 				'type'    => 'CHAR',
@@ -484,13 +484,13 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			'meta_query'     => $meta_query,
 		);
 
-		if ( isset( $meta_query['starts_filter'] ) && ! isset( $meta_query['cp_range_after'] ) && ! isset( $meta_query['cp_range_before'] ) ) {
+		if ( isset( $meta_query['starts_filter'] ) && ! isset( $meta_query['clanbite_range_after'] ) && ! isset( $meta_query['clanbite_range_before'] ) ) {
 			$query_args['orderby'] = array(
 				'starts_filter' => $order,
 			);
 		} else {
 			$query_args['orderby']  = 'meta_value';
-			$query_args['meta_key'] = 'cp_event_starts_at';
+			$query_args['meta_key'] = 'clanbite_event_starts_at';
 			$query_args['order']    = $order;
 		}
 
@@ -629,17 +629,17 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		}
 
 		$post_id = (int) $post_id;
-		update_post_meta( $post_id, 'cp_event_scope', $scope );
+		update_post_meta( $post_id, 'clanbite_event_scope', $scope );
 		if ( Event_Post_Type::SCOPE_TEAM === $scope ) {
-			update_post_meta( $post_id, 'cp_event_team_id', $team_id );
-			update_post_meta( $post_id, 'cp_event_group_id', 0 );
+			update_post_meta( $post_id, 'clanbite_event_team_id', $team_id );
+			update_post_meta( $post_id, 'clanbite_event_group_id', 0 );
 		} elseif ( Event_Post_Type::SCOPE_GROUP === $scope ) {
-			update_post_meta( $post_id, 'cp_event_group_id', $group_id );
-			update_post_meta( $post_id, 'cp_event_team_id', 0 );
+			update_post_meta( $post_id, 'clanbite_event_group_id', $group_id );
+			update_post_meta( $post_id, 'clanbite_event_team_id', 0 );
 		} else {
-			update_post_meta( $post_id, 'cp_event_group_id', 0 );
-			update_post_meta( $post_id, 'cp_event_team_id', 0 );
-			update_post_meta( $post_id, 'cp_event_owner_id', $user_id );
+			update_post_meta( $post_id, 'clanbite_event_group_id', 0 );
+			update_post_meta( $post_id, 'clanbite_event_team_id', 0 );
+			update_post_meta( $post_id, 'clanbite_event_owner_id', $user_id );
 		}
 
 		$this->persist_meta_from_request( $post_id, $request, false );
@@ -722,9 +722,9 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 
 		$this->persist_meta_from_request( $id, $request, true );
 
-		if ( Event_Post_Type::SCOPE_PLAYER === sanitize_key( (string) get_post_meta( $id, 'cp_event_scope', true ) ) ) {
+		if ( Event_Post_Type::SCOPE_PLAYER === sanitize_key( (string) get_post_meta( $id, 'clanbite_event_scope', true ) ) ) {
 			$this->normalize_player_event_visibility( $id );
-			if ( null !== $request->get_param( 'invite_user_ids' ) || Event_Post_Type::VISIBILITY_ONLY_ME === (string) get_post_meta( $id, 'cp_event_visibility', true ) ) {
+			if ( null !== $request->get_param( 'invite_user_ids' ) || Event_Post_Type::VISIBILITY_ONLY_ME === (string) get_post_meta( $id, 'clanbite_event_visibility', true ) ) {
 				$wanted = null !== $request->get_param( 'invite_user_ids' ) ? (array) $request->get_param( 'invite_user_ids' ) : clanbite_events_get_invited_user_ids( $id );
 				clanbite_events_set_invited_user_ids( $id, (int) get_post_field( 'post_author', $id ), $wanted );
 			}
@@ -822,9 +822,9 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 */
 	private function normalize_player_event_visibility( int $post_id ): void {
 		$allowed = array( Event_Post_Type::VISIBILITY_PUBLIC, Event_Post_Type::VISIBILITY_FRIENDS, Event_Post_Type::VISIBILITY_ONLY_ME );
-		$current = (string) get_post_meta( $post_id, 'cp_event_visibility', true );
+		$current = (string) get_post_meta( $post_id, 'clanbite_event_visibility', true );
 		if ( ! in_array( $current, $allowed, true ) ) {
-			update_post_meta( $post_id, 'cp_event_visibility', Event_Post_Type::VISIBILITY_FRIENDS );
+			update_post_meta( $post_id, 'clanbite_event_visibility', Event_Post_Type::VISIBILITY_FRIENDS );
 		}
 	}
 
@@ -840,18 +840,18 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$pt = new Event_Post_Type();
 
 		$keys = array(
-			'mode'                 => 'cp_event_mode',
-			'virtual_url'          => 'cp_event_virtual_url',
-			'address_line1'        => 'cp_event_address_line1',
-			'address_line2'        => 'cp_event_address_line2',
-			'locality'             => 'cp_event_locality',
-			'region'               => 'cp_event_region',
-			'postcode'             => 'cp_event_postcode',
-			'country'              => 'cp_event_country',
-			'starts_at'            => 'cp_event_starts_at',
-			'ends_at'              => 'cp_event_ends_at',
-			'visibility'           => 'cp_event_visibility',
-			'attendees_visibility' => 'cp_event_attendees_visibility',
+			'mode'                 => 'clanbite_event_mode',
+			'virtual_url'          => 'clanbite_event_virtual_url',
+			'address_line1'        => 'clanbite_event_address_line1',
+			'address_line2'        => 'clanbite_event_address_line2',
+			'locality'             => 'clanbite_event_locality',
+			'region'               => 'clanbite_event_region',
+			'postcode'             => 'clanbite_event_postcode',
+			'country'              => 'clanbite_event_country',
+			'starts_at'            => 'clanbite_event_starts_at',
+			'ends_at'              => 'clanbite_event_ends_at',
+			'visibility'           => 'clanbite_event_visibility',
+			'attendees_visibility' => 'clanbite_event_attendees_visibility',
 		);
 
 		foreach ( $keys as $param => $meta_key ) {
@@ -860,20 +860,20 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			}
 			$raw = $request->get_param( $param );
 			switch ( $meta_key ) {
-				case 'cp_event_mode':
+				case 'clanbite_event_mode':
 					update_post_meta( $post_id, $meta_key, $pt->sanitize_mode( $raw ) );
 					break;
-				case 'cp_event_virtual_url':
+				case 'clanbite_event_virtual_url':
 					update_post_meta( $post_id, $meta_key, esc_url_raw( (string) $raw ) );
 					break;
-				case 'cp_event_visibility':
+				case 'clanbite_event_visibility':
 					update_post_meta( $post_id, $meta_key, $pt->sanitize_visibility( $raw ) );
 					break;
-				case 'cp_event_attendees_visibility':
+				case 'clanbite_event_attendees_visibility':
 					update_post_meta( $post_id, $meta_key, $pt->sanitize_attendees_visibility( $raw ) );
 					break;
-				case 'cp_event_starts_at':
-				case 'cp_event_ends_at':
+				case 'clanbite_event_starts_at':
+				case 'clanbite_event_ends_at':
 					update_post_meta( $post_id, $meta_key, $pt->sanitize_datetime_gmt( $raw ) );
 					break;
 				default:
@@ -883,7 +883,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Insert a `cp_event` after capability checks (may not have `create_posts`).
+	 * Insert a `clanbite_event` after capability checks (may not have `create_posts`).
 	 *
 	 * @param array<string, mixed> $postarr Post data for {@see wp_insert_post()}.
 	 * @return int|\WP_Error
@@ -907,7 +907,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Update a `cp_event` post (capability shim).
+	 * Update a `clanbite_event` post (capability shim).
 	 *
 	 * @param array<string, mixed> $postarr Post data for {@see wp_update_post()}.
 	 * @param int                  $user_id Acting user ID.
@@ -944,21 +944,21 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			'title'               => get_the_title( $post ),
 			'content'             => $post->post_content,
 			'status'              => $post->post_status,
-			'scope'               => (string) get_post_meta( $pid, 'cp_event_scope', true ),
-			'teamId'              => (int) get_post_meta( $pid, 'cp_event_team_id', true ),
-			'groupId'             => (int) get_post_meta( $pid, 'cp_event_group_id', true ),
-			'mode'                => (string) get_post_meta( $pid, 'cp_event_mode', true ),
-			'virtualUrl'          => (string) get_post_meta( $pid, 'cp_event_virtual_url', true ),
-			'addressLine1'        => (string) get_post_meta( $pid, 'cp_event_address_line1', true ),
-			'addressLine2'        => (string) get_post_meta( $pid, 'cp_event_address_line2', true ),
-			'locality'            => (string) get_post_meta( $pid, 'cp_event_locality', true ),
-			'region'              => (string) get_post_meta( $pid, 'cp_event_region', true ),
-			'postcode'            => (string) get_post_meta( $pid, 'cp_event_postcode', true ),
-			'country'             => (string) get_post_meta( $pid, 'cp_event_country', true ),
-			'startsAt'            => (string) get_post_meta( $pid, 'cp_event_starts_at', true ),
-			'endsAt'              => (string) get_post_meta( $pid, 'cp_event_ends_at', true ),
-			'visibility'          => (string) get_post_meta( $pid, 'cp_event_visibility', true ),
-			'attendeesVisibility' => (string) get_post_meta( $pid, 'cp_event_attendees_visibility', true ),
+			'scope'               => (string) get_post_meta( $pid, 'clanbite_event_scope', true ),
+			'teamId'              => (int) get_post_meta( $pid, 'clanbite_event_team_id', true ),
+			'groupId'             => (int) get_post_meta( $pid, 'clanbite_event_group_id', true ),
+			'mode'                => (string) get_post_meta( $pid, 'clanbite_event_mode', true ),
+			'virtualUrl'          => (string) get_post_meta( $pid, 'clanbite_event_virtual_url', true ),
+			'addressLine1'        => (string) get_post_meta( $pid, 'clanbite_event_address_line1', true ),
+			'addressLine2'        => (string) get_post_meta( $pid, 'clanbite_event_address_line2', true ),
+			'locality'            => (string) get_post_meta( $pid, 'clanbite_event_locality', true ),
+			'region'              => (string) get_post_meta( $pid, 'clanbite_event_region', true ),
+			'postcode'            => (string) get_post_meta( $pid, 'clanbite_event_postcode', true ),
+			'country'             => (string) get_post_meta( $pid, 'clanbite_event_country', true ),
+			'startsAt'            => (string) get_post_meta( $pid, 'clanbite_event_starts_at', true ),
+			'endsAt'              => (string) get_post_meta( $pid, 'clanbite_event_ends_at', true ),
+			'visibility'          => (string) get_post_meta( $pid, 'clanbite_event_visibility', true ),
+			'attendeesVisibility' => (string) get_post_meta( $pid, 'clanbite_event_attendees_visibility', true ),
 			'permalink'           => self::public_permalink_for_event_post( $post ),
 			'permalinkTeam'       => '', // Deprecated; use permalink.
 			'ownerId'             => (int) $post->post_author,
@@ -976,9 +976,9 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 */
 	public static function public_permalink_for_event_post( \WP_Post $post ): string {
 		$pid   = $post->ID;
-		$scope = sanitize_key( (string) get_post_meta( $pid, 'cp_event_scope', true ) );
+		$scope = sanitize_key( (string) get_post_meta( $pid, 'clanbite_event_scope', true ) );
 		if ( Event_Post_Type::SCOPE_TEAM === $scope ) {
-			$team_id = (int) get_post_meta( $pid, 'cp_event_team_id', true );
+			$team_id = (int) get_post_meta( $pid, 'clanbite_event_team_id', true );
 			if ( $team_id < 1 ) {
 				return '';
 			}
@@ -991,7 +991,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 				return trailingslashit( home_url( '/teams/' . rawurlencode( $slug ) . '/events/' . $pid ) );
 			}
 		} elseif ( Event_Post_Type::SCOPE_GROUP === $scope ) {
-			$group_id = (int) get_post_meta( $pid, 'cp_event_group_id', true );
+			$group_id = (int) get_post_meta( $pid, 'clanbite_event_group_id', true );
 			if ( $group_id < 1 ) {
 				return '';
 			}
@@ -1053,14 +1053,14 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 	 * @return WP_Error|null
 	 */
 	private function assert_events_allowed_for_event_post( \WP_Post $post ): ?WP_Error {
-		$scope = sanitize_key( (string) get_post_meta( $post->ID, 'cp_event_scope', true ) );
+		$scope = sanitize_key( (string) get_post_meta( $post->ID, 'clanbite_event_scope', true ) );
 		if ( Event_Post_Type::SCOPE_TEAM === $scope ) {
-			$team_id = (int) get_post_meta( $post->ID, 'cp_event_team_id', true );
+			$team_id = (int) get_post_meta( $post->ID, 'clanbite_event_team_id', true );
 
 			return $this->assert_team_events_allowed( $team_id );
 		}
 		if ( Event_Post_Type::SCOPE_GROUP === $scope ) {
-			$group_id = (int) get_post_meta( $post->ID, 'cp_event_group_id', true );
+			$group_id = (int) get_post_meta( $post->ID, 'clanbite_event_group_id', true );
 
 			return $this->assert_group_events_allowed( $group_id );
 		}

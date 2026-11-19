@@ -507,7 +507,7 @@ const { actions } = store( 'clanbite-event-calendar', {
 				return;
 			}
 			const ctx = getContext();
-			ctx._cpCalRoot = root;
+			ctx._clanbiteCalRoot = root;
 			if ( ! ctx.view ) {
 				ctx.view = 'month';
 			}
@@ -529,7 +529,7 @@ const { actions } = store( 'clanbite-event-calendar', {
 			}
 			const ctx = getContext();
 			ctx.view = v;
-			const root = ctx._cpCalRoot;
+			const root = ctx._clanbiteCalRoot;
 			if ( root ) {
 				syncViewButtons( root, v );
 			}
@@ -559,7 +559,7 @@ const { actions } = store( 'clanbite-event-calendar', {
 
 		async load() {
 			const ctx = getContext();
-			const root = ctx._cpCalRoot;
+			const root = ctx._clanbiteCalRoot;
 			if ( ! root ) {
 				return;
 			}

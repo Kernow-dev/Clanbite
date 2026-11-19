@@ -41,7 +41,7 @@ The WordPress.org plugin download omits the `src/` tree and Node tooling to keep
 
 * **Block editor and front-end blocks** — `src/blocks/` (matches, players, teams, events, notifications, core blocks). Each block’s `index.js`, `edit.js`, `view.js`, and related modules compile into matching paths under `build/` (for example `src/blocks/events/event-calendar/` → `build/events/event-calendar/`).
 * **Clanbite admin (React settings shell)** — `src/admin/` → `assets/dist/clanbite-admin.js` (see `webpack.config.cjs` in the repository).
-* **Match post editor sidebar** — `src/cp-match-editor/src/` → `build/cp-match-editor/`.
+* **Match post editor sidebar** — `src/clanbite-match-editor/src/` → `build/clanbite-match-editor/`.
 
 **Third-party JavaScript** used at build time (for example `@wordpress/scripts` and `@wordpress/*` packages) is declared in `package.json` / `package-lock.json` in that repository. Those packages are open-source; versions are pinned in the lockfile for reproducible builds.
 
@@ -85,11 +85,12 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 == Changelog ==
 
 = 1.6.7 =
+* Changed: every stored name that still used the old `cp_` prefix (extension slugs, the group post type, meta keys, options and the add-ons' tables) now uses `clanbite_`. A one-time upgrade moves existing data across; nothing needs doing by hand. Add-ons that read the old names must update. The player Events page now picks an event with `?clanbite_event_view=`, and the event-post visibility filter is `clanbite_event_post_viewer_can_see`.
 * Improved: blocks now look like the front end in the block editor (server-rendered previews with sample content where a site has none).
 * Maintenance: the developer-docs workflow is pinned to a reviewed commit, passes only the secrets it needs, and a manual republish now requires a published release tag.
 
 = 1.6.6 =
-* New: the official Clanbite Shop add-on is recognised as a first-party extension (`cp_shop`).
+* New: the official Clanbite Shop add-on is recognised as a first-party extension (`clanbite_shop`).
 
 = 1.6.5 =
 * Fix: block stylesheets (of Clanbite and every add-on) are now versioned by their build time, so a browser or CDN that cached the old CSS loads the new one after an update.

@@ -2,7 +2,8 @@
 /**
  * One-time migration: legacy CPT identifiers (`cp_*`) → `clanbite_*` post types.
  *
- * Post meta keys keep their historical `cp_*` prefixes so existing rows in wp_postmeta keep working.
+ * Run by {@see \Kernowdev\Clanbite\Maintenance::run_2()} together with the meta, option and table renames in
+ * `clanbite-legacy-prefix-migration.php`.
  *
  * @package clanbite
  */

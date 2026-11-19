@@ -110,7 +110,7 @@ final class Abilities_Api {
 					'properties' => array(
 						'slug' => array(
 							'type'        => 'string',
-							'description' => __( 'Team post slug (`cp_team` post_name).', 'clanbite' ),
+							'description' => __( 'Team post slug (`clanbite_team` post_name).', 'clanbite' ),
 						),
 						'url'  => array(
 							'type'        => 'string',

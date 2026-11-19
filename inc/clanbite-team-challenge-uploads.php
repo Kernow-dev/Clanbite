@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Post meta on attachments uploaded via {@see Team_Challenges::rest_upload_challenge_media()}.
- * Value is the challenged `cp_team` ID (string) the upload was scoped to.
+ * Value is the challenged `clanbite_team` ID (string) the upload was scoped to.
  */
 const CLANBITE_TEAM_CHALLENGE_LOGO_TEAM_META = '_clanbite_team_challenge_logo';
 
@@ -29,7 +29,7 @@ function clanbite_team_match_logo_relative_dir( int $team_id, int $match_id ): s
 /**
  * Staging relative dir before a match exists: clanbite/teams/{team_id}/matches/staging
  *
- * @param int $challenged_team_id Challenged `cp_team` ID.
+ * @param int $challenged_team_id Challenged `clanbite_team` ID.
  * @return string
  */
 function clanbite_team_challenge_logo_staging_relative_dir( int $challenged_team_id ): string {

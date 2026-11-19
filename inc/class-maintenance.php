@@ -13,7 +13,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Runs one-shot maintenance steps keyed by {@see Main::MAINTENANCE_VERSION}.
  *
- * For the 1.0.0 WordPress.org release, all prior incremental rewrite flushes are folded into a single step.
+ * Add a step as `run_N()` and raise {@see Main::MAINTENANCE_VERSION} to N; each step runs once per site, in order, on the first request after the update (and on a fresh install, where it finds nothing to change). Steps must be safe to run twice.
  */
 class Maintenance {
 
@@ -37,5 +37,19 @@ class Maintenance {
 	 */
 	private static function run_1(): void {
 		flush_rewrite_rules( false );
+	}
+
+	/**
+	 * The rebrand: everything stored under an old name moves to its Clanbite name.
+	 *
+	 * First the post types (`cp_team` to `clanbite_team`, and so on), then every remaining `cp_` name: extension slugs, meta keys,
+	 * options, saved template slugs and the add-ons' tables. See `inc/clanbite-cpt-identifier-migration.php` and
+	 * `inc/clanbite-legacy-prefix-migration.php`; each keeps its own marker so it never repeats.
+	 *
+	 * @return void
+	 */
+	private static function run_2(): void {
+		clanbite_maybe_migrate_cpt_identifiers();
+		clanbite_maybe_migrate_legacy_prefix();
 	}
 }

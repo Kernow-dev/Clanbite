@@ -69,14 +69,14 @@
 
 	/**
 	 * Popovers that are shown and hidden by the Interactivity `hidden` binding (reaction pickers, tooltips) announce themselves too:
-	 * mark the element `data-cp-popup="name"` and this watches its `hidden` attribute, so the lifecycle hooks fire for every way it
+	 * mark the element `data-clanbite-popup="name"` and this watches its `hidden` attribute, so the lifecycle hooks fire for every way it
 	 * can open or close (click, hover, outside click, Escape) without each store calling `announce()` in every close path.
 	 * The event's `root` is the marked element.
 	 *
 	 * @param {Element} el A marked element.
 	 */
 	function track( el ) {
-		const name = el.getAttribute( 'data-cp-popup' );
+		const name = el.getAttribute( 'data-clanbite-popup' );
 		if ( name ) {
 			announce( name, ! el.hidden, el );
 			float( el );
@@ -91,14 +91,14 @@
 	 * A popup that is `position: absolute` inside a post sits in that post's stacking context, so later siblings can paint over it
 	 * and `overflow` can clip it. While it is open this promotes it with the Popover API, keeps the exact spot its own CSS gave it
 	 * (above, below, left or right aligned) and follows the page as it scrolls. It reverts when it closes. Add
-	 * `data-cp-float="off"` to a popup that must stay in the flow. Browsers without the Popover API keep the old behaviour.
+	 * `data-clanbite-float="off"` to a popup that must stay in the flow. Browsers without the Popover API keep the old behaviour.
 	 *
 	 * @param {Element} el A marked popup.
 	 */
 	function float( el ) {
 		if (
 			typeof el.showPopover !== 'function' ||
-			el.getAttribute( 'data-cp-float' ) === 'off'
+			el.getAttribute( 'data-clanbite-float' ) === 'off'
 		) {
 			return;
 		}
@@ -192,10 +192,10 @@
 		if ( node.nodeType !== 1 ) {
 			return;
 		}
-		if ( node.hasAttribute( 'data-cp-popup' ) ) {
+		if ( node.hasAttribute( 'data-clanbite-popup' ) ) {
 			track( node );
 		}
-		node.querySelectorAll( '[data-cp-popup]' ).forEach( track );
+		node.querySelectorAll( '[data-clanbite-popup]' ).forEach( track );
 	}
 
 	function watchMarkedPopups() {
@@ -203,7 +203,7 @@
 		new window.MutationObserver( ( records ) => {
 			for ( const record of records ) {
 				if ( record.type === 'attributes' ) {
-					if ( record.target.hasAttribute( 'data-cp-popup' ) ) {
+					if ( record.target.hasAttribute( 'data-clanbite-popup' ) ) {
 						track( record.target );
 					}
 				} else {

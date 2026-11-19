@@ -25,16 +25,22 @@ export default function Edit( { attributes, setAttributes } ) {
 						value={ eventType }
 						options={ [
 							{
-								label: __( 'Match (cp_match)', 'clanbite' ),
+								label: __(
+									'Match (clanbite_match)',
+									'clanbite'
+								),
 								value: 'match',
 							},
 							{
-								label: __( 'Group (cp_group)', 'clanbite' ),
+								label: __(
+									'Group (clanbite_group)',
+									'clanbite'
+								),
 								value: 'group',
 							},
 							{
 								label: __(
-									'Scheduled event (cp_event)',
+									'Scheduled event (clanbite_event)',
 									'clanbite'
 								),
 								value: 'clanbite_event',

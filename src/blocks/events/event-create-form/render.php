@@ -49,17 +49,17 @@ if ( $is_edit ) {
 		return;
 	}
 
-	$scope_meta = sanitize_key( (string) get_post_meta( $edit_event_id, 'cp_event_scope', true ) );
+	$scope_meta = sanitize_key( (string) get_post_meta( $edit_event_id, 'clanbite_event_scope', true ) );
 	if ( Event_Post_Type::SCOPE_TEAM === $scope_meta ) {
 		$scope    = 'team';
-		$team_id  = (int) get_post_meta( $edit_event_id, 'cp_event_team_id', true );
+		$team_id  = (int) get_post_meta( $edit_event_id, 'clanbite_event_team_id', true );
 		$group_id = 0;
 		if ( function_exists( 'clanbite_events_are_enabled_for_team' ) && ! clanbite_events_are_enabled_for_team( $team_id ) ) {
 			return '';
 		}
 	} elseif ( Event_Post_Type::SCOPE_GROUP === $scope_meta ) {
 		$scope    = 'group';
-		$group_id = (int) get_post_meta( $edit_event_id, 'cp_event_group_id', true );
+		$group_id = (int) get_post_meta( $edit_event_id, 'clanbite_event_group_id', true );
 		$team_id  = 0;
 		if ( function_exists( 'clanbite_events_are_enabled_for_group' ) && ! clanbite_events_are_enabled_for_group( $group_id ) ) {
 			return '';
@@ -78,12 +78,12 @@ if ( $is_edit ) {
 	$id_suffix  = '-' . $edit_event_id;
 	$pf_title   = get_the_title( $edit_post );
 	$pf_content = (string) $edit_post->post_content;
-	$pf_mode    = sanitize_key( (string) get_post_meta( $edit_event_id, 'cp_event_mode', true ) );
+	$pf_mode    = sanitize_key( (string) get_post_meta( $edit_event_id, 'clanbite_event_mode', true ) );
 	if ( '' === $pf_mode ) {
 		$pf_mode = Event_Post_Type::MODE_IN_PERSON;
 	}
 	$pf_starts = '';
-	$raw_start = (string) get_post_meta( $edit_event_id, 'cp_event_starts_at', true );
+	$raw_start = (string) get_post_meta( $edit_event_id, 'clanbite_event_starts_at', true );
 	if ( '' !== $raw_start ) {
 		$ts_start = strtotime( $raw_start . ' UTC' );
 		if ( $ts_start ) {
@@ -91,25 +91,25 @@ if ( $is_edit ) {
 		}
 	}
 	$pf_ends = '';
-	$raw_end = (string) get_post_meta( $edit_event_id, 'cp_event_ends_at', true );
+	$raw_end = (string) get_post_meta( $edit_event_id, 'clanbite_event_ends_at', true );
 	if ( '' !== $raw_end ) {
 		$ts_end = strtotime( $raw_end . ' UTC' );
 		if ( $ts_end ) {
 			$pf_ends = wp_date( 'Y-m-d\TH:i', $ts_end );
 		}
 	}
-	$pf_vurl     = (string) get_post_meta( $edit_event_id, 'cp_event_virtual_url', true );
-	$pf_line1    = (string) get_post_meta( $edit_event_id, 'cp_event_address_line1', true );
-	$pf_line2    = (string) get_post_meta( $edit_event_id, 'cp_event_address_line2', true );
-	$pf_locality = (string) get_post_meta( $edit_event_id, 'cp_event_locality', true );
-	$pf_region   = (string) get_post_meta( $edit_event_id, 'cp_event_region', true );
-	$pf_postcode = (string) get_post_meta( $edit_event_id, 'cp_event_postcode', true );
-	$pf_country  = (string) get_post_meta( $edit_event_id, 'cp_event_country', true );
-	$pf_vis      = (string) get_post_meta( $edit_event_id, 'cp_event_visibility', true );
+	$pf_vurl     = (string) get_post_meta( $edit_event_id, 'clanbite_event_virtual_url', true );
+	$pf_line1    = (string) get_post_meta( $edit_event_id, 'clanbite_event_address_line1', true );
+	$pf_line2    = (string) get_post_meta( $edit_event_id, 'clanbite_event_address_line2', true );
+	$pf_locality = (string) get_post_meta( $edit_event_id, 'clanbite_event_locality', true );
+	$pf_region   = (string) get_post_meta( $edit_event_id, 'clanbite_event_region', true );
+	$pf_postcode = (string) get_post_meta( $edit_event_id, 'clanbite_event_postcode', true );
+	$pf_country  = (string) get_post_meta( $edit_event_id, 'clanbite_event_country', true );
+	$pf_vis      = (string) get_post_meta( $edit_event_id, 'clanbite_event_visibility', true );
 	if ( '' === $pf_vis ) {
 		$pf_vis = Event_Post_Type::VISIBILITY_PUBLIC;
 	}
-	$pf_attvis = (string) get_post_meta( $edit_event_id, 'cp_event_attendees_visibility', true );
+	$pf_attvis = (string) get_post_meta( $edit_event_id, 'clanbite_event_attendees_visibility', true );
 	if ( '' === $pf_attvis ) {
 		$pf_attvis = 'hidden';
 	}
@@ -127,7 +127,7 @@ if ( $is_edit ) {
 	}
 
 	if ( 'player' === $scope ) {
-		// The form only takes the page when the player asked for it (`?cp_event=new`).
+		// The form only takes the page when the player asked for it (`?clanbite_event_view=new`).
 		if ( ! function_exists( 'clanbite_events_requested_player_event' ) || 'new' !== clanbite_events_requested_player_event() ) {
 			return '';
 		}
@@ -223,17 +223,17 @@ $event_create_form_root_open = '<div '
 <?php clanbite_echo_block_fragment_html( $event_create_form_root_open ); ?>
 	<?php
 	if ( ! $is_edit && 'team' === $scope && 'create' === sanitize_key( (string) get_query_var( 'clanbite_team_events_sub' ) ) && $team_id > 0 && function_exists( 'clanbite_teams_get_team_action_url' ) ) {
-		$cp_back_events = clanbite_teams_get_team_action_url( $team_id, 'events' );
-		if ( is_string( $cp_back_events ) && '' !== $cp_back_events ) {
-			echo '<p class="clanbite-event-create-form__back"><a href="' . esc_url( $cp_back_events ) . '">' . esc_html__( '← Back to events', 'clanbite' ) . '</a></p>';
+		$clanbite_back_events = clanbite_teams_get_team_action_url( $team_id, 'events' );
+		if ( is_string( $clanbite_back_events ) && '' !== $clanbite_back_events ) {
+			echo '<p class="clanbite-event-create-form__back"><a href="' . esc_url( $clanbite_back_events ) . '">' . esc_html__( '← Back to events', 'clanbite' ) . '</a></p>';
 		}
 	}
 	?>
 	<?php
 	if ( ! $is_edit && 'player' === $scope && function_exists( 'clanbite_events_get_player_events_url' ) ) {
-		$cp_back_player = clanbite_events_get_player_events_url( $viewer_id );
-		if ( '' !== $cp_back_player ) {
-			echo '<p class="clanbite-event-create-form__back"><a href="' . esc_url( $cp_back_player ) . '">' . esc_html__( '← Back to events', 'clanbite' ) . '</a></p>';
+		$clanbite_back_player = clanbite_events_get_player_events_url( $viewer_id );
+		if ( '' !== $clanbite_back_player ) {
+			echo '<p class="clanbite-event-create-form__back"><a href="' . esc_url( $clanbite_back_player ) . '">' . esc_html__( '← Back to events', 'clanbite' ) . '</a></p>';
 		}
 	}
 	?>
@@ -271,16 +271,16 @@ $event_create_form_root_open = '<div '
 
 		<div class="clanbite-event-create-form__step" role="tabpanel" data-event-step="1">
 			<p>
-				<label for="cp-event-title<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Title', 'clanbite' ); ?></label>
-				<input type="text" id="cp-event-title<?php echo esc_attr( $id_suffix ); ?>" name="title" required class="clanbite-event-create-form__input-title" value="<?php echo esc_attr( $pf_title ); ?>" />
+				<label for="clanbite-event-title<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Title', 'clanbite' ); ?></label>
+				<input type="text" id="clanbite-event-title<?php echo esc_attr( $id_suffix ); ?>" name="title" required class="clanbite-event-create-form__input-title" value="<?php echo esc_attr( $pf_title ); ?>" />
 			</p>
 			<p>
-				<label for="cp-event-content<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Description', 'clanbite' ); ?></label>
-				<textarea id="cp-event-content<?php echo esc_attr( $id_suffix ); ?>" name="content" rows="4" class="clanbite-event-create-form__input-content"><?php echo esc_textarea( $pf_content ); ?></textarea>
+				<label for="clanbite-event-content<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Description', 'clanbite' ); ?></label>
+				<textarea id="clanbite-event-content<?php echo esc_attr( $id_suffix ); ?>" name="content" rows="4" class="clanbite-event-create-form__input-content"><?php echo esc_textarea( $pf_content ); ?></textarea>
 			</p>
 			<p>
-				<label for="cp-event-mode<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Format', 'clanbite' ); ?></label>
-				<select id="cp-event-mode<?php echo esc_attr( $id_suffix ); ?>" name="mode" class="clanbite-event-create-form__input-mode" data-wp-on--change="actions.onModeChange">
+				<label for="clanbite-event-mode<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Format', 'clanbite' ); ?></label>
+				<select id="clanbite-event-mode<?php echo esc_attr( $id_suffix ); ?>" name="mode" class="clanbite-event-create-form__input-mode" data-wp-on--change="actions.onModeChange">
 					<option value="<?php echo esc_attr( Event_Post_Type::MODE_IN_PERSON ); ?>" <?php selected( $pf_mode, Event_Post_Type::MODE_IN_PERSON ); ?>><?php esc_html_e( 'In person', 'clanbite' ); ?></option>
 					<option value="<?php echo esc_attr( Event_Post_Type::MODE_VIRTUAL ); ?>" <?php selected( $pf_mode, Event_Post_Type::MODE_VIRTUAL ); ?>><?php esc_html_e( 'Virtual', 'clanbite' ); ?></option>
 				</select>
@@ -289,44 +289,44 @@ $event_create_form_root_open = '<div '
 
 		<div class="clanbite-event-create-form__step" role="tabpanel" data-event-step="2" hidden>
 			<p>
-				<label for="cp-event-starts<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Starts (local time)', 'clanbite' ); ?></label>
-				<input type="datetime-local" id="cp-event-starts<?php echo esc_attr( $id_suffix ); ?>" name="starts_at_local" class="clanbite-event-create-form__input-starts" value="<?php echo esc_attr( $pf_starts ); ?>" />
+				<label for="clanbite-event-starts<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Starts (local time)', 'clanbite' ); ?></label>
+				<input type="datetime-local" id="clanbite-event-starts<?php echo esc_attr( $id_suffix ); ?>" name="starts_at_local" class="clanbite-event-create-form__input-starts" value="<?php echo esc_attr( $pf_starts ); ?>" />
 			</p>
 			<p>
-				<label for="cp-event-ends<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Ends (local time)', 'clanbite' ); ?></label>
-				<input type="datetime-local" id="cp-event-ends<?php echo esc_attr( $id_suffix ); ?>" name="ends_at_local" class="clanbite-event-create-form__input-ends" value="<?php echo esc_attr( $pf_ends ); ?>" />
+				<label for="clanbite-event-ends<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Ends (local time)', 'clanbite' ); ?></label>
+				<input type="datetime-local" id="clanbite-event-ends<?php echo esc_attr( $id_suffix ); ?>" name="ends_at_local" class="clanbite-event-create-form__input-ends" value="<?php echo esc_attr( $pf_ends ); ?>" />
 			</p>
 		</div>
 
 		<div class="clanbite-event-create-form__step" role="tabpanel" data-event-step="3" hidden>
 			<p class="clanbite-event-create-form__field clanbite-event-create-form__field--virtual" hidden>
-				<label for="cp-event-vurl<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Virtual URL', 'clanbite' ); ?></label>
-				<input type="url" id="cp-event-vurl<?php echo esc_attr( $id_suffix ); ?>" name="virtual_url" class="clanbite-event-create-form__input-vurl" value="<?php echo esc_attr( $pf_vurl ); ?>" />
+				<label for="clanbite-event-vurl<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Virtual URL', 'clanbite' ); ?></label>
+				<input type="url" id="clanbite-event-vurl<?php echo esc_attr( $id_suffix ); ?>" name="virtual_url" class="clanbite-event-create-form__input-vurl" value="<?php echo esc_attr( $pf_vurl ); ?>" />
 			</p>
 			<p class="clanbite-event-create-form__field clanbite-event-create-form__field--address">
-				<label for="cp-event-line1<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Address line 1', 'clanbite' ); ?></label>
-				<input type="text" id="cp-event-line1<?php echo esc_attr( $id_suffix ); ?>" name="address_line1" class="clanbite-event-create-form__input-line1" value="<?php echo esc_attr( $pf_line1 ); ?>" />
+				<label for="clanbite-event-line1<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Address line 1', 'clanbite' ); ?></label>
+				<input type="text" id="clanbite-event-line1<?php echo esc_attr( $id_suffix ); ?>" name="address_line1" class="clanbite-event-create-form__input-line1" value="<?php echo esc_attr( $pf_line1 ); ?>" />
 			</p>
 			<p class="clanbite-event-create-form__field clanbite-event-create-form__field--address">
-				<label for="cp-event-line2<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Address line 2', 'clanbite' ); ?></label>
-				<input type="text" id="cp-event-line2<?php echo esc_attr( $id_suffix ); ?>" name="address_line2" class="clanbite-event-create-form__input-line2" value="<?php echo esc_attr( $pf_line2 ); ?>" />
+				<label for="clanbite-event-line2<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Address line 2', 'clanbite' ); ?></label>
+				<input type="text" id="clanbite-event-line2<?php echo esc_attr( $id_suffix ); ?>" name="address_line2" class="clanbite-event-create-form__input-line2" value="<?php echo esc_attr( $pf_line2 ); ?>" />
 			</p>
 			<div class="clanbite-event-create-form__grid">
 				<p class="clanbite-event-create-form__field clanbite-event-create-form__field--address">
-					<label for="cp-event-locality<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'City / locality', 'clanbite' ); ?></label>
-					<input type="text" id="cp-event-locality<?php echo esc_attr( $id_suffix ); ?>" name="locality" class="clanbite-event-create-form__input-locality" value="<?php echo esc_attr( $pf_locality ); ?>" />
+					<label for="clanbite-event-locality<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'City / locality', 'clanbite' ); ?></label>
+					<input type="text" id="clanbite-event-locality<?php echo esc_attr( $id_suffix ); ?>" name="locality" class="clanbite-event-create-form__input-locality" value="<?php echo esc_attr( $pf_locality ); ?>" />
 				</p>
 				<p class="clanbite-event-create-form__field clanbite-event-create-form__field--address">
-					<label for="cp-event-region<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Region / state', 'clanbite' ); ?></label>
-					<input type="text" id="cp-event-region<?php echo esc_attr( $id_suffix ); ?>" name="region" class="clanbite-event-create-form__input-region" value="<?php echo esc_attr( $pf_region ); ?>" />
+					<label for="clanbite-event-region<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Region / state', 'clanbite' ); ?></label>
+					<input type="text" id="clanbite-event-region<?php echo esc_attr( $id_suffix ); ?>" name="region" class="clanbite-event-create-form__input-region" value="<?php echo esc_attr( $pf_region ); ?>" />
 				</p>
 				<p class="clanbite-event-create-form__field clanbite-event-create-form__field--address">
-					<label for="cp-event-postcode<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Postal code', 'clanbite' ); ?></label>
-					<input type="text" id="cp-event-postcode<?php echo esc_attr( $id_suffix ); ?>" name="postcode" class="clanbite-event-create-form__input-postcode" value="<?php echo esc_attr( $pf_postcode ); ?>" />
+					<label for="clanbite-event-postcode<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Postal code', 'clanbite' ); ?></label>
+					<input type="text" id="clanbite-event-postcode<?php echo esc_attr( $id_suffix ); ?>" name="postcode" class="clanbite-event-create-form__input-postcode" value="<?php echo esc_attr( $pf_postcode ); ?>" />
 				</p>
 				<p class="clanbite-event-create-form__field clanbite-event-create-form__field--address">
-					<label for="cp-event-country<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Country', 'clanbite' ); ?></label>
-					<input type="text" id="cp-event-country<?php echo esc_attr( $id_suffix ); ?>" name="country" class="clanbite-event-create-form__input-country" value="<?php echo esc_attr( $pf_country ); ?>" />
+					<label for="clanbite-event-country<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Country', 'clanbite' ); ?></label>
+					<input type="text" id="clanbite-event-country<?php echo esc_attr( $id_suffix ); ?>" name="country" class="clanbite-event-create-form__input-country" value="<?php echo esc_attr( $pf_country ); ?>" />
 				</p>
 			</div>
 		</div>
@@ -334,8 +334,8 @@ $event_create_form_root_open = '<div '
 		<div class="clanbite-event-create-form__step" role="tabpanel" data-event-step="4" hidden>
 			<?php if ( 'player' === $scope ) : ?>
 				<p>
-					<label for="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Who can see this event', 'clanbite' ); ?></label>
-					<select id="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>" name="visibility" class="clanbite-event-create-form__input-vis" data-wp-on--change="actions.onVisibilityChange">
+					<label for="clanbite-event-vis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Who can see this event', 'clanbite' ); ?></label>
+					<select id="clanbite-event-vis<?php echo esc_attr( $id_suffix ); ?>" name="visibility" class="clanbite-event-create-form__input-vis" data-wp-on--change="actions.onVisibilityChange">
 						<option value="public" <?php selected( $pf_vis, 'public' ); ?>><?php esc_html_e( 'Anyone', 'clanbite' ); ?></option>
 						<option value="friends" <?php selected( $pf_vis, 'friends' ); ?>><?php esc_html_e( 'Friends', 'clanbite' ); ?></option>
 						<option value="only_me" <?php selected( $pf_vis, 'only_me' ); ?>><?php esc_html_e( 'Only me', 'clanbite' ); ?></option>
@@ -343,8 +343,8 @@ $event_create_form_root_open = '<div '
 				</p>
 			<?php else : ?>
 				<p>
-					<label for="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Who can see this event', 'clanbite' ); ?></label>
-					<select id="cp-event-vis<?php echo esc_attr( $id_suffix ); ?>" name="visibility" class="clanbite-event-create-form__input-vis">
+					<label for="clanbite-event-vis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Who can see this event', 'clanbite' ); ?></label>
+					<select id="clanbite-event-vis<?php echo esc_attr( $id_suffix ); ?>" name="visibility" class="clanbite-event-create-form__input-vis">
 						<option value="public" <?php selected( $pf_vis, 'public' ); ?>><?php esc_html_e( 'Public', 'clanbite' ); ?></option>
 						<option value="members" <?php selected( $pf_vis, 'members' ); ?>><?php esc_html_e( 'Logged-in members', 'clanbite' ); ?></option>
 						<option value="team_members" <?php selected( $pf_vis, 'team_members' ); ?>><?php esc_html_e( 'Team/group members only', 'clanbite' ); ?></option>
@@ -353,8 +353,8 @@ $event_create_form_root_open = '<div '
 				</p>
 			<?php endif; ?>
 			<p>
-				<label for="cp-event-attvis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Attendee list', 'clanbite' ); ?></label>
-				<select id="cp-event-attvis<?php echo esc_attr( $id_suffix ); ?>" name="attendees_visibility" class="clanbite-event-create-form__input-attvis">
+				<label for="clanbite-event-attvis<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Attendee list', 'clanbite' ); ?></label>
+				<select id="clanbite-event-attvis<?php echo esc_attr( $id_suffix ); ?>" name="attendees_visibility" class="clanbite-event-create-form__input-attvis">
 					<option value="hidden" <?php selected( $pf_attvis, 'hidden' ); ?>><?php esc_html_e( 'Hidden', 'clanbite' ); ?></option>
 					<option value="public" <?php selected( $pf_attvis, 'public' ); ?>><?php esc_html_e( 'Public', 'clanbite' ); ?></option>
 				</select>
@@ -371,8 +371,8 @@ $event_create_form_root_open = '<div '
 					<?php else : ?>
 						<p class="description"><?php esc_html_e( 'Invited friends get a notification and can say whether they are coming.', 'clanbite' ); ?></p>
 						<p>
-							<label class="screen-reader-text" for="cp-event-invite-search<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Search friends', 'clanbite' ); ?></label>
-							<input type="search" id="cp-event-invite-search<?php echo esc_attr( $id_suffix ); ?>" class="clanbite-event-create-form__invite-search" placeholder="<?php esc_attr_e( 'Search friends…', 'clanbite' ); ?>" data-wp-on--input="actions.filterInvites" />
+							<label class="screen-reader-text" for="clanbite-event-invite-search<?php echo esc_attr( $id_suffix ); ?>"><?php esc_html_e( 'Search friends', 'clanbite' ); ?></label>
+							<input type="search" id="clanbite-event-invite-search<?php echo esc_attr( $id_suffix ); ?>" class="clanbite-event-create-form__invite-search" placeholder="<?php esc_attr_e( 'Search friends…', 'clanbite' ); ?>" data-wp-on--input="actions.filterInvites" />
 						</p>
 						<ul class="clanbite-event-create-form__invite-list">
 							<?php foreach ( $friend_ids as $friend_id ) : ?>
@@ -397,8 +397,8 @@ $event_create_form_root_open = '<div '
 					<?php echo esc_html( 'team' === $scope ? $config['i18n']['memberOutreachHelpTeam'] : $config['i18n']['memberOutreachHelpGroup'] ); ?>
 				</p>
 				<p>
-					<label for="cp-event-member-outreach<?php echo esc_attr( $id_suffix ); ?>" class="screen-reader-text"><?php echo esc_html( $config['i18n']['memberOutreachLabel'] ); ?></label>
-					<select id="cp-event-member-outreach<?php echo esc_attr( $id_suffix ); ?>" name="member_outreach" class="clanbite-event-create-form__input-member-outreach">
+					<label for="clanbite-event-member-outreach<?php echo esc_attr( $id_suffix ); ?>" class="screen-reader-text"><?php echo esc_html( $config['i18n']['memberOutreachLabel'] ); ?></label>
+					<select id="clanbite-event-member-outreach<?php echo esc_attr( $id_suffix ); ?>" name="member_outreach" class="clanbite-event-create-form__input-member-outreach">
 						<option value="none"><?php echo esc_html( $config['i18n']['memberOutreachNone'] ); ?></option>
 						<option value="notify"><?php echo esc_html( $config['i18n']['memberOutreachNotify'] ); ?></option>
 						<option value="rsvp_tentative"><?php echo esc_html( $config['i18n']['memberOutreachRsvp'] ); ?></option>

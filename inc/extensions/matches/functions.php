@@ -20,7 +20,7 @@ function clanbite_matches(): ?Matches {
 		return null;
 	}
 
-	$ext = $loader->get( 'cp_matches' );
+	$ext = $loader->get( 'clanbite_matches' );
 
 	return $ext instanceof Matches ? $ext : null;
 }
@@ -48,9 +48,9 @@ function clanbite_matches_subpage_team_enabled(): bool {
 }
 
 /**
- * Human-readable title for a `cp_team` post ID.
+ * Human-readable title for a `clanbite_team` post ID.
  *
- * @param int $team_id Team post ID (`cp_team`).
+ * @param int $team_id Team post ID (`clanbite_team`).
  * @return string Empty string when the post is missing or not a team.
  */
 function clanbite_matches_team_title( int $team_id ): string {
@@ -66,18 +66,18 @@ function clanbite_matches_team_title( int $team_id ): string {
 }
 
 /**
- * Away-side label for a match, using a local `cp_team` or external challenge metadata.
+ * Away-side label for a match, using a local `clanbite_team` or external challenge metadata.
  *
  * @param int $match_id Match post ID.
  * @return string
  */
 function clanbite_matches_resolve_away_team_title( int $match_id ): string {
-	$away = (int) get_post_meta( $match_id, 'cp_match_away_team_id', true );
+	$away = (int) get_post_meta( $match_id, 'clanbite_match_away_team_id', true );
 	if ( $away > 0 ) {
 		return clanbite_matches_team_title( $away );
 	}
 
-	return sanitize_text_field( (string) get_post_meta( $match_id, 'cp_match_away_external_label', true ) );
+	return sanitize_text_field( (string) get_post_meta( $match_id, 'clanbite_match_away_external_label', true ) );
 }
 
 /**

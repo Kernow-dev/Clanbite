@@ -27,7 +27,7 @@ if ( clanbite_has_component( 'reaction-summary' ) ) {
 ```
 
 - **API:** `clanbite_register_component()`, `clanbite_get_component()`, `clanbite_get_components()`, `clanbite_has_component()` (false when the component or anything in its `requires` is missing), `clanbite_render_component()` (an empty string when unavailable), `clanbite_enqueue_component()` (also enqueues what it requires).
-- **Built in:** `avatar` (`mode`: `static` or `interactive`), `toasts` and `popups` (`clanbite.popups.announce()` / `allowOpen()`: the one implementation of the `clanbite.popup.toggled` action and `clanbite.popup.shouldOpen` filter, used by the user menu, the notification bell and the challenge dialog). Popovers shown by an Interactivity `hidden` binding join in by carrying `data-cp-popup="name"`: the client watches their `hidden` attribute and announces every open and close (the feed and the forums name theirs `reaction-picker`, `reaction-tooltip`, `post-menu`, `share-menu`, `composer-menu` and `forum-post-menu`; the event's `root` is that element). While open, a marked popup is lifted into the browser's top layer (Popover API) at the spot its own CSS gave it, so nothing can cover or clip it; add `data-cp-float="off"` to keep one in the flow. Open paths call `allowOpen()` first, so a `clanbite.popup.shouldOpen` filter can keep any of them closed. Social Kit adds `reactions`, `reaction-summary`, `reaction-picker` and `mentions`.
+- **Built in:** `avatar` (`mode`: `static` or `interactive`), `toasts` and `popups` (`clanbite.popups.announce()` / `allowOpen()`: the one implementation of the `clanbite.popup.toggled` action and `clanbite.popup.shouldOpen` filter, used by the user menu, the notification bell and the challenge dialog). Popovers shown by an Interactivity `hidden` binding join in by carrying `data-clanbite-popup="name"`: the client watches their `hidden` attribute and announces every open and close (the feed and the forums name theirs `reaction-picker`, `reaction-tooltip`, `post-menu`, `share-menu`, `composer-menu` and `forum-post-menu`; the event's `root` is that element). While open, a marked popup is lifted into the browser's top layer (Popover API) at the spot its own CSS gave it, so nothing can cover or clip it; add `data-clanbite-float="off"` to keep one in the flow. Open paths call `allowOpen()` first, so a `clanbite.popup.shouldOpen` filter can keep any of them closed. Social Kit adds `reactions`, `reaction-summary`, `reaction-picker` and `mentions`.
 - **Replacing one:** register the same slug with `'replace' => true` (or filter `clanbite_components`) and every consumer uses yours.
 - **Hooks:** action `clanbite_register_components`; filters `clanbite_components`, `clanbite_component_available`, `clanbite_component_args` (and `clanbite_component_args_{slug}`), `clanbite_component_html`. Pass `surface` in the arguments so the component adds `is-{surface}` for per-surface styling.
 - **Browser:** `window.clanbite.components` (`register()`, `get()`, `has()`) is the same registry for scripts (`clanbite.components.get( 'reactions' )?.toggle( … )`); handle `clanbite-components`.
@@ -67,9 +67,9 @@ Copy `phpstan.neon.dist` to `phpstan.neon` for local overrides (the latter is gi
 The top-level **Clanbite** menu opens a **React** settings shell (`src/admin/index.js`, built to `assets/dist/clanbite-admin.js`).
 
 - **Tabs:** **General** (core options, `clanbite_general_settings`), **Extensions** (enable/disable; runs uninstallers for removed slugs), then one tab per **root** extension that exposes settings via `Skeleton::get_settings_admin()`.
-- **Deep links:** the active tab is stored in the query string as `?page=clanbite&tab=<id>` (e.g. `general`, `extensions`, `ext-cp_teams`). Invalid `tab` values fall back to the first tab and the URL is corrected. Save notices stay visible above the tab row when switching tabs.
+- **Deep links:** the active tab is stored in the query string as `?page=clanbite&tab=<id>` (e.g. `general`, `extensions`, `ext-clanbite_teams`). Invalid `tab` values fall back to the first tab and the URL is corrected. Save notices stay visible above the tab row when switching tabs.
 - **Child extensions** (`parent_slug` set): their settings sections appear **inside the parent extension tab** (grouped with an `<h3>` heading), each group saves its own option row via REST.
-- **CPT menus:** Custom post types registered by the plugin should use `'show_in_menu' => 'clanbite'` so list tables appear under this menu (e.g. **Teams** / `cp_team`).
+- **CPT menus:** Custom post types registered by the plugin should use `'show_in_menu' => 'clanbite'` so list tables appear under this menu (e.g. **Teams** / `clanbite_team`).
 
 Build after changing the admin UI:
 
@@ -79,7 +79,7 @@ npm run build:admin
 
 Uses `webpack.config.cjs` (CopyPlugin removed so only the admin bundle is emitted into `assets/dist/`).
 
-Block sources live under `src/blocks/` (matches, players, teams). The match post sidebar script lives under `src/cp-match-editor/src/`. Everything compiles into the plugin root `build/` (plus per-extension `blocks-manifest.php` files). From the plugin root:
+Block sources live under `src/blocks/` (matches, players, teams). The match post sidebar script lives under `src/clanbite-match-editor/src/`. Everything compiles into the plugin root `build/` (plus per-extension `blocks-manifest.php` files). From the plugin root:
 
 ```bash
 npm ci
@@ -93,7 +93,7 @@ npm run build:production   # admin + blocks + manifests + match editor
 |--------|--------|---------|
 | `GET` | `/wp-json/clanbite/v1/admin/bootstrap` | Tabs, `optionSchemas`, current `values`, extensions list (`clanbite_admin_rest_bootstrap`). |
 | `PUT` | `/wp-json/clanbite/v1/admin/settings/{option_key}` | JSON body: field map; uses each `Abstract_Settings::sanitize()`. |
-| `PUT` | `/wp-json/clanbite/v1/admin/extensions` | JSON `{ "installed": ["cp_players", ...] }`; uninstalls removed slugs then saves the list. |
+| `PUT` | `/wp-json/clanbite/v1/admin/extensions` | JSON `{ "installed": ["clanbite_players", ...] }`; uninstalls removed slugs then saves the list. |
 
 To restore a **standalone** PHP submenu for an extension settings class, filter `clanbite_extension_settings_register_submenu` to `true` for that `Abstract_Settings` instance.
 
@@ -132,7 +132,7 @@ The mount event can fire **more than once for the same element** (React re-runs 
 **No script needed for plain settings.** Instead of `slotId`, pass `sectionGroups` and the admin screen renders the fields itself, with a Save button per group: `'sectionGroups' => array( array( 'kind' => 'primary', 'name' => 'Reports', 'slug' => 'reports', 'optionKey' => 'my_addon_reports', 'sections' => $handler->export_rest_schema() ) )`. The option must be registered through `clanbite_admin_rest_settings_registry`. Core uses this for the **Messages** sub-tab on every extension tab.
 
 ### Avatar and cover positioning
-Player settings → Profile shows a header preview (cover with the shared avatar on it) and two buttons, **Set avatar** and **Set cover image**. Each opens a popup with the image picker, a draggable focal point, a zoom slider (the preview uses the same maths as the server), **Reset position** and **Remove image** (back to the site default); a new upload starts centred. Extend the popup with `wp.hooks`: action `clanbite.playerMedia.dialog` (`{ kind, dialog, extras, getPosition, setPosition }`, add controls into `extras`) and filter `clanbite.playerMedia.maxZoom`; PHP filter `clanbite_player_media_editor_config` changes the editor data and wording. Class: `Extensions\Players\Player_Media`. Values are saved by the normal settings save through hidden fields (`profile_avatar_focal_x/y`, `profile_avatar_zoom`, `profile_avatar_remove`, `profile_cover_position_x/y`, `profile_cover_zoom`, `profile_cover_remove`). **Cover:** the full image is kept; position and zoom are user meta (`cp_player_cover_position_x/y`, `cp_player_cover_zoom`) applied as `object-position` plus a scale around the focal point (`clanbite_players_get_display_cover_zoom()`). **Avatar:** avatars are drawn in many places from a plain URL, so the chosen square is cut from the original (512 px) and saved as the avatar (`cp_player_avatar_id`); the original stays as `cp_player_avatar_source_id` with the focal data. Hooks: `clanbite_player_avatar_removed`, `clanbite_player_cover_removed`, filters `clanbite_players_get_display_cover_zoom` and `clanbite_player_settings_success_data`.
+Player settings → Profile shows a header preview (cover with the shared avatar on it) and two buttons, **Set avatar** and **Set cover image**. Each opens a popup with the image picker, a draggable focal point, a zoom slider (the preview uses the same maths as the server), **Reset position** and **Remove image** (back to the site default); a new upload starts centred. Extend the popup with `wp.hooks`: action `clanbite.playerMedia.dialog` (`{ kind, dialog, extras, getPosition, setPosition }`, add controls into `extras`) and filter `clanbite.playerMedia.maxZoom`; PHP filter `clanbite_player_media_editor_config` changes the editor data and wording. Class: `Extensions\Players\Player_Media`. Values are saved by the normal settings save through hidden fields (`profile_avatar_focal_x/y`, `profile_avatar_zoom`, `profile_avatar_remove`, `profile_cover_position_x/y`, `profile_cover_zoom`, `profile_cover_remove`). **Cover:** the full image is kept; position and zoom are user meta (`clanbite_player_cover_position_x/y`, `clanbite_player_cover_zoom`) applied as `object-position` plus a scale around the focal point (`clanbite_players_get_display_cover_zoom()`). **Avatar:** avatars are drawn in many places from a plain URL, so the chosen square is cut from the original (512 px) and saved as the avatar (`clanbite_player_avatar_id`); the original stays as `clanbite_player_avatar_source_id` with the focal data. Hooks: `clanbite_player_avatar_removed`, `clanbite_player_cover_removed`, filters `clanbite_players_get_display_cover_zoom` and `clanbite_player_settings_success_data`.
 
 ### Where members land after signing in
 Clanbite → General → **Login → After signing in, send members to**: *the dashboard* (WordPress' default, unchanged), *the home page*, or *a custom page* (a full address or a path such as `/members/`; addresses on other hosts are ignored). Only a plain sign-in from the login page is redirected: when the login request already has a `redirect_to` (a visitor was bounced from a protected page, or opened `/wp-admin/`), that destination is kept. Options live in `clanbite_general_settings` (`login_redirect`, `login_redirect_url`). Developers can vary the destination per user with the filter `clanbite_login_redirect_url` (return an empty string to fall back to the default).
@@ -241,11 +241,11 @@ These routes are **unauthenticated** (defense in depth: nonces, rate limits, and
 |--------|--------|---------|
 | `GET` | `/wp-json/clanbite/v1/discovery` | Returns `{ clanbite, name, version }` and, when PHP sodium is available, `match_sync` hints for cross-site match signing. |
 | `GET` | `/wp-json/clanbite/v1/site-sync-public-key` | Returns `{ clanbite, algorithm: ed25519, public_key }` (base64) so peer installs can verify signed `sync-peer-match` requests. |
-| `GET` | `/wp-json/clanbite/v1/public-team` | Query args `slug` or `url` — public metadata for a published `cp_team` (title, permalink, logo, motto, country, short description). |
+| `GET` | `/wp-json/clanbite/v1/public-team` | Query args `slug` or `url` — public metadata for a published `clanbite_team` (title, permalink, logo, motto, country, short description). |
 | `GET` | `/wp-json/clanbite/v1/challenge-remote-team` | Same-site proxy: `team_id`, `url`, `challenge_nonce` — server fetches discovery + `public-team` on the remote host (avoids browser CORS). |
 | `POST` | `/wp-json/clanbite/v1/team-challenges` | JSON body: `team_id`, `challenge_nonce`, contact fields, optional `opponent_team_url`, `challenger_team_id`, `challenger_team_name`, `challenger_team_logo_id`, `proposed_scheduled_at`, `message`. Creates `clanbite_team_challenge` and notifies challenged team admins (`team_challenge` + accept/decline handlers). Requires **Matches** + **Teams**. |
 | `POST` | `/wp-json/clanbite/v1/team-challenge-media` | `multipart/form-data`: `team_id`, `challenge_nonce`, `file` — optional logo (image, max 2MB) for manual challengers; returns `{ id, url }` attachment reference for `challenger_team_logo_id`. |
-| `POST` | `/wp-json/clanbite/v1/sync-peer-match` | Signed JSON body (see below). Creates a **mirror** `cp_match` on the **challenger’s** site when the challenged site accepts a remote Clanbite challenge. |
+| `POST` | `/wp-json/clanbite/v1/sync-peer-match` | Signed JSON body (see below). Creates a **mirror** `clanbite_match` on the **challenger’s** site when the challenged site accepts a remote Clanbite challenge. |
 
 **Cross-site mirror (two-way listings):** Each install generates an **Ed25519** keypair (PHP **sodium** extension required) stored in the `clanbite_match_sync_site_keys` option. When a challenge is accepted, if the snapshot came from another Clanbite site (`source: remote`, with `origin` + `remoteTeamId` from `public-team`), the challenged site POSTs to `{origin}/wp-json/clanbite/v1/sync-peer-match` with `X-Clanbite-Sync: v1:{timestamp}:{base64url_signature}` (detached Ed25519 over `{timestamp}\n{json body}`). The receiving site fetches the sender’s public key from `{source_site}wp-json/clanbite/v1/site-sync-public-key` (HTTPS), verifies the signature, then creates the mirror match. **No shared manual secret** — only Clanbite installs that expose the public-key route and accept verified requests participate. For legacy integrations, the `clanbite_cross_site_sync_key` filter can force the older `timestamp:hmac` header using a shared secret. Without sodium and without that filter, mirror push is skipped (the local match on the challenged site still works).
 
@@ -259,9 +259,9 @@ Extensions are registered through filter-based discovery and loaded by the exten
 - Extensions may declare dependencies (`requires`) and parent-child relationships (`parent_slug`).
 - Extensions with unmet requirements must not be enabled.
 - Lifecycle methods are available for installer, updater, runtime boot, and uninstaller flows.
-- **Required** first-party slug (`cp_players` by default) stays enabled; third-party code may adjust the list via the `clanbite_required_extension_slugs` filter (use sparingly). **Notifications** (`cp_notifications`) and **Events** (`cp_events`) are official and enabled once by default via one-time loader migrations when missing; either can be disabled from **Extensions** like Teams/Matches.
+- **Required** first-party slug (`clanbite_players` by default) stays enabled; third-party code may adjust the list via the `clanbite_required_extension_slugs` filter (use sparingly). **Notifications** (`clanbite_notifications`) and **Events** (`clanbite_events`) are official and enabled once by default via one-time loader migrations when missing; either can be disabled from **Extensions** like Teams/Matches.
 - **Official** extensions are whitelisted in `Loader::get_official_extensions()` and register on `clanbite_official_registered_extensions` with an exact class-name match. Bundled extensions and separate first-party companion plugins both use that path; see **First-party extensions in separate plugins** below (e.g. Social Kit).
-- The admin **Core** badge marks only extensions whose code ships **inside the main Clanbite plugin** (`clanbite_core_bundled_extension_slugs`: `cp_players`, `cp_notifications`, `cp_teams`, `cp_matches`, `cp_events` by default). An extension can be **Official** without being **Core** (external first-party plugin).
+- The admin **Core** badge marks only extensions whose code ships **inside the main Clanbite plugin** (`clanbite_core_bundled_extension_slugs`: `clanbite_players`, `clanbite_notifications`, `clanbite_teams`, `clanbite_matches`, `clanbite_events` by default). An extension can be **Official** without being **Core** (external first-party plugin).
 - Community and third-party extensions register on `clanbite_registered_extensions` instead. Adjust the bundled list with `clanbite_core_bundled_extension_slugs` if needed.
 
 ### Extension loader bootstrap
@@ -313,7 +313,7 @@ To set **defaults for every Clanbite block** from your theme, merge the `styles.
 
 Nested keys under each block’s `color` object (`text`, `background`, `link`) mirror that block’s `selectors.color` map in its `block.json`—core maps them onto the inner DOM nodes those selectors describe. Where `selectors` includes `typography` or `filter.duotone`, the scaffold shows matching `styles.blocks[…].typography` / `filter` entries (see `clanbite/player-cover` for `filter.duotone`). Blocks that declare `selectors.border`, or that support spacing, shadows, and other features in `block.json`, accept the usual keys under `styles.blocks[ blockName ]` as in the [Styles reference](https://developer.wordpress.org/themes/global-settings-and-styles/styles/styles-reference/).
 
-The **copy-paste file** below is valid `theme.json`. It adds a small **`cp-scaffold-*`** palette, font-size, and duotone presets under `settings` so every `var:preset|color|…`, `var:preset|font-size|…`, and `var:preset|duotone|…` value resolves. Merge into an existing theme by combining those presets with yours (rename slugs if they collide) and merging `styles.blocks`, or use the file as a new block theme starter and swap tokens for your design.
+The **copy-paste file** below is valid `theme.json`. It adds a small **`clanbite-scaffold-*`** palette, font-size, and duotone presets under `settings` so every `var:preset|color|…`, `var:preset|font-size|…`, and `var:preset|duotone|…` value resolves. Merge into an existing theme by combining those presets with yours (rename slugs if they collide) and merging `styles.blocks`, or use the file as a new block theme starter and swap tokens for your design.
 
 One-off override example (uses CSS variables instead of `var:preset|…`):
 
@@ -338,17 +338,17 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 				{
 					"color": "#1e1e1e",
 					"name": "Clanbite scaffold text",
-					"slug": "cp-scaffold-text"
+					"slug": "clanbite-scaffold-text"
 				},
 				{
 					"color": "#ffffff",
 					"name": "Clanbite scaffold background",
-					"slug": "cp-scaffold-bg"
+					"slug": "clanbite-scaffold-bg"
 				},
 				{
 					"color": "#3858e9",
 					"name": "Clanbite scaffold accent (links)",
-					"slug": "cp-scaffold-accent"
+					"slug": "clanbite-scaffold-accent"
 				}
 			],
 			"duotone": [
@@ -358,7 +358,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 						"#ffffff"
 					],
 					"name": "Clanbite scaffold grayscale",
-					"slug": "cp-scaffold-grayscale"
+					"slug": "clanbite-scaffold-grayscale"
 				}
 			]
 		},
@@ -366,7 +366,7 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 			"fontSizes": [
 				{
 					"name": "Clanbite scaffold medium",
-					"slug": "cp-scaffold-m",
+					"slug": "clanbite-scaffold-m",
 					"size": "1rem"
 				}
 			]
@@ -376,367 +376,367 @@ One-off override example (uses CSS variables instead of `var:preset|…`):
 		"blocks": {
 			"clanbite/event-calendar": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/event-create-form": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/event-detail": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/event-list": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/event-rsvp": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/match-card": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/match-list": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/notification-bell": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-avatar": {
 				"color": {
-					"background": "var:preset|color|cp-scaffold-bg"
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				}
 			},
 			"clanbite/player-country": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-cover": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				},
 				"filter": {
-					"duotone": "var:preset|duotone|cp-scaffold-grayscale"
+					"duotone": "var:preset|duotone|clanbite-scaffold-grayscale"
 				}
 			},
 			"clanbite/player-display-name": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-handle": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-tagline": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-description": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-website": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-city": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-birthday": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-profile-nav": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-query": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-settings": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-settings-link": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/player-template": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-avatar": {
 				"color": {
-					"background": "var:preset|color|cp-scaffold-bg"
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				}
 			},
 			"clanbite/team-card": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-challenge-button": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-code": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-country": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-cover": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-create-form": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-description": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-draws": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-losses": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-manage-link": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-members-count": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-motto": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-name": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-profile-nav": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/team-wins": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			},
 			"clanbite/user-nav": {
 				"color": {
-					"text": "var:preset|color|cp-scaffold-text",
-					"background": "var:preset|color|cp-scaffold-bg",
-					"link": "var:preset|color|cp-scaffold-accent"
+					"text": "var:preset|color|clanbite-scaffold-text",
+					"background": "var:preset|color|clanbite-scaffold-bg",
+					"link": "var:preset|color|clanbite-scaffold-accent"
 				},
 				"typography": {
-					"fontSize": "var:preset|font-size|cp-scaffold-m"
+					"fontSize": "var:preset|font-size|clanbite-scaffold-m"
 				}
 			}
 		}
@@ -775,7 +775,7 @@ The **Player settings** block (`clanbite/player-settings`) uses the Interactivit
 
 **Profile save AJAX (`clanbite_save_player_settings`).** POST to `ajax_url` with `action` set to `clanbite_save_player_settings`, the nonce in `nonce` (same value as localized `nonce`, verified with `clanbite_profile_settings_save_action`), plus the form fields your UI collects (including optional multipart `profile_avatar` / `profile_cover` when uploading inline). The entry point sanitizes POST fields (and whitelists uploads) before `clanbite_save_player_settings_filtered_data` / `clanbite_save_player_settings`; domain saving is delegated to those hooks and related filters; the handler itself does not persist fields.
 
-**Social profiles** — Under **Profile → Social Networks**, core saves one text field per network as user meta `cp_player_social_{slug}` (e.g. `cp_player_social_facebook`) from POST keys `profile_social_{slug}`. Read values with **`clanbite_players_get_display_social( $slug, $user_id )`**; resolve a shareable URL with **`clanbite_players_get_social_profile_link_url( $slug, $user_id )`** (and **`clanbite_players_normalize_social_profile_link_url( $slug, $raw )`** for raw strings). The **`clanbite/player-social-links`** block prints icon links on profiles and inside **`clanbite/player-template`** loops. Customize the field list with **`clanbite_players_social_profile_field_definitions`**.
+**Social profiles** — Under **Profile → Social Networks**, core saves one text field per network as user meta `clanbite_player_social_{slug}` (e.g. `clanbite_player_social_facebook`) from POST keys `profile_social_{slug}`. Read values with **`clanbite_players_get_display_social( $slug, $user_id )`**; resolve a shareable URL with **`clanbite_players_get_social_profile_link_url( $slug, $user_id )`** (and **`clanbite_players_normalize_social_profile_link_url( $slug, $raw )`** for raw strings). The **`clanbite/player-social-links`** block prints icon links on profiles and inside **`clanbite/player-template`** loops. Customize the field list with **`clanbite_players_social_profile_field_definitions`**.
 
 On **success**, the JSON body matches `wp_send_json_success()`: `success` is true and `data` is an object with at least:
 
@@ -826,12 +826,12 @@ By default, that script is **only** enqueued on the player settings route, on **
 | Attribute | Required | Description |
 |-----------|----------|-------------|
 | `data-wp-on--click="actions.runPluginAction"` | Yes | Wires the Interactivity action. |
-| `data-cp-action-url` | Yes | Full request URL (typically `rest_url( 'your-namespace/v1/...' )` from PHP). |
-| `data-cp-action-method` | No | HTTP method; default `POST`. `GET` / `HEAD` omit body. |
-| `data-cp-action-body` | No | JSON string for the request body (parsed client-side; empty object if omitted). |
-| `data-cp-action-confirm` | No | If set, `window.confirm()` must pass before the request runs. |
-| `data-cp-action-remove-closest` | No | CSS selector; on success, `closest(selector)` on the clicked element is removed (e.g. list row). |
-| `data-cp-action-success-message` / `data-cp-action-error-message` | No | Toast copy; sensible defaults if omitted. |
+| `data-clanbite-action-url` | Yes | Full request URL (typically `rest_url( 'your-namespace/v1/...' )` from PHP). |
+| `data-clanbite-action-method` | No | HTTP method; default `POST`. `GET` / `HEAD` omit body. |
+| `data-clanbite-action-body` | No | JSON string for the request body (parsed client-side; empty object if omitted). |
+| `data-clanbite-action-confirm` | No | If set, `window.confirm()` must pass before the request runs. |
+| `data-clanbite-action-remove-closest` | No | CSS selector; on success, `closest(selector)` on the clicked element is removed (e.g. list row). |
+| `data-clanbite-action-success-message` / `data-clanbite-action-error-message` | No | Toast copy; sensible defaults if omitted. |
 
 Your REST route must validate `X-WP-Nonce`, check capabilities, and return appropriate HTTP status codes (`runPluginAction` treats non-OK responses as errors).
 
@@ -839,13 +839,13 @@ Your REST route must validate `X-WP-Nonce`, check capabilities, and return appro
 
 Official extensions that ship outside the main package register on **`clanbite_official_registered_extensions`** and must match the slug → class map in `Loader::get_official_extensions()`. Core validates the class name only; it does not `require` add-on files (the companion plugin must load before Clanbite so the class exists). Those extensions get the **Official** badge but not the **Core** badge unless their slug is also listed in `clanbite_core_bundled_extension_slugs`.
 
-**Example — Clanbite Social Kit (`cp_social_kit`):** the separate plugin registers the extension and may mirror domain events (matches, RSVPs, team actions) into an activity feed using the same hooks documented for third-party integrations (`clanbite_match_*`, `clanbite_event_rsvp_updated`, team lifecycle actions, etc.). There is no second registration API — only `clanbite_official_registered_extensions` plus the whitelist entry in `Loader::get_official_extensions()`.
+**Example — Clanbite Social Kit (`clanbite_social_kit`):** the separate plugin registers the extension and may mirror domain events (matches, RSVPs, team actions) into an activity feed using the same hooks documented for third-party integrations (`clanbite_match_*`, `clanbite_event_rsvp_updated`, team lifecycle actions, etc.). There is no second registration API — only `clanbite_official_registered_extensions` plus the whitelist entry in `Loader::get_official_extensions()`.
 
-**Example — Clanbite Points (`cp_points`):** the separate plugin adds configurable point types, per-action earning rules with caps, rank ladders, and a `clanbite-points/points-balance` block. Companion features award points via `clanbite_points_award()` and may register action labels through `clanbite_points_actions`.
+**Example — Clanbite Points (`clanbite_points`):** the separate plugin adds configurable point types, per-action earning rules with caps, rank ladders, and a `clanbite-points/points-balance` block. Companion features award points via `clanbite_points_award()` and may register action labels through `clanbite_points_actions`.
 
-**Example — Clanbite Ranks (`cp_ranks`):** the separate plugin adds configurable rank ladders (optional Points tie-in), team ranks, and the `clanbite-ranks/rank-progress` block. Use `clanbite_ranks_extension_active()` before relying on rank helpers.
+**Example — Clanbite Ranks (`clanbite_ranks`):** the separate plugin adds configurable rank ladders (optional Points tie-in), team ranks, and the `clanbite-ranks/rank-progress` block. Use `clanbite_ranks_extension_active()` before relying on rank helpers.
 
-**Example — Clanbite Shop (`cp_shop`):** the separate plugin adds a full shop (products, cart, checkout, orders, subscriptions, downloads, shipping, tax, reports) with Stripe and extendable gateways, an optional Points currency, and a **My purchases** tab in player settings. Use `clanbite_shop_extension_active()` before relying on shop helpers.
+**Example — Clanbite Shop (`clanbite_shop`):** the separate plugin adds a full shop (products, cart, checkout, orders, subscriptions, downloads, shipping, tax, reports) with Stripe and extendable gateways, an optional Points currency, and a **My purchases** tab in player settings. Use `clanbite_shop_extension_active()` before relying on shop helpers.
 
 ### Community extensions
 
@@ -876,7 +876,7 @@ Mode helpers available on the teams extension class:
 - `is_team_directories_mode()`
 
 ### Per-Team Options
-Each `cp_team` post supports individual options:
+Each `clanbite_team` post supports individual options:
 - Join mode: `open_join`, `join_with_permission`, `invite_only`
 - Allow player invites
 - Allow front-end team editing
@@ -886,7 +886,7 @@ These options are managed in the block editor sidebar (no metaboxes) and stored 
 
 ### Team entity data store
 
-Team posts (`cp_team`) and their structured meta are persisted through a small CRUD layer, separate from the extension-wide option bucket described in [Extension Data Stores](#extension-data-stores).
+Team posts (`clanbite_team`) and their structured meta are persisted through a small CRUD layer, separate from the extension-wide option bucket described in [Extension Data Stores](#extension-data-stores).
 
 - **Contract:** `Kernowdev\Clanbite\Extensions\Teams\Team_Data_Store` (`read` / `create` / `update` / `delete` on `Team` entities).
 - **Default implementation:** `Kernowdev\Clanbite\Extensions\Teams\Team_Data_Store_CPT` (WordPress post + post meta).
@@ -916,9 +916,9 @@ addFilter(
 			el( ToggleControl, {
 				key: 'my_custom_toggle',
 				label: 'Enable custom team flag',
-				checked: !! context.meta.cp_team_custom_flag,
+				checked: !! context.meta.clanbite_team_custom_flag,
 				onChange: ( value ) =>
-					context.setMetaValue( 'cp_team_custom_flag', !! value ),
+					context.setMetaValue( 'clanbite_team_custom_flag', !! value ),
 			} ),
 		];
 	}
@@ -942,7 +942,7 @@ When adding new features, expose logical hooks around:
 
 ### Clanbite Points (companion plugin)
 
-With the **Clanbite Points** plugin and the `cp_points` extension enabled:
+With the **Clanbite Points** plugin and the `clanbite_points` extension enabled:
 
 - **`clanbite_points_actions`** — `(array $actions)` keyed by action slug; each value is `array( 'label' => string )`. Merge additional slugs so site owners can attach rules in **Clanbite → Points**.
 - **`clanbite_points_award( int $user_id, string $action_key, array $context = array() )`** — procedural helper; awards according to configured rules and caps. Like the other public Points and Ranks helpers it is available under its **global name** (guard with `function_exists( 'clanbite_points_award' )`); the implementations are namespaced and `inc/functions-global.php` provides the aliases.
@@ -1060,7 +1060,7 @@ Example: register extension-owned FSE templates from a third-party extension:
 ```php
 <?php
 add_filter(
-	'clanbite_extension_cp_teams_templates',
+	'clanbite_extension_clanbite_teams_templates',
 	function ( array $templates ): array {
 		$templates['team-archive'] = array(
 			'title' => __( 'Team Archive', 'my-plugin' ),
@@ -1291,13 +1291,13 @@ add_action(
 
 Clanbite includes a core notifications system that supports both simple notifications and interactive notifications with action buttons. The system uses HTTP long polling for real-time updates with filters to swap in WebSocket transport.
 
-The **Notifications** extension (`cp_notifications`) must be enabled under **Clanbite → Extensions** for REST routes, the bell block, and persistence to run. Third-party code should call `clanbite_notifications_extension_active()` before assuming notifications exist, or treat a `WP_Error` from `clanbite_notify()` with code `notifications_inactive` as “extension off.”
+The **Notifications** extension (`clanbite_notifications`) must be enabled under **Clanbite → Extensions** for REST routes, the bell block, and persistence to run. Third-party code should call `clanbite_notifications_extension_active()` before assuming notifications exist, or treat a `WP_Error` from `clanbite_notify()` with code `notifications_inactive` as “extension off.”
 
-The **Events** extension (`cp_events`) gates the `cp_event` post type, RSVP database table, event REST endpoints, and event blocks. Use `clanbite_events_extension_active()` (or `function_exists( 'clanbite_events_are_globally_enabled' )` for feature flags that load with the extension) before relying on event behavior. Team virtual URLs under `/teams/{slug}/events/` are registered only when both **Teams** and **Events** are enabled.
+The **Events** extension (`clanbite_events`) gates the `clanbite_event` post type, RSVP database table, event REST endpoints, and event blocks. Use `clanbite_events_extension_active()` (or `function_exists( 'clanbite_events_are_globally_enabled' )` for feature flags that load with the extension) before relying on event behavior. Team virtual URLs under `/teams/{slug}/events/` are registered only when both **Teams** and **Events** are enabled.
 
-**Player events.** A player can create their own event (`scope: player` on `POST /clanbite/v1/event-posts`) from the **Add event** button on their Events tab, choose who can see it (`visibility`: `public` = anyone, `friends`, `only_me`) and invite friends (`invite_user_ids`; only the owner's friends are accepted, none for `only_me`). Invited friends get an `event_invite` notification and can RSVP; the owner's calendar lists events they created or were invited to, and `GET event-posts?player_user_id=` for someone else returns only that player's events the viewer may see. Friendships are provided by an add-on (Social Kit) through `clanbite_players_get_friend_ids()` and `clanbite_players_are_friends()` (filters `clanbite_players_friend_ids`, `clanbite_players_are_friends`, `clanbite_players_friends_available`). Other hooks: `clanbite_player_events_enabled`, `clanbite_player_event_viewer_can_see`, `clanbite_player_event_invitees` and the action `clanbite_player_event_invites_saved`. URLs: `/players/{nicename}/events/`, `?cp_event=new` (create form) and `?cp_event=ID` (one event); `clanbite_events_get_player_events_url()` builds them.
+**Player events.** A player can create their own event (`scope: player` on `POST /clanbite/v1/event-posts`) from the **Add event** button on their Events tab, choose who can see it (`visibility`: `public` = anyone, `friends`, `only_me`) and invite friends (`invite_user_ids`; only the owner's friends are accepted, none for `only_me`). Invited friends get an `event_invite` notification and can RSVP; the owner's calendar lists events they created or were invited to, and `GET event-posts?player_user_id=` for someone else returns only that player's events the viewer may see. Friendships are provided by an add-on (Social Kit) through `clanbite_players_get_friend_ids()` and `clanbite_players_are_friends()` (filters `clanbite_players_friend_ids`, `clanbite_players_are_friends`, `clanbite_players_friends_available`). Other hooks: `clanbite_player_events_enabled`, `clanbite_player_event_viewer_can_see`, `clanbite_player_event_invitees` and the action `clanbite_player_event_invites_saved`. URLs: `/players/{nicename}/events/`, `?clanbite_event_view=new` (create form) and `?clanbite_event_view=ID` (one event); `clanbite_events_get_player_events_url()` builds them.
 
-Player merged calendars (`player_user_id` on `GET clanbite/v1/event-posts`) omit team-scoped events when the **Teams** extension is disabled, and omit group-scoped events when no group product is active (default: `cp_group` is not registered). Override group detection with `clanbite_groups_feature_active`.
+Player merged calendars (`player_user_id` on `GET clanbite/v1/event-posts`) omit team-scoped events when the **Teams** extension is disabled, and omit group-scoped events when no group product is active (default: `clanbite_group` is not registered). Override group detection with `clanbite_groups_feature_active`.
 
 Event list pagination limits are shared with the REST layer: `clanbite_events_rest_default_per_page_paginated`, `clanbite_events_rest_max_per_page_paginated`, and for calendar range queries `clanbite_events_rest_default_per_page_range`, `clanbite_events_rest_max_per_page_range` (SSR and the event calendar block read the default range size from the same helpers).
 
@@ -1431,7 +1431,7 @@ class My_Extension {
 
 | Function | Description |
 |----------|-------------|
-| `clanbite_notifications_extension_active()` | Whether `cp_notifications` is enabled (use before UI or optional features) |
+| `clanbite_notifications_extension_active()` | Whether `clanbite_notifications` is enabled (use before UI or optional features) |
 | `clanbite_notify( $user_id, $type, $title, $args )` | Send a notification |
 | `clanbite_get_notifications( $user_id, $page, $per_page, $unread_only )` | Get notifications for a user |
 | `clanbite_get_notification( $id )` | Get a single notification |
@@ -1560,7 +1560,7 @@ add_filter( 'clanbite_notification_transport_config', function( $config, $user_i
 | `team_removed` | Removed from team |
 | `team_challenge` | Match challenge with Accept/Decline |
 | `team_match_event` | Match-related scheduled event (e.g. after accept) |
-| `team_event` / `group_event` | Roster outreach for manual `cp_event` posts |
+| `team_event` / `group_event` | Roster outreach for manual `clanbite_event` posts |
 | `mention` | Mentioned in content |
 | `system` | System notifications |
 
@@ -1576,7 +1576,11 @@ Third-party plugins can register additional types via the `clanbite_notification
 All avatars (player, team, group; server-rendered or Interactivity) go through `clanbite_render_avatar()` / `clanbite_render_avatar_for_interactivity()` and share the `clanbite-avatars` stylesheet (frame, XP ring, level badge).
 
 - `clanbite_avatar_data` (plus `clanbite_{type}_avatar_data` and `clanbite_avatar_data_{context}`): filter the resolved `shape`, `show_ring`, `show_badge` before markup is built. Runs in both render modes; `$args['mode']` is `static` or `interactive`.
-- **Context for every avatar.** Whatever renders an avatar (core or an extension) passes through `clanbite_avatar_resolve_context()`, so every `clanbite_avatar_*` filter and action receives the same `$args`: `type`, `id`, `size`, `context` (the surface, e.g. `social_feed`, `forum`, `group_profile_header`), `viewer_id` (defaults to the current user), `is_viewer` (the viewer is this avatar's own player), `object_type` / `object_id` (the post, reply, notification, activity… it sits in), `extension` (the plugin that rendered it, e.g. `cp_social_kit`) and `context_data` (free-form array for anything else). Filter `clanbite_avatar_args` to change them before the avatar is built. Extensions must not draw their own avatar `<img>`: call `clanbite_render_avatar()` (or `_for_interactivity()`) with these keys so third parties can change every avatar in one place.
+- **Context for every avatar.** Whatever renders an avatar (core or an extension) passes through `clanbite_avatar_resolve_context()`, so every `clanbite_avatar_*` filter and action receives the same `$args`: `type`, `id`, `size`, `context` (the surface, e.g. `social_feed`, `forum`, `group_profile_header`), `viewer_id` (defaults to the current user), `is_viewer` (the viewer is this avatar's own player), `object_type` / `object_id` (the post, reply, notification, activity… it sits in), `extension` (the plugin that rendered it, e.g. `clanbite_social_kit`) and `context_data` (free-form array for anything else). Filter `clanbite_avatar_args` to change them before the avatar is built. Extensions must not draw their own avatar `<img>`: call `clanbite_render_avatar()` (or `_for_interactivity()`) with these keys so third parties can change every avatar in one place.
 - `clanbite_avatar_classes`, `clanbite_avatar_img_attributes`, `clanbite_avatar_html` (and `_{context}` / type variants) apply to both modes. The `clanbite_avatar_interactivity_*` filters are kept for back-compat and fire afterwards.
 - Ring and badge values: `clanbite_get_avatar_badge()` (filter `clanbite_avatar_badge`), supplied by Ranks via `clanbite_ranks_get_avatar_badge()`.
 - Pass a `context` (`forum`, `social_feed`, `user_nav`, `profile`, …) so integrators can target the surface.
+
+## Naming and the old `cp_` prefix
+
+Clanbite names everything with `clanbite`: `clanbite_` for PHP functions, options, meta keys, post types, custom tables and extension slugs (`clanbite_shop`, `clanbite_players`), and `clanbite-` for CSS classes and script handles. Earlier builds used a shorter `cp_` / `cp-` prefix. Version 1.6.7 renames what is stored in the database once, on the first request after the update, as Maintenance step 2 (`Maintenance::run_2()`, which runs `inc/clanbite-cpt-identifier-migration.php` for the post types and then `inc/clanbite-legacy-prefix-migration.php` for everything else; marker options `clanbite_cpt_identifiers_v202611` and `clanbite_legacy_prefix_v1`): the installed-extensions list and per-extension data, post types, post, user, term and comment meta keys, option names, saved template slugs and the add-ons' `{prefix}cp_*` tables. It never overwrites a row that already has the new name. If your own code reads or writes the old names, switch it to the new ones; `clanbite_legacy_prefix_new_name( $old )` returns the new name for any old identifier.

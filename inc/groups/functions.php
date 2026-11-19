@@ -1,8 +1,8 @@
 <?php
 /**
- * Integration API for group profiles (no `cp_group` CPT and no group templates or blocks in core).
+ * Integration API for group profiles (no `clanbite_group` CPT and no group templates or blocks in core).
  *
- * A separate plugin may register `cp_group`, group blocks, templates, and virtual template parts;
+ * A separate plugin may register `clanbite_group`, group blocks, templates, and virtual template parts;
  * it should use these helpers and filters so the Events extension and shared front-end patterns stay aligned.
  *
  * Core loads this file on every request so `clanbite_register_group_subpage()` and related helpers exist
@@ -107,7 +107,7 @@ function clanbite_groups_user_can_manage( int $group_id, ?int $user_id = null ):
 /**
  * Whether the user is a member of the group (visibility checks, e.g. team_members–style event access).
  *
- * The plugin that registers `cp_group` should filter this; core defaults to false.
+ * The plugin that registers `clanbite_group` should filter this; core defaults to false.
  *
  * @param int      $group_id Group object ID.
  * @param int|null $user_id  User ID or null for the current user.
@@ -134,13 +134,13 @@ function clanbite_groups_user_is_member( int $group_id, ?int $user_id = null ): 
 }
 
 /**
- * Group ID for profile header/nav (singular `cp_group` or `clanbite_group_profile_nav_context`).
+ * Group ID for profile header/nav (singular `clanbite_group` or `clanbite_group_profile_nav_context`).
  *
  * @return int
  */
 function clanbite_group_profile_context_group_id(): int {
 	/**
-	 * Virtual group profile context when not on a singular `cp_group` post.
+	 * Virtual group profile context when not on a singular `clanbite_group` post.
 	 *
 	 * @param array<string, mixed>|null $context Context or null.
 	 */
@@ -149,7 +149,7 @@ function clanbite_group_profile_context_group_id(): int {
 		return (int) $virtual['group_id'];
 	}
 
-	if ( is_singular( 'cp_group' ) ) {
+	if ( is_singular( 'clanbite_group' ) ) {
 		$qid = (int) get_queried_object_id();
 		if ( $qid > 0 ) {
 			return $qid;
@@ -160,7 +160,7 @@ function clanbite_group_profile_context_group_id(): int {
 	if ( function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
 		$groups = get_posts(
 			array(
-				'post_type'      => 'cp_group',
+				'post_type'      => 'clanbite_group',
 				'post_status'    => 'publish',
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
@@ -176,13 +176,13 @@ function clanbite_group_profile_context_group_id(): int {
 }
 
 /**
- * Active group profile sub-route slug (extension filter or `cp_group_subpage`).
+ * Active group profile sub-route slug (extension filter or `clanbite_group_subpage`).
  *
  * @return string
  */
 function clanbite_group_profile_route_current_slug(): string {
 	/**
-	 * Virtual group profile context when not on a singular `cp_group` post.
+	 * Virtual group profile context when not on a singular `clanbite_group` post.
 	 *
 	 * @param array<string, mixed>|null $context Context or null.
 	 */
@@ -191,8 +191,8 @@ function clanbite_group_profile_route_current_slug(): string {
 		return sanitize_key( (string) $virtual['current_slug'] );
 	}
 
-	if ( is_singular( 'cp_group' ) ) {
-		return sanitize_key( (string) get_query_var( 'cp_group_subpage' ) );
+	if ( is_singular( 'clanbite_group' ) ) {
+		return sanitize_key( (string) get_query_var( 'clanbite_group_subpage' ) );
 	}
 
 	return '';

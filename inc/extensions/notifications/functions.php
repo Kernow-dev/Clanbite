@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 use Kernowdev\Clanbite\Extensions\Notification\Notification_Data_Access;
 
 /**
- * Whether the Clanbite Notifications extension (`cp_notifications`) is installed and enabled.
+ * Whether the Clanbite Notifications extension (`clanbite_notifications`) is installed and enabled.
  *
  * Other extensions and plugins should use this (or handle a `WP_Error` from `clanbite_notify()`)
  * before relying on in-site notifications, REST routes, or the bell block — those only load when
@@ -23,12 +23,12 @@ function clanbite_notifications_extension_active(): bool {
 		return false;
 	}
 
-	$active = \Kernowdev\Clanbite\Extensions\Loader::instance()->is_extension_installed( 'cp_notifications' );
+	$active = \Kernowdev\Clanbite\Extensions\Loader::instance()->is_extension_installed( 'clanbite_notifications' );
 
 	/**
 	 * Filter whether notifications are considered active for theme and third-party checks.
 	 *
-	 * @param bool $active True when `cp_notifications` is in the installed-extensions option.
+	 * @param bool $active True when `clanbite_notifications` is in the installed-extensions option.
 	 */
 	return (bool) apply_filters( 'clanbite_notifications_extension_active', $active );
 }
@@ -581,13 +581,13 @@ function clanbite_notification_actor_avatar_html( int $user_id, int $notificatio
 	return wp_kses(
 		clanbite_render_avatar(
 			array(
-				'type'    => 'player',
-				'id'      => $user_id,
+				'type'        => 'player',
+				'id'          => $user_id,
 				'size'        => 'small',
 				'context'     => 'notifications',
 				'object_type' => 'notification',
 				'object_id'   => $notification_id,
-				'extension'   => 'cp_notifications',
+				'extension'   => 'clanbite_notifications',
 			)
 		),
 		clanbite_notification_allowed_html()

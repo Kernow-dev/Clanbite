@@ -14,7 +14,7 @@ interface Extension_Data_Store {
 	/**
 	 * Read the persisted payload for one extension slug.
 	 *
-	 * @param string $extension_slug Extension slug (e.g. `cp_players`).
+	 * @param string $extension_slug Extension slug (e.g. `clanbite_players`).
 	 * @return array<string, mixed> Empty array when nothing is stored.
 	 */
 	public function read( string $extension_slug ): array;

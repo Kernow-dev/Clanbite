@@ -195,7 +195,7 @@ function clanbite_avatar_resolve_context( array $args ): array {
  *     @type int    $viewer_id      Who is looking at the avatar. Default: the current user (0 for guests).
  *     @type string $object_type    What the avatar is shown in, e.g. 'post', 'reply', 'notification', 'activity', 'topic', 'card'.
  *     @type int    $object_id      ID of that object (post, reply, notification…), 0 when there is none.
- *     @type string $extension      Slug of the extension that renders it (e.g. 'cp_social_kit'), so filters can target a plugin.
+ *     @type string $extension      Slug of the extension that renders it (e.g. 'clanbite_social_kit'), so filters can target a plugin.
  *     @type array  $context_data   Any extra facts a filter may need (forum ID, team ID, feed type…). Never printed.
  * }
  * @return string HTML markup.
@@ -508,7 +508,7 @@ function clanbite_get_avatar_url( string $type, int $id, string $size = 'medium'
 			/**
 			 * Resolves a group's avatar URL.
 			 *
-			 * Core ships no group implementation; the plugin that owns `cp_group` should return the URL here.
+			 * Core ships no group implementation; the plugin that owns `clanbite_group` should return the URL here.
 			 *
 			 * @param string       $url     Avatar URL (empty by default).
 			 * @param int          $id      Group ID.
@@ -562,7 +562,7 @@ function clanbite_get_avatar_profile_url( string $type, int $id ): string {
 			/**
 			 * Resolves a group's profile URL for avatar links.
 			 *
-			 * Core ships no group implementation; the plugin that owns `cp_group` should return the URL here.
+			 * Core ships no group implementation; the plugin that owns `clanbite_group` should return the URL here.
 			 *
 			 * @param string $url Profile URL (empty by default).
 			 * @param int    $id  Group ID.
@@ -610,7 +610,7 @@ function clanbite_get_avatar_alt_text( string $type, int $id ): string {
 			/**
 			 * Resolves the alt text for a group's avatar.
 			 *
-			 * Core ships no group implementation; the plugin that owns `cp_group` should return the text here.
+			 * Core ships no group implementation; the plugin that owns `clanbite_group` should return the text here.
 			 *
 			 * @param string $alt Alt text (empty by default).
 			 * @param int    $id  Group ID.
@@ -711,7 +711,7 @@ function clanbite_build_html_attributes( array $attrs ): string {
  *     @type int    $viewer_id      Who is looking at the avatar. Default: the current user (0 for guests).
  *     @type string $object_type    What the avatar is shown in, e.g. 'post', 'reply', 'notification', 'activity', 'topic', 'card'.
  *     @type int    $object_id      ID of that object (post, reply, notification…), 0 when there is none.
- *     @type string $extension      Slug of the extension that renders it (e.g. 'cp_social_kit'), so filters can target a plugin.
+ *     @type string $extension      Slug of the extension that renders it (e.g. 'clanbite_social_kit'), so filters can target a plugin.
  *     @type array  $context_data   Any extra facts a filter may need (forum ID, team ID, feed type…). Never printed.
  * }
  * @return string HTML markup with Interactivity API directives.

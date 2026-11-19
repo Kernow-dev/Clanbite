@@ -112,9 +112,9 @@ $mk_event = static function ( string $visibility ) use ( $owner, $t ): \WP_Post 
 			'post_author' => $owner,
 		)
 	);
-	update_post_meta( $id, 'cp_event_scope', Event_Post_Type::SCOPE_PLAYER );
-	update_post_meta( $id, 'cp_event_owner_id', $owner );
-	update_post_meta( $id, 'cp_event_visibility', $visibility );
+	update_post_meta( $id, 'clanbite_event_scope', Event_Post_Type::SCOPE_PLAYER );
+	update_post_meta( $id, 'clanbite_event_owner_id', $owner );
+	update_post_meta( $id, 'clanbite_event_visibility', $visibility );
 	$t->cleanup( static fn() => wp_delete_post( (int) $id, true ) );
 
 	return get_post( $id );
@@ -134,7 +134,7 @@ $t->ok( 'invitations can be removed', array() === clanbite_events_set_invited_us
 clanbite_events_set_invited_user_ids( $ev_self->ID, $owner, array( $friend ) );
 $t->ok( 'an only-me event takes no invitations', array() === clanbite_events_get_invited_user_ids( $ev_self->ID ) );
 $t->ok( 'invitee sees a friends event and the attendee list', ( clanbite_events_set_invited_user_ids( $ev_fr->ID, $owner, array( $friend ) ) || true ) && Event_Permissions::viewer_can_see( $ev_fr, $friend ) && Event_Permissions::can_view_attendees( $ev_fr, $friend ) && ! Event_Permissions::can_view_attendees( $ev_fr, $stranger ) );
-$t->ok( 'player events URL carries the event', false !== strpos( clanbite_events_get_player_events_url( $owner, 5 ), 'cp_event=5' ) && false !== strpos( clanbite_events_get_player_events_url( $owner, 'new' ), 'cp_event=new' ) );
+$t->ok( 'player events URL carries the event', false !== strpos( clanbite_events_get_player_events_url( $owner, 5 ), 'clanbite_event_view=5' ) && false !== strpos( clanbite_events_get_player_events_url( $owner, 'new' ), 'clanbite_event_view=new' ) );
 
 wp_set_current_user( $owner );
 $req = new WP_REST_Request( 'POST', '/clanbite/v1/event-posts' );
@@ -197,5 +197,38 @@ update_option( 'clanbite_events_settings', array_merge( $moved, array( 'events_e
 $t->ok( 'the Events option wins once it exists', true === clanbite_events_are_globally_enabled() && true === clanbite_events_subpage_team_enabled() );
 update_option( 'clanbite_events_settings', array_merge( $moved, array( 'events_enabled' => true, 'player_events_enabled' => false ) ) );
 $t->ok( 'players can be switched off from creating events', false === clanbite_player_events_enabled() );
+
+// Old `cp_` names stored in the database move to `clanbite_` once, without touching rows that already have the new name.
+global $wpdb;
+$lp_post  = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'draft', 'post_title' => 'ZZ legacy prefix' ) );
+$lp_user  = $owner;
+$lp_table = $wpdb->prefix . 'cp_zz_legacy';
+$lp_new   = $wpdb->prefix . 'clanbite_zz_legacy';
+$wpdb->query( "DROP TABLE IF EXISTS `{$lp_table}`, `{$lp_new}`" );
+$wpdb->query( "CREATE TABLE `{$lp_table}` ( id int )" );
+$wpdb->query( "INSERT INTO `{$lp_table}` VALUES (1)" );
+$lp_saved_installed = get_option( 'clanbite_installed_extensions' );
+update_post_meta( $lp_post, 'cp_team_wins', '7' );
+update_post_meta( $lp_post, '_cp_mentions', 'a' );
+update_post_meta( $lp_post, 'cp_zz_both', 'old' );
+update_post_meta( $lp_post, 'clanbite_zz_both', 'new' );
+update_user_meta( $lp_user, 'cp_player_tagline', 'hi' );
+update_option( 'cp_zz_option', 'x' );
+update_option( 'clanbite_installed_extensions', array( 'cp_shop' => array( 'version' => '1' ), 'cp_forums' => array( 'version' => '2' ), 'clanbite_forums' => array( 'version' => '3' ) ) );
+delete_option( CLANBITE_LEGACY_PREFIX_MIGRATION_OPTION );
+clanbite_legacy_prefix_migrate_current_site();
+$lp_installed = (array) get_option( 'clanbite_installed_extensions' );
+$t->ok( 'extension slugs are renamed and an existing new entry wins', isset( $lp_installed['clanbite_shop'] ) && ! isset( $lp_installed['cp_shop'] ) && ! isset( $lp_installed['cp_forums'] ) && '3' === $lp_installed['clanbite_forums']['version'] );
+$t->ok( 'post meta keys are renamed', '7' === get_post_meta( $lp_post, 'clanbite_team_wins', true ) && '' === get_post_meta( $lp_post, 'cp_team_wins', true ) && 'a' === get_post_meta( $lp_post, '_clanbite_mentions', true ) );
+$t->ok( 'an old meta row is dropped when the new key already exists', 'new' === get_post_meta( $lp_post, 'clanbite_zz_both', true ) && '' === get_post_meta( $lp_post, 'cp_zz_both', true ) );
+$t->ok( 'user meta keys are renamed', 'hi' === get_user_meta( $lp_user, 'clanbite_player_tagline', true ) && '' === get_user_meta( $lp_user, 'cp_player_tagline', true ) );
+$t->ok( 'options are renamed', 'x' === get_option( 'clanbite_zz_option' ) && false === get_option( 'cp_zz_option' ) );
+$t->ok( 'custom tables are renamed with their rows', 1 === (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$lp_new}`" ) && null === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $lp_table ) ) );
+$t->ok( 'the migration marks itself done and does not run twice', '1' === get_option( CLANBITE_LEGACY_PREFIX_MIGRATION_OPTION ) );
+$wpdb->query( "DROP TABLE IF EXISTS `{$lp_new}`" );
+delete_option( 'clanbite_zz_option' );
+delete_user_meta( $lp_user, 'clanbite_player_tagline' );
+update_option( 'clanbite_installed_extensions', $lp_saved_installed );
+wp_delete_post( $lp_post, true );
 
 exit( $t->finish() );

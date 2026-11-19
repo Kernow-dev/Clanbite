@@ -607,7 +607,7 @@ Filter default avatar URL.
 
 Resolves the alt text for a group's avatar.
 
-Core ships no group implementation; the plugin that owns `cp_group` should return the text here.
+Core ships no group implementation; the plugin that owns `clanbite_group` should return the text here.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -620,7 +620,7 @@ Core ships no group implementation; the plugin that owns `cp_group` should retur
 
 Resolves a group's avatar URL.
 
-Core ships no group implementation; the plugin that owns `cp_group` should return the URL here.
+Core ships no group implementation; the plugin that owns `clanbite_group` should return the URL here.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -635,7 +635,7 @@ Core ships no group implementation; the plugin that owns `cp_group` should retur
 
 Resolves a group's profile URL for avatar links.
 
-Core ships no group implementation; the plugin that owns `cp_group` should return the URL here.
+Core ships no group implementation; the plugin that owns `clanbite_group` should return the URL here.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -693,30 +693,6 @@ Type-specific variant of `clanbite_avatar_overlays`.
 
 ## Events
 
-#### `clanbite_cp_event_user_can_manage`
-
-*Filter* · `inc/events/class-event-permissions.php`
-
-Filter whether a user can manage a `cp_event`.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$can` | `bool` | Whether the user can manage. |
-| `$post_id` | `int` | Event post ID. |
-| `$user_id` | `int` | User ID. |
-
-#### `clanbite_cp_event_viewer_can_see`
-
-*Filter* · `inc/events/class-event-permissions.php`
-
-Filter whether a viewer can see a published `cp_event`.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$can` | `bool` | Whether the viewer can see the event. |
-| `$post` | `\WP_Post` | Event post. |
-| `$viewer_id` | `int` | Viewer user ID. |
-
 #### `clanbite_event_attendees_visibility`
 
 *Filter* · `inc/events/class-events.php`
@@ -762,7 +738,7 @@ the event is set to `hidden`.
 
 *Action* · `inc/events/class-event-member-outreach.php`
 
-Fires after event member outreach runs for a `cp_event`.
+Fires after event member outreach runs for a `clanbite_event`.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -779,11 +755,23 @@ Filter user IDs included in event member outreach (notifications / tentative RSV
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `$user_ids` | `list<int>` | User IDs. |
-| `$event_id` | `int` | `cp_event` post ID. |
-| `$scope` | `string` | `cp_event_scope` meta (`team` or `group`). |
+| `$event_id` | `int` | `clanbite_event` post ID. |
+| `$scope` | `string` | `clanbite_event_scope` meta (`team` or `group`). |
 | `$team_id` | `int` | Team post ID when scope is team. |
 | `$group_id` | `int` | Group object ID when scope is group. |
 | `$mode` | `string` | Outreach mode (`none`, `notify`, `rsvp_tentative`). |
+
+#### `clanbite_event_post_viewer_can_see`
+
+*Filter* · `inc/events/class-event-permissions.php`
+
+Filter whether a viewer can see a published `clanbite_event`.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$can` | `bool` | Whether the viewer can see the event. |
+| `$post` | `\WP_Post` | Event post. |
+| `$viewer_id` | `int` | Viewer user ID. |
 
 #### `clanbite_event_rsvp_updated`
 
@@ -800,6 +788,18 @@ Third-party extensions can hook this (e.g. activity feeds).
 | `$user_id` | `int` | User ID. |
 | `$new_status` | `string` | New RSVP status. |
 | `$old_status` | `string\|null` | Old RSVP status (null when first set). |
+
+#### `clanbite_event_user_can_manage`
+
+*Filter* · `inc/events/class-event-permissions.php`
+
+Filter whether a user can manage a `clanbite_event`.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$can` | `bool` | Whether the user can manage. |
+| `$post_id` | `int` | Event post ID. |
+| `$user_id` | `int` | User ID. |
 
 #### `clanbite_event_viewer_can_see`
 
@@ -824,7 +824,7 @@ Filter whether the Events extension is considered active.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `$active` | `bool` | True when `cp_events` is in the installed-extensions option. |
+| `$active` | `bool` | True when `clanbite_events` is in the installed-extensions option. |
 
 #### `clanbite_events_player_calendar_group_ids`
 
@@ -894,7 +894,7 @@ Filter maximum page size for ranged event queries.
 
 Provide WordPress user IDs for members of a group-scoped event’s roster.
 
-Core leaves this empty; a `cp_group` integration should filter and return IDs.
+Core leaves this empty; a `clanbite_group` integration should filter and return IDs.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -918,7 +918,7 @@ Filter URL for “add event” from the group event calendar (extension-defined)
 
 Filter whether group-scoped events may appear in a player’s merged calendar.
 
-Default: true when the `cp_group` post type is registered (group product active).
+Default: true when the `clanbite_group` post type is registered (group product active).
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -993,7 +993,7 @@ Filter slugs treated as shipped with the core Clanbite plugin (not separate firs
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `$slugs` | `list<string>` | Default: `cp_players`, `cp_notifications`, `cp_teams`, `cp_matches`, `cp_events`. |
+| `$slugs` | `list<string>` | Default: `clanbite_players`, `clanbite_notifications`, `clanbite_teams`, `clanbite_matches`, `clanbite_events`. |
 
 #### `clanbite_extension_block_directories`
 
@@ -1161,7 +1161,7 @@ Filter extension slugs treated as required core extensions.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `$slugs` | `list<string>` | Required slugs (e.g. `cp_players`). |
+| `$slugs` | `list<string>` | Required slugs (e.g. `clanbite_players`). |
 
 #### `{option_key}_clanbite_final_merged_option_values`
 
@@ -1625,7 +1625,7 @@ extension's own **Messages** sub-tab. A group left out of the map is listed unde
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `$map` | `array<string, string>` | Group slug => extension slug (`cp_teams`), or `general`. |
+| `$map` | `array<string, string>` | Group slug => extension slug (`clanbite_teams`), or `general`. |
 
 **Since:** 1.5.0
 
@@ -1718,7 +1718,7 @@ Master switch for Clanbite front SEO (titles, robots, OG, JSON-LD).
 
 *Filter* · `inc/Front_Seo.php`
 
-Extra JSON-LD @graph nodes for a Social Kit group (`cp_group`).
+Extra JSON-LD @graph nodes for a Social Kit group (`clanbite_group`).
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -1729,7 +1729,7 @@ Extra JSON-LD @graph nodes for a Social Kit group (`cp_group`).
 
 *Filter* · `inc/Front_Seo.php`
 
-Extra JSON-LD @graph nodes for a match (single `cp_match`).
+Extra JSON-LD @graph nodes for a match (single `clanbite_match`).
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -1983,7 +1983,7 @@ Fires after this site created a match from a peer sync request.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `$match_id` | `int` | New local `cp_match` ID. |
+| `$match_id` | `int` | New local `clanbite_match` ID. |
 | `$body` | `array` | Request body. |
 | `$home_team_id` | `int` | Local home team ID. |
 
@@ -2421,7 +2421,7 @@ Filter whether notifications are considered active for theme and third-party che
 
 | Parameter | Type | Description |
 | --- | --- | --- |
-| `$active` | `bool` | True when `cp_notifications` is in the installed-extensions option. |
+| `$active` | `bool` | True when `clanbite_notifications` is in the installed-extensions option. |
 
 #### `clanbite_player_notifications_page_markup`
 
@@ -3493,7 +3493,7 @@ in the user navigation dropdown.
 
 *Filter* · `inc/groups/functions.php`
 
-Virtual group profile context when not on a singular `cp_group` post.
+Virtual group profile context when not on a singular `clanbite_group` post.
 
 | Parameter | Type | Description |
 | --- | --- | --- |
@@ -3835,7 +3835,7 @@ Fires after a team challenge is accepted and the match exists.
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `$challenge_id` | `int` | Challenge post ID. |
-| `$match_id` | `int` | New `cp_match` ID. |
+| `$match_id` | `int` | New `clanbite_match` ID. |
 | `$challenged_team_id` | `int` | Home team ID. |
 
 #### `clanbite_team_challenge_button_visible`
@@ -3859,7 +3859,7 @@ Fires after a team challenge is stored and notifications are queued.
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `$challenge_id` | `int` | Challenge post ID (`clanbite_team_challenge`). |
-| `$challenged_team_id` | `int` | Challenged `cp_team` ID. |
+| `$challenged_team_id` | `int` | Challenged `clanbite_team` ID. |
 
 #### `clanbite_team_challenge_declined`
 

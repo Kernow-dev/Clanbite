@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * - `clanbite_seo_player_graph` (array) — merge extra `@graph` nodes for player profiles.
  * - `clanbite_seo_team_graph` (array) — merge extra `@graph` nodes for team profiles.
  * - `clanbite_seo_match_graph` (array) — merge extra `@graph` nodes for single matches.
- * - `clanbite_seo_group_graph` (array) — merge extra `@graph` nodes for Social Kit `cp_group` singular views.
+ * - `clanbite_seo_group_graph` (array) — merge extra `@graph` nodes for Social Kit `clanbite_group` singular views.
  */
 final class Front_Seo {
 
@@ -158,7 +158,7 @@ final class Front_Seo {
 			return $title;
 		}
 
-		if ( (int) get_query_var( 'cp_players_directory' ) ) {
+		if ( (int) get_query_var( 'clanbite_players_directory' ) ) {
 			$title['title'] = __( 'Players', 'clanbite' );
 			return $title;
 		}
@@ -189,11 +189,11 @@ final class Front_Seo {
 			return $title;
 		}
 
-		if ( is_singular( 'cp_group' ) ) {
+		if ( is_singular( 'clanbite_group' ) ) {
 			$post = get_queried_object();
 			if ( $post instanceof \WP_Post ) {
 				$base = get_the_title( $post );
-				$sub  = sanitize_key( (string) get_query_var( 'cp_group_subpage' ) );
+				$sub  = sanitize_key( (string) get_query_var( 'clanbite_group_subpage' ) );
 				if ( '' !== $sub && function_exists( 'clanbite_social_kit_get_group_subpages' ) ) {
 					$subs = clanbite_social_kit_get_group_subpages();
 					if ( isset( $subs[ $sub ] ) && is_array( $subs[ $sub ] ) && isset( $subs[ $sub ]['label'] ) ) {
@@ -238,7 +238,7 @@ final class Front_Seo {
 			self::print_site_json_ld();
 		}
 
-		if ( (int) get_query_var( 'cp_players_directory' ) ) {
+		if ( (int) get_query_var( 'clanbite_players_directory' ) ) {
 			self::print_players_directory_seo();
 			return;
 		}
@@ -270,7 +270,7 @@ final class Front_Seo {
 			return;
 		}
 
-		if ( is_singular( 'cp_group' ) ) {
+		if ( is_singular( 'clanbite_group' ) ) {
 			$post = get_queried_object();
 			if ( $post instanceof \WP_Post ) {
 				self::print_group_seo( $post );
@@ -508,7 +508,7 @@ final class Front_Seo {
 		}
 
 		$image = '';
-		$cover = (int) get_post_meta( $post->ID, 'cp_team_cover_id', true );
+		$cover = (int) get_post_meta( $post->ID, 'clanbite_team_cover_id', true );
 		if ( $cover > 0 ) {
 			$image = (string) wp_get_attachment_image_url( $cover, 'large' );
 		}
@@ -516,7 +516,7 @@ final class Front_Seo {
 			$image = (string) get_the_post_thumbnail_url( $post, 'large' );
 		}
 		if ( '' === $image ) {
-			$avatar = (int) get_post_meta( $post->ID, 'cp_team_avatar_id', true );
+			$avatar = (int) get_post_meta( $post->ID, 'clanbite_team_avatar_id', true );
 			if ( $avatar > 0 ) {
 				$image = (string) wp_get_attachment_image_url( $avatar, 'large' );
 			}
@@ -578,11 +578,11 @@ final class Front_Seo {
 	}
 
 	/**
-	 * @param \WP_Post $post Group post (`cp_group`).
+	 * @param \WP_Post $post Group post (`clanbite_group`).
 	 * @return void
 	 */
 	private static function print_group_seo( \WP_Post $post ): void {
-		if ( 'cp_group' !== $post->post_type ) {
+		if ( 'clanbite_group' !== $post->post_type ) {
 			return;
 		}
 
@@ -649,7 +649,7 @@ final class Front_Seo {
 		);
 
 		/**
-		 * Extra JSON-LD @graph nodes for a Social Kit group (`cp_group`).
+		 * Extra JSON-LD @graph nodes for a Social Kit group (`clanbite_group`).
 		 *
 		 * @param array<int, array<string, mixed>> $extra_graph Nodes.
 		 * @param int                               $post_id     Group post ID.
@@ -704,7 +704,7 @@ final class Front_Seo {
 			return;
 		}
 
-		$start = (string) get_post_meta( $post->ID, 'cp_match_scheduled_at', true );
+		$start = (string) get_post_meta( $post->ID, 'clanbite_match_scheduled_at', true );
 		$iso   = '';
 		if ( '' !== $start ) {
 			$ts = strtotime( $start . ' GMT' );
@@ -713,7 +713,7 @@ final class Front_Seo {
 			}
 		}
 
-		$match_status = sanitize_key( (string) get_post_meta( $post->ID, 'cp_match_status', true ) );
+		$match_status = sanitize_key( (string) get_post_meta( $post->ID, 'clanbite_match_status', true ) );
 		$event_status = null;
 		if ( 'cancelled' === $match_status ) {
 			$event_status = 'https://schema.org/EventCancelled';
@@ -749,7 +749,7 @@ final class Front_Seo {
 		$graph = array( $webpage, $event );
 
 		/**
-		 * Extra JSON-LD @graph nodes for a match (single `cp_match`).
+		 * Extra JSON-LD @graph nodes for a match (single `clanbite_match`).
 		 *
 		 * @param array<int, array<string, mixed>> $extra_graph Nodes.
 		 * @param int                               $post_id     Post ID.

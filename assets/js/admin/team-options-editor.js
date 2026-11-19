@@ -71,89 +71,98 @@
 			null,
 			el(
 				PanelRow,
-				{ key: 'cp_team_code' },
+				{ key: 'clanbite_team_code' },
 				el( TextControl, {
 					__next40pxDefaultSize: true,
 					__nextHasNoMarginBottom: true,
 					label: __( 'Team code', 'clanbite' ),
-					value: meta.cp_team_code || '',
+					value: meta.clanbite_team_code || '',
 					onChange( value ) {
-						patch( 'cp_team_code', value );
+						patch( 'clanbite_team_code', value );
 					},
 				} )
 			),
 			el(
 				PanelRow,
-				{ key: 'cp_team_motto' },
+				{ key: 'clanbite_team_motto' },
 				el( TextareaControl, {
 					__nextHasNoMarginBottom: true,
 					label: __( 'Motto', 'clanbite' ),
-					value: meta.cp_team_motto || '',
+					value: meta.clanbite_team_motto || '',
 					onChange( value ) {
-						patch( 'cp_team_motto', value );
+						patch( 'clanbite_team_motto', value );
 					},
 					rows: 3,
 				} )
 			),
 			el(
 				PanelRow,
-				{ key: 'cp_team_country' },
+				{ key: 'clanbite_team_country' },
 				el( SelectControl, {
 					__next40pxDefaultSize: true,
 					__nextHasNoMarginBottom: true,
 					label: __( 'Country', 'clanbite' ),
 					value:
-						meta.cp_team_country != null
-							? String( meta.cp_team_country )
+						meta.clanbite_team_country != null
+							? String( meta.clanbite_team_country )
 							: '',
 					options: getCountryOptions(),
 					onChange( value ) {
-						patch( 'cp_team_country', value );
+						patch( 'clanbite_team_country', value );
 					},
 				} )
 			),
 			el(
 				PanelRow,
-				{ key: 'cp_team_wins' },
+				{ key: 'clanbite_team_wins' },
 				el( TextControl, {
 					__next40pxDefaultSize: true,
 					__nextHasNoMarginBottom: true,
 					label: __( 'Wins', 'clanbite' ),
 					type: 'number',
 					min: 0,
-					value: statString( meta, 'cp_team_wins' ),
+					value: statString( meta, 'clanbite_team_wins' ),
 					onChange( value ) {
-						patch( 'cp_team_wins', parseInt( value, 10 ) || 0 );
+						patch(
+							'clanbite_team_wins',
+							parseInt( value, 10 ) || 0
+						);
 					},
 				} )
 			),
 			el(
 				PanelRow,
-				{ key: 'cp_team_losses' },
+				{ key: 'clanbite_team_losses' },
 				el( TextControl, {
 					__next40pxDefaultSize: true,
 					__nextHasNoMarginBottom: true,
 					label: __( 'Losses', 'clanbite' ),
 					type: 'number',
 					min: 0,
-					value: statString( meta, 'cp_team_losses' ),
+					value: statString( meta, 'clanbite_team_losses' ),
 					onChange( value ) {
-						patch( 'cp_team_losses', parseInt( value, 10 ) || 0 );
+						patch(
+							'clanbite_team_losses',
+							parseInt( value, 10 ) || 0
+						);
 					},
 				} )
 			),
 			el(
 				PanelRow,
-				{ key: 'cp_team_draws' },
+				{ key: 'clanbite_team_draws' },
 				el( TextControl, {
 					__next40pxDefaultSize: true,
 					__nextHasNoMarginBottom: true,
 					label: __( 'Draws', 'clanbite' ),
 					type: 'number',
 					min: 0,
-					value: statString( meta, 'cp_team_draws' ),
+					value: statString( meta, 'clanbite_team_draws' ),
 					onChange( value ) {
-						patch( 'cp_team_draws', parseInt( value, 10 ) || 0 );
+						patch(
+							'clanbite_team_draws',
+							parseInt( value, 10 ) || 0
+						);
 					},
 				} )
 			)
@@ -397,7 +406,7 @@
 			Fragment,
 			null,
 			el( TeamBrandingImageRow, {
-				metaKey: 'cp_team_avatar_id',
+				metaKey: 'clanbite_team_avatar_id',
 				label: __( 'Team avatar', 'clanbite' ),
 				help: __(
 					'Shown on team templates. Leave as site default or pick a custom image.',
@@ -409,7 +418,7 @@
 				variant: 'avatar',
 			} ),
 			el( TeamBrandingImageRow, {
-				metaKey: 'cp_team_cover_id',
+				metaKey: 'clanbite_team_cover_id',
 				label: __( 'Team cover', 'clanbite' ),
 				help: __(
 					'Wide image behind the team header. Leave as site default or pick a custom image.',
@@ -452,75 +461,79 @@
 		const membershipControls = [
 			el(
 				PanelRow,
-				{ key: 'cp_team_join_mode' },
+				{ key: 'clanbite_team_join_mode' },
 				el( SelectControl, {
 					__next40pxDefaultSize: true,
 					__nextHasNoMarginBottom: true,
 					label: __( 'Join mode', 'clanbite' ),
-					value: meta.cp_team_join_mode || 'open_join',
+					value: meta.clanbite_team_join_mode || 'open_join',
 					options: joinModes,
 					onChange( value ) {
-						patch( 'cp_team_join_mode', value );
+						patch( 'clanbite_team_join_mode', value );
 					},
 				} )
 			),
 			el(
 				PanelRow,
-				{ key: 'cp_team_allow_invites' },
+				{ key: 'clanbite_team_allow_invites' },
 				el( ToggleControl, {
 					__nextHasNoMarginBottom: true,
 					label: __( 'Allow player invites', 'clanbite' ),
-					checked: boolMeta( meta, 'cp_team_allow_invites', true ),
+					checked: boolMeta(
+						meta,
+						'clanbite_team_allow_invites',
+						true
+					),
 					onChange( value ) {
-						patch( 'cp_team_allow_invites', !! value );
+						patch( 'clanbite_team_allow_invites', !! value );
 					},
 				} )
 			),
 			el(
 				PanelRow,
-				{ key: 'cp_team_allow_frontend_edit' },
+				{ key: 'clanbite_team_allow_frontend_edit' },
 				el( ToggleControl, {
 					__nextHasNoMarginBottom: true,
 					label: __( 'Allow front-end team editing', 'clanbite' ),
 					checked: boolMeta(
 						meta,
-						'cp_team_allow_frontend_edit',
+						'clanbite_team_allow_frontend_edit',
 						true
 					),
 					onChange( value ) {
-						patch( 'cp_team_allow_frontend_edit', !! value );
+						patch( 'clanbite_team_allow_frontend_edit', !! value );
 					},
 				} )
 			),
 			el(
 				PanelRow,
-				{ key: 'cp_team_allow_ban_players' },
+				{ key: 'clanbite_team_allow_ban_players' },
 				el( ToggleControl, {
 					__nextHasNoMarginBottom: true,
 					label: __( 'Allow banning players', 'clanbite' ),
 					checked: boolMeta(
 						meta,
-						'cp_team_allow_ban_players',
+						'clanbite_team_allow_ban_players',
 						true
 					),
 					onChange( value ) {
-						patch( 'cp_team_allow_ban_players', !! value );
+						patch( 'clanbite_team_allow_ban_players', !! value );
 					},
 				} )
 			),
 			el(
 				PanelRow,
-				{ key: 'cp_team_accept_challenges' },
+				{ key: 'clanbite_team_accept_challenges' },
 				el( ToggleControl, {
 					__nextHasNoMarginBottom: true,
 					label: __( 'Accept match challenges', 'clanbite' ),
 					checked: boolMeta(
 						meta,
-						'cp_team_accept_challenges',
+						'clanbite_team_accept_challenges',
 						true
 					),
 					onChange( value ) {
-						patch( 'cp_team_accept_challenges', !! value );
+						patch( 'clanbite_team_accept_challenges', !! value );
 					},
 				} )
 			),

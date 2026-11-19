@@ -30,19 +30,19 @@ final class Team_Challenges {
 	public const STATUS_ACCEPTED = 'accepted';
 	public const STATUS_DECLINED = 'declined';
 
-	public const META_CHALLENGED_TEAM_ID            = 'cp_challenge_challenged_team_id';
-	public const META_CHALLENGER_USER_ID            = 'cp_challenge_challenger_user_id';
-	public const META_CHALLENGER_NAME               = 'cp_challenge_challenger_name';
-	public const META_CHALLENGER_EMAIL              = 'cp_challenge_challenger_email';
-	public const META_MESSAGE                       = 'cp_challenge_message';
-	public const META_PROPOSED_SCHEDULED_AT         = 'cp_challenge_proposed_scheduled_at';
-	public const META_CHALLENGER_TEAM_ID            = 'cp_challenge_challenger_team_id';
-	public const META_REMOTE_TEAM_URL               = 'cp_challenge_remote_team_url';
-	public const META_REMOTE_SNAPSHOT               = 'cp_challenge_remote_snapshot';
-	public const META_STATUS                        = 'cp_challenge_status';
-	public const META_MATCH_ID                      = 'cp_challenge_match_id';
-	public const META_EVENT_ID                      = 'cp_challenge_event_id';
-	public const META_CHALLENGER_LOGO_ATTACHMENT_ID = 'cp_challenge_challenger_logo_attachment_id';
+	public const META_CHALLENGED_TEAM_ID            = 'clanbite_challenge_challenged_team_id';
+	public const META_CHALLENGER_USER_ID            = 'clanbite_challenge_challenger_user_id';
+	public const META_CHALLENGER_NAME               = 'clanbite_challenge_challenger_name';
+	public const META_CHALLENGER_EMAIL              = 'clanbite_challenge_challenger_email';
+	public const META_MESSAGE                       = 'clanbite_challenge_message';
+	public const META_PROPOSED_SCHEDULED_AT         = 'clanbite_challenge_proposed_scheduled_at';
+	public const META_CHALLENGER_TEAM_ID            = 'clanbite_challenge_challenger_team_id';
+	public const META_REMOTE_TEAM_URL               = 'clanbite_challenge_remote_team_url';
+	public const META_REMOTE_SNAPSHOT               = 'clanbite_challenge_remote_snapshot';
+	public const META_STATUS                        = 'clanbite_challenge_status';
+	public const META_MATCH_ID                      = 'clanbite_challenge_match_id';
+	public const META_EVENT_ID                      = 'clanbite_challenge_event_id';
+	public const META_CHALLENGER_LOGO_ATTACHMENT_ID = 'clanbite_challenge_challenger_logo_attachment_id';
 
 	/**
 	 * Singleton.
@@ -511,7 +511,7 @@ final class Team_Challenges {
 			if ( function_exists( 'clanbite_teams_get_display_team_avatar' ) ) {
 				$snapshot['logoUrl'] = clanbite_teams_get_display_team_avatar( $challenger_team_id, false, '', 'team_challenge', 'medium' );
 			} else {
-				$aid = (int) get_post_meta( $challenger_team_id, 'cp_team_avatar_id', true );
+				$aid = (int) get_post_meta( $challenger_team_id, 'clanbite_team_avatar_id', true );
 				if ( $aid ) {
 					$snapshot['logoUrl'] = (string) wp_get_attachment_image_url( $aid, 'medium' );
 				}
@@ -583,7 +583,7 @@ final class Team_Challenges {
 		 * Fires after a team challenge is stored and notifications are queued.
 		 *
 		 * @param int $challenge_id Challenge post ID (`clanbite_team_challenge`).
-		 * @param int $challenged_team_id Challenged `cp_team` ID.
+		 * @param int $challenged_team_id Challenged `clanbite_team` ID.
 		 */
 		do_action( 'clanbite_team_challenge_created', $challenge_id, $team_id );
 
@@ -825,16 +825,16 @@ final class Team_Challenges {
 		}
 
 		$match_id = (int) $match_id;
-		update_post_meta( $match_id, 'cp_match_home_team_id', $challenged_team_id );
-		update_post_meta( $match_id, 'cp_match_away_team_id', max( 0, $away_id ) );
-		update_post_meta( $match_id, 'cp_match_scheduled_at', $scheduled );
-		update_post_meta( $match_id, 'cp_match_status', $matches::STATUS_SCHEDULED );
-		update_post_meta( $match_id, 'cp_match_visibility', $matches::VISIBILITY_PUBLIC );
+		update_post_meta( $match_id, 'clanbite_match_home_team_id', $challenged_team_id );
+		update_post_meta( $match_id, 'clanbite_match_away_team_id', max( 0, $away_id ) );
+		update_post_meta( $match_id, 'clanbite_match_scheduled_at', $scheduled );
+		update_post_meta( $match_id, 'clanbite_match_status', $matches::STATUS_SCHEDULED );
+		update_post_meta( $match_id, 'clanbite_match_visibility', $matches::VISIBILITY_PUBLIC );
 
 		if ( $away_id < 1 ) {
-			update_post_meta( $match_id, 'cp_match_away_external_label', $ext_label );
-			update_post_meta( $match_id, 'cp_match_away_external_logo_url', $ext_logo );
-			update_post_meta( $match_id, 'cp_match_away_external_profile_url', $ext_url );
+			update_post_meta( $match_id, 'clanbite_match_away_external_label', $ext_label );
+			update_post_meta( $match_id, 'clanbite_match_away_external_logo_url', $ext_logo );
+			update_post_meta( $match_id, 'clanbite_match_away_external_profile_url', $ext_url );
 		}
 
 		$challenge_logo_id = (int) get_post_meta( $challenge_id, self::META_CHALLENGER_LOGO_ATTACHMENT_ID, true );
@@ -843,7 +843,7 @@ final class Team_Challenges {
 				$new_logo = wp_get_attachment_image_url( $challenge_logo_id, 'medium' );
 				if ( $new_logo ) {
 					$new_logo = esc_url_raw( (string) $new_logo );
-					update_post_meta( $match_id, 'cp_match_away_external_logo_url', $new_logo );
+					update_post_meta( $match_id, 'clanbite_match_away_external_logo_url', $new_logo );
 					$snapshot['logoUrl'] = $new_logo;
 					update_post_meta( $challenge_id, self::META_REMOTE_SNAPSHOT, wp_json_encode( $snapshot ) );
 				}
@@ -862,7 +862,7 @@ final class Team_Challenges {
 		 * Fires after a team challenge is accepted and the match exists.
 		 *
 		 * @param int $challenge_id Challenge post ID.
-		 * @param int $match_id     New `cp_match` ID.
+		 * @param int $match_id     New `clanbite_match` ID.
 		 * @param int $challenged_team_id Home team ID.
 		 */
 		do_action( 'clanbite_team_challenge_accepted', $challenge_id, $match_id, $challenged_team_id );
@@ -983,13 +983,13 @@ final class Team_Challenges {
 		}
 
 		$event_id = (int) $event_id;
-		update_post_meta( $event_id, 'cp_event_scope', Event_Post_Type::SCOPE_TEAM );
-		update_post_meta( $event_id, 'cp_event_team_id', $team_id );
-		update_post_meta( $event_id, 'cp_event_group_id', 0 );
-		update_post_meta( $event_id, 'cp_event_mode', Event_Post_Type::MODE_IN_PERSON );
-		update_post_meta( $event_id, 'cp_event_visibility', Event_Post_Type::VISIBILITY_TEAM_MEMBERS );
-		update_post_meta( $event_id, 'cp_event_attendees_visibility', 'hidden' );
-		update_post_meta( $event_id, 'cp_event_starts_at', $scheduled );
+		update_post_meta( $event_id, 'clanbite_event_scope', Event_Post_Type::SCOPE_TEAM );
+		update_post_meta( $event_id, 'clanbite_event_team_id', $team_id );
+		update_post_meta( $event_id, 'clanbite_event_group_id', 0 );
+		update_post_meta( $event_id, 'clanbite_event_mode', Event_Post_Type::MODE_IN_PERSON );
+		update_post_meta( $event_id, 'clanbite_event_visibility', Event_Post_Type::VISIBILITY_TEAM_MEMBERS );
+		update_post_meta( $event_id, 'clanbite_event_attendees_visibility', 'hidden' );
+		update_post_meta( $event_id, 'clanbite_event_starts_at', $scheduled );
 
 		if ( $this->teams ) {
 			$map = $this->teams->get_team_member_roles_map( $team_id );

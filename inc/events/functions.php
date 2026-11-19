@@ -129,10 +129,10 @@ function clanbite_events_get_player_events_url( int $owner_id, $event = 0 ): str
 
 	$base = trailingslashit( (string) clanbite_get_player_profile_url( $owner_id ) ) . 'events/';
 	if ( 'new' === $event ) {
-		return add_query_arg( 'cp_event', 'new', $base );
+		return add_query_arg( 'clanbite_event_view', 'new', $base );
 	}
 	if ( (int) $event > 0 ) {
-		return add_query_arg( 'cp_event', (int) $event, $base );
+		return add_query_arg( 'clanbite_event_view', (int) $event, $base );
 	}
 
 	return $base;
@@ -141,13 +141,13 @@ function clanbite_events_get_player_events_url( int $owner_id, $event = 0 ): str
 /**
  * The event a player Events page is showing: a post ID, `new`, or 0 for the calendar.
  *
- * Read from the `cp_event` query argument, which only selects what to display (every action behind it checks permission itself).
+ * Read from the `clanbite_event_view` query argument, which only selects what to display (every action behind it checks permission itself).
  *
  * @return int|string
  */
 function clanbite_events_requested_player_event() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display selector only; permissions are checked by the blocks and REST routes.
-	$raw = isset( $_GET['cp_event'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['cp_event'] ) ) : '';
+	$raw = isset( $_GET['clanbite_event_view'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['clanbite_event_view'] ) ) : '';
 	if ( 'new' === $raw ) {
 		return 'new';
 	}
@@ -156,13 +156,13 @@ function clanbite_events_requested_player_event() {
 }
 
 /**
- * The players invited to an event (each invitation is one `cp_event_invited` meta row so lists can query it).
+ * The players invited to an event (each invitation is one `clanbite_event_invited` meta row so lists can query it).
  *
  * @param int $event_id Event post ID.
  * @return int[]
  */
 function clanbite_events_get_invited_user_ids( int $event_id ): array {
-	return array_values( array_unique( array_filter( array_map( 'absint', (array) get_post_meta( $event_id, 'cp_event_invited', false ) ) ) ) );
+	return array_values( array_unique( array_filter( array_map( 'absint', (array) get_post_meta( $event_id, 'clanbite_event_invited', false ) ) ) ) );
 }
 
 /**
@@ -177,7 +177,7 @@ function clanbite_events_get_invited_user_ids( int $event_id ): array {
  */
 function clanbite_events_set_invited_user_ids( int $event_id, int $owner_id, array $user_ids ): array {
 	$allowed = array();
-	if ( Kernowdev\Clanbite\Events\Event_Post_Type::VISIBILITY_ONLY_ME !== (string) get_post_meta( $event_id, 'cp_event_visibility', true ) ) {
+	if ( Kernowdev\Clanbite\Events\Event_Post_Type::VISIBILITY_ONLY_ME !== (string) get_post_meta( $event_id, 'clanbite_event_visibility', true ) ) {
 		$friends = clanbite_players_get_friend_ids( $owner_id );
 		$allowed = array_values( array_intersect( array_unique( array_filter( array_map( 'absint', $user_ids ) ) ), $friends ) );
 		$allowed = array_values( array_diff( $allowed, array( $owner_id ) ) );
@@ -196,10 +196,10 @@ function clanbite_events_set_invited_user_ids( int $event_id, int $owner_id, arr
 	$added  = array_values( array_diff( $allowed, $before ) );
 
 	foreach ( array_diff( $before, $allowed ) as $removed ) {
-		delete_post_meta( $event_id, 'cp_event_invited', $removed );
+		delete_post_meta( $event_id, 'clanbite_event_invited', $removed );
 	}
 	foreach ( $added as $user_id ) {
-		add_post_meta( $event_id, 'cp_event_invited', $user_id );
+		add_post_meta( $event_id, 'clanbite_event_invited', $user_id );
 	}
 
 	if ( $added && 'publish' === get_post_status( $event_id ) && function_exists( 'clanbite_notify' ) && function_exists( 'clanbite_notifications_extension_active' ) && clanbite_notifications_extension_active() ) {
@@ -277,7 +277,7 @@ function clanbite_events_parse_entity_enabled_meta( $raw ): bool {
 /**
  * Whether events are available for a team (global + per-team meta).
  *
- * @param int $team_id Team post ID (`cp_team`).
+ * @param int $team_id Team post ID (`clanbite_team`).
  * @return bool
  */
 function clanbite_events_are_enabled_for_team( int $team_id ): bool {
@@ -288,7 +288,7 @@ function clanbite_events_are_enabled_for_team( int $team_id ): bool {
 		return false;
 	}
 
-	$raw = get_post_meta( $team_id, 'cp_team_events_enabled', true );
+	$raw = get_post_meta( $team_id, 'clanbite_team_events_enabled', true );
 
 	return clanbite_events_parse_entity_enabled_meta( $raw );
 }
@@ -296,7 +296,7 @@ function clanbite_events_are_enabled_for_team( int $team_id ): bool {
 /**
  * Whether events are available for a group (global + per-group meta).
  *
- * @param int $group_id Group post ID (`cp_group`).
+ * @param int $group_id Group post ID (`clanbite_group`).
  * @return bool
  */
 function clanbite_events_are_enabled_for_group( int $group_id ): bool {
@@ -307,7 +307,7 @@ function clanbite_events_are_enabled_for_group( int $group_id ): bool {
 		return false;
 	}
 
-	$raw = get_post_meta( $group_id, 'cp_group_events_enabled', true );
+	$raw = get_post_meta( $group_id, 'clanbite_group_events_enabled', true );
 
 	return clanbite_events_parse_entity_enabled_meta( $raw );
 }
@@ -315,7 +315,7 @@ function clanbite_events_are_enabled_for_group( int $group_id ): bool {
 /**
  * Team post IDs used when building a player’s merged “my events” calendar.
  *
- * Defaults to `cp_team_membership_ids` user meta. Extensions may add IDs via
+ * Defaults to `clanbite_team_membership_ids` user meta. Extensions may add IDs via
  * {@see clanbite_events_player_calendar_team_ids}.
  *
  * @param int $user_id WordPress user ID.
@@ -330,7 +330,7 @@ function clanbite_events_get_user_team_ids_for_calendar( int $user_id ): array {
 		return array();
 	}
 
-	$raw = get_user_meta( $user_id, 'cp_team_membership_ids', true );
+	$raw = get_user_meta( $user_id, 'clanbite_team_membership_ids', true );
 	if ( ! is_array( $raw ) ) {
 		$raw = array();
 	}
@@ -379,12 +379,12 @@ function clanbite_events_get_user_group_ids_for_calendar( int $user_id ): array 
 		return array();
 	}
 
-	$groups_feature_active = post_type_exists( 'cp_group' );
+	$groups_feature_active = post_type_exists( 'clanbite_group' );
 
 	/**
 	 * Filter whether group-scoped events may appear in a player’s merged calendar.
 	 *
-	 * Default: true when the `cp_group` post type is registered (group product active).
+	 * Default: true when the `clanbite_group` post type is registered (group product active).
 	 *
 	 * @param bool $active   Whether group events are included.
 	 * @param int  $user_id Profile owner user ID.

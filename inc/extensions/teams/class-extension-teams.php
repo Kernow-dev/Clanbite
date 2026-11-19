@@ -72,11 +72,11 @@ class Teams extends Skeleton {
 	public function __construct() {
 		parent::__construct(
 			'Teams',
-			'cp_teams',
+			'clanbite_teams',
 			'Adds team functionality.',
 			'',
 			'1.0.0',
-			array( 'cp_players' )
+			array( 'clanbite_players' )
 		);
 	}
 
@@ -156,7 +156,7 @@ class Teams extends Skeleton {
 		 */
 		do_action( "clanbite_teams_mode_{$team_mode}", $this );
 
-		// After `cp_team` rewrites register (init:10) so `teams/create` wins over `teams/([^/]+)`.
+		// After `clanbite_team` rewrites register (init:10) so `teams/create` wins over `teams/([^/]+)`.
 		add_filter( 'pre_get_block_file_template', array( $this, 'filter_pre_get_block_file_template_team_profile_header' ), 10, 3 );
 		add_filter( 'get_block_templates', array( $this, 'filter_get_block_templates_include_team_profile_header' ), 10, 3 );
 		add_action( 'init', array( $this, 'register_team_front_routes' ), 15 );
@@ -313,7 +313,7 @@ class Teams extends Skeleton {
 	}
 
 	/**
-	 * Let team admins/editors update cp_team from the front-end manage form.
+	 * Let team admins/editors update clanbite_team from the front-end manage form.
 	 *
 	 * @param array  $caps    Primitive caps for the user.
 	 * @param string $cap     Capability name.
@@ -376,7 +376,7 @@ class Teams extends Skeleton {
 	public function integrate_team_preferences(): void {
 		register_meta(
 			'user',
-			'cp_open_to_team_invites',
+			'clanbite_open_to_team_invites',
 			array(
 				'type'              => 'boolean',
 				'single'            => true,
@@ -398,7 +398,7 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		$players = $loader->get( 'cp_players' );
+		$players = $loader->get( 'clanbite_players' );
 		if ( ! $players instanceof Players ) {
 			return;
 		}
@@ -491,7 +491,7 @@ class Teams extends Skeleton {
 		}
 
 		$open = rest_sanitize_boolean( $filtered_data['open_to_team_invites'] );
-		update_user_meta( (int) $user_id, 'cp_open_to_team_invites', $open ? '1' : '0' );
+		update_user_meta( (int) $user_id, 'clanbite_open_to_team_invites', $open ? '1' : '0' );
 	}
 
 	/**
@@ -514,7 +514,7 @@ class Teams extends Skeleton {
 	 * @return int
 	 */
 	public function get_user_team_membership_count( int $user_id ): int {
-		$indexed = get_user_meta( $user_id, 'cp_team_membership_ids', true );
+		$indexed = get_user_meta( $user_id, 'clanbite_team_membership_ids', true );
 		if ( is_array( $indexed ) && array() !== $indexed ) {
 			$count = 0;
 			foreach ( $indexed as $team_id ) {
@@ -545,7 +545,7 @@ class Teams extends Skeleton {
 	 * @return bool
 	 */
 	public function user_accepts_team_invites( int $user_id ): bool {
-		$raw = get_user_meta( $user_id, 'cp_open_to_team_invites', true );
+		$raw = get_user_meta( $user_id, 'clanbite_open_to_team_invites', true );
 		if ( '' === $raw || null === $raw ) {
 			$accepts = true;
 		} else {
@@ -936,7 +936,7 @@ class Teams extends Skeleton {
 	/**
 	 * 301 from the current `clanbite_team_slug` request to the canonical team profile URL.
 	 *
-	 * Uses `get_permalink()` when a matching `cp_team` exists so the target stays aligned with
+	 * Uses `get_permalink()` when a matching `clanbite_team` exists so the target stays aligned with
 	 * the post type’s rewrite slug and any core permalink filters.
 	 *
 	 * @return void
@@ -957,7 +957,7 @@ class Teams extends Skeleton {
 	}
 
 	/**
-	 * Public profile URL for a team slug (`cp_team` permalink, or fallback from the registered rewrite slug).
+	 * Public profile URL for a team slug (`clanbite_team` permalink, or fallback from the registered rewrite slug).
 	 *
 	 * @param string $slug Post name (`post_name`).
 	 * @return string Empty when the slug is invalid.
@@ -1464,7 +1464,7 @@ class Teams extends Skeleton {
 	 * @return array<int, string>
 	 */
 	public function get_team_member_roles_map( int $team_id ): array {
-		$raw = get_post_meta( $team_id, 'cp_team_member_roles', true );
+		$raw = get_post_meta( $team_id, 'clanbite_team_member_roles', true );
 		if ( ! is_array( $raw ) ) {
 			$raw = array();
 		}
@@ -1601,7 +1601,7 @@ class Teams extends Skeleton {
 	 * Published teams the user may manage on the front end (admin or editor roster role, or site teams admin).
 	 *
 	 * @param int $user_id User ID.
-	 * @return array<int, int> Unique `cp_team` post IDs.
+	 * @return array<int, int> Unique `clanbite_team` post IDs.
 	 */
 	public function get_user_managed_team_ids( int $user_id ): array {
 		if ( $user_id < 1 ) {
@@ -1628,7 +1628,7 @@ class Teams extends Skeleton {
 			}
 		}
 
-		$indexed = get_user_meta( $user_id, 'cp_team_membership_ids', true );
+		$indexed = get_user_meta( $user_id, 'clanbite_team_membership_ids', true );
 		if ( is_array( $indexed ) ) {
 			foreach ( array_map( 'intval', $indexed ) as $tid ) {
 				if ( $tid < 1 || in_array( $tid, $ids, true ) ) {
@@ -1722,7 +1722,7 @@ class Teams extends Skeleton {
 	public function persist_team_roles_map( int $team_id, array $new_map ): bool {
 		$author = (int) get_post_field( 'post_author', $team_id );
 
-		$old_raw = get_post_meta( $team_id, 'cp_team_member_roles', true );
+		$old_raw = get_post_meta( $team_id, 'clanbite_team_member_roles', true );
 		if ( ! is_array( $old_raw ) ) {
 			$old_raw = array();
 		}
@@ -1790,7 +1790,7 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	protected function sync_membership_index_for_user_team( int $team_id, int $user_id, string $role ): void {
-		$ids = get_user_meta( $user_id, 'cp_team_membership_ids', true );
+		$ids = get_user_meta( $user_id, 'clanbite_team_membership_ids', true );
 		if ( ! is_array( $ids ) ) {
 			$ids = array();
 		}
@@ -1807,7 +1807,7 @@ class Teams extends Skeleton {
 		}
 
 		$ids = array_values( array_unique( $ids ) );
-		update_user_meta( $user_id, 'cp_team_membership_ids', $ids );
+		update_user_meta( $user_id, 'clanbite_team_membership_ids', $ids );
 	}
 
 	/**
@@ -1816,7 +1816,7 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	protected function remove_team_from_user_membership_index( int $team_id, int $user_id ): void {
-		$ids = get_user_meta( $user_id, 'cp_team_membership_ids', true );
+		$ids = get_user_meta( $user_id, 'clanbite_team_membership_ids', true );
 		if ( ! is_array( $ids ) ) {
 			return;
 		}
@@ -1830,7 +1830,7 @@ class Teams extends Skeleton {
 				}
 			)
 		);
-		update_user_meta( $user_id, 'cp_team_membership_ids', $ids );
+		update_user_meta( $user_id, 'clanbite_team_membership_ids', $ids );
 	}
 
 	/**
@@ -2195,11 +2195,11 @@ class Teams extends Skeleton {
 			</p>
 			<p>
 				<label for="clanbite-manage-team-code"><?php esc_html_e( 'Team code', 'clanbite' ); ?></label><br />
-				<input type="text" id="clanbite-manage-team-code" name="team_code" class="widefat" value="<?php echo esc_attr( (string) get_post_meta( $team_id, 'cp_team_code', true ) ); ?>" />
+				<input type="text" id="clanbite-manage-team-code" name="team_code" class="widefat" value="<?php echo esc_attr( (string) get_post_meta( $team_id, 'clanbite_team_code', true ) ); ?>" />
 			</p>
 			<p>
 				<label for="clanbite-manage-team-motto"><?php esc_html_e( 'Team motto', 'clanbite' ); ?></label><br />
-				<input type="text" id="clanbite-manage-team-motto" name="team_motto" class="widefat" value="<?php echo esc_attr( (string) get_post_meta( $team_id, 'cp_team_motto', true ) ); ?>" />
+				<input type="text" id="clanbite-manage-team-motto" name="team_motto" class="widefat" value="<?php echo esc_attr( (string) get_post_meta( $team_id, 'clanbite_team_motto', true ) ); ?>" />
 			</p>
 			<p>
 				<label for="clanbite-manage-team-description"><?php esc_html_e( 'Description', 'clanbite' ); ?></label><br />
@@ -2973,23 +2973,23 @@ class Teams extends Skeleton {
 		$has_cover_upload  = $this->team_manage_form_has_image_upload( 'team_cover' );
 
 		if ( ! $has_avatar_upload && clanbite_request_post_flag( 'team_avatar_remove' ) ) {
-			$this->maybe_remove_team_manage_image( $team_id, 'cp_team_avatar_id' );
+			$this->maybe_remove_team_manage_image( $team_id, 'clanbite_team_avatar_id' );
 		}
 		if ( ! $has_cover_upload && clanbite_request_post_flag( 'team_cover_remove' ) ) {
-			$this->maybe_remove_team_manage_image( $team_id, 'cp_team_cover_id' );
+			$this->maybe_remove_team_manage_image( $team_id, 'clanbite_team_cover_id' );
 		}
 
 		$this->maybe_handle_team_media_upload(
 			$team_id,
 			'team_avatar',
-			'cp_team_avatar_id',
+			'clanbite_team_avatar_id',
 			'clanbite_team_manage_' . $team_id,
 			'_clanbite_team_manage_nonce'
 		);
 		$this->maybe_handle_team_media_upload(
 			$team_id,
 			'team_cover',
-			'cp_team_cover_id',
+			'clanbite_team_cover_id',
 			'clanbite_team_manage_' . $team_id,
 			'_clanbite_team_manage_nonce'
 		);
@@ -3131,7 +3131,7 @@ class Teams extends Skeleton {
 	}
 
 	/**
-	 * Labels for the `cp_team` post type (admin list, editor chrome, admin bar, REST).
+	 * Labels for the `clanbite_team` post type (admin list, editor chrome, admin bar, REST).
 	 *
 	 * @return array<string, string>
 	 */
@@ -3209,8 +3209,8 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function register_team_meta(): void {
-		$this->register_cp_team_meta_key(
-			'cp_team_join_mode',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_join_mode',
 			array(
 				'type'              => 'string',
 				'single'            => true,
@@ -3220,8 +3220,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_allow_invites',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_allow_invites',
 			array(
 				'type'              => 'boolean',
 				'single'            => true,
@@ -3231,8 +3231,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_allow_frontend_edit',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_allow_frontend_edit',
 			array(
 				'type'              => 'boolean',
 				'single'            => true,
@@ -3242,8 +3242,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_allow_ban_players',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_allow_ban_players',
 			array(
 				'type'              => 'boolean',
 				'single'            => true,
@@ -3253,8 +3253,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_code',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_code',
 			array(
 				'type'              => 'string',
 				'single'            => true,
@@ -3264,8 +3264,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_motto',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_motto',
 			array(
 				'type'              => 'string',
 				'single'            => true,
@@ -3275,8 +3275,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_avatar_id',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_avatar_id',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -3286,8 +3286,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_cover_id',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_cover_id',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -3297,8 +3297,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_member_roles',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_member_roles',
 			array(
 				'type'         => 'array',
 				'single'       => true,
@@ -3307,8 +3307,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_accept_challenges',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_accept_challenges',
 			array(
 				'type'              => 'boolean',
 				'single'            => true,
@@ -3318,8 +3318,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_country',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_country',
 			array(
 				'type'              => 'string',
 				'single'            => true,
@@ -3329,8 +3329,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_wins',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_wins',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -3340,8 +3340,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_losses',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_losses',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -3351,8 +3351,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_draws',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_draws',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -3362,8 +3362,8 @@ class Teams extends Skeleton {
 			)
 		);
 
-		$this->register_cp_team_meta_key(
-			'cp_team_events_enabled',
+		$this->register_clanbite_team_meta_key(
+			'clanbite_team_events_enabled',
 			array(
 				'type'              => 'boolean',
 				'single'            => true,
@@ -3405,13 +3405,13 @@ class Teams extends Skeleton {
 	 */
 	public function render_team_events_meta_box( \WP_Post $post ): void {
 		wp_nonce_field( 'clanbite_team_events_meta', 'clanbite_team_events_meta_nonce' );
-		$raw = get_post_meta( $post->ID, 'cp_team_events_enabled', true );
+		$raw = get_post_meta( $post->ID, 'clanbite_team_events_enabled', true );
 		// Empty meta: enabled; explicit off stored as false/0.
 		$checked = ! ( false === $raw || 0 === $raw || '0' === $raw );
 		?>
 		<p>
 			<label>
-				<input type="checkbox" name="cp_team_events_enabled" value="1" <?php checked( $checked ); ?> />
+				<input type="checkbox" name="clanbite_team_events_enabled" value="1" <?php checked( $checked ); ?> />
 				<?php esc_html_e( 'Enable scheduled events for this team', 'clanbite' ); ?>
 			</label>
 		</p>
@@ -3442,18 +3442,18 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		$enabled = clanbite_request_post_flag( 'cp_team_events_enabled' );
-		update_post_meta( $post_id, 'cp_team_events_enabled', $enabled );
+		$enabled = clanbite_request_post_flag( 'clanbite_team_events_enabled' );
+		update_post_meta( $post_id, 'clanbite_team_events_enabled', $enabled );
 	}
 
 	/**
-	 * Register one `cp_team` meta key with a consistent auth callback for REST.
+	 * Register one `clanbite_team` meta key with a consistent auth callback for REST.
 	 *
-	 * @param string              $meta_key Meta key (e.g. cp_team_code).
+	 * @param string              $meta_key Meta key (e.g. clanbite_team_code).
 	 * @param array<string,mixed> $args     Arguments for {@see register_post_meta()}.
 	 * @return void
 	 */
-	protected function register_cp_team_meta_key( string $meta_key, array $args ): void {
+	protected function register_clanbite_team_meta_key( string $meta_key, array $args ): void {
 		$args['auth_callback'] = array( $this, 'team_meta_auth_callback' );
 		register_post_meta( 'clanbite_team', $meta_key, $args );
 	}
@@ -3505,19 +3505,19 @@ class Teams extends Skeleton {
 		}
 
 		$rest_keys = array(
-			'cp_team_join_mode',
-			'cp_team_allow_invites',
-			'cp_team_allow_frontend_edit',
-			'cp_team_allow_ban_players',
-			'cp_team_code',
-			'cp_team_motto',
-			'cp_team_avatar_id',
-			'cp_team_cover_id',
-			'cp_team_accept_challenges',
-			'cp_team_country',
-			'cp_team_wins',
-			'cp_team_losses',
-			'cp_team_draws',
+			'clanbite_team_join_mode',
+			'clanbite_team_allow_invites',
+			'clanbite_team_allow_frontend_edit',
+			'clanbite_team_allow_ban_players',
+			'clanbite_team_code',
+			'clanbite_team_motto',
+			'clanbite_team_avatar_id',
+			'clanbite_team_cover_id',
+			'clanbite_team_accept_challenges',
+			'clanbite_team_country',
+			'clanbite_team_wins',
+			'clanbite_team_losses',
+			'clanbite_team_draws',
 		);
 
 		foreach ( $rest_keys as $key ) {
@@ -3525,15 +3525,15 @@ class Teams extends Skeleton {
 				continue;
 			}
 			$raw = get_post_meta( $post->ID, $key, true );
-			if ( 'cp_team_join_mode' === $key ) {
+			if ( 'clanbite_team_join_mode' === $key ) {
 				$data['meta'][ $key ] = $this->sanitize_team_join_mode( $raw );
 				continue;
 			}
-			if ( in_array( $key, array( 'cp_team_allow_invites', 'cp_team_allow_frontend_edit', 'cp_team_allow_ban_players', 'cp_team_accept_challenges' ), true ) ) {
+			if ( in_array( $key, array( 'clanbite_team_allow_invites', 'clanbite_team_allow_frontend_edit', 'clanbite_team_allow_ban_players', 'clanbite_team_accept_challenges' ), true ) ) {
 				$data['meta'][ $key ] = ( '' === $raw || null === $raw ) ? true : rest_sanitize_boolean( $raw );
 				continue;
 			}
-			if ( in_array( $key, array( 'cp_team_avatar_id', 'cp_team_wins', 'cp_team_losses', 'cp_team_draws' ), true ) ) {
+			if ( in_array( $key, array( 'clanbite_team_avatar_id', 'clanbite_team_wins', 'clanbite_team_losses', 'clanbite_team_draws' ), true ) ) {
 				$data['meta'][ $key ] = (int) $raw;
 				continue;
 			}
@@ -3559,32 +3559,32 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		update_post_meta( $team_id, 'cp_team_code', sanitize_text_field( (string) ( $fields['code'] ?? '' ) ) );
-		update_post_meta( $team_id, 'cp_team_motto', sanitize_text_field( (string) ( $fields['motto'] ?? '' ) ) );
+		update_post_meta( $team_id, 'clanbite_team_code', sanitize_text_field( (string) ( $fields['code'] ?? '' ) ) );
+		update_post_meta( $team_id, 'clanbite_team_motto', sanitize_text_field( (string) ( $fields['motto'] ?? '' ) ) );
 
 		$country = isset( $fields['country'] ) ? sanitize_text_field( (string) $fields['country'] ) : '';
 		if ( '' === $country ) {
-			delete_post_meta( $team_id, 'cp_team_country' );
+			delete_post_meta( $team_id, 'clanbite_team_country' );
 		} else {
-			update_post_meta( $team_id, 'cp_team_country', $country );
+			update_post_meta( $team_id, 'clanbite_team_country', $country );
 		}
 
-		update_post_meta( $team_id, 'cp_team_wins', 0 );
-		update_post_meta( $team_id, 'cp_team_losses', 0 );
-		update_post_meta( $team_id, 'cp_team_draws', 0 );
+		update_post_meta( $team_id, 'clanbite_team_wins', 0 );
+		update_post_meta( $team_id, 'clanbite_team_losses', 0 );
+		update_post_meta( $team_id, 'clanbite_team_draws', 0 );
 
 		$team = $this->get_team( $team_id );
 		if ( ! $team ) {
 			return;
 		}
 
-		update_post_meta( $team_id, 'cp_team_join_mode', $this->sanitize_team_join_mode( $team->get_join_mode() ) );
-		update_post_meta( $team_id, 'cp_team_allow_invites', $team->get_allow_invites() );
-		update_post_meta( $team_id, 'cp_team_allow_frontend_edit', $team->get_allow_frontend_edit() );
-		update_post_meta( $team_id, 'cp_team_allow_ban_players', $team->get_allow_ban_players() );
-		update_post_meta( $team_id, 'cp_team_accept_challenges', $team->get_accept_challenges() );
-		update_post_meta( $team_id, 'cp_team_avatar_id', $team->get_avatar_id() );
-		update_post_meta( $team_id, 'cp_team_cover_id', $team->get_cover_id() );
+		update_post_meta( $team_id, 'clanbite_team_join_mode', $this->sanitize_team_join_mode( $team->get_join_mode() ) );
+		update_post_meta( $team_id, 'clanbite_team_allow_invites', $team->get_allow_invites() );
+		update_post_meta( $team_id, 'clanbite_team_allow_frontend_edit', $team->get_allow_frontend_edit() );
+		update_post_meta( $team_id, 'clanbite_team_allow_ban_players', $team->get_allow_ban_players() );
+		update_post_meta( $team_id, 'clanbite_team_accept_challenges', $team->get_accept_challenges() );
+		update_post_meta( $team_id, 'clanbite_team_avatar_id', $team->get_avatar_id() );
+		update_post_meta( $team_id, 'clanbite_team_cover_id', $team->get_cover_id() );
 	}
 
 	/**
@@ -3718,16 +3718,16 @@ class Teams extends Skeleton {
 	 * @return array<string, mixed>
 	 */
 	public function get_team_options( int $team_id ): array {
-		$accept_raw        = get_post_meta( $team_id, 'cp_team_accept_challenges', true );
+		$accept_raw        = get_post_meta( $team_id, 'clanbite_team_accept_challenges', true );
 		$accept_challenges = ( '' === $accept_raw ) ? true : rest_sanitize_boolean( $accept_raw );
 
 		$team_obj = $this->get_team( $team_id );
 
 		$options = array(
-			'join_mode'           => $this->sanitize_team_join_mode( get_post_meta( $team_id, 'cp_team_join_mode', true ) ),
-			'allow_invites'       => rest_sanitize_boolean( get_post_meta( $team_id, 'cp_team_allow_invites', true ) ),
-			'allow_frontend_edit' => rest_sanitize_boolean( get_post_meta( $team_id, 'cp_team_allow_frontend_edit', true ) ),
-			'allow_ban_players'   => rest_sanitize_boolean( get_post_meta( $team_id, 'cp_team_allow_ban_players', true ) ),
+			'join_mode'           => $this->sanitize_team_join_mode( get_post_meta( $team_id, 'clanbite_team_join_mode', true ) ),
+			'allow_invites'       => rest_sanitize_boolean( get_post_meta( $team_id, 'clanbite_team_allow_invites', true ) ),
+			'allow_frontend_edit' => rest_sanitize_boolean( get_post_meta( $team_id, 'clanbite_team_allow_frontend_edit', true ) ),
+			'allow_ban_players'   => rest_sanitize_boolean( get_post_meta( $team_id, 'clanbite_team_allow_ban_players', true ) ),
 			'accept_challenges'   => $accept_challenges,
 			'country'             => $team_obj ? $team_obj->get_country() : '',
 			'wins'                => $team_obj ? $team_obj->get_wins() : 0,
@@ -3962,14 +3962,14 @@ class Teams extends Skeleton {
 		$this->maybe_handle_team_media_upload(
 			(int) $new_team_id,
 			'team_avatar',
-			'cp_team_avatar_id',
+			'clanbite_team_avatar_id',
 			'clanbite_create_team_action',
 			'_clanbite_create_team_nonce'
 		);
 		$this->maybe_handle_team_media_upload(
 			(int) $new_team_id,
 			'team_cover',
-			'cp_team_cover_id',
+			'clanbite_team_cover_id',
 			'clanbite_create_team_action',
 			'_clanbite_create_team_nonce'
 		);
@@ -4004,7 +4004,7 @@ class Teams extends Skeleton {
 		}
 
 		$this->initialize_team_roster( (int) $new_team_id, $user_id, $invite_tokens );
-		delete_post_meta( (int) $new_team_id, 'cp_team_pending_invites' );
+		delete_post_meta( (int) $new_team_id, 'clanbite_team_pending_invites' );
 
 		$this->sync_team_meta_after_front_end_create(
 			(int) $new_team_id,
@@ -4158,7 +4158,7 @@ class Teams extends Skeleton {
 			$this->maybe_handle_team_media_upload(
 				$team_id,
 				'team_avatar',
-				'cp_team_avatar_id',
+				'clanbite_team_avatar_id',
 				$media_action,
 				'_clanbite_team_media_nonce'
 			);
@@ -4167,7 +4167,7 @@ class Teams extends Skeleton {
 			$this->maybe_handle_team_media_upload(
 				$team_id,
 				'team_cover',
-				'cp_team_cover_id',
+				'clanbite_team_cover_id',
 				$media_action,
 				'_clanbite_team_media_nonce'
 			);
@@ -4181,7 +4181,7 @@ class Teams extends Skeleton {
 		 */
 		do_action( 'clanbite_team_media_ajax_saved', $team_id, $this );
 
-		$cover_id = (int) get_post_meta( $team_id, 'cp_team_cover_id', true );
+		$cover_id = (int) get_post_meta( $team_id, 'clanbite_team_cover_id', true );
 
 		$avatar_url = function_exists( 'clanbite_teams_get_display_team_avatar' )
 			? clanbite_teams_get_display_team_avatar( $team_id, false, '', 'team_media_ajax', 'large' )
@@ -4226,11 +4226,11 @@ class Teams extends Skeleton {
 	 * Remove a team avatar or cover attachment and meta (manage form).
 	 *
 	 * @param int    $team_id Team post ID.
-	 * @param string $meta_key `cp_team_avatar_id` or `cp_team_cover_id`.
+	 * @param string $meta_key `clanbite_team_avatar_id` or `clanbite_team_cover_id`.
 	 * @return void
 	 */
 	protected function maybe_remove_team_manage_image( int $team_id, string $meta_key ): void {
-		if ( ! in_array( $meta_key, array( 'cp_team_avatar_id', 'cp_team_cover_id' ), true ) ) {
+		if ( ! in_array( $meta_key, array( 'clanbite_team_avatar_id', 'clanbite_team_cover_id' ), true ) ) {
 			return;
 		}
 
@@ -4263,7 +4263,7 @@ class Teams extends Skeleton {
 		}
 
 		$subdir = 'clanbite/teams/' . $team_id;
-		$base   = 'cp_team_avatar_id' === $meta_key ? 'avatar' : 'cover';
+		$base   = 'clanbite_team_avatar_id' === $meta_key ? 'avatar' : 'cover';
 
 		$old_id = (int) get_post_meta( $team_id, $meta_key, true );
 
@@ -4644,7 +4644,7 @@ class Teams extends Skeleton {
 	 * Load the team block template on classic themes (block markup is not in post_content).
 	 *
 	 * Block themes resolve `clanbite//single-clanbite_team` via {@see register_block_template()} when
-	 * `post_types` includes `cp_team`. PHP themes need `do_blocks()` here.
+	 * `post_types` includes `clanbite_team`. PHP themes need `do_blocks()` here.
 	 *
 	 * @param string $template Path from {@see locate_template()}.
 	 * @return string

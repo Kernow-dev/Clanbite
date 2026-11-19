@@ -841,7 +841,7 @@ class Admin_Rest {
 	 * Topological order by `requires` (dependencies before dependents), then slug.
 	 *
 	 * Extensions listed in {@see Loader::get_required_extension_slugs()} are ordered first among
-	 * nodes with the same readiness (e.g. `cp_players` stays at the top).
+	 * nodes with the same readiness (e.g. `clanbite_players` stays at the top).
 	 *
 	 * @param array<string, Skeleton> $extensions Registered extensions.
 	 * @return array<string, Skeleton>

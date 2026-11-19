@@ -45,7 +45,7 @@ final class Notifications_Runtime {
 	 * @return void
 	 */
 	public function register(): void {
-		add_action( 'init', array( $this, 'register_cp_players_template_filter' ), 3 );
+		add_action( 'init', array( $this, 'register_clanbite_players_template_filter' ), 3 );
 		add_action( 'init', array( $this, 'maybe_create_tables' ), 5 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_notifications_shortcode' ), 15 );
@@ -62,8 +62,8 @@ final class Notifications_Runtime {
 	 *
 	 * @return void
 	 */
-	public function register_cp_players_template_filter(): void {
-		add_filter( 'clanbite_extension_cp_players_templates', array( $this, 'filter_cp_players_templates' ), 10, 2 );
+	public function register_clanbite_players_template_filter(): void {
+		add_filter( 'clanbite_extension_clanbite_players_templates', array( $this, 'filter_clanbite_players_templates' ), 10, 2 );
 	}
 
 	/**
@@ -73,7 +73,7 @@ final class Notifications_Runtime {
 	 * @param \Kernowdev\Clanbite\Extensions\Skeleton $extension Calling extension (Players).
 	 * @return array<string, array<string, string>>
 	 */
-	public function filter_cp_players_templates( array $templates, $extension ): array {
+	public function filter_clanbite_players_templates( array $templates, $extension ): array {
 		if ( ! $extension instanceof \Kernowdev\Clanbite\Extensions\Skeleton ) {
 			return $templates;
 		}
@@ -128,7 +128,7 @@ final class Notifications_Runtime {
 			return;
 		}
 
-		if ( 'notifications' !== sanitize_key( (string) get_query_var( 'cp_player_subpage' ) ) ) {
+		if ( 'notifications' !== sanitize_key( (string) get_query_var( 'clanbite_player_subpage' ) ) ) {
 			return;
 		}
 

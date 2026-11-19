@@ -21,7 +21,7 @@ if ( $team_id < 1 ) {
 	return;
 }
 
-$code = (string) get_post_meta( $team_id, 'cp_team_country', true );
+$code = (string) get_post_meta( $team_id, 'clanbite_team_country', true );
 
 $label = '' !== $code && function_exists( 'clanbite_team_country_label' )
 	? clanbite_team_country_label( $code )

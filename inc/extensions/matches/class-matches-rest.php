@@ -100,7 +100,7 @@ class Rest_Controller {
 	/**
 	 * Public read access for route registration.
 	 *
-	 * The list callback only queries non-published `cp_match` posts for logged-in users and
+	 * The list callback only queries non-published `clanbite_match` posts for logged-in users and
 	 * applies `WP_Query` `perm` => `readable` so results respect `read_post` capabilities.
 	 * Each row is still filtered by `Matches::viewer_can_see_match()`. Single-item responses
 	 * return 403 when visibility rules deny the viewer.
@@ -136,7 +136,7 @@ class Rest_Controller {
 			'posts_per_page' => $per_page,
 			'paged'          => $page,
 			'orderby'        => 'meta_value',
-			'meta_key'       => 'cp_match_scheduled_at',
+			'meta_key'       => 'clanbite_match_scheduled_at',
 			'meta_type'      => 'DATETIME',
 			'order'          => $order,
 		);
@@ -222,11 +222,11 @@ class Rest_Controller {
 			$parts[] = array(
 				'relation' => 'OR',
 				array(
-					'key'   => 'cp_match_home_team_id',
+					'key'   => 'clanbite_match_home_team_id',
 					'value' => $team_id,
 				),
 				array(
-					'key'   => 'cp_match_away_team_id',
+					'key'   => 'clanbite_match_away_team_id',
 					'value' => $team_id,
 				),
 			);
@@ -234,7 +234,7 @@ class Rest_Controller {
 
 		if ( '' !== $status ) {
 			$parts[] = array(
-				'key'   => 'cp_match_status',
+				'key'   => 'clanbite_match_status',
 				'value' => $status,
 			);
 		}

@@ -15,10 +15,10 @@ defined( 'ABSPATH' ) || exit;
  * The position is a focal point (`x`, `y`, 0 to 1, the same meaning as CSS `object-position` percentages and the Cover block's focal
  * point) and a zoom (1 to 4).
  *
- * - **Cover:** the full image is kept; the position and zoom are stored (`cp_player_cover_position_x/y`, `cp_player_cover_zoom`) and
+ * - **Cover:** the full image is kept; the position and zoom are stored (`clanbite_player_cover_position_x/y`, `clanbite_player_cover_zoom`) and
  *   applied when the cover is drawn (`object-position` plus a scale around the focal point).
  * - **Avatar:** avatars are drawn in many places from a plain image address, so the chosen part is cut out of the original as a
- *   square and saved as the avatar (`cp_player_avatar_id`). The original stays as `cp_player_avatar_source_id` so the position can be
+ *   square and saved as the avatar (`clanbite_player_avatar_id`). The original stays as `clanbite_player_avatar_source_id` so the position can be
  *   changed later.
  *
  * Both are saved by the normal player settings save (`clanbite_save_player_settings`) through these form fields:
@@ -69,7 +69,7 @@ final class Player_Media {
 		};
 		register_meta(
 			'user',
-			'cp_player_avatar_source_id',
+			'clanbite_player_avatar_source_id',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -78,10 +78,10 @@ final class Player_Media {
 				'default'           => 0,
 			)
 		);
-		register_meta( 'user', 'cp_player_avatar_focal_x', $number( 0.5 ) );
-		register_meta( 'user', 'cp_player_avatar_focal_y', $number( 0.5 ) );
-		register_meta( 'user', 'cp_player_avatar_zoom', $number( 1.0 ) );
-		register_meta( 'user', 'cp_player_cover_zoom', $number( 1.0 ) );
+		register_meta( 'user', 'clanbite_player_avatar_focal_x', $number( 0.5 ) );
+		register_meta( 'user', 'clanbite_player_avatar_focal_y', $number( 0.5 ) );
+		register_meta( 'user', 'clanbite_player_avatar_zoom', $number( 1.0 ) );
+		register_meta( 'user', 'clanbite_player_cover_zoom', $number( 1.0 ) );
 	}
 
 	/**
@@ -212,13 +212,13 @@ final class Player_Media {
 	 * @return void
 	 */
 	public static function remove_avatar( int $user_id ): void {
-		$avatar_id = absint( get_user_meta( $user_id, 'cp_player_avatar_id', true ) );
-		$source_id = absint( get_user_meta( $user_id, 'cp_player_avatar_source_id', true ) );
+		$avatar_id = absint( get_user_meta( $user_id, 'clanbite_player_avatar_id', true ) );
+		$source_id = absint( get_user_meta( $user_id, 'clanbite_player_avatar_source_id', true ) );
 		self::delete_attachment( $avatar_id );
 		if ( $source_id !== $avatar_id ) {
 			self::delete_attachment( $source_id );
 		}
-		foreach ( array( 'cp_player_avatar_id', 'cp_player_avatar', 'cp_player_avatar_source_id', 'cp_player_avatar_focal_x', 'cp_player_avatar_focal_y', 'cp_player_avatar_zoom' ) as $key ) {
+		foreach ( array( 'clanbite_player_avatar_id', 'clanbite_player_avatar', 'clanbite_player_avatar_source_id', 'clanbite_player_avatar_focal_x', 'clanbite_player_avatar_focal_y', 'clanbite_player_avatar_zoom' ) as $key ) {
 			delete_user_meta( $user_id, $key );
 		}
 
@@ -239,8 +239,8 @@ final class Player_Media {
 	 * @return void
 	 */
 	public static function remove_cover( int $user_id ): void {
-		self::delete_attachment( absint( get_user_meta( $user_id, 'cp_player_cover_id', true ) ) );
-		foreach ( array( 'cp_player_cover_id', 'cp_player_cover', 'cp_player_cover_position_x', 'cp_player_cover_position_y', 'cp_player_cover_zoom' ) as $key ) {
+		self::delete_attachment( absint( get_user_meta( $user_id, 'clanbite_player_cover_id', true ) ) );
+		foreach ( array( 'clanbite_player_cover_id', 'clanbite_player_cover', 'clanbite_player_cover_position_x', 'clanbite_player_cover_position_y', 'clanbite_player_cover_zoom' ) as $key ) {
 			delete_user_meta( $user_id, $key );
 		}
 
@@ -262,10 +262,10 @@ final class Player_Media {
 	 * @return void
 	 */
 	public static function register_new_avatar_source( int $user_id, int $attachment_id ): void {
-		update_user_meta( $user_id, 'cp_player_avatar_source_id', $attachment_id );
-		update_user_meta( $user_id, 'cp_player_avatar_focal_x', 0.5 );
-		update_user_meta( $user_id, 'cp_player_avatar_focal_y', 0.5 );
-		update_user_meta( $user_id, 'cp_player_avatar_zoom', 1.0 );
+		update_user_meta( $user_id, 'clanbite_player_avatar_source_id', $attachment_id );
+		update_user_meta( $user_id, 'clanbite_player_avatar_focal_x', 0.5 );
+		update_user_meta( $user_id, 'clanbite_player_avatar_focal_y', 0.5 );
+		update_user_meta( $user_id, 'clanbite_player_avatar_zoom', 1.0 );
 		set_transient( 'clanbite_new_avatar_' . $user_id, 1, MINUTE_IN_SECONDS );
 	}
 
@@ -296,20 +296,20 @@ final class Player_Media {
 		}
 
 		// Cover zoom (the position fields are stored by the Players extension).
-		if ( isset( $filtered['profile_cover_zoom'] ) && absint( get_user_meta( $user_id, 'cp_player_cover_id', true ) ) > 0 ) {
-			update_user_meta( $user_id, 'cp_player_cover_zoom', self::clamp_zoom( $filtered['profile_cover_zoom'] ) );
+		if ( isset( $filtered['profile_cover_zoom'] ) && absint( get_user_meta( $user_id, 'clanbite_player_cover_id', true ) ) > 0 ) {
+			update_user_meta( $user_id, 'clanbite_player_cover_zoom', self::clamp_zoom( $filtered['profile_cover_zoom'] ) );
 		}
 		if ( $new_cover && ! isset( $filtered['profile_cover_zoom'] ) ) {
-			update_user_meta( $user_id, 'cp_player_cover_zoom', 1.0 );
-			update_user_meta( $user_id, 'cp_player_cover_position_x', 0.5 );
-			update_user_meta( $user_id, 'cp_player_cover_position_y', 0.5 );
+			update_user_meta( $user_id, 'clanbite_player_cover_zoom', 1.0 );
+			update_user_meta( $user_id, 'clanbite_player_cover_position_x', 0.5 );
+			update_user_meta( $user_id, 'clanbite_player_cover_position_y', 0.5 );
 		}
 
 		// Avatar: cut the chosen square out of the original.
-		$source_id = absint( get_user_meta( $user_id, 'cp_player_avatar_source_id', true ) );
+		$source_id = absint( get_user_meta( $user_id, 'clanbite_player_avatar_source_id', true ) );
 		if ( 0 === $source_id ) {
 			// An avatar uploaded before positions existed: its image is the original.
-			$source_id = absint( get_user_meta( $user_id, 'cp_player_avatar_id', true ) );
+			$source_id = absint( get_user_meta( $user_id, 'clanbite_player_avatar_id', true ) );
 		}
 		if ( $source_id < 1 ) {
 			return;
@@ -339,13 +339,13 @@ final class Player_Media {
 
 			return;
 		}
-		$previous = absint( get_user_meta( $user_id, 'cp_player_avatar_id', true ) );
-		update_user_meta( $user_id, 'cp_player_avatar_source_id', $source_id );
-		update_user_meta( $user_id, 'cp_player_avatar_id', $baked );
-		update_user_meta( $user_id, 'cp_player_avatar', wp_get_attachment_url( $baked ) );
-		update_user_meta( $user_id, 'cp_player_avatar_focal_x', $x );
-		update_user_meta( $user_id, 'cp_player_avatar_focal_y', $y );
-		update_user_meta( $user_id, 'cp_player_avatar_zoom', $zoom );
+		$previous = absint( get_user_meta( $user_id, 'clanbite_player_avatar_id', true ) );
+		update_user_meta( $user_id, 'clanbite_player_avatar_source_id', $source_id );
+		update_user_meta( $user_id, 'clanbite_player_avatar_id', $baked );
+		update_user_meta( $user_id, 'clanbite_player_avatar', wp_get_attachment_url( $baked ) );
+		update_user_meta( $user_id, 'clanbite_player_avatar_focal_x', $x );
+		update_user_meta( $user_id, 'clanbite_player_avatar_focal_y', $y );
+		update_user_meta( $user_id, 'clanbite_player_avatar_zoom', $zoom );
 		// The earlier cut-out is replaced (never the original).
 		if ( $previous > 0 && $previous !== $source_id && $previous !== $baked ) {
 			self::delete_attachment( $previous );
@@ -367,8 +367,8 @@ final class Player_Media {
 		if ( ! is_string( $url ) || '' === $url || $user_id < 1 || false !== strpos( $url, 'ver=' ) ) {
 			return $url;
 		}
-		$avatar_id = absint( get_user_meta( $user_id, 'cp_player_avatar_id', true ) );
-		$source_id = absint( get_user_meta( $user_id, 'cp_player_avatar_source_id', true ) );
+		$avatar_id = absint( get_user_meta( $user_id, 'clanbite_player_avatar_id', true ) );
+		$source_id = absint( get_user_meta( $user_id, 'clanbite_player_avatar_source_id', true ) );
 		if ( $avatar_id < 1 || $source_id < 1 || $avatar_id === $source_id || false === strpos( $url, '/avatar-crop' ) ) {
 			return $url;
 		}
@@ -394,12 +394,12 @@ final class Player_Media {
 	 * @return array<string, mixed>
 	 */
 	public static function editor_state( int $user_id ): array {
-		$avatar_id = absint( get_user_meta( $user_id, 'cp_player_avatar_id', true ) );
-		$source_id = absint( get_user_meta( $user_id, 'cp_player_avatar_source_id', true ) );
+		$avatar_id = absint( get_user_meta( $user_id, 'clanbite_player_avatar_id', true ) );
+		$source_id = absint( get_user_meta( $user_id, 'clanbite_player_avatar_source_id', true ) );
 		if ( 0 === $source_id ) {
 			$source_id = $avatar_id;
 		}
-		$cover_id = absint( get_user_meta( $user_id, 'cp_player_cover_id', true ) );
+		$cover_id = absint( get_user_meta( $user_id, 'clanbite_player_cover_id', true ) );
 		$pos      = static function ( string $key, float $fallback ) use ( $user_id ): float {
 			$raw = get_user_meta( $user_id, $key, true );
 
@@ -411,14 +411,14 @@ final class Player_Media {
 			'hasCover'        => $cover_id > 0,
 			'avatarSourceUrl' => $source_id > 0 ? (string) wp_get_attachment_url( $source_id ) : '',
 			'avatarFocal'     => array(
-				'x'    => self::clamp_focal( $pos( 'cp_player_avatar_focal_x', 0.5 ) ),
-				'y'    => self::clamp_focal( $pos( 'cp_player_avatar_focal_y', 0.5 ) ),
-				'zoom' => self::clamp_zoom( $pos( 'cp_player_avatar_zoom', 1.0 ) ),
+				'x'    => self::clamp_focal( $pos( 'clanbite_player_avatar_focal_x', 0.5 ) ),
+				'y'    => self::clamp_focal( $pos( 'clanbite_player_avatar_focal_y', 0.5 ) ),
+				'zoom' => self::clamp_zoom( $pos( 'clanbite_player_avatar_zoom', 1.0 ) ),
 			),
 			'coverPosition'   => array(
-				'x'    => self::clamp_focal( $pos( 'cp_player_cover_position_x', 0.5 ) ),
-				'y'    => self::clamp_focal( $pos( 'cp_player_cover_position_y', 0.5 ) ),
-				'zoom' => self::clamp_zoom( $pos( 'cp_player_cover_zoom', 1.0 ) ),
+				'x'    => self::clamp_focal( $pos( 'clanbite_player_cover_position_x', 0.5 ) ),
+				'y'    => self::clamp_focal( $pos( 'clanbite_player_cover_position_y', 0.5 ) ),
+				'zoom' => self::clamp_zoom( $pos( 'clanbite_player_cover_zoom', 1.0 ) ),
 			),
 		);
 	}

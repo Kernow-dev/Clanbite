@@ -1,6 +1,6 @@
 <?php
 /**
- * Team domain object (`cp_team` post type).
+ * Team domain object (`clanbite_team` post type).
  *
  * Holds mutable state for a team. Reading and writing the database is done through
  * {@see Team_Data_Store} implementations so third parties can swap storage.
