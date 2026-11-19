@@ -1,6 +1,6 @@
 <?php
 /**
- * Default {@see Team_Data_Store}: `cp_team` posts and post meta.
+ * Default {@see Team_Data_Store}: `clanbite_team` posts and post meta.
  *
  * @package clanbite
  */
@@ -31,22 +31,22 @@ class Team_Data_Store_CPT extends WP_Post_Meta_Data_Store implements Team_Data_S
 		$this->extension            = $extension;
 		$this->meta_type            = 'post';
 		$this->internal_meta_keys   = array(
-			'cp_team_join_mode',
-			'cp_team_allow_invites',
-			'cp_team_allow_frontend_edit',
-			'cp_team_allow_ban_players',
-			'cp_team_code',
-			'cp_team_motto',
-			'cp_team_avatar_id',
-			'cp_team_cover_id',
-			'cp_team_member_roles',
-			'cp_team_accept_challenges',
-			'cp_team_country',
-			'cp_team_wins',
-			'cp_team_losses',
-			'cp_team_draws',
+			'clanbite_team_join_mode',
+			'clanbite_team_allow_invites',
+			'clanbite_team_allow_frontend_edit',
+			'clanbite_team_allow_ban_players',
+			'clanbite_team_code',
+			'clanbite_team_motto',
+			'clanbite_team_avatar_id',
+			'clanbite_team_cover_id',
+			'clanbite_team_member_roles',
+			'clanbite_team_accept_challenges',
+			'clanbite_team_country',
+			'clanbite_team_wins',
+			'clanbite_team_losses',
+			'clanbite_team_draws',
 		);
-		$this->must_exist_meta_keys = array( 'cp_team_member_roles' );
+		$this->must_exist_meta_keys = array( 'clanbite_team_member_roles' );
 	}
 
 	/**
@@ -71,31 +71,31 @@ class Team_Data_Store_CPT extends WP_Post_Meta_Data_Store implements Team_Data_S
 		$team->set_author_id( (int) $post->post_author );
 
 		$team->set_join_mode(
-			$this->extension->sanitize_team_join_mode( get_post_meta( $id, 'cp_team_join_mode', true ) )
+			$this->extension->sanitize_team_join_mode( get_post_meta( $id, 'clanbite_team_join_mode', true ) )
 		);
-		$team->set_allow_invites( rest_sanitize_boolean( get_post_meta( $id, 'cp_team_allow_invites', true ) ) );
-		$team->set_allow_frontend_edit( rest_sanitize_boolean( get_post_meta( $id, 'cp_team_allow_frontend_edit', true ) ) );
-		$team->set_allow_ban_players( rest_sanitize_boolean( get_post_meta( $id, 'cp_team_allow_ban_players', true ) ) );
+		$team->set_allow_invites( rest_sanitize_boolean( get_post_meta( $id, 'clanbite_team_allow_invites', true ) ) );
+		$team->set_allow_frontend_edit( rest_sanitize_boolean( get_post_meta( $id, 'clanbite_team_allow_frontend_edit', true ) ) );
+		$team->set_allow_ban_players( rest_sanitize_boolean( get_post_meta( $id, 'clanbite_team_allow_ban_players', true ) ) );
 
-		$team->set_code( (string) get_post_meta( $id, 'cp_team_code', true ) );
-		$team->set_motto( (string) get_post_meta( $id, 'cp_team_motto', true ) );
-		$team->set_avatar_id( (int) get_post_meta( $id, 'cp_team_avatar_id', true ) );
-		$team->set_cover_id( (int) get_post_meta( $id, 'cp_team_cover_id', true ) );
+		$team->set_code( (string) get_post_meta( $id, 'clanbite_team_code', true ) );
+		$team->set_motto( (string) get_post_meta( $id, 'clanbite_team_motto', true ) );
+		$team->set_avatar_id( (int) get_post_meta( $id, 'clanbite_team_avatar_id', true ) );
+		$team->set_cover_id( (int) get_post_meta( $id, 'clanbite_team_cover_id', true ) );
 
-		$roles = get_post_meta( $id, 'cp_team_member_roles', true );
+		$roles = get_post_meta( $id, 'clanbite_team_member_roles', true );
 		$team->set_member_roles( is_array( $roles ) ? $roles : array() );
 
-		$accept_raw = get_post_meta( $id, 'cp_team_accept_challenges', true );
+		$accept_raw = get_post_meta( $id, 'clanbite_team_accept_challenges', true );
 		if ( '' === $accept_raw ) {
 			$team->set_accept_challenges( true );
 		} else {
 			$team->set_accept_challenges( rest_sanitize_boolean( $accept_raw ) );
 		}
 
-		$team->set_country( (string) get_post_meta( $id, 'cp_team_country', true ) );
-		$team->set_wins( max( 0, (int) get_post_meta( $id, 'cp_team_wins', true ) ) );
-		$team->set_losses( max( 0, (int) get_post_meta( $id, 'cp_team_losses', true ) ) );
-		$team->set_draws( max( 0, (int) get_post_meta( $id, 'cp_team_draws', true ) ) );
+		$team->set_country( (string) get_post_meta( $id, 'clanbite_team_country', true ) );
+		$team->set_wins( max( 0, (int) get_post_meta( $id, 'clanbite_team_wins', true ) ) );
+		$team->set_losses( max( 0, (int) get_post_meta( $id, 'clanbite_team_losses', true ) ) );
+		$team->set_draws( max( 0, (int) get_post_meta( $id, 'clanbite_team_draws', true ) ) );
 
 		return $team;
 	}
@@ -176,19 +176,19 @@ class Team_Data_Store_CPT extends WP_Post_Meta_Data_Store implements Team_Data_S
 			return;
 		}
 
-		$this->update_or_delete_post_meta( $id, 'cp_team_join_mode', $this->extension->sanitize_team_join_mode( $team->get_join_mode() ) );
-		$this->update_or_delete_post_meta( $id, 'cp_team_allow_invites', $team->get_allow_invites() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_allow_frontend_edit', $team->get_allow_frontend_edit() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_allow_ban_players', $team->get_allow_ban_players() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_code', $team->get_code() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_motto', $team->get_motto() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_avatar_id', $team->get_avatar_id() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_cover_id', $team->get_cover_id() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_member_roles', $team->get_member_roles() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_accept_challenges', $team->get_accept_challenges() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_country', $team->get_country() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_wins', $team->get_wins() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_losses', $team->get_losses() );
-		$this->update_or_delete_post_meta( $id, 'cp_team_draws', $team->get_draws() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_join_mode', $this->extension->sanitize_team_join_mode( $team->get_join_mode() ) );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_allow_invites', $team->get_allow_invites() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_allow_frontend_edit', $team->get_allow_frontend_edit() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_allow_ban_players', $team->get_allow_ban_players() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_code', $team->get_code() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_motto', $team->get_motto() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_avatar_id', $team->get_avatar_id() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_cover_id', $team->get_cover_id() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_member_roles', $team->get_member_roles() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_accept_challenges', $team->get_accept_challenges() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_country', $team->get_country() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_wins', $team->get_wins() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_losses', $team->get_losses() );
+		$this->update_or_delete_post_meta( $id, 'clanbite_team_draws', $team->get_draws() );
 	}
 }

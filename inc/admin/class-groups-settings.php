@@ -2,7 +2,7 @@
 /**
  * Group profile integration options (unified React admin tab).
  *
- * Core does not ship a `cp_groups` extension; group CPTs and templates come from add-ons.
+ * Core does not ship a `clanbite_groups` extension; group CPTs and templates come from add-ons.
  * These settings control how Clanbite features attach to group profiles.
  *
  * @package clanbite

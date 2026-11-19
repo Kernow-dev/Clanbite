@@ -16,7 +16,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<TextControl
 						label={ __( 'Match post ID', 'clanbite' ) }
 						help={ __(
-							'The `cp_match` post ID to display.',
+							'The `clanbite_match` post ID to display.',
 							'clanbite'
 						) }
 						type="number"

@@ -24,7 +24,7 @@ if ( $user_id < 1 ) {
 	return;
 }
 
-$code = (string) get_user_meta( $user_id, 'cp_player_country', true );
+$code = (string) get_user_meta( $user_id, 'clanbite_player_country', true );
 
 $label = '' !== $code && function_exists( 'clanbite_team_country_label' )
 	? clanbite_team_country_label( $code )

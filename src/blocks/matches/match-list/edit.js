@@ -24,7 +24,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					<TextControl
 						label={ __( 'Team post ID (optional)', 'clanbite' ) }
 						help={ __(
-							'Limit to matches involving this team (`cp_team` ID). Leave 0 for all teams.',
+							'Limit to matches involving this team (`clanbite_team` ID). Leave 0 for all teams.',
 							'clanbite'
 						) }
 						type="number"

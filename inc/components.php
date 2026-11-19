@@ -51,7 +51,7 @@ function &clanbite_components_state(): array {
  *
  *     @type string   $label       Readable name.
  *     @type string   $description What it is for.
- *     @type string   $provider    Slug of the extension that provides it (`cp_social_kit`, `clanbite`…).
+ *     @type string   $provider    Slug of the extension that provides it (`clanbite_social_kit`, `clanbite`…).
  *     @type string   $version     Component version `x.y.z` (so consumers can tell what they are using).
  *     @type callable $render      `( array $args ): string` HTML for the arguments the caller passes. Optional.
  *     @type callable $enqueue     `(): void` loads the component's scripts and styles. Optional.

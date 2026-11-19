@@ -21,7 +21,7 @@ if ( $team_id < 1 ) {
 	return;
 }
 
-$code = (string) get_post_meta( $team_id, 'cp_team_code', true );
+$code = (string) get_post_meta( $team_id, 'clanbite_team_code', true );
 
 $wrapper_attributes = get_block_wrapper_attributes(
 	array(

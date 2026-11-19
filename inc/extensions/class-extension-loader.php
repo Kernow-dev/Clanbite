@@ -21,7 +21,7 @@ class Loader {
 	 *
 	 * @var list<string>
 	 */
-	private const REQUIRED_EXTENSION_SLUGS = array( 'cp_players' );
+	private const REQUIRED_EXTENSION_SLUGS = array( 'clanbite_players' );
 
 	/**
 	 * Extension slugs whose code ships inside the main Clanbite plugin package.
@@ -31,11 +31,11 @@ class Loader {
 	 * @var list<string>
 	 */
 	private const CORE_BUNDLED_EXTENSION_SLUGS = array(
-		'cp_players',
-		'cp_notifications',
-		'cp_teams',
-		'cp_matches',
-		'cp_events',
+		'clanbite_players',
+		'clanbite_notifications',
+		'clanbite_teams',
+		'clanbite_matches',
+		'clanbite_events',
 	);
 
 	/**
@@ -86,7 +86,7 @@ class Loader {
 		/**
 		 * Filter extension slugs treated as required core extensions.
 		 *
-		 * @param list<string> $slugs Required slugs (e.g. `cp_players`).
+		 * @param list<string> $slugs Required slugs (e.g. `clanbite_players`).
 		 */
 		$slugs = (array) apply_filters( 'clanbite_required_extension_slugs', self::REQUIRED_EXTENSION_SLUGS );
 
@@ -102,7 +102,7 @@ class Loader {
 		/**
 		 * Filter slugs treated as shipped with the core Clanbite plugin (not separate first-party add-ons).
 		 *
-		 * @param list<string> $slugs Default: `cp_players`, `cp_notifications`, `cp_teams`, `cp_matches`, `cp_events`.
+		 * @param list<string> $slugs Default: `clanbite_players`, `clanbite_notifications`, `clanbite_teams`, `clanbite_matches`, `clanbite_events`.
 		 */
 		$slugs = (array) apply_filters( 'clanbite_core_bundled_extension_slugs', self::CORE_BUNDLED_EXTENSION_SLUGS );
 
@@ -152,7 +152,7 @@ class Loader {
 		$installed = self::read_installed_extensions_from_options();
 		$changed   = false;
 		$versions  = array(
-			'cp_players' => '1.0.0',
+			'clanbite_players' => '1.0.0',
 		);
 
 		foreach ( self::get_required_extension_slugs() as $slug ) {
@@ -172,7 +172,7 @@ class Loader {
 	}
 
 	/**
-	 * One-time default: enable `cp_notifications` for sites that never chose an install state for it.
+	 * One-time default: enable `clanbite_notifications` for sites that never chose an install state for it.
 	 *
 	 * Keeps prior “always loaded” behavior on upgrade while allowing admins to disable the extension later.
 	 *
@@ -195,18 +195,18 @@ class Loader {
 
 		$installed = self::read_installed_extensions_from_options();
 
-		if ( isset( $installed['cp_notifications'] ) ) {
+		if ( isset( $installed['clanbite_notifications'] ) ) {
 			self::mark_notifications_default_migration_done();
 			return;
 		}
 
-		$ext = $available['cp_notifications'] ?? null;
+		$ext = $available['clanbite_notifications'] ?? null;
 		if ( ! $ext instanceof Skeleton ) {
 			self::mark_notifications_default_migration_done();
 			return;
 		}
 
-		$installed['cp_notifications'] = array(
+		$installed['clanbite_notifications'] = array(
 			'version' => (string) ( $ext->version ?? '1.0.0' ),
 		);
 
@@ -247,7 +247,7 @@ class Loader {
 	}
 
 	/**
-	 * One-time default: enable `cp_events` for sites that never chose an install state for it.
+	 * One-time default: enable `clanbite_events` for sites that never chose an install state for it.
 	 *
 	 * Preserves prior “always loaded” behavior on upgrade while allowing admins to disable later.
 	 *
@@ -270,18 +270,18 @@ class Loader {
 
 		$installed = self::read_installed_extensions_from_options();
 
-		if ( isset( $installed['cp_events'] ) ) {
+		if ( isset( $installed['clanbite_events'] ) ) {
 			self::mark_events_default_migration_done();
 			return;
 		}
 
-		$ext = $available['cp_events'] ?? null;
+		$ext = $available['clanbite_events'] ?? null;
 		if ( ! $ext instanceof Skeleton ) {
 			self::mark_events_default_migration_done();
 			return;
 		}
 
-		$installed['cp_events'] = array(
+		$installed['clanbite_events'] = array(
 			'version' => (string) ( $ext->version ?? '1.0.0' ),
 		);
 
@@ -421,21 +421,21 @@ class Loader {
 	public function get_official_extensions(): array {
 		// All known official extensions.
 		$whitelist_extensions = array(
-			'cp_players'       => 'Kernowdev\Clanbite\Extensions\Players',
-			'cp_notifications' => 'Kernowdev\Clanbite\Extensions\Notifications',
-			'cp_teams'         => 'Kernowdev\Clanbite\Extensions\Teams',
-			'cp_matches'       => 'Kernowdev\Clanbite\Extensions\Matches',
-			'cp_events'        => 'Kernowdev\Clanbite\Extensions\Events',
+			'clanbite_players'       => 'Kernowdev\Clanbite\Extensions\Players',
+			'clanbite_notifications' => 'Kernowdev\Clanbite\Extensions\Notifications',
+			'clanbite_teams'         => 'Kernowdev\Clanbite\Extensions\Teams',
+			'clanbite_matches'       => 'Kernowdev\Clanbite\Extensions\Matches',
+			'clanbite_events'        => 'Kernowdev\Clanbite\Extensions\Events',
 			// Official first-party extension shipped in the separate Clanbite Social Kit plugin (not core-bundled).
-			'cp_social_kit'    => 'Kernowdev\ClanbiteSocialKit\Extension\Social_Kit',
+			'clanbite_social_kit'    => 'Kernowdev\ClanbiteSocialKit\Extension\Social_Kit',
 			// Official first-party extension shipped in the separate Clanbite Forums plugin (not core-bundled).
-			'cp_forums'        => 'Kernowdev\ClanbiteForums\Extension\Forums',
+			'clanbite_forums'        => 'Kernowdev\ClanbiteForums\Extension\Forums',
 			// Official first-party extension shipped in the separate Clanbite Points plugin (not core-bundled).
-			'cp_points'        => 'Kernowdev\ClanbitePoints\Extension\Points',
+			'clanbite_points'        => 'Kernowdev\ClanbitePoints\Extension\Points',
 			// Official first-party extension shipped in the separate Clanbite Ranks plugin (not core-bundled).
-			'cp_ranks'         => 'Kernowdev\ClanbiteRanks\Extension\Ranks',
+			'clanbite_ranks'         => 'Kernowdev\ClanbiteRanks\Extension\Ranks',
 			// Official first-party extension shipped in the separate Clanbite Shop plugin (not core-bundled).
-			'cp_shop'          => 'Kernowdev\ClanbiteShop\Extension\Shop',
+			'clanbite_shop'          => 'Kernowdev\ClanbiteShop\Extension\Shop',
 		);
 
 		/**
@@ -644,7 +644,7 @@ class Loader {
 	/**
 	 * Returns a running extension instance, or null if not loaded.
 	 *
-	 * @param string $key Extension slug (e.g. `cp_teams`).
+	 * @param string $key Extension slug (e.g. `clanbite_teams`).
 	 * @return Skeleton|null
 	 */
 	public function get( string $key ): ?object {

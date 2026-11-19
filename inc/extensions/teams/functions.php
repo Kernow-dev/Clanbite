@@ -24,7 +24,7 @@ function clanbite_teams(): ?Teams {
 		return null;
 	}
 
-	$ext = $loader->get( 'cp_teams' );
+	$ext = $loader->get( 'clanbite_teams' );
 
 	return $ext instanceof Teams ? $ext : null;
 }
@@ -55,7 +55,7 @@ function clanbite_teams_get_setting( string $key, $fallback = null ) {
 }
 
 /**
- * `cp_team` post IDs every member is added to as roster member on register / login.
+ * `clanbite_team` post IDs every member is added to as roster member on register / login.
  *
  * Reads {@see clanbite_teams_settings} and falls back to
  * `clanbite_social_kit_global_auto_join_team_ids` when the Teams setting is unset or empty.
@@ -145,7 +145,7 @@ function clanbite_teams_get_team_action_url( int $team_id, string $action ): str
 /**
  * Front-end URL to create a team event (`/teams/{slug}/events/create/`).
  *
- * @param int $team_id Team post ID (`cp_team`).
+ * @param int $team_id Team post ID (`clanbite_team`).
  * @return string Empty when the team has no slug.
  */
 function clanbite_teams_get_team_events_create_url( int $team_id ): string {
@@ -158,7 +158,7 @@ function clanbite_teams_get_team_events_create_url( int $team_id ): string {
 }
 
 /**
- * User ID of the team owner (`post_author` of the `cp_team` post).
+ * User ID of the team owner (`post_author` of the `clanbite_team` post).
  *
  * @param int $team_id Team post ID.
  * @return int `0` if the post has no author.
@@ -496,7 +496,7 @@ function clanbite_teams_resolve_team_avatar_image_size( string $preset ): string
  * Use {@see $avatar_preset} `large` (profiles), `medium` (feeds / forum-style surfaces), or `small` (compact UI)
  * so output follows Teams → avatar image size settings.
  *
- * @param int          $team_id          Team post ID (`cp_team`).
+ * @param int          $team_id          Team post ID (`clanbite_team`).
  * @param bool         $suppress_filters When true, skips {@see 'clanbite_teams_get_display_team_avatar'}.
  * @param string|array $size             Explicit WP image size; ignored when {@see $avatar_preset} is set.
  * @param string       $context          Optional surface key for filters (e.g. `team_avatar_block`, `public_rest`).
@@ -519,7 +519,7 @@ function clanbite_teams_get_display_team_avatar( int $team_id, bool $suppress_fi
 		$preset_for_filter = 'large';
 	}
 
-	$avatar_id = (int) get_post_meta( $team_id, 'cp_team_avatar_id', true );
+	$avatar_id = (int) get_post_meta( $team_id, 'clanbite_team_avatar_id', true );
 	$url       = $avatar_id ? (string) wp_get_attachment_image_url( $avatar_id, $size ) : '';
 
 	if ( '' === $url ) {
@@ -619,9 +619,9 @@ function clanbite_teams_get_default_cover_url( int $team_id = 0 ): string {
 }
 
 /**
- * Resolve the current `cp_team` post ID for team blocks.
+ * Resolve the current `clanbite_team` post ID for team blocks.
  *
- * Order: block context (`postId` / `postType`, e.g. Query Loop) → main-query singular `cp_team`
+ * Order: block context (`postId` / `postType`, e.g. Query Loop) → main-query singular `clanbite_team`
  * (covers plugin block templates before `the_post()`) → `get_the_ID()` → global `$post` → queried object.
  *
  * @param array<string, mixed> $block_context Block context (`$block->context`).
@@ -707,7 +707,7 @@ function clanbite_team_virtual_route_team_id(): int {
 }
 
 /**
- * Team ID for profile header/nav: singular `cp_team` or virtual team routes.
+ * Team ID for profile header/nav: singular `clanbite_team` or virtual team routes.
  *
  * @return int
  */

@@ -24,8 +24,8 @@ use WP_REST_Server;
  */
 final class Cross_Site_Match_Sync {
 
-	public const META_SYNC_SOURCE_SITE     = 'cp_match_sync_source_site';
-	public const META_SYNC_SOURCE_MATCH_ID = 'cp_match_sync_source_match_id';
+	public const META_SYNC_SOURCE_SITE     = 'clanbite_match_sync_source_site';
+	public const META_SYNC_SOURCE_MATCH_ID = 'clanbite_match_sync_source_match_id';
 
 	/**
 	 * Option holding base64-encoded Ed25519 keypair (auto-generated).
@@ -285,7 +285,7 @@ final class Cross_Site_Match_Sync {
 	 * After a challenge is accepted on the challenged site, create the same match on the challenger’s Clanbite site when the snapshot came from a remote install.
 	 *
 	 * @param int    $challenge_id       `clanbite_team_challenge` post ID.
-	 * @param int    $match_id           New `cp_match` ID on this site.
+	 * @param int    $match_id           New `clanbite_match` ID on this site.
 	 * @param int    $challenged_team_id Home team on this site.
 	 * @param array  $snapshot           Decoded remote snapshot JSON from the challenge record.
 	 * @param string $scheduled_gmt      Match schedule (GMT MySQL).
@@ -421,8 +421,8 @@ final class Cross_Site_Match_Sync {
 
 		$peer_match_id = (int) $data['match_id'];
 		if ( $peer_match_id > 0 ) {
-			update_post_meta( $challenge_id, 'cp_challenge_peer_mirror_match_id', $peer_match_id );
-			update_post_meta( $challenge_id, 'cp_challenge_peer_mirror_site', $origin );
+			update_post_meta( $challenge_id, 'clanbite_challenge_peer_mirror_match_id', $peer_match_id );
+			update_post_meta( $challenge_id, 'clanbite_challenge_peer_mirror_site', $origin );
 		}
 
 		/**
@@ -438,7 +438,7 @@ final class Cross_Site_Match_Sync {
 	}
 
 	/**
-	 * Create or return an existing mirrored `cp_match` from a signed POST.
+	 * Create or return an existing mirrored `clanbite_match` from a signed POST.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response|WP_Error
@@ -733,21 +733,21 @@ final class Cross_Site_Match_Sync {
 		}
 
 		$match_id = (int) $match_id;
-		update_post_meta( $match_id, 'cp_match_home_team_id', $home_team_id );
-		update_post_meta( $match_id, 'cp_match_away_team_id', 0 );
-		update_post_meta( $match_id, 'cp_match_scheduled_at', $sched );
-		update_post_meta( $match_id, 'cp_match_status', $matches::STATUS_SCHEDULED );
-		update_post_meta( $match_id, 'cp_match_visibility', $vis );
-		update_post_meta( $match_id, 'cp_match_away_external_label', $label );
-		update_post_meta( $match_id, 'cp_match_away_external_logo_url', $logo );
-		update_post_meta( $match_id, 'cp_match_away_external_profile_url', $prof );
+		update_post_meta( $match_id, 'clanbite_match_home_team_id', $home_team_id );
+		update_post_meta( $match_id, 'clanbite_match_away_team_id', 0 );
+		update_post_meta( $match_id, 'clanbite_match_scheduled_at', $sched );
+		update_post_meta( $match_id, 'clanbite_match_status', $matches::STATUS_SCHEDULED );
+		update_post_meta( $match_id, 'clanbite_match_visibility', $vis );
+		update_post_meta( $match_id, 'clanbite_match_away_external_label', $label );
+		update_post_meta( $match_id, 'clanbite_match_away_external_logo_url', $logo );
+		update_post_meta( $match_id, 'clanbite_match_away_external_profile_url', $prof );
 		update_post_meta( $match_id, self::META_SYNC_SOURCE_SITE, $source_site );
 		update_post_meta( $match_id, self::META_SYNC_SOURCE_MATCH_ID, $source_match_id );
 
 		/**
 		 * Fires after this site created a match from a peer sync request.
 		 *
-		 * @param int   $match_id     New local `cp_match` ID.
+		 * @param int   $match_id     New local `clanbite_match` ID.
 		 * @param array $body         Request body.
 		 * @param int   $home_team_id Local home team ID.
 		 */

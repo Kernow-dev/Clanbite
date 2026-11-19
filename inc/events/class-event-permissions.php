@@ -1,6 +1,6 @@
 <?php
 /**
- * Visibility and capability checks for `cp_event` posts.
+ * Visibility and capability checks for `clanbite_event` posts.
  *
  * @package clanbite
  */
@@ -31,12 +31,12 @@ final class Event_Permissions {
 			return self::user_can_manage_event( $post->ID, $viewer_id );
 		}
 
-		$visibility = (string) get_post_meta( $post->ID, 'cp_event_visibility', true );
+		$visibility = (string) get_post_meta( $post->ID, 'clanbite_event_visibility', true );
 		$visibility = $visibility ? $visibility : Event_Post_Type::VISIBILITY_PUBLIC;
 
-		$scope    = (string) get_post_meta( $post->ID, 'cp_event_scope', true );
-		$team_id  = (int) get_post_meta( $post->ID, 'cp_event_team_id', true );
-		$group_id = (int) get_post_meta( $post->ID, 'cp_event_group_id', true );
+		$scope    = (string) get_post_meta( $post->ID, 'clanbite_event_scope', true );
+		$team_id  = (int) get_post_meta( $post->ID, 'clanbite_event_team_id', true );
+		$group_id = (int) get_post_meta( $post->ID, 'clanbite_event_group_id', true );
 
 		if ( Event_Post_Type::SCOPE_PLAYER === $scope ) {
 			return self::viewer_can_see_player_event( $post, $viewer_id, $visibility );
@@ -77,13 +77,13 @@ final class Event_Permissions {
 		}
 
 		/**
-		 * Filter whether a viewer can see a published `cp_event`.
+		 * Filter whether a viewer can see a published `clanbite_event`.
 		 *
 		 * @param bool     $can       Whether the viewer can see the event.
 		 * @param \WP_Post $post      Event post.
 		 * @param int      $viewer_id Viewer user ID.
 		 */
-		return (bool) apply_filters( 'clanbite_cp_event_viewer_can_see', false, $post, $viewer_id );
+		return (bool) apply_filters( 'clanbite_event_post_viewer_can_see', false, $post, $viewer_id );
 	}
 
 	/**
@@ -94,7 +94,7 @@ final class Event_Permissions {
 	 *
 	 * @param \WP_Post $post       Event post.
 	 * @param int      $viewer_id  Viewer user ID (0 = guest).
-	 * @param string   $visibility Stored `cp_event_visibility`.
+	 * @param string   $visibility Stored `clanbite_event_visibility`.
 	 * @return bool
 	 */
 	private static function viewer_can_see_player_event( \WP_Post $post, int $viewer_id, string $visibility ): bool {
@@ -147,9 +147,9 @@ final class Event_Permissions {
 			return true;
 		}
 
-		$scope    = (string) get_post_meta( $post_id, 'cp_event_scope', true );
-		$team_id  = (int) get_post_meta( $post_id, 'cp_event_team_id', true );
-		$group_id = (int) get_post_meta( $post_id, 'cp_event_group_id', true );
+		$scope    = (string) get_post_meta( $post_id, 'clanbite_event_scope', true );
+		$team_id  = (int) get_post_meta( $post_id, 'clanbite_event_team_id', true );
+		$group_id = (int) get_post_meta( $post_id, 'clanbite_event_group_id', true );
 
 		if ( Event_Post_Type::SCOPE_TEAM === $scope && $team_id > 0 && function_exists( 'clanbite_teams_user_can_manage' ) ) {
 			return clanbite_teams_user_can_manage( $team_id, $user_id );
@@ -160,13 +160,13 @@ final class Event_Permissions {
 		}
 
 		/**
-		 * Filter whether a user can manage a `cp_event`.
+		 * Filter whether a user can manage a `clanbite_event`.
 		 *
 		 * @param bool $can     Whether the user can manage.
 		 * @param int  $post_id Event post ID.
 		 * @param int  $user_id User ID.
 		 */
-		return (bool) apply_filters( 'clanbite_cp_event_user_can_manage', false, $post_id, $user_id );
+		return (bool) apply_filters( 'clanbite_event_user_can_manage', false, $post_id, $user_id );
 	}
 
 	/**
@@ -185,7 +185,7 @@ final class Event_Permissions {
 			return false;
 		}
 
-		$att = (string) get_post_meta( $post->ID, 'cp_event_attendees_visibility', true );
+		$att = (string) get_post_meta( $post->ID, 'clanbite_event_attendees_visibility', true );
 		if ( 'public' === $att ) {
 			return true;
 		}
@@ -198,9 +198,9 @@ final class Event_Permissions {
 			return true;
 		}
 
-		$scope    = (string) get_post_meta( $post->ID, 'cp_event_scope', true );
-		$team_id  = (int) get_post_meta( $post->ID, 'cp_event_team_id', true );
-		$group_id = (int) get_post_meta( $post->ID, 'cp_event_group_id', true );
+		$scope    = (string) get_post_meta( $post->ID, 'clanbite_event_scope', true );
+		$team_id  = (int) get_post_meta( $post->ID, 'clanbite_event_team_id', true );
+		$group_id = (int) get_post_meta( $post->ID, 'clanbite_event_group_id', true );
 
 		if ( Event_Post_Type::SCOPE_PLAYER === $scope ) {
 			return function_exists( 'clanbite_events_get_invited_user_ids' ) && in_array( $viewer_id, clanbite_events_get_invited_user_ids( $post->ID ), true );

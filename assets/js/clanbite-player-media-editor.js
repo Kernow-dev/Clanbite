@@ -19,24 +19,25 @@
 
 	const document = window.document;
 
-	const rootEl = () => document.querySelector( '[data-cp-media-editor]' );
+	const rootEl = () =>
+		document.querySelector( '[data-clanbite-media-editor]' );
 
 	function config() {
 		const el = rootEl();
 		if ( ! el ) {
 			return null;
 		}
-		if ( ! el.__cpMedia ) {
+		if ( ! el.__clanbiteMedia ) {
 			try {
-				el.__cpMedia = JSON.parse(
-					el.getAttribute( 'data-cp-media-editor' )
+				el.__clanbiteMedia = JSON.parse(
+					el.getAttribute( 'data-clanbite-media-editor' )
 				);
 			} catch ( e ) {
 				return null;
 			}
-			el.__cpMedia.pending = { avatar: '', cover: '' };
+			el.__clanbiteMedia.pending = { avatar: '', cover: '' };
 		}
-		return el.__cpMedia;
+		return el.__clanbiteMedia;
 	}
 
 	const field = ( name ) =>
@@ -145,7 +146,7 @@
 		const rect = cover && cover.getBoundingClientRect();
 		if ( rect && rect.width > 0 && rect.height > 0 ) {
 			target.style.setProperty(
-				'--cp-media-cover-ratio',
+				'--clanbite-media-cover-ratio',
 				`${ Math.round( rect.width ) } / ${ Math.round( rect.height ) }`
 			);
 		}
@@ -159,7 +160,7 @@
 	}
 
 	function note( text ) {
-		const el = document.querySelector( '.cp-media-note' );
+		const el = document.querySelector( '.clanbite-media-note' );
 		if ( el ) {
 			el.textContent = text || '';
 			el.hidden = ! text;
@@ -235,7 +236,7 @@
 		let armed = false;
 
 		closeEditor( false );
-		dialog = el( 'div', 'cp-media-dialog' );
+		dialog = el( 'div', 'clanbite-media-dialog' );
 		dialog.setAttribute( 'role', 'dialog' );
 		dialog.setAttribute( 'aria-modal', 'true' );
 		dialog.setAttribute(
@@ -243,35 +244,35 @@
 			kind === 'avatar' ? t.avatarTitle : t.coverTitle
 		);
 
-		const panel = el( 'div', 'cp-media-dialog__panel' );
+		const panel = el( 'div', 'clanbite-media-dialog__panel' );
 		dialog.appendChild( panel );
 		panel.appendChild(
 			el(
 				'h2',
-				'cp-media-dialog__title',
+				'clanbite-media-dialog__title',
 				kind === 'avatar' ? t.avatarTitle : t.coverTitle
 			)
 		);
 
-		const body = el( 'div', `cp-media-dialog__body is-${ kind }` );
+		const body = el( 'div', `clanbite-media-dialog__body is-${ kind }` );
 		panel.appendChild( body );
 
 		// Stage: the whole image with the focal point to drag.
-		const stage = el( 'div', 'cp-media-stage' );
+		const stage = el( 'div', 'clanbite-media-stage' );
 		const stageImg = el( 'img' );
 		stageImg.alt = '';
 		stageImg.draggable = false;
-		const dot = el( 'button', 'cp-media-stage__dot' );
+		const dot = el( 'button', 'clanbite-media-stage__dot' );
 		dot.type = 'button';
 		dot.setAttribute( 'aria-label', t.focalLabel );
-		const empty = el( 'p', 'cp-media-stage__empty', t.noImage );
+		const empty = el( 'p', 'clanbite-media-stage__empty', t.noImage );
 		stage.append( stageImg, dot, empty );
 		body.appendChild( stage );
 
 		// Preview: the result, drawn like the site draws it.
-		const previewWrap = el( 'div', 'cp-media-preview' );
+		const previewWrap = el( 'div', 'clanbite-media-preview' );
 		previewWrap.appendChild(
-			el( 'span', 'cp-media-preview__label', t.previewLabel )
+			el( 'span', 'clanbite-media-preview__label', t.previewLabel )
 		);
 		let frame;
 		let frameImg;
@@ -286,13 +287,13 @@
 				frame.className.replace(
 					/clanbite-avatar--(?:xs|sm|small|medium|large|xl)\b/g,
 					''
-				) + ' clanbite-avatar--large cp-media-preview__avatar';
+				) + ' clanbite-avatar--large clanbite-media-preview__avatar';
 			frameImg =
 				frame.querySelector( '.clanbite-avatar__img' ) ||
 				frame.querySelector( 'img' );
 		}
 		if ( ! frameImg ) {
-			frame = el( 'div', `cp-media-preview__frame is-${ kind }` );
+			frame = el( 'div', `clanbite-media-preview__frame is-${ kind }` );
 			if ( kind === 'avatar' ) {
 				frame.dataset.shape = avatarShape();
 			}
@@ -306,8 +307,8 @@
 		body.appendChild( previewWrap );
 
 		// Zoom and reset.
-		const controls = el( 'div', 'cp-media-dialog__controls' );
-		const zoomRow = el( 'label', 'cp-media-dialog__zoom' );
+		const controls = el( 'div', 'clanbite-media-dialog__controls' );
+		const zoomRow = el( 'label', 'clanbite-media-dialog__zoom' );
 		zoomRow.appendChild( el( 'span', '', t.zoomLabel ) );
 		const zoom = el( 'input' );
 		zoom.type = 'range';
@@ -322,20 +323,20 @@
 		} );
 		controls.appendChild( resetBtn );
 		panel.appendChild( controls );
-		panel.appendChild( el( 'p', 'cp-media-dialog__help', t.help ) );
+		panel.appendChild( el( 'p', 'clanbite-media-dialog__help', t.help ) );
 
 		// Room for add-ons to add their own controls.
-		const extras = el( 'div', 'cp-media-dialog__extras' );
+		const extras = el( 'div', 'clanbite-media-dialog__extras' );
 		panel.appendChild( extras );
 
 		// Footer.
-		const actions = el( 'div', 'cp-media-dialog__actions' );
+		const actions = el( 'div', 'clanbite-media-dialog__actions' );
 		const chooseBtn = button( '', 'clanbite-button--ghost', () =>
 			field( NAMES[ kind ].file )?.click()
 		);
 		const removeBtn = button(
 			t.remove,
-			'clanbite-button--ghost cp-media-dialog__remove',
+			'clanbite-button--ghost clanbite-media-dialog__remove',
 			() => {
 				if ( ! armed ) {
 					armed = true;
@@ -350,7 +351,7 @@
 				closeEditor( true, lastFocus );
 			}
 		);
-		const spacer = el( 'span', 'cp-media-dialog__spacer' );
+		const spacer = el( 'span', 'clanbite-media-dialog__spacer' );
 		const cancelBtn = button( t.cancel, 'clanbite-button--ghost', () =>
 			closeEditor( true, lastFocus )
 		);
@@ -562,10 +563,10 @@
 	document.addEventListener( 'click', ( event ) => {
 		const open =
 			event.target.closest &&
-			event.target.closest( '[data-cp-media-open]' );
+			event.target.closest( '[data-clanbite-media-open]' );
 		if ( open ) {
 			event.preventDefault();
-			openEditor( open.getAttribute( 'data-cp-media-open' ) );
+			openEditor( open.getAttribute( 'data-clanbite-media-open' ) );
 		}
 	} );
 

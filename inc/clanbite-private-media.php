@@ -38,7 +38,7 @@ function clanbite_private_media_bootstrap(): void {
  */
 function clanbite_private_media_mark_team_attachment( $meta_id, $object_id, $meta_key, $meta_value ): void {
 	unset( $meta_id );
-	if ( ! in_array( $meta_key, array( 'cp_team_avatar_id', 'cp_team_cover_id' ), true ) ) {
+	if ( ! in_array( $meta_key, array( 'clanbite_team_avatar_id', 'clanbite_team_cover_id' ), true ) ) {
 		return;
 	}
 	if ( 'clanbite_team' !== get_post_type( (int) $object_id ) ) {
@@ -61,7 +61,7 @@ function clanbite_private_media_mark_team_attachment( $meta_id, $object_id, $met
  */
 function clanbite_private_media_mark_player_attachment( $meta_id, $user_id, $meta_key, $meta_value ): void {
 	unset( $meta_id );
-	if ( ! in_array( $meta_key, array( 'cp_player_avatar_id', 'cp_player_cover_id' ), true ) ) {
+	if ( ! in_array( $meta_key, array( 'clanbite_player_avatar_id', 'clanbite_player_cover_id' ), true ) ) {
 		return;
 	}
 	$aid = absint( $meta_value );

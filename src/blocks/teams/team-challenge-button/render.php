@@ -153,19 +153,19 @@ $team_challenge_button_root_open = '<div '
 			<form data-wp-on--submit="actions.submit">
 				<?php if ( $uid < 1 ) : ?>
 					<div class="clanbite-team-challenge__field">
-						<label for="cp-ch-name-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Your name', 'clanbite' ); ?></label>
-						<input id="cp-ch-name-<?php echo esc_attr( (string) $team_id ); ?>" name="challenger_name" type="text" required autocomplete="name" />
+						<label for="clanbite-ch-name-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Your name', 'clanbite' ); ?></label>
+						<input id="clanbite-ch-name-<?php echo esc_attr( (string) $team_id ); ?>" name="challenger_name" type="text" required autocomplete="name" />
 					</div>
 					<div class="clanbite-team-challenge__field">
-						<label for="cp-ch-email-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Email', 'clanbite' ); ?></label>
-						<input id="cp-ch-email-<?php echo esc_attr( (string) $team_id ); ?>" name="challenger_email" type="email" required autocomplete="email" />
+						<label for="clanbite-ch-email-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Email', 'clanbite' ); ?></label>
+						<input id="clanbite-ch-email-<?php echo esc_attr( (string) $team_id ); ?>" name="challenger_email" type="email" required autocomplete="email" />
 					</div>
 				<?php endif; ?>
 
 				<?php if ( $uid > 0 && array() !== $managed ) : ?>
 					<div class="clanbite-team-challenge__field">
-						<label for="cp-ch-team-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Your team', 'clanbite' ); ?></label>
-						<select id="cp-ch-team-<?php echo esc_attr( (string) $team_id ); ?>" name="challenger_team_id">
+						<label for="clanbite-ch-team-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Your team', 'clanbite' ); ?></label>
+						<select id="clanbite-ch-team-<?php echo esc_attr( (string) $team_id ); ?>" name="challenger_team_id">
 							<option value="0"><?php esc_html_e( '— External / guest style —', 'clanbite' ); ?></option>
 							<?php foreach ( $managed as $row ) : ?>
 								<option value="<?php echo esc_attr( (string) (int) $row['id'] ); ?>"><?php echo esc_html( (string) $row['title'] ); ?></option>
@@ -175,8 +175,8 @@ $team_challenge_button_root_open = '<div '
 				<?php endif; ?>
 
 				<div class="clanbite-team-challenge__field">
-					<label for="cp-ch-url-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Opponent team URL (optional)', 'clanbite' ); ?></label>
-					<input id="cp-ch-url-<?php echo esc_attr( (string) $team_id ); ?>" name="opponent_team_url" type="url" inputmode="url" placeholder="https://example.com/teams/their-slug/" data-wp-on--blur="actions.lookupRemote" />
+					<label for="clanbite-ch-url-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Opponent team URL (optional)', 'clanbite' ); ?></label>
+					<input id="clanbite-ch-url-<?php echo esc_attr( (string) $team_id ); ?>" name="opponent_team_url" type="url" inputmode="url" placeholder="https://example.com/teams/their-slug/" data-wp-on--blur="actions.lookupRemote" />
 					<p class="description"><?php esc_html_e( 'If they use Clanbite, we load their public team details for the match listing.', 'clanbite' ); ?></p>
 				</div>
 
@@ -195,23 +195,23 @@ $team_challenge_button_root_open = '<div '
 					<p class="description">
 						<?php esc_html_e( 'If the challenger site does not run Clanbite, add how your team should appear on the match (optional).', 'clanbite' ); ?>
 					</p>
-					<label for="cp-ch-brand-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Your team or org name (optional)', 'clanbite' ); ?></label>
-					<input id="cp-ch-brand-<?php echo esc_attr( (string) $team_id ); ?>" name="challenger_team_name" type="text" autocomplete="organization" />
+					<label for="clanbite-ch-brand-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Your team or org name (optional)', 'clanbite' ); ?></label>
+					<input id="clanbite-ch-brand-<?php echo esc_attr( (string) $team_id ); ?>" name="challenger_team_name" type="text" autocomplete="organization" />
 				</div>
 				<div class="clanbite-team-challenge__field">
-					<label for="cp-ch-logo-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Team logo image (optional, max 2MB)', 'clanbite' ); ?></label>
-					<input id="cp-ch-logo-<?php echo esc_attr( (string) $team_id ); ?>" type="file" accept="image/jpeg,image/png,image/gif,image/webp" data-wp-on--change="actions.uploadLogo" />
+					<label for="clanbite-ch-logo-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Team logo image (optional, max 2MB)', 'clanbite' ); ?></label>
+					<input id="clanbite-ch-logo-<?php echo esc_attr( (string) $team_id ); ?>" type="file" accept="image/jpeg,image/png,image/gif,image/webp" data-wp-on--change="actions.uploadLogo" />
 					<p class="clanbite-team-challenge__notice" data-wp-bind--hidden="!context.logoUploadMessage" data-wp-text="context.logoUploadMessage" hidden></p>
 				</div>
 
 				<div class="clanbite-team-challenge__field">
-					<label for="cp-ch-when-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Proposed date & time (optional)', 'clanbite' ); ?></label>
-					<input id="cp-ch-when-<?php echo esc_attr( (string) $team_id ); ?>" name="proposed_scheduled_at" type="datetime-local" />
+					<label for="clanbite-ch-when-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Proposed date & time (optional)', 'clanbite' ); ?></label>
+					<input id="clanbite-ch-when-<?php echo esc_attr( (string) $team_id ); ?>" name="proposed_scheduled_at" type="datetime-local" />
 				</div>
 
 				<div class="clanbite-team-challenge__field">
-					<label for="cp-ch-msg-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Message (optional)', 'clanbite' ); ?></label>
-					<textarea id="cp-ch-msg-<?php echo esc_attr( (string) $team_id ); ?>" name="message" rows="3"></textarea>
+					<label for="clanbite-ch-msg-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Message (optional)', 'clanbite' ); ?></label>
+					<textarea id="clanbite-ch-msg-<?php echo esc_attr( (string) $team_id ); ?>" name="message" rows="3"></textarea>
 				</div>
 
 				<p class="clanbite-team-challenge__notice is-error" data-wp-bind--hidden="!context.formError" data-wp-text="context.formError" hidden></p>

@@ -63,7 +63,7 @@ final class Wordban {
 		add_filter( 'rest_pre_insert_user', array( self::class, 'filter_rest_pre_insert_user' ), 10, 2 );
 		add_filter( 'rest_pre_update_user', array( self::class, 'filter_rest_pre_insert_user' ), 10, 2 );
 
-		add_filter( 'rest_pre_insert_cp_team', array( self::class, 'filter_rest_pre_insert_team' ), 10, 2 );
+		add_filter( 'rest_pre_insert_clanbite_team', array( self::class, 'filter_rest_pre_insert_team' ), 10, 2 );
 
 		add_action( 'init', array( self::class, 'maybe_register_group_rest_filter' ), 20 );
 	}
@@ -74,13 +74,13 @@ final class Wordban {
 	 * @return void
 	 */
 	public static function maybe_register_group_rest_filter(): void {
-		if ( ! post_type_exists( 'cp_group' ) ) {
+		if ( ! post_type_exists( 'clanbite_group' ) ) {
 			return;
 		}
-		if ( has_filter( 'rest_pre_insert_cp_group', array( self::class, 'filter_rest_pre_insert_group' ) ) ) {
+		if ( has_filter( 'rest_pre_insert_clanbite_group', array( self::class, 'filter_rest_pre_insert_group' ) ) ) {
 			return;
 		}
-		add_filter( 'rest_pre_insert_cp_group', array( self::class, 'filter_rest_pre_insert_group' ), 10, 2 );
+		add_filter( 'rest_pre_insert_clanbite_group', array( self::class, 'filter_rest_pre_insert_group' ), 10, 2 );
 	}
 
 	/**

@@ -21,7 +21,7 @@ if ( $team_id < 1 ) {
 	return;
 }
 
-$val = (int) get_post_meta( $team_id, 'cp_team_losses', true );
+$val = (int) get_post_meta( $team_id, 'clanbite_team_losses', true );
 $val = max( 0, $val );
 
 $prefix_raw    = isset( $attributes['prefix'] ) ? (string) $attributes['prefix'] : '';

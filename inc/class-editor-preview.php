@@ -134,16 +134,16 @@ final class Editor_Preview {
 				),
 			),
 			'player' => array(
-				'cp_player_tagline'          => __( 'Always up for one more round', 'clanbite' ),
-				'cp_player_bio'              => __( 'Competitive player and community regular. Plays to win, stays for the people. Looking for a team that takes practice as seriously as the finals.', 'clanbite' ),
-				'cp_player_website'          => 'https://example.com',
-				'cp_player_city'             => 'Plymouth',
-				'cp_player_country'          => 'GB',
-				'cp_player_birthday'         => '1994-06-18',
-				'cp_player_social_facebook'  => 'https://facebook.com/example',
-				'cp_player_social_x'         => 'https://x.com/example',
-				'cp_player_social_instagram' => 'https://instagram.com/example',
-				'cp_player_social_youtube'   => 'https://youtube.com/@example',
+				'clanbite_player_tagline'          => __( 'Always up for one more round', 'clanbite' ),
+				'clanbite_player_bio'              => __( 'Competitive player and community regular. Plays to win, stays for the people. Looking for a team that takes practice as seriously as the finals.', 'clanbite' ),
+				'clanbite_player_website'          => 'https://example.com',
+				'clanbite_player_city'             => 'Plymouth',
+				'clanbite_player_country'          => 'GB',
+				'clanbite_player_birthday'         => '1994-06-18',
+				'clanbite_player_social_facebook'  => 'https://facebook.com/example',
+				'clanbite_player_social_x'         => 'https://x.com/example',
+				'clanbite_player_social_instagram' => 'https://instagram.com/example',
+				'clanbite_player_social_youtube'   => 'https://youtube.com/@example',
 			),
 		);
 
@@ -167,7 +167,7 @@ final class Editor_Preview {
 	 * @return mixed
 	 */
 	public static function demo_user_meta( $value, $object_id, $meta_key, $single ) {
-		if ( null !== $value || self::$reading || ! $single || 0 !== strpos( (string) $meta_key, 'cp_player_' ) ) {
+		if ( null !== $value || self::$reading || ! $single || 0 !== strpos( (string) $meta_key, 'clanbite_player_' ) ) {
 			return $value;
 		}
 		$demo = self::demo( 'player' );

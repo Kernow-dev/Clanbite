@@ -45,7 +45,7 @@ if ( $team_id < 1 ) {
 	return;
 }
 
-$cover_id = (int) get_post_meta( $team_id, 'cp_team_cover_id', true );
+$cover_id = (int) get_post_meta( $team_id, 'clanbite_team_cover_id', true );
 $url      = $cover_id ? wp_get_attachment_image_url( $cover_id, 'full' ) : '';
 if ( ! $url ) {
 	$url = clanbite_teams_get_default_cover_url( $team_id );

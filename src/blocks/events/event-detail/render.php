@@ -18,10 +18,10 @@ if ( $event_id < 1 ) {
 	$event_id = (int) get_query_var( 'clanbite_team_event_id' );
 }
 if ( $event_id < 1 ) {
-	$event_id = (int) get_query_var( 'cp_group_event_id' );
+	$event_id = (int) get_query_var( 'clanbite_group_event_id' );
 }
 if ( $event_id < 1 && ! empty( $attributes['playerEvents'] ) && function_exists( 'clanbite_events_requested_player_event' ) ) {
-	// The player Events page picks the event with `?cp_event=ID`; "new" belongs to the create form.
+	// The player Events page picks the event with `?clanbite_event_view=ID`; "new" belongs to the create form.
 	$requested = clanbite_events_requested_player_event();
 	$event_id  = is_int( $requested ) ? $requested : 0;
 	if ( $event_id < 1 ) {
@@ -64,16 +64,16 @@ if ( ! Event_Permissions::viewer_can_see( $post, $viewer_id ) ) {
 	return;
 }
 
-$scope_ev = sanitize_key( (string) get_post_meta( $event_id, 'cp_event_scope', true ) );
+$scope_ev = sanitize_key( (string) get_post_meta( $event_id, 'clanbite_event_scope', true ) );
 $tid      = 0;
 $gid      = 0;
 if ( Event_Post_Type::SCOPE_TEAM === $scope_ev ) {
-	$tid = (int) get_post_meta( $event_id, 'cp_event_team_id', true );
+	$tid = (int) get_post_meta( $event_id, 'clanbite_event_team_id', true );
 	if ( function_exists( 'clanbite_events_are_enabled_for_team' ) && ! clanbite_events_are_enabled_for_team( $tid ) ) {
 		return '';
 	}
 } elseif ( Event_Post_Type::SCOPE_GROUP === $scope_ev ) {
-	$gid = (int) get_post_meta( $event_id, 'cp_event_group_id', true );
+	$gid = (int) get_post_meta( $event_id, 'clanbite_event_group_id', true );
 	if ( function_exists( 'clanbite_events_are_enabled_for_group' ) && ! clanbite_events_are_enabled_for_group( $gid ) ) {
 		return '';
 	}
@@ -83,16 +83,16 @@ if ( Event_Post_Type::SCOPE_TEAM === $scope_ev ) {
 	}
 }
 
-$mode     = (string) get_post_meta( $event_id, 'cp_event_mode', true );
-$starts   = (string) get_post_meta( $event_id, 'cp_event_starts_at', true );
-$ends     = (string) get_post_meta( $event_id, 'cp_event_ends_at', true );
-$vurl     = (string) get_post_meta( $event_id, 'cp_event_virtual_url', true );
-$line1    = (string) get_post_meta( $event_id, 'cp_event_address_line1', true );
-$line2    = (string) get_post_meta( $event_id, 'cp_event_address_line2', true );
-$locality = (string) get_post_meta( $event_id, 'cp_event_locality', true );
-$region   = (string) get_post_meta( $event_id, 'cp_event_region', true );
-$postcode = (string) get_post_meta( $event_id, 'cp_event_postcode', true );
-$country  = (string) get_post_meta( $event_id, 'cp_event_country', true );
+$mode     = (string) get_post_meta( $event_id, 'clanbite_event_mode', true );
+$starts   = (string) get_post_meta( $event_id, 'clanbite_event_starts_at', true );
+$ends     = (string) get_post_meta( $event_id, 'clanbite_event_ends_at', true );
+$vurl     = (string) get_post_meta( $event_id, 'clanbite_event_virtual_url', true );
+$line1    = (string) get_post_meta( $event_id, 'clanbite_event_address_line1', true );
+$line2    = (string) get_post_meta( $event_id, 'clanbite_event_address_line2', true );
+$locality = (string) get_post_meta( $event_id, 'clanbite_event_locality', true );
+$region   = (string) get_post_meta( $event_id, 'clanbite_event_region', true );
+$postcode = (string) get_post_meta( $event_id, 'clanbite_event_postcode', true );
+$country  = (string) get_post_meta( $event_id, 'clanbite_event_country', true );
 
 $start_label = '';
 if ( $starts ) {
@@ -115,7 +115,7 @@ ob_start();
 		$host_id   = (int) $post->post_author;
 		$host      = get_userdata( $host_id );
 		$back_url  = function_exists( 'clanbite_events_get_player_events_url' ) ? clanbite_events_get_player_events_url( $host_id ) : '';
-		$privacy   = (string) get_post_meta( $event_id, 'cp_event_visibility', true );
+		$privacy   = (string) get_post_meta( $event_id, 'clanbite_event_visibility', true );
 		$privacy_l = array(
 			Event_Post_Type::VISIBILITY_PUBLIC  => __( 'Anyone', 'clanbite' ),
 			Event_Post_Type::VISIBILITY_FRIENDS => __( 'Friends', 'clanbite' ),

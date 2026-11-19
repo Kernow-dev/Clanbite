@@ -11,12 +11,12 @@ defined( 'ABSPATH' ) || exit;
 
 
 /**
- * CRUD for a single team (`cp_team` by default).
+ * CRUD for a single team (`clanbite_team` by default).
  */
 interface Team_Data_Store {
 
 	/**
-	 * Load a team by post ID, or null if the post is missing or not a `cp_team`.
+	 * Load a team by post ID, or null if the post is missing or not a `clanbite_team`.
 	 *
 	 * @param int $id Post ID.
 	 * @return Team|null

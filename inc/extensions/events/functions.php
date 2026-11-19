@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Whether the Events extension (`cp_events`) is installed and enabled.
+ * Whether the Events extension (`clanbite_events`) is installed and enabled.
  *
- * `cp_event` CPT, RSVP tables, REST routes, and event blocks load only when this is true.
+ * `clanbite_event` CPT, RSVP tables, REST routes, and event blocks load only when this is true.
  *
  * @return bool
  */
@@ -19,12 +19,12 @@ function clanbite_events_extension_active(): bool {
 		return false;
 	}
 
-	$active = \Kernowdev\Clanbite\Extensions\Loader::instance()->is_extension_installed( 'cp_events' );
+	$active = \Kernowdev\Clanbite\Extensions\Loader::instance()->is_extension_installed( 'clanbite_events' );
 
 	/**
 	 * Filter whether the Events extension is considered active.
 	 *
-	 * @param bool $active True when `cp_events` is in the installed-extensions option.
+	 * @param bool $active True when `clanbite_events` is in the installed-extensions option.
 	 */
 	return (bool) apply_filters( 'clanbite_events_extension_active', $active );
 }

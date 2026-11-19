@@ -106,7 +106,7 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 				return;
 			}
 			const context = getContext();
-			context._cpFormRoot = root;
+			context._clanbiteFormRoot = root;
 			state.root = root;
 			state.stepCount = Number( context.stepCount ) || 4;
 
@@ -158,7 +158,7 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 		onModeChange( event ) {
 			state.mode = event?.target?.value || 'in_person';
 			const ctx = getContext();
-			const root = ctx._cpFormRoot || state.root;
+			const root = ctx._clanbiteFormRoot || state.root;
 			syncModeUi( root, state.mode );
 		},
 
@@ -169,7 +169,7 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 		 */
 		onVisibilityChange( event ) {
 			const ctx = getContext();
-			const root = ctx._cpFormRoot || state.root;
+			const root = ctx._clanbiteFormRoot || state.root;
 			const invites = root?.querySelector(
 				'.clanbite-event-create-form__invites'
 			);
@@ -185,7 +185,7 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 		 */
 		filterInvites( event ) {
 			const ctx = getContext();
-			const root = ctx._cpFormRoot || state.root;
+			const root = ctx._clanbiteFormRoot || state.root;
 			const needle = String( event?.target?.value || '' )
 				.trim()
 				.toLowerCase();
@@ -217,7 +217,7 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 			}
 
 			const ctx = getContext();
-			const root = ctx._cpFormRoot || state.root;
+			const root = ctx._clanbiteFormRoot || state.root;
 			const stepScope = root?.querySelector(
 				`[data-event-step="${ state.step }"]`
 			);
@@ -247,7 +247,7 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 			}
 			state.step -= 1;
 			const ctx = getContext();
-			const root = ctx._cpFormRoot || state.root;
+			const root = ctx._clanbiteFormRoot || state.root;
 			syncWizardUi( root, state.step, state.maxStep() );
 		},
 
@@ -260,13 +260,13 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 			}
 			state.step = n;
 			const ctx = getContext();
-			const root = ctx._cpFormRoot || state.root;
+			const root = ctx._clanbiteFormRoot || state.root;
 			syncWizardUi( root, state.step, state.maxStep() );
 		},
 
 		resetAfterSuccess() {
 			const ctx = getContext();
-			const root = ctx._cpFormRoot || state.root;
+			const root = ctx._clanbiteFormRoot || state.root;
 			if ( ! root ) {
 				return;
 			}
@@ -292,7 +292,7 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 				return;
 			}
 			const context = getContext();
-			const root = context._cpFormRoot || state.root;
+			const root = context._clanbiteFormRoot || state.root;
 			if ( ! root || ! context?.restUrl || ! context?.nonce ) {
 				return;
 			}

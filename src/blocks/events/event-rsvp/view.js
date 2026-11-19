@@ -76,7 +76,7 @@ const { state } = store( 'clanbite-event-rsvp', {
 		},
 		async postRsvp() {
 			const { ref } = getElement();
-			const status = ref?.getAttribute( 'data-cp-rsvp-status' );
+			const status = ref?.getAttribute( 'data-clanbite-rsvp-status' );
 			if ( ! status ) {
 				return;
 			}
@@ -90,7 +90,9 @@ const { state } = store( 'clanbite-event-rsvp', {
 			const statusEl = root.querySelector(
 				'.clanbite-event-rsvp__status'
 			);
-			const buttons = root.querySelectorAll( '[data-cp-rsvp-status]' );
+			const buttons = root.querySelectorAll(
+				'[data-clanbite-rsvp-status]'
+			);
 
 			function setStatusText( msg ) {
 				if ( statusEl ) {
@@ -113,7 +115,7 @@ const { state } = store( 'clanbite-event-rsvp', {
 						( i18n.statusLabels?.[ status ] || status )
 				);
 				buttons.forEach( ( btn ) => {
-					const s = btn.getAttribute( 'data-cp-rsvp-status' );
+					const s = btn.getAttribute( 'data-clanbite-rsvp-status' );
 					btn.classList.toggle( 'is-active', s === status );
 					btn.setAttribute(
 						'aria-pressed',
@@ -159,7 +161,9 @@ const { state } = store( 'clanbite-event-rsvp', {
 			const attNote = root.querySelector(
 				'.clanbite-event-rsvp__attendees-note'
 			);
-			const buttons = root.querySelectorAll( '[data-cp-rsvp-status]' );
+			const buttons = root.querySelectorAll(
+				'[data-clanbite-rsvp-status]'
+			);
 
 			function loadAttendees() {
 				if ( ! ctx.showAttendees ) {
@@ -197,7 +201,9 @@ const { state } = store( 'clanbite-event-rsvp', {
 								( i18n.statusLabels?.[ st ] || st );
 						}
 						buttons.forEach( ( btn ) => {
-							const s = btn.getAttribute( 'data-cp-rsvp-status' );
+							const s = btn.getAttribute(
+								'data-clanbite-rsvp-status'
+							);
 							btn.classList.toggle( 'is-active', s === st );
 							btn.setAttribute(
 								'aria-pressed',

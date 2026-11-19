@@ -2,7 +2,7 @@
 /**
  * Events extension: scheduled team/group events, RSVPs, blocks, and REST.
  *
- * Declares **requires** `cp_players`. Team-scoped routes and permissions integrate with the Teams
+ * Declares **requires** `clanbite_players`. Team-scoped routes and permissions integrate with the Teams
  * extension when it is enabled (`function_exists` guards in `inc/events/`). Top-level extension
  * (`parent_slug` empty).
  *
@@ -16,7 +16,7 @@ use Kernowdev\Clanbite\Events\Event_Rsvp_Schema;
 use Kernowdev\Clanbite\Events\Events as Events_Runtime;
 
 /**
- * Official extension that boots the `cp_event` subsystem when installed.
+ * Official extension that boots the `clanbite_event` subsystem when installed.
  */
 class Events extends Skeleton {
 
@@ -33,14 +33,14 @@ class Events extends Skeleton {
 	public function __construct() {
 		parent::__construct(
 			__( 'Events', 'clanbite' ),
-			'cp_events',
+			'clanbite_events',
 			__(
 				'Team and group scheduled events, RSVP storage, REST API, and front-end blocks.',
 				'clanbite'
 			),
 			'',
 			'1.0.0',
-			array( 'cp_players' )
+			array( 'clanbite_players' )
 		);
 	}
 

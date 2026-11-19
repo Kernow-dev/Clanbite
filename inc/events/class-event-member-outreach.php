@@ -1,6 +1,6 @@
 <?php
 /**
- * Optional roster outreach when managers create or update `cp_event` posts.
+ * Optional roster outreach when managers create or update `clanbite_event` posts.
  *
  * @package clanbite
  */
@@ -25,7 +25,7 @@ final class Event_Member_Outreach {
 	public const MODE_RSVP_TENTATIVE = 'rsvp_tentative';
 
 	/**
-	 * RSVP table event_type for scheduled `cp_event` posts.
+	 * RSVP table event_type for scheduled `clanbite_event` posts.
 	 */
 	private const RSVP_EVENT_TYPE = 'clanbite_event';
 
@@ -45,7 +45,7 @@ final class Event_Member_Outreach {
 	}
 
 	/**
-	 * Notify roster members and optionally add tentative RSVPs for a published `cp_event`.
+	 * Notify roster members and optionally add tentative RSVPs for a published `clanbite_event`.
 	 *
 	 * @param int    $event_id Event post ID.
 	 * @param string $mode     One of {@see self::MODE_NONE}, {@see self::MODE_NOTIFY}, {@see self::MODE_RSVP_TENTATIVE}.
@@ -71,9 +71,9 @@ final class Event_Member_Outreach {
 			return $out;
 		}
 
-		$scope    = sanitize_key( (string) get_post_meta( $event_id, 'cp_event_scope', true ) );
-		$team_id  = (int) get_post_meta( $event_id, 'cp_event_team_id', true );
-		$group_id = (int) get_post_meta( $event_id, 'cp_event_group_id', true );
+		$scope    = sanitize_key( (string) get_post_meta( $event_id, 'clanbite_event_scope', true ) );
+		$team_id  = (int) get_post_meta( $event_id, 'clanbite_event_team_id', true );
+		$group_id = (int) get_post_meta( $event_id, 'clanbite_event_group_id', true );
 
 		$user_ids = self::collect_recipient_user_ids( $scope, $team_id, $group_id );
 
@@ -81,8 +81,8 @@ final class Event_Member_Outreach {
 		 * Filter user IDs included in event member outreach (notifications / tentative RSVPs).
 		 *
 		 * @param list<int> $user_ids User IDs.
-		 * @param int       $event_id `cp_event` post ID.
-		 * @param string    $scope    `cp_event_scope` meta (`team` or `group`).
+		 * @param int       $event_id `clanbite_event` post ID.
+		 * @param string    $scope    `clanbite_event_scope` meta (`team` or `group`).
 		 * @param int       $team_id  Team post ID when scope is team.
 		 * @param int       $group_id Group object ID when scope is group.
 		 * @param string    $mode     Outreach mode (`none`, `notify`, `rsvp_tentative`).
@@ -150,7 +150,7 @@ final class Event_Member_Outreach {
 		}
 
 		/**
-		 * Fires after event member outreach runs for a `cp_event`.
+		 * Fires after event member outreach runs for a `clanbite_event`.
 		 *
 		 * @param int                  $event_id Event post ID.
 		 * @param string               $mode     Outreach mode.
@@ -197,7 +197,7 @@ final class Event_Member_Outreach {
 			/**
 			 * Provide WordPress user IDs for members of a group-scoped event’s roster.
 			 *
-			 * Core leaves this empty; a `cp_group` integration should filter and return IDs.
+			 * Core leaves this empty; a `clanbite_group` integration should filter and return IDs.
 			 *
 			 * @param int[] $user_ids Default empty.
 			 * @param int   $group_id Group object ID.

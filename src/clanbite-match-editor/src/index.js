@@ -1,5 +1,5 @@
 /**
- * Registers the Match details panel in the block editor document sidebar for `cp_match`.
+ * Registers the Match details panel in the block editor document sidebar for `clanbite_match`.
  */
 import { registerPlugin } from '@wordpress/plugins';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
@@ -27,24 +27,30 @@ function MatchMetaFields() {
 		setMeta( { ...meta, [ key ]: value } );
 	};
 
-	const home = meta?.cp_match_home_team_id ?? 0;
-	const away = meta?.cp_match_away_team_id ?? 0;
-	const scheduled = meta?.cp_match_scheduled_at ?? '';
-	const status = meta?.cp_match_status ?? 'scheduled';
-	const homeScore = meta?.cp_match_home_score ?? 0;
-	const awayScore = meta?.cp_match_away_score ?? 0;
-	const venue = meta?.cp_match_venue ?? '';
+	const home = meta?.clanbite_match_home_team_id ?? 0;
+	const away = meta?.clanbite_match_away_team_id ?? 0;
+	const scheduled = meta?.clanbite_match_scheduled_at ?? '';
+	const status = meta?.clanbite_match_status ?? 'scheduled';
+	const homeScore = meta?.clanbite_match_home_score ?? 0;
+	const awayScore = meta?.clanbite_match_away_score ?? 0;
+	const venue = meta?.clanbite_match_venue ?? '';
 
 	return (
 		<>
 			<PanelRow>
 				<TextControl
 					label={ __( 'Home team (post ID)', 'clanbite' ) }
-					help={ __( 'Published `cp_team` post ID.', 'clanbite' ) }
+					help={ __(
+						'Published `clanbite_team` post ID.',
+						'clanbite'
+					) }
 					type="number"
 					value={ home || '' }
 					onChange={ ( v ) =>
-						patch( 'cp_match_home_team_id', parseInt( v, 10 ) || 0 )
+						patch(
+							'clanbite_match_home_team_id',
+							parseInt( v, 10 ) || 0
+						)
 					}
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -53,11 +59,17 @@ function MatchMetaFields() {
 			<PanelRow>
 				<TextControl
 					label={ __( 'Away team (post ID)', 'clanbite' ) }
-					help={ __( 'Published `cp_team` post ID.', 'clanbite' ) }
+					help={ __(
+						'Published `clanbite_team` post ID.',
+						'clanbite'
+					) }
 					type="number"
 					value={ away || '' }
 					onChange={ ( v ) =>
-						patch( 'cp_match_away_team_id', parseInt( v, 10 ) || 0 )
+						patch(
+							'clanbite_match_away_team_id',
+							parseInt( v, 10 ) || 0
+						)
 					}
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -71,7 +83,9 @@ function MatchMetaFields() {
 						'clanbite'
 					) }
 					value={ scheduled }
-					onChange={ ( v ) => patch( 'cp_match_scheduled_at', v ) }
+					onChange={ ( v ) =>
+						patch( 'clanbite_match_scheduled_at', v )
+					}
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 				/>
@@ -83,7 +97,7 @@ function MatchMetaFields() {
 					label={ __( 'Match status', 'clanbite' ) }
 					value={ status }
 					options={ STATUS_OPTIONS }
-					onChange={ ( v ) => patch( 'cp_match_status', v ) }
+					onChange={ ( v ) => patch( 'clanbite_match_status', v ) }
 				/>
 			</PanelRow>
 			<PanelRow>
@@ -92,7 +106,10 @@ function MatchMetaFields() {
 					type="number"
 					value={ homeScore || '' }
 					onChange={ ( v ) =>
-						patch( 'cp_match_home_score', parseInt( v, 10 ) || 0 )
+						patch(
+							'clanbite_match_home_score',
+							parseInt( v, 10 ) || 0
+						)
 					}
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -104,7 +121,10 @@ function MatchMetaFields() {
 					type="number"
 					value={ awayScore || '' }
 					onChange={ ( v ) =>
-						patch( 'cp_match_away_score', parseInt( v, 10 ) || 0 )
+						patch(
+							'clanbite_match_away_score',
+							parseInt( v, 10 ) || 0
+						)
 					}
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
@@ -114,7 +134,7 @@ function MatchMetaFields() {
 				<TextControl
 					label={ __( 'Venue', 'clanbite' ) }
 					value={ venue }
-					onChange={ ( v ) => patch( 'cp_match_venue', v ) }
+					onChange={ ( v ) => patch( 'clanbite_match_venue', v ) }
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 				/>
@@ -144,6 +164,6 @@ function MatchDocumentPanel() {
 	);
 }
 
-registerPlugin( 'clanbite-cp-match-sidebar', {
+registerPlugin( 'clanbite-match-sidebar', {
 	render: MatchDocumentPanel,
 } );

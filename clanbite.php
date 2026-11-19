@@ -80,11 +80,11 @@ final class Main {
 	public const VERSION = '1.6.7';
 
 	/**
-	 * Maintenance upgrade counter (single step for 1.0.0 public release).
+	 * Maintenance upgrade counter: the number of the last step in {@see Maintenance}. Raise it with each new step.
 	 *
 	 * @var int
 	 */
-	public const MAINTENANCE_VERSION = 1;
+	public const MAINTENANCE_VERSION = 2;
 
 	/**
 	 * Singleton instance of plugin.
@@ -713,9 +713,9 @@ final class Main {
 	}
 }
 
+// The rebrand's data migrations; both are run by Maintenance step 2.
 require_once __DIR__ . '/inc/clanbite-cpt-identifier-migration.php';
-// Before {@see Main::early_hooks} (priority 0): CPT rows must match registered slugs before first queries/hooks run.
-add_action( 'plugins_loaded', 'clanbite_maybe_migrate_cpt_identifiers', -1 );
+require_once __DIR__ . '/inc/clanbite-legacy-prefix-migration.php';
 
 // Kick it off.
 add_action( 'plugins_loaded', array( clanbite(), 'early_hooks' ), 0 );

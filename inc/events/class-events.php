@@ -24,7 +24,7 @@ final class Events {
 	private static ?self $instance = null;
 
 	/**
-	 * Registers `cp_event` and meta.
+	 * Registers `clanbite_event` and meta.
 	 *
 	 * @var Event_Post_Type|null
 	 */
@@ -64,7 +64,7 @@ final class Events {
 		$this->event_post_type->register();
 
 		add_action( 'init', array( $this, 'maybe_create_tables' ), 5 );
-		add_action( 'init', array( $this, 'register_cp_players_events_template_filter' ), 3 );
+		add_action( 'init', array( $this, 'register_clanbite_players_events_template_filter' ), 3 );
 		add_action( 'init', array( $this, 'register_group_events_block_template' ), 4 );
 		add_action( 'init', array( $this, 'register_team_events_subpage' ), 15 );
 		add_action( 'init', array( $this, 'register_player_events_subpage' ), 15 );
@@ -72,7 +72,7 @@ final class Events {
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'init', array( $this, 'register_blocks' ), 20 );
 		add_action( 'admin_post_clanbite_delete_event', array( $this, 'handle_frontend_delete_event' ) );
-		add_filter( 'clanbite_event_can_view_attendees', array( $this, 'filter_cp_event_attendee_list_access' ), 15, 4 );
+		add_filter( 'clanbite_event_can_view_attendees', array( $this, 'filter_clanbite_event_attendee_list_access' ), 15, 4 );
 		add_filter( 'clanbite_profile_subpage_nav_visible', array( $this, 'filter_profile_subpage_events_nav_visible' ), 10, 5 );
 	}
 
@@ -167,7 +167,7 @@ final class Events {
 	}
 
 	/**
-	 * Register the group profile “Events” tab for integrations (`cp_group` + Social Kit).
+	 * Register the group profile “Events” tab for integrations (`clanbite_group` + Social Kit).
 	 *
 	 * @return void
 	 */
@@ -199,8 +199,8 @@ final class Events {
 	 *
 	 * @return void
 	 */
-	public function register_cp_players_events_template_filter(): void {
-		add_filter( 'clanbite_extension_cp_players_templates', array( $this, 'filter_cp_players_events_template' ), 10, 2 );
+	public function register_clanbite_players_events_template_filter(): void {
+		add_filter( 'clanbite_extension_clanbite_players_templates', array( $this, 'filter_clanbite_players_events_template' ), 10, 2 );
 	}
 
 	/**
@@ -210,7 +210,7 @@ final class Events {
 	 * @param \Kernowdev\Clanbite\Extensions\Skeleton $extension Calling extension.
 	 * @return array<string, array<string, string>>
 	 */
-	public function filter_cp_players_events_template( array $templates, $extension ): array {
+	public function filter_clanbite_players_events_template( array $templates, $extension ): array {
 		if ( ! $extension instanceof \Kernowdev\Clanbite\Extensions\Skeleton ) {
 			return $templates;
 		}
@@ -275,15 +275,15 @@ final class Events {
 	}
 
 	/**
-	 * Allow team/group members to see hidden attendee lists for `cp_event` RSVPs.
+	 * Allow team/group members to see hidden attendee lists for `clanbite_event` RSVPs.
 	 *
 	 * @param bool   $can_view_attendees Prior visibility.
 	 * @param string $event_type         RSVP event type slug.
-	 * @param int    $event_id           Event object ID (`cp_event` post ID).
+	 * @param int    $event_id           Event object ID (`clanbite_event` post ID).
 	 * @param int    $viewer_id          Viewer user ID.
 	 * @return bool
 	 */
-	public function filter_cp_event_attendee_list_access( bool $can_view_attendees, string $event_type, int $event_id, int $viewer_id ): bool {
+	public function filter_clanbite_event_attendee_list_access( bool $can_view_attendees, string $event_type, int $event_id, int $viewer_id ): bool {
 		if ( 'clanbite_event' !== $event_type ) {
 			return $can_view_attendees;
 		}
@@ -446,12 +446,12 @@ final class Events {
 		$visibility = 'hidden';
 
 		if ( 'match' === $event_type ) {
-			$raw        = (string) get_post_meta( $event_id, 'cp_match_attendees_visibility', true );
+			$raw        = (string) get_post_meta( $event_id, 'clanbite_match_attendees_visibility', true );
 			$visibility = in_array( $raw, array( 'public', 'hidden' ), true ) ? $raw : 'hidden';
 		}
 
 		if ( 'clanbite_event' === $event_type ) {
-			$raw        = (string) get_post_meta( $event_id, 'cp_event_attendees_visibility', true );
+			$raw        = (string) get_post_meta( $event_id, 'clanbite_event_attendees_visibility', true );
 			$visibility = in_array( $raw, array( 'public', 'hidden' ), true ) ? $raw : 'hidden';
 		}
 

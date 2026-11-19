@@ -337,7 +337,7 @@ function clanbite_players_get_default_avatar( $player_id ) {
 	if ( null === $loader ) {
 		$ext = null;
 	} else {
-		$ext = $loader->get( 'cp_players' );
+		$ext = $loader->get( 'clanbite_players' );
 	}
 	$default_avatar = $ext instanceof \Kernowdev\Clanbite\Extensions\Players
 		? $ext->get_setting( 'default_avatar' )
@@ -369,7 +369,7 @@ function clanbite_players_get_default_cover( $player_id ) {
 	if ( null === $loader ) {
 		$ext = null;
 	} else {
-		$ext = $loader->get( 'cp_players' );
+		$ext = $loader->get( 'clanbite_players' );
 	}
 	$default_cover = $ext instanceof \Kernowdev\Clanbite\Extensions\Players
 		? $ext->get_setting( 'default_cover' )
@@ -542,7 +542,7 @@ function clanbite_player_blocks_resolve_subject_user_id( $block = null ): int {
 }
 
 /**
- * Active player profile sub-route (`settings` or `cp_player_subpage`).
+ * Active player profile sub-route (`settings` or `clanbite_player_subpage`).
  *
  * @return string
  */
@@ -551,7 +551,7 @@ function clanbite_player_profile_route_current_slug(): string {
 		return 'settings';
 	}
 
-	return sanitize_key( (string) get_query_var( 'cp_player_subpage' ) );
+	return sanitize_key( (string) get_query_var( 'clanbite_player_subpage' ) );
 }
 
 /**
@@ -680,7 +680,7 @@ function clanbite_players_resolve_player_avatar_image_size( string $preset ): st
 	$raw    = '';
 	$loader = clanbite()->extensions;
 	if ( null !== $loader ) {
-		$ext = $loader->get( 'cp_players' );
+		$ext = $loader->get( 'clanbite_players' );
 		if ( $ext instanceof \Kernowdev\Clanbite\Extensions\Players && method_exists( $ext, 'get_setting' ) ) {
 			$raw = (string) $ext->get_setting( $setting_key, $fallback );
 		}
@@ -771,7 +771,7 @@ function clanbite_players_get_display_avatar_id( int $player_id = 0, bool $suppr
 		$player_id = get_current_user_id();
 	}
 
-	$user_avatar_id = get_user_meta( $player_id, 'cp_player_avatar_id', true );
+	$user_avatar_id = get_user_meta( $player_id, 'clanbite_player_avatar_id', true );
 
 	if ( $suppress_filters ) {
 		return $user_avatar_id;
@@ -1051,7 +1051,7 @@ function clanbite_players_get_display_cover_id( int $player_id = 0, bool $suppre
 		$player_id = get_current_user_id();
 	}
 
-	$user_cover_id = get_user_meta( $player_id, 'cp_player_cover_id', true );
+	$user_cover_id = get_user_meta( $player_id, 'clanbite_player_cover_id', true );
 
 	if ( $suppress_filters ) {
 		return $user_cover_id;
@@ -1080,7 +1080,7 @@ function clanbite_players_get_display_cover_position_x( int $player_id = 0, bool
 		$player_id = get_current_user_id();
 	}
 
-	$user_cover_position_x = get_user_meta( $player_id, 'cp_player_cover_position_x', true );
+	$user_cover_position_x = get_user_meta( $player_id, 'clanbite_player_cover_position_x', true );
 
 	if ( $suppress_filters ) {
 		return $user_cover_position_x;
@@ -1109,7 +1109,7 @@ function clanbite_players_get_display_cover_position_y( int $player_id = 0, bool
 		$player_id = get_current_user_id();
 	}
 
-	$user_cover_position_y = get_user_meta( $player_id, 'cp_player_cover_position_y', true );
+	$user_cover_position_y = get_user_meta( $player_id, 'clanbite_player_cover_position_y', true );
 
 	if ( $suppress_filters ) {
 		return $user_cover_position_y;
@@ -1141,7 +1141,7 @@ function clanbite_players_get_display_cover_zoom( int $player_id = 0, bool $supp
 		$player_id = get_current_user_id();
 	}
 
-	$zoom = min( 4.0, max( 1.0, (float) get_user_meta( $player_id, 'cp_player_cover_zoom', true ) ) );
+	$zoom = min( 4.0, max( 1.0, (float) get_user_meta( $player_id, 'clanbite_player_cover_zoom', true ) ) );
 
 	if ( $suppress_filters ) {
 		return $zoom;
@@ -1205,7 +1205,7 @@ function clanbite_players_get_display_tagline( int $player_id = 0, bool $suppres
 		$player_id = get_current_user_id();
 	}
 
-	$tagline = get_user_meta( $player_id, 'cp_player_tagline', true );
+	$tagline = get_user_meta( $player_id, 'clanbite_player_tagline', true );
 
 	if ( $suppress_filters ) {
 		return $tagline;
@@ -1234,7 +1234,7 @@ function clanbite_players_get_display_bio( int $player_id = 0, bool $suppress_fi
 		$player_id = get_current_user_id();
 	}
 
-	$bio = get_user_meta( $player_id, 'cp_player_bio', true );
+	$bio = get_user_meta( $player_id, 'clanbite_player_bio', true );
 
 	if ( $suppress_filters ) {
 		return $bio;
@@ -1263,7 +1263,7 @@ function clanbite_players_get_display_website( int $player_id = 0, bool $suppres
 		$player_id = get_current_user_id();
 	}
 
-	$website = get_user_meta( $player_id, 'cp_player_website', true );
+	$website = get_user_meta( $player_id, 'clanbite_player_website', true );
 
 	if ( $suppress_filters ) {
 		return $website;
@@ -1286,7 +1286,7 @@ function clanbite_players_get_display_website( int $player_id = 0, bool $suppres
  * @return string
  */
 function clanbite_players_social_profile_meta_key( string $slug ): string {
-	return 'cp_player_social_' . sanitize_key( $slug );
+	return 'clanbite_player_social_' . sanitize_key( $slug );
 }
 
 /**
@@ -1617,7 +1617,7 @@ function clanbite_players_get_display_country( int $player_id = 0, string $retur
 		$player_id = get_current_user_id();
 	}
 
-	$country = get_user_meta( $player_id, 'cp_player_country', true );
+	$country = get_user_meta( $player_id, 'clanbite_player_country', true );
 
 	if ( 'name' === $return_type ) {
 		$countries = clanbite_players_get_countries();
@@ -1658,7 +1658,7 @@ function clanbite_players_get_display_city( int $player_id = 0, bool $suppress_f
 		$player_id = get_current_user_id();
 	}
 
-	$city = get_user_meta( $player_id, 'cp_player_city', true );
+	$city = get_user_meta( $player_id, 'clanbite_player_city', true );
 
 	if ( $suppress_filters ) {
 		return $city;
@@ -1687,7 +1687,7 @@ function clanbite_players_get_display_birthday( int $player_id = 0, bool $suppre
 		$player_id = get_current_user_id();
 	}
 
-	$birthday = get_user_meta( $player_id, 'cp_player_birthday', true );
+	$birthday = get_user_meta( $player_id, 'clanbite_player_birthday', true );
 
 	if ( $suppress_filters ) {
 		return $birthday;
@@ -1753,7 +1753,7 @@ function clanbite_players_get_account_firstname( int $player_id = 0, bool $suppr
 		$player_id = get_current_user_id();
 	}
 
-	$first_name = get_user_meta( $player_id, 'cp_player_first_name', true );
+	$first_name = get_user_meta( $player_id, 'clanbite_player_first_name', true );
 
 	if ( $suppress_filters ) {
 		return $first_name;
@@ -1782,7 +1782,7 @@ function clanbite_players_get_account_lastname( int $player_id = 0, bool $suppre
 		$player_id = get_current_user_id();
 	}
 
-	$last_name = get_user_meta( $player_id, 'cp_player_last_name', true );
+	$last_name = get_user_meta( $player_id, 'clanbite_player_last_name', true );
 
 	if ( $suppress_filters ) {
 		return $last_name;

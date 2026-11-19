@@ -115,7 +115,7 @@ if ( $events_preview && ( ! $list_ssr_hydrated || 0 === $list_ssr_total ) ) {
 $config['ssrHydrated'] = $list_ssr_hydrated;
 $config['ssrTotal']    = $list_ssr_total;
 
-$cp_event_list_hide_pagination = ! $list_ssr_hydrated
+$clanbite_event_list_hide_pagination = ! $list_ssr_hydrated
 	|| (int) ceil( max( 1, $list_ssr_total ) / max( 1, $limit ) ) <= 1;
 
 $wrapper = get_block_wrapper_attributes(
@@ -145,7 +145,7 @@ $event_list_root_open = '<div '
 	<p class="clanbite-event-list__loading" hidden data-wp-bind--hidden="!state.isLoading()" aria-live="polite"><?php echo esc_html( $config['i18n']['loading'] ); ?></p>
 	<p class="clanbite-event-list__error" hidden data-wp-bind--hidden="!state.errorMessage" data-wp-text="state.errorMessage" role="alert"></p>
 	<ul class="clanbite-event-list"><?php clanbite_echo_block_fragment_html( $list_ssr_hydrated ? (string) $list_ssr_rows : '' ); ?></ul>
-	<nav class="clanbite-event-list__pagination" data-wp-bind--hidden="!state.showPagination()" aria-label="<?php esc_attr_e( 'Events pagination', 'clanbite' ); ?>"<?php echo $cp_event_list_hide_pagination ? ' hidden' : ''; ?>>
+	<nav class="clanbite-event-list__pagination" data-wp-bind--hidden="!state.showPagination()" aria-label="<?php esc_attr_e( 'Events pagination', 'clanbite' ); ?>"<?php echo $clanbite_event_list_hide_pagination ? ' hidden' : ''; ?>>
 		<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost clanbite-button--small clanbite-event-list__page-btn" data-wp-on--click="actions.prevPage" data-wp-bind--disabled="state.isFirstPage()">
 			<?php echo esc_html( $config['i18n']['prev'] ); ?>
 		</button>

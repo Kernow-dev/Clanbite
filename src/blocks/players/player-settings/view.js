@@ -112,10 +112,10 @@ const applyPlayerSettingsPayloadToFields = ( root, payload ) => {
 	} );
 
 	// Forums signature RTE: textarea is source of truth for save; mirror into contenteditable.
-	root.querySelectorAll( '[data-cp-forum-signature-rte]' ).forEach(
+	root.querySelectorAll( '[data-clanbite-forum-signature-rte]' ).forEach(
 		( rteRoot ) => {
 			const ta = rteRoot.querySelector(
-				'textarea[name="cp_forum_signature"]'
+				'textarea[name="clanbite_forum_signature"]'
 			);
 			const ed = rteRoot.querySelector(
 				'.clanbite-forums-board__rte-editor'
@@ -611,12 +611,12 @@ const { state, actions } = store( 'clanbite-player-settings', {
 		 * Generic action endpoint for plugin-provided controls inside player settings.
 		 *
 		 * Supported data attributes on the clicked element:
-		 * - data-cp-action-url (required)
-		 * - data-cp-action-method (default POST)
-		 * - data-cp-action-body (JSON string, optional)
-		 * - data-cp-action-confirm (optional confirmation text)
-		 * - data-cp-action-remove-closest (CSS selector to remove on success)
-		 * - data-cp-action-success-message / data-cp-action-error-message
+		 * - data-clanbite-action-url (required)
+		 * - data-clanbite-action-method (default POST)
+		 * - data-clanbite-action-body (JSON string, optional)
+		 * - data-clanbite-action-confirm (optional confirmation text)
+		 * - data-clanbite-action-remove-closest (CSS selector to remove on success)
+		 * - data-clanbite-action-success-message / data-clanbite-action-error-message
 		 * @param event
 		 */
 		async runPluginAction( event ) {
@@ -626,30 +626,33 @@ const { state, actions } = store( 'clanbite-player-settings', {
 				return;
 			}
 
-			const actionUrl = ref.getAttribute( 'data-cp-action-url' );
+			const actionUrl = ref.getAttribute( 'data-clanbite-action-url' );
 			if ( ! actionUrl ) {
 				return;
 			}
 
-			const confirmMsg = ref.getAttribute( 'data-cp-action-confirm' );
+			const confirmMsg = ref.getAttribute(
+				'data-clanbite-action-confirm'
+			);
 			if ( confirmMsg && ! window.confirm( confirmMsg ) ) {
 				return;
 			}
 
 			const method =
-				( ref.getAttribute( 'data-cp-action-method' ) || 'POST' )
+				( ref.getAttribute( 'data-clanbite-action-method' ) || 'POST' )
 					.toUpperCase()
 					.trim() || 'POST';
-			const bodyRaw = ref.getAttribute( 'data-cp-action-body' ) || '';
+			const bodyRaw =
+				ref.getAttribute( 'data-clanbite-action-body' ) || '';
 			const bodyObj = parseMaybeJson( bodyRaw, {} );
 			const successMsg =
-				ref.getAttribute( 'data-cp-action-success-message' ) ||
+				ref.getAttribute( 'data-clanbite-action-success-message' ) ||
 				'Action completed.';
 			const errorMsg =
-				ref.getAttribute( 'data-cp-action-error-message' ) ||
+				ref.getAttribute( 'data-clanbite-action-error-message' ) ||
 				'Could not complete this action.';
 			const removeSelector =
-				ref.getAttribute( 'data-cp-action-remove-closest' ) || '';
+				ref.getAttribute( 'data-clanbite-action-remove-closest' ) || '';
 
 			const restNonce = window.CLANBITEPLAYERSETTINGS?.rest_nonce || '';
 			ref.disabled = true;
