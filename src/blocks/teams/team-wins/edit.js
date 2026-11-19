@@ -23,7 +23,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				className="clanbite-team-stat__value clanbite-team-stat__value--editor-placeholder"
 				aria-hidden="true"
 			>
-				0
+				24
 			</span>
 			<RichText
 				key="clanbite-team-wins-postfix"

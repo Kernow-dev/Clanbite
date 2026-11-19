@@ -32,23 +32,29 @@ if ( $group_id < 1 && 'group' === $scope && function_exists( 'clanbite_group_pro
 	$group_id = (int) clanbite_group_profile_context_group_id();
 }
 
-if ( 'team' === $scope && $team_id < 1 ) {
+// In the block editor's server render the list shows the first team's events, or sample events on a site without any.
+$events_preview = function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview();
+if ( $events_preview && 'team' === $scope && $team_id < 1 ) {
+	$team_id = \Kernowdev\Clanbite\Editor_Preview::team_id();
+}
+
+if ( 'team' === $scope && $team_id < 1 && ! $events_preview ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-list clanbite-event-list--placeholder' ), $block );
 	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
-if ( 'group' === $scope && $group_id < 1 ) {
+if ( 'group' === $scope && $group_id < 1 && ! $events_preview ) {
 	$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-list clanbite-event-list--placeholder' ), $block );
 	echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No group context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
 	return;
 }
 
-if ( 'team' === $scope && function_exists( 'clanbite_events_are_enabled_for_team' ) && ! clanbite_events_are_enabled_for_team( $team_id ) ) {
+if ( ! $events_preview && 'team' === $scope && function_exists( 'clanbite_events_are_enabled_for_team' ) && ! clanbite_events_are_enabled_for_team( $team_id ) ) {
 	return '';
 }
 
-if ( 'group' === $scope && function_exists( 'clanbite_events_are_enabled_for_group' ) && ! clanbite_events_are_enabled_for_group( $group_id ) ) {
+if ( ! $events_preview && 'group' === $scope && function_exists( 'clanbite_events_are_enabled_for_group' ) && ! clanbite_events_are_enabled_for_group( $group_id ) ) {
 	return '';
 }
 
@@ -78,7 +84,7 @@ $list_ssr_hydrated = false;
 $list_ssr_total    = 0;
 $list_ssr_rows     = '';
 
-if ( function_exists( 'clanbite_events_block_query_collection' ) ) {
+if ( function_exists( 'clanbite_events_block_query_collection' ) && ( $team_id > 0 || $group_id > 0 ) ) {
 	$query_args = array(
 		'page'       => 1,
 		'per_page'   => $limit,
@@ -97,6 +103,13 @@ if ( function_exists( 'clanbite_events_block_query_collection' ) ) {
 		$list_ssr_rows     = clanbite_events_render_event_list_rows_html( $items, $config['i18n'] );
 		$list_ssr_hydrated = true;
 	}
+}
+
+if ( $events_preview && ( ! $list_ssr_hydrated || 0 === $list_ssr_total ) ) {
+	$demo_events       = \Kernowdev\Clanbite\Editor_Preview::demo( 'events' );
+	$list_ssr_rows     = clanbite_events_render_event_list_rows_html( $demo_events, $config['i18n'] );
+	$list_ssr_total    = count( $demo_events );
+	$list_ssr_hydrated = true;
 }
 
 $config['ssrHydrated'] = $list_ssr_hydrated;

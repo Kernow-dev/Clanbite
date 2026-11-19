@@ -72,7 +72,9 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_code' },
-				el( TextControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
+				el( TextControl, {
+					__next40pxDefaultSize: true,
+					__nextHasNoMarginBottom: true,
 					label: __( 'Team code', 'clanbite' ),
 					value: meta.cp_team_code || '',
 					onChange( value ) {
@@ -83,7 +85,8 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_motto' },
-				el( TextareaControl, { __nextHasNoMarginBottom: true,
+				el( TextareaControl, {
+					__nextHasNoMarginBottom: true,
 					label: __( 'Motto', 'clanbite' ),
 					value: meta.cp_team_motto || '',
 					onChange( value ) {
@@ -95,7 +98,9 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_country' },
-				el( SelectControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
+				el( SelectControl, {
+					__next40pxDefaultSize: true,
+					__nextHasNoMarginBottom: true,
 					label: __( 'Country', 'clanbite' ),
 					value:
 						meta.cp_team_country != null
@@ -110,7 +115,9 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_wins' },
-				el( TextControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
+				el( TextControl, {
+					__next40pxDefaultSize: true,
+					__nextHasNoMarginBottom: true,
 					label: __( 'Wins', 'clanbite' ),
 					type: 'number',
 					min: 0,
@@ -123,7 +130,9 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_losses' },
-				el( TextControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
+				el( TextControl, {
+					__next40pxDefaultSize: true,
+					__nextHasNoMarginBottom: true,
 					label: __( 'Losses', 'clanbite' ),
 					type: 'number',
 					min: 0,
@@ -136,7 +145,9 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_draws' },
-				el( TextControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
+				el( TextControl, {
+					__next40pxDefaultSize: true,
+					__nextHasNoMarginBottom: true,
 					label: __( 'Draws', 'clanbite' ),
 					type: 'number',
 					min: 0,
@@ -442,7 +453,9 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_join_mode' },
-				el( SelectControl, { __next40pxDefaultSize: true, __nextHasNoMarginBottom: true,
+				el( SelectControl, {
+					__next40pxDefaultSize: true,
+					__nextHasNoMarginBottom: true,
 					label: __( 'Join mode', 'clanbite' ),
 					value: meta.cp_team_join_mode || 'open_join',
 					options: joinModes,
@@ -454,7 +467,8 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_allow_invites' },
-				el( ToggleControl, { __nextHasNoMarginBottom: true,
+				el( ToggleControl, {
+					__nextHasNoMarginBottom: true,
 					label: __( 'Allow player invites', 'clanbite' ),
 					checked: boolMeta( meta, 'cp_team_allow_invites', true ),
 					onChange( value ) {
@@ -465,7 +479,8 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_allow_frontend_edit' },
-				el( ToggleControl, { __nextHasNoMarginBottom: true,
+				el( ToggleControl, {
+					__nextHasNoMarginBottom: true,
 					label: __( 'Allow front-end team editing', 'clanbite' ),
 					checked: boolMeta(
 						meta,
@@ -480,7 +495,8 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_allow_ban_players' },
-				el( ToggleControl, { __nextHasNoMarginBottom: true,
+				el( ToggleControl, {
+					__nextHasNoMarginBottom: true,
 					label: __( 'Allow banning players', 'clanbite' ),
 					checked: boolMeta(
 						meta,
@@ -495,7 +511,8 @@
 			el(
 				PanelRow,
 				{ key: 'cp_team_accept_challenges' },
-				el( ToggleControl, { __nextHasNoMarginBottom: true,
+				el( ToggleControl, {
+					__nextHasNoMarginBottom: true,
 					label: __( 'Accept match challenges', 'clanbite' ),
 					checked: boolMeta(
 						meta,

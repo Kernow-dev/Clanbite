@@ -493,8 +493,16 @@ function clanbite_player_profile_context_user_id(): int {
 	}
 
 	$from_path = clanbite_player_user_id_from_canonical_request_path();
+	if ( $from_path > 0 ) {
+		return $from_path;
+	}
 
-	return $from_path > 0 ? $from_path : 0;
+	// The block editor's server render previews the editing user's profile.
+	if ( function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
+		return (int) get_current_user_id();
+	}
+
+	return 0;
 }
 
 /**

@@ -1,3 +1,4 @@
+import { ServerPreview } from '../../shared/server-preview';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, SelectControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -13,7 +14,9 @@ export default function Edit( { attributes, setAttributes } ) {
 		<div { ...blockProps }>
 			<InspectorControls>
 				<PanelBody title={ __( 'Context', 'clanbite' ) }>
-					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'Scope', 'clanbite' ) }
 						value={ scopeType }
 						options={ [
@@ -87,7 +90,9 @@ export default function Edit( { attributes, setAttributes } ) {
 							__nextHasNoMarginBottom
 						/>
 					) }
-					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'Default view', 'clanbite' ) }
 						value={ defaultView }
 						options={ [
@@ -111,7 +116,10 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<p>{ __( 'Event calendar (front-end)', 'clanbite' ) }</p>
+			<ServerPreview
+				block="clanbite/event-calendar"
+				attributes={ attributes }
+			/>
 		</div>
 	);
 }

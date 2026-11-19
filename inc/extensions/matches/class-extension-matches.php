@@ -1078,6 +1078,11 @@ class Matches extends Skeleton {
 
 		ob_start();
 		if ( ! $q->have_posts() ) {
+			if ( function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
+				// Block editor preview on a site without matches: sample rows in the same markup.
+				ob_end_clean();
+				return $this->demo_list_markup( $show_scores );
+			}
 			echo '<div class="clanbite-match-list clanbite-match-list--empty"><p>' . esc_html__( 'No matches to show.', 'clanbite' ) . '</p></div>';
 			return (string) ob_get_clean();
 		}
@@ -1145,6 +1150,21 @@ class Matches extends Skeleton {
 	 */
 	public function render_card_block_markup( array $attributes ): string {
 		$match_id = (int) ( $attributes['matchId'] ?? 0 );
+		if ( $match_id <= 0 && function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
+			// Block editor preview with no match chosen: the latest published match, or a sample card.
+			$latest = get_posts(
+				array(
+					'post_type'      => 'clanbite_match',
+					'post_status'    => 'publish',
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				)
+			);
+			if ( array() === $latest ) {
+				return $this->demo_card_markup( (bool) $this->admin->get( 'show_scores', true ) );
+			}
+			$match_id = (int) $latest[0];
+		}
 		if ( $match_id <= 0 ) {
 			return '<div class="clanbite-match-card clanbite-match-card--placeholder"><p>' . esc_html__( 'Select a match in the block settings.', 'clanbite' ) . '</p></div>';
 		}
@@ -1216,6 +1236,47 @@ class Matches extends Skeleton {
 		<?php
 
 		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Sample match rows for the block editor preview (same markup as the real list).
+	 *
+	 * @param bool $show_scores Whether the list shows scores.
+	 * @return string HTML.
+	 */
+	private function demo_list_markup( bool $show_scores ): string {
+		$choices = $this->get_status_choices();
+		$rows    = array(
+			array( 'Night Owls vs Rival Squad', '+2 days', 'scheduled', '0 – 0' ),
+			array( 'Night Owls vs Midnight Raiders', '-3 days', 'completed', '13 – 9' ),
+			array( 'Night Owls vs Pixel Pirates', '-10 days', 'completed', '7 – 13' ),
+		);
+		$fmt     = (string) $this->admin->get( 'datetime_format', 'M j, Y g:i a' );
+		$out     = '<ul class="clanbite-match-list">';
+		foreach ( $rows as $row ) {
+			$status = isset( $choices[ $row[2] ] ) ? $choices[ $row[2] ] : $row[2];
+			$out   .= '<li class="clanbite-match-list__item"><a class="clanbite-match-list__link" href="#"><span class="clanbite-match-list__teams">' . esc_html( $row[0] ) . '</span><span class="clanbite-match-list__meta">'
+				. esc_html( wp_date( $fmt, strtotime( $row[1] ) ) ) . ' · ' . esc_html( $status ) . ( $show_scores ? ' · ' . esc_html( $row[3] ) : '' ) . '</span></a></li>';
+		}
+
+		return $out . '</ul>';
+	}
+
+	/**
+	 * A sample match card for the block editor preview (same markup as the real card).
+	 *
+	 * @param bool $show_scores Whether the card shows the score.
+	 * @return string HTML.
+	 */
+	private function demo_card_markup( bool $show_scores ): string {
+		$choices = $this->get_status_choices();
+		$status  = isset( $choices['completed'] ) ? $choices['completed'] : 'completed';
+		$fmt     = (string) $this->admin->get( 'datetime_format', 'M j, Y g:i a' );
+
+		return '<article class="clanbite-match-card"><h3 class="clanbite-match-card__title"><a href="#">Night Owls vs Rival Squad</a></h3>'
+			. '<p class="clanbite-match-card__teams"><span class="clanbite-match-card__home">Night Owls</span><span class="clanbite-match-card__vs"> ' . esc_html__( 'vs', 'clanbite' ) . ' </span><span class="clanbite-match-card__away">Rival Squad</span></p>'
+			. '<p class="clanbite-match-card__when">' . esc_html( wp_date( $fmt, strtotime( '-2 days' ) ) ) . '</p><p class="clanbite-match-card__status">' . esc_html( $status ) . '</p>'
+			. ( $show_scores ? '<p class="clanbite-match-card__score">13 – 9</p>' : '' ) . '</article>';
 	}
 
 	/**

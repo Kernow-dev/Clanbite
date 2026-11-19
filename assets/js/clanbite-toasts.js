@@ -280,7 +280,8 @@
 			} );
 		}
 		const actions = payload.actions.filter(
-			( a ) => a && a.label && ( safeUrl( a.href, 'action' ) || a.onClick )
+			( a ) =>
+				a && a.label && ( safeUrl( a.href, 'action' ) || a.onClick )
 		);
 		if ( actions.length ) {
 			const row = document.createElement( 'div' );
@@ -385,8 +386,11 @@
 			 * @param {Object}  payload Normalised toast options (see `clanbite.toasts.payload`).
 			 */
 			if (
-				h.applyFilters( 'clanbite.toasts.shouldShow', true, payload ) ===
-				false
+				h.applyFilters(
+					'clanbite.toasts.shouldShow',
+					true,
+					payload
+				) === false
 			) {
 				return null;
 			}
@@ -440,7 +444,12 @@
 					 * @param {Object}                             payload Toast options.
 					 * @param {string}                             reason  `timeout`, `close`, `escape`, `action`, `replaced`, `overflow` or `api`.
 					 */
-					h.doAction( 'clanbite.toasts.dismissed', handle, payload, reason );
+					h.doAction(
+						'clanbite.toasts.dismissed',
+						handle,
+						payload,
+						reason
+					);
 				}
 			},
 		};
@@ -492,7 +501,10 @@
 			if ( remaining > 0 && timer ) {
 				window.clearTimeout( timer );
 				timer = 0;
-				remaining = Math.max( 1, remaining - ( Date.now() - startedAt ) );
+				remaining = Math.max(
+					1,
+					remaining - ( Date.now() - startedAt )
+				);
 			}
 			handle.element.classList.add( 'is-paused' );
 		};

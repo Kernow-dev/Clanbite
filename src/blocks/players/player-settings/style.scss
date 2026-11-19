@@ -232,7 +232,8 @@
 				}
 
 				.form-item {
-					flex: 1;
+					// Wrap to a full-width row on narrow screens instead of squeezing fields.
+					flex: 1 1 12rem;
 					min-width: 0;
 
 					.form-input {

@@ -29,6 +29,20 @@ if ( $event_id < 1 && ! empty( $attributes['playerEvents'] ) && function_exists(
 	}
 }
 
+
+// In the block editor's server render with no event chosen, show the most recent published event (a sample is not possible for a single event).
+if ( $event_id < 1 && function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
+	$clanbite_latest_events = get_posts(
+		array(
+			'post_type'      => \Kernowdev\Clanbite\Events\Event_Post_Type::POST_TYPE,
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+		)
+	);
+	$event_id               = array() !== $clanbite_latest_events ? (int) $clanbite_latest_events[0] : 0;
+}
+
 $viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
 
 if ( $event_id < 1 ) {

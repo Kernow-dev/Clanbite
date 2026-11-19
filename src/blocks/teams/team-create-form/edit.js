@@ -1,13 +1,13 @@
-import { __ } from '@wordpress/i18n';
 import { useBlockProps } from '@wordpress/block-editor';
+import { ServerPreview } from '../../shared/server-preview';
 
-export default function Edit() {
+export default function Edit( { attributes } ) {
 	return (
 		<div { ...useBlockProps() }>
-			<p>{ __( 'Team create form block', 'clanbite' ) }</p>
-			<p>
-				{ __( 'Rendered dynamically on the front end.', 'clanbite' ) }
-			</p>
+			<ServerPreview
+				block="clanbite/team-create-form"
+				attributes={ attributes }
+			/>
 		</div>
 	);
 }

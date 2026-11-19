@@ -2,6 +2,7 @@
  * Player avatar block editor.
  */
 import { __ } from '@wordpress/i18n';
+import { ServerPreview } from '../../shared/server-preview';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, SelectControl } from '@wordpress/components';
 import { EntityLinkInspector } from '../../shared/entity-link-inspector';
@@ -53,7 +54,10 @@ export default function Edit( { attributes, setAttributes } ) {
 				toggleLabel={ __( 'Link image to player profile', 'clanbite' ) }
 			/>
 			<div { ...useBlockProps() }>
-				<p>{ __( 'Player avatar block', 'clanbite' ) }</p>
+				<ServerPreview
+					block="clanbite/player-avatar"
+					attributes={ attributes }
+				/>
 			</div>
 		</>
 	);

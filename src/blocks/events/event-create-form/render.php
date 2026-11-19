@@ -114,8 +114,13 @@ if ( $is_edit ) {
 		$pf_attvis = 'hidden';
 	}
 } else {
+	// In the block editor's server render the form is shown as it looks to a manager: the first team, no permission or setting gates.
+	$events_form_preview = function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview();
 	if ( $team_id < 1 ) {
 		$team_id = (int) get_query_var( 'clanbite_events_team_id' );
+	}
+	if ( $team_id < 1 && $events_form_preview && 'team' === $scope ) {
+		$team_id = \Kernowdev\Clanbite\Editor_Preview::team_id();
 	}
 	if ( $group_id < 1 ) {
 		$group_id = (int) get_query_var( 'clanbite_events_group_id' );
@@ -138,15 +143,15 @@ if ( $is_edit ) {
 		$pf_vis = Event_Post_Type::VISIBILITY_FRIENDS;
 	}
 
-	if ( 'team' === $scope && function_exists( 'clanbite_events_are_enabled_for_team' ) && ! clanbite_events_are_enabled_for_team( $team_id ) ) {
+	if ( ! $events_form_preview && 'team' === $scope && function_exists( 'clanbite_events_are_enabled_for_team' ) && ! clanbite_events_are_enabled_for_team( $team_id ) ) {
 		return '';
 	}
 
-	if ( 'group' === $scope && function_exists( 'clanbite_events_are_enabled_for_group' ) && ! clanbite_events_are_enabled_for_group( $group_id ) ) {
+	if ( ! $events_form_preview && 'group' === $scope && function_exists( 'clanbite_events_are_enabled_for_group' ) && ! clanbite_events_are_enabled_for_group( $group_id ) ) {
 		return '';
 	}
 
-	$can = false;
+	$can = $events_form_preview;
 	if ( 'player' === $scope ) {
 		$can = $viewer_id > 0;
 	} elseif ( 'team' === $scope && $team_id > 0 && function_exists( 'clanbite_teams_user_can_manage' ) ) {
