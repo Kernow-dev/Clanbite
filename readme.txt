@@ -4,7 +4,7 @@ Tags: community, teams, esports, gaming
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.6.7
+Stable tag: 1.6.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,9 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 2. Team and player blocks in the block editor.
 
 == Changelog ==
+
+= 1.6.8 =
+* Fixed: the 1.6.7 package could not load (a development file its autoloader listed was missing), which caused a critical error on update. This release is built with production dependencies only. No other changes.
 
 = 1.6.7 =
 * Changed: every stored name that still used the old `cp_` prefix (extension slugs, the group post type, meta keys, options and the add-ons' tables) now uses `clanbite_`. A one-time upgrade moves existing data across; nothing needs doing by hand. Add-ons that read the old names must update. The player Events page now picks an event with `?clanbite_event_view=`, and the event-post visibility filter is `clanbite_event_post_viewer_can_see`.
