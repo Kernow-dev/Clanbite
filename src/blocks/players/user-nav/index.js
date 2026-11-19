@@ -2,6 +2,7 @@
  * User Navigation block editor script.
  */
 import { registerBlockType } from '@wordpress/blocks';
+import { ServerPreview } from '../../shared/server-preview';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, RangeControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -15,15 +16,14 @@ registerBlockType( metadata, {
 	icon: clanbiteBlockIcon(),
 	edit: function Edit( { attributes, setAttributes } ) {
 		const { avatarSize, showUsername } = attributes;
-		const blockProps = useBlockProps( {
-			className: 'clanbite-user-nav is-editor-preview',
-		} );
+		const blockProps = useBlockProps();
 
 		return (
 			<>
 				<InspectorControls>
 					<PanelBody title={ __( 'Settings', 'clanbite' ) }>
-						<RangeControl __nextHasNoMarginBottom
+						<RangeControl
+							__nextHasNoMarginBottom
 							label={ __( 'Avatar Size', 'clanbite' ) }
 							value={ avatarSize }
 							onChange={ ( value ) =>
@@ -48,30 +48,10 @@ registerBlockType( metadata, {
 					</PanelBody>
 				</InspectorControls>
 				<div { ...blockProps }>
-					<div className="clanbite-user-nav__trigger">
-						<span
-							className="clanbite-user-nav__avatar clanbite-user-nav__avatar--placeholder"
-							style={ {
-								width: avatarSize,
-								height: avatarSize,
-							} }
-						></span>
-						{ showUsername && (
-							<span className="clanbite-user-nav__username">
-								{ __( 'Username', 'clanbite' ) }
-							</span>
-						) }
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="16"
-							height="16"
-							fill="currentColor"
-							className="clanbite-user-nav__caret"
-						>
-							<path d="M7 10l5 5 5-5z" />
-						</svg>
-					</div>
+					<ServerPreview
+						block="clanbite/user-nav"
+						attributes={ attributes }
+					/>
 				</div>
 			</>
 		);

@@ -2,6 +2,7 @@
  * Match card block: choose match post ID.
  */
 import { __ } from '@wordpress/i18n';
+import { ServerPreview } from '../../shared/server-preview';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, TextControl } from '@wordpress/components';
 
@@ -28,9 +29,10 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<p className="clanbite-match-card-editor-note">
-				{ __( 'Match card (preview on the front end).', 'clanbite' ) }
-			</p>
+			<ServerPreview
+				block="clanbite/match-card"
+				attributes={ attributes }
+			/>
 		</div>
 	);
 }

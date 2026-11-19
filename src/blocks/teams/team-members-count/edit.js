@@ -36,7 +36,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				className="clanbite-team-members-count__value clanbite-team-members-count__value--editor-placeholder"
 				aria-hidden="true"
 			>
-				0
+				12
 			</span>
 			<RichText
 				key="clanbite-team-members-postfix"

@@ -1,10 +1,13 @@
+import { ServerPreview } from '../../shared/server-preview';
 import { useBlockProps } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
 
-export default function Edit() {
+export default function Edit( { attributes } ) {
 	return (
 		<div { ...useBlockProps() }>
-			<p>{ __( 'Create event form (front-end)', 'clanbite' ) }</p>
+			<ServerPreview
+				block="clanbite/event-create-form"
+				attributes={ attributes }
+			/>
 		</div>
 	);
 }

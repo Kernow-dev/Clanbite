@@ -77,7 +77,9 @@ function MatchMetaFields() {
 				/>
 			</PanelRow>
 			<PanelRow>
-				<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
+				<SelectControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
 					label={ __( 'Match status', 'clanbite' ) }
 					value={ status }
 					options={ STATUS_OPTIONS }

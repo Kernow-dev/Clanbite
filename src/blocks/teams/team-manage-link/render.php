@@ -11,7 +11,8 @@ defined( 'ABSPATH' ) || exit;
 
 $team_id = clanbite_team_single_block_team_id( $block );
 
-if ( $team_id < 1 || ! function_exists( 'clanbite_teams_user_can_manage' ) || ! clanbite_teams_user_can_manage( $team_id ) ) {
+// In the block editor's server render the link is shown as a manager sees it.
+if ( $team_id < 1 || ( ! ( function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) && ( ! function_exists( 'clanbite_teams_user_can_manage' ) || ! clanbite_teams_user_can_manage( $team_id ) ) ) ) {
 	return;
 }
 

@@ -2,6 +2,7 @@
  * Match list block: inspector controls for query attributes.
  */
 import { __ } from '@wordpress/i18n';
+import { ServerPreview } from '../../shared/server-preview';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, TextControl, SelectControl } from '@wordpress/components';
 
@@ -48,7 +49,9 @@ export default function Edit( { attributes, setAttributes } ) {
 						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 					/>
-					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'Status filter', 'clanbite' ) }
 						value={ statusFilter }
 						options={ STATUS_OPTIONS }
@@ -56,7 +59,9 @@ export default function Edit( { attributes, setAttributes } ) {
 							setAttributes( { statusFilter: v } )
 						}
 					/>
-					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'Sort by scheduled time', 'clanbite' ) }
 						value={ order }
 						options={ [
@@ -73,9 +78,10 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<p className="clanbite-match-list-editor-note">
-				{ __( 'Match list (preview on the front end).', 'clanbite' ) }
-			</p>
+			<ServerPreview
+				block="clanbite/match-list"
+				attributes={ attributes }
+			/>
 		</div>
 	);
 }

@@ -28,11 +28,14 @@ if ( ! $team_post instanceof WP_Post || 'publish' !== $team_post->post_status ) 
 	return;
 }
 
+// In the block editor's server render the button is shown as a visitor sees it, whatever the team's settings.
+$challenge_preview = function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview();
+
 if ( ! function_exists( 'clanbite_matches' ) || ! clanbite_matches() ) {
 	return;
 }
 
-if ( ! function_exists( 'clanbite_team_accepts_challenges' ) || ! clanbite_team_accepts_challenges( $team_id ) ) {
+if ( ! $challenge_preview && ( ! function_exists( 'clanbite_team_accepts_challenges' ) || ! clanbite_team_accepts_challenges( $team_id ) ) ) {
 	return;
 }
 
@@ -42,11 +45,11 @@ if ( ! $teams ) {
 }
 
 $uid = is_user_logged_in() ? (int) get_current_user_id() : 0;
-if ( $uid > 0 && $teams->user_can_manage_team_on_frontend( $team_id, $uid ) ) {
+if ( ! $challenge_preview && $uid > 0 && $teams->user_can_manage_team_on_frontend( $team_id, $uid ) ) {
 	return;
 }
 
-if ( $uid > 0 && ! $teams->user_is_teams_site_admin( $uid ) && function_exists( 'clanbite_teams_user_manages_any_team' ) && ! clanbite_teams_user_manages_any_team( $uid ) ) {
+if ( ! $challenge_preview && $uid > 0 && ! $teams->user_is_teams_site_admin( $uid ) && function_exists( 'clanbite_teams_user_manages_any_team' ) && ! clanbite_teams_user_manages_any_team( $uid ) ) {
 	return;
 }
 

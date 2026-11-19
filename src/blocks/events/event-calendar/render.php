@@ -53,6 +53,10 @@ if ( 'player' === $scope ) {
 
 	$scope_api = 'player';
 } elseif ( 'team' === $scope ) {
+	// In the block editor's server render the calendar shows the first team's events.
+	if ( $team_id < 1 && function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
+		$team_id = \Kernowdev\Clanbite\Editor_Preview::team_id();
+	}
 	if ( $team_id < 1 ) {
 		$wrapper = get_block_wrapper_attributes( array( 'class' => 'clanbite-event-calendar clanbite-event-calendar--placeholder' ), $block );
 		echo wp_kses( '<div ' . $wrapper . '><p>' . esc_html__( 'No team context for events.', 'clanbite' ) . '</p></div>', clanbite_block_fragment_allowed_html() );
@@ -179,6 +183,16 @@ if ( function_exists( 'clanbite_events_block_query_collection' ) ) {
 	$coll      = clanbite_events_block_query_collection( $query_args );
 	if ( ! is_wp_error( $coll ) && isset( $coll['items'] ) && is_array( $coll['items'] ) ) {
 		$cal_items = $coll['items'];
+	}
+
+	if ( array() === $cal_items && function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
+		// Block editor preview with no events in view: sample events spread over the visible month.
+		$demo_base = (int) strtotime( gmdate( 'Y-m-01', (int) strtotime( $config['anchor'] . ' 12:00:00' ) ) . ' 19:00:00 UTC' );
+		foreach ( \Kernowdev\Clanbite\Editor_Preview::demo( 'events' ) as $demo_i => $demo_row ) {
+			$demo_row['id']       = 0;
+			$demo_row['startsAt'] = gmdate( 'Y-m-d H:i:s', $demo_base + ( 5 + $demo_i * 7 ) * DAY_IN_SECONDS );
+			$cal_items[]          = $demo_row;
+		}
 	}
 
 	$calendar_heading         = clanbite_events_calendar_heading_for_view( $default_view, $config['anchor'] );

@@ -9,9 +9,9 @@ defined( 'ABSPATH' ) || exit;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Block render: core-injected $attributes, $content, and $block in this scope.
 
-if ( 'team_directories' !== clanbite_teams_get_team_mode() ) {
-	// Initial wizard state for the server (it only knows PHP state and data-wp-context): step 1 of N.
-	$step_total = count( $steps );
+if ( 'team_directories' !== clanbite_teams_get_team_mode() && ! ( function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) ) {
+	// Initial wizard state for the server (it only knows PHP state and data-wp-context). This notice has no steps, so there is nothing to go to.
+	$step_total = 1;
 	wp_interactivity_state(
 		'clanbite-team-create-form',
 		array(

@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { ServerPreview } from '../../shared/server-preview';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, SelectControl } from '@wordpress/components';
 import './editor.scss';
@@ -10,7 +11,9 @@ export default function Edit( { attributes, setAttributes } ) {
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Icon size', 'clanbite' ) }>
-					<SelectControl __next40pxDefaultSize __nextHasNoMarginBottom
+					<SelectControl
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'Size', 'clanbite' ) }
 						value={ iconSize }
 						options={ [
@@ -32,12 +35,10 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...useBlockProps() }>
-				<p className="clanbite-player-block-placeholder">
-					{ __(
-						'Player social links (icons from Profile → Social Networks)',
-						'clanbite'
-					) }
-				</p>
+				<ServerPreview
+					block="clanbite/player-social-links"
+					attributes={ attributes }
+				/>
 			</div>
 		</>
 	);

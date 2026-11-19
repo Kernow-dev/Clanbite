@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { ServerPreview } from '../../shared/server-preview';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, TextControl } from '@wordpress/components';
 import './editor.scss';
@@ -26,20 +27,10 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...useBlockProps() }>
-				<p className="clanbite-team-manage-link clanbite-team-manage-link--editor-preview">
-					<a
-						href="#clanbite-team-manage-link-preview"
-						onClick={ ( e ) => e.preventDefault() }
-					>
-						{ label || __( 'Manage team', 'clanbite' ) }
-					</a>
-				</p>
-				<p className="clanbite-team-block-placeholder">
-					{ __(
-						'On the site, this link only appears for users who can edit this team.',
-						'clanbite'
-					) }
-				</p>
+				<ServerPreview
+					block="clanbite/team-manage-link"
+					attributes={ attributes }
+				/>
 			</div>
 		</>
 	);

@@ -1,6 +1,6 @@
 {
 	"name": "clanbite",
-	"version": "1.6.6",
+	"version": "1.6.7",
 	"description": "Community management system for gamers and sports teams plugin for WordPress.",
 	"keywords": [
 		"gaming",
@@ -63,6 +63,7 @@
 		"@heroicons/react": "^2.2.0",
 		"@wordpress/interactivity": "^6.37.0",
 		"@wordpress/scripts": "^31.2.0",
+		"@wordpress/server-side-render": "^7.2.0",
 		"clsx": "^2.1.1",
 		"flagpack-core": "^2.1.0"
 	}

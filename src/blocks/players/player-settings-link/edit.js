@@ -1,13 +1,14 @@
-import { __ } from '@wordpress/i18n';
+import { ServerPreview } from '../../shared/server-preview';
 import { useBlockProps } from '@wordpress/block-editor';
 import './editor.scss';
 
-export default function Edit() {
+export default function Edit( { attributes } ) {
 	return (
 		<div { ...useBlockProps() }>
-			<p className="clanbite-player-block-placeholder">
-				{ __( 'Player settings link (owner only)', 'clanbite' ) }
-			</p>
+			<ServerPreview
+				block="clanbite/player-settings-link"
+				attributes={ attributes }
+			/>
 		</div>
 	);
 }

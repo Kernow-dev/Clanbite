@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { ServerPreview } from '../../shared/server-preview';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl, SelectControl } from '@wordpress/components';
 import './editor.scss';
@@ -68,52 +69,11 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div
-				{ ...useBlockProps( {
-					className: 'clanbite-player-country-editor',
-				} ) }
-			>
-				<div className="clanbite-country-display clanbite-country-display--preview">
-					{ ( countryDisplay === 'both' || ! countryDisplay ) && (
-						<>
-							{ flagFirst ? (
-								<>
-									<span
-										className="clanbite-country-flag clanbite-country-flag--preview"
-										aria-hidden="true"
-									/>
-									<span className="clanbite-country-display__label">
-										{ __( 'United Kingdom', 'clanbite' ) }
-									</span>
-								</>
-							) : (
-								<>
-									<span className="clanbite-country-display__label">
-										{ __( 'United Kingdom', 'clanbite' ) }
-									</span>
-									<span
-										className="clanbite-country-flag clanbite-country-flag--preview"
-										aria-hidden="true"
-									/>
-								</>
-							) }
-						</>
-					) }
-					{ countryDisplay === 'text' && (
-						<span className="clanbite-country-display__label">
-							{ __( 'United Kingdom', 'clanbite' ) }
-						</span>
-					) }
-					{ countryDisplay === 'flag' && (
-						<span
-							className="clanbite-country-flag clanbite-country-flag--preview"
-							aria-hidden="true"
-						/>
-					) }
-				</div>
-				<p className="clanbite-player-block-placeholder">
-					{ __( 'Player country', 'clanbite' ) }
-				</p>
+			<div { ...useBlockProps() }>
+				<ServerPreview
+					block="clanbite/player-country"
+					attributes={ attributes }
+				/>
 			</div>
 		</>
 	);

@@ -156,6 +156,22 @@ function clanbite_group_profile_context_group_id(): int {
 		}
 	}
 
+	// The block editor's server render previews the first published group, when the site has one.
+	if ( function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
+		$groups = get_posts(
+			array(
+				'post_type'      => 'cp_group',
+				'post_status'    => 'publish',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+			)
+		);
+
+		return array() !== $groups ? (int) $groups[0] : 0;
+	}
+
 	return 0;
 }
 

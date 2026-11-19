@@ -681,6 +681,11 @@ function clanbite_team_block_resolve_team_id( array $block_context = array() ): 
 		return $virtual_id;
 	}
 
+	// Block editor previews show a real team, or the demo team, so team blocks look like the front end on an empty site.
+	if ( function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
+		return \Kernowdev\Clanbite\Editor_Preview::team_id();
+	}
+
 	return 0;
 }
 
@@ -714,7 +719,13 @@ function clanbite_team_profile_context_team_id(): int {
 		}
 	}
 
-	return clanbite_team_virtual_route_team_id();
+	$virtual = clanbite_team_virtual_route_team_id();
+	if ( $virtual < 1 && function_exists( 'clanbite_is_editor_preview' ) && clanbite_is_editor_preview() ) {
+		// The block editor's server render previews the first team.
+		return \Kernowdev\Clanbite\Editor_Preview::team_id();
+	}
+
+	return $virtual;
 }
 
 /**

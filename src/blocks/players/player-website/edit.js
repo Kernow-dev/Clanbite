@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { ServerPreview } from '../../shared/server-preview';
 import { useBlockProps } from '@wordpress/block-editor';
 import { EntityLinkInspector } from '../../shared/entity-link-inspector';
 import './editor.scss';
@@ -12,12 +13,10 @@ export default function Edit( { attributes, setAttributes } ) {
 				toggleLabel={ __( 'Link to website URL', 'clanbite' ) }
 			/>
 			<div { ...useBlockProps() }>
-				<p className="clanbite-player-block-placeholder">
-					{ __(
-						'Player website (only shows when the player has set one)',
-						'clanbite'
-					) }
-				</p>
+				<ServerPreview
+					block="clanbite/player-website"
+					attributes={ attributes }
+				/>
 			</div>
 		</>
 	);

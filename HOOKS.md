@@ -4,7 +4,7 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**379 PHP hooks and 19 JavaScript hooks**.
+**382 PHP hooks and 19 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
@@ -14,7 +14,7 @@ Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand fo
 - [Avatars](#avatars) (43)
 - [Events](#events) (23)
 - [Extensions](#extensions) (27)
-- [General](#general) (51)
+- [General](#general) (54)
 - [Matches](#matches) (18)
 - [Notifications](#notifications) (21)
 - [Players](#players) (90)
@@ -1478,6 +1478,32 @@ Filters the registered components, for example to remove or swap one site-wide.
 | `$components` | `array<string, array<string, mixed>>` | Definitions keyed by slug. |
 
 **Since:** 1.6.3
+
+#### `clanbite_editor_preview_demo`
+
+*Filter* · `inc/class-editor-preview.php`
+
+Filter the demo data the editor previews use.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$all` | `array<string, array<string, mixed>>` | Demo values keyed by kind (`player`, `team`, …). |
+
+#### `clanbite_editor_preview_end`
+
+*Action* · `inc/class-editor-preview.php`
+
+Fires when a block preview finished rendering.
+
+_No arguments._
+
+#### `clanbite_editor_preview_start`
+
+*Action* · `inc/class-editor-preview.php`
+
+Fires when a block preview starts rendering. Plugins can add their own demo-data filters here; they are removed with `'clanbite_editor_preview_end'`.
+
+_No arguments._
 
 #### `clanbite_human_time_ago`
 
