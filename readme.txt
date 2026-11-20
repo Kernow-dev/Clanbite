@@ -4,7 +4,7 @@ Tags: community, teams, esports, gaming
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.6.8
+Stable tag: 1.6.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,9 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 2. Team and player blocks in the block editor.
 
 == Changelog ==
+
+= 1.6.9 =
+* Fixed: a notification bell on a page left open for a long time (or after the nonce expired) kept failing with 403 errors until the page was reloaded. It now asks WordPress for a fresh nonce and carries on, and stops asking when the visitor is signed out.
 
 = 1.6.8 =
 * Fixed: the 1.6.7 package could not load (a development file its autoloader listed was missing), which caused a critical error on update. This release is built with production dependencies only. No other changes.

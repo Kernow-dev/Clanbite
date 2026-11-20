@@ -72,6 +72,34 @@ async function restFetch( restUrl, nonce, { path, method = 'GET', data } ) {
 }
 
 /**
+ * Ask WordPress for a fresh REST nonce (they expire, so a tab left open for a day starts to get 403s).
+ *
+ * Uses core's `rest-nonce` Ajax action, which only answers a signed-in user.
+ *
+ * @param {string} restUrl Base REST URL from context.
+ * @return {Promise<string>} The new nonce, or an empty string when none could be had (signed out, unusual REST address).
+ */
+async function refreshRestNonce( restUrl ) {
+	const marker = restUrl.indexOf( '/wp-json/' );
+	if ( marker < 1 ) {
+		return '';
+	}
+	try {
+		const response = await fetch(
+			`${ restUrl.slice(
+				0,
+				marker
+			) }/wp-admin/admin-ajax.php?action=rest-nonce`,
+			{ credentials: 'same-origin' }
+		);
+		const text = ( await response.text() ).trim();
+		return response.ok && /^[a-f0-9]{6,}$/i.test( text ) ? text : '';
+	} catch ( refreshError ) {
+		return '';
+	}
+}
+
+/**
  * Allow only http(s) URLs for href/src built from REST JSON.
  *
  * @param {string} href Raw URL.
@@ -930,6 +958,7 @@ function startPolling( ctx ) {
 			ctx.unreadCount = response.unread_count ?? ctx.unreadCount;
 			ctx.lastTimestamp = response.timestamp;
 			ctx.pollInterval = response.next_poll || 4000;
+			ctx.authFailures = 0;
 
 			/**
 			 * Fires after each successful notification poll (HTTP or WebSocket) so other UI can sync on the same cadence.
@@ -943,6 +972,26 @@ function startPolling( ctx ) {
 				notificationsPolledDetail( 'http', response, null )
 			);
 		} catch ( error ) {
+			const status = error?.response?.status;
+			if ( status === 401 || status === 403 ) {
+				// An expired nonce or a signed-out visitor: get a fresh nonce once, then try again soon.
+				const fresh =
+					( ctx.authFailures || 0 ) < 3
+						? await refreshRestNonce( ctx.restUrl )
+						: '';
+				ctx.authFailures = ( ctx.authFailures || 0 ) + 1;
+				if ( fresh ) {
+					ctx.nonce = fresh;
+					ctx.pollInterval = 1000;
+					notificationPollTimer = setTimeout(
+						poll,
+						ctx.pollInterval
+					);
+					return;
+				}
+				// No way back in (signed out): stop asking until the page is reloaded.
+				return;
+			}
 			// Increase interval on error.
 			ctx.pollInterval = Math.min( ctx.pollInterval * 2, 30000 );
 			console.error( 'Notification poll failed:', error );
