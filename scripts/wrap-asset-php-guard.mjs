@@ -131,6 +131,28 @@ function wrapBlocksManifest( filePath ) {
 	saveGuarded( filePath, body, 'manifest' );
 }
 
+// A stylesheet built as its own entry also gets an empty script and a PHP stub beside it (webpack always emits a script): drop them.
+function pruneCssOnlyEntries( dir ) {
+	if ( ! fs.existsSync( dir ) ) {
+		return;
+	}
+	for ( const name of fs.readdirSync( dir ) ) {
+		const full = path.join( dir, name );
+		if ( fs.statSync( full ).isDirectory() ) {
+			pruneCssOnlyEntries( full );
+		} else if (
+			name.endsWith( '.js' ) &&
+			fs.statSync( full ).size === 0 &&
+			fs.existsSync( full.replace( /\.js$/, '.css' ) )
+		) {
+			fs.rmSync( full );
+			fs.rmSync( full.replace( /\.js$/, '.asset.php' ), { force: true } );
+		}
+	}
+}
+
+pruneCssOnlyEntries( path.join( root, 'assets', 'dist' ) );
+
 const dirs = [
 	path.join( root, 'assets', 'dist' ),
 	path.join( root, 'build' ),

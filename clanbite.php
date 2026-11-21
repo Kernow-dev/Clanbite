@@ -3,7 +3,7 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Community management system for Gamers and Sports teams
- * Version: 1.6.9
+ * Version: 1.6.10
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
@@ -77,7 +77,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.6.9';
+	public const VERSION = '1.6.10';
 
 	/**
 	 * Maintenance upgrade counter: the number of the last step in {@see Maintenance}. Raise it with each new step.
@@ -570,6 +570,8 @@ final class Main {
 	 * @return void
 	 */
 	public function register_shared_styles(): void {
+		// Import-map anchor: WordPress only adds `@wordpress/interactivity` to the import map when an enqueued module declares it, so this
+		// empty module (enqueued early on plugin PHP templates) lets blocks that enqueue their own view modules later resolve it.
 		wp_register_script_module(
 			'clanbite-interactivity-bootstrap',
 			$this->url . 'assets/js/clanbite-interactivity-bootstrap.js',
@@ -579,28 +581,28 @@ final class Main {
 
 		wp_register_style(
 			'clanbite-tokens',
-			$this->url . 'assets/css/clanbite-tokens.css',
+			$this->url . 'assets/dist/css/clanbite-tokens.css',
 			array(),
 			self::VERSION
 		);
 
 		wp_register_style(
 			'clanbite-buttons',
-			$this->url . 'assets/css/clanbite-buttons.css',
+			$this->url . 'assets/dist/css/clanbite-buttons.css',
 			array( 'clanbite-tokens' ),
 			self::VERSION
 		);
 
 		wp_register_style(
 			'clanbite-forms',
-			$this->url . 'assets/css/clanbite-forms.css',
+			$this->url . 'assets/dist/css/clanbite-forms.css',
 			array( 'clanbite-tokens', 'clanbite-buttons' ),
 			self::VERSION
 		);
 
 		wp_register_style(
 			'clanbite-avatars',
-			$this->url . 'assets/css/clanbite-avatars.css',
+			$this->url . 'assets/dist/css/clanbite-avatars.css',
 			array( 'clanbite-tokens' ),
 			self::VERSION
 		);
@@ -608,7 +610,7 @@ final class Main {
 		// Shared popups. Extensions enqueue these (or call clanbite_enqueue_toasts()), or list the handle as a dependency.
 		wp_register_style(
 			'clanbite-toasts',
-			$this->url . 'assets/css/clanbite-toasts.css',
+			$this->url . 'assets/dist/css/clanbite-toasts.css',
 			array( 'clanbite-tokens' ),
 			self::VERSION
 		);
@@ -616,33 +618,33 @@ final class Main {
 		// The browser half of the components registry (window.clanbite.components); extension scripts list it as a dependency.
 		wp_register_script(
 			'clanbite-components',
-			$this->url . 'assets/js/clanbite-components.js',
+			$this->url . 'assets/dist/js/clanbite-components.js',
 			array( 'wp-hooks' ),
-			(string) filemtime( $this->path . 'assets/js/clanbite-components.js' ),
+			(string) filemtime( $this->path . 'assets/dist/js/clanbite-components.js' ),
 			true
 		);
 
 		// Popup lifecycle (clanbite.popup.toggled / clanbite.popup.shouldOpen) in one place; see clanbite_register_core_components().
 		wp_register_script(
 			'clanbite-popups',
-			$this->url . 'assets/js/clanbite-popups.js',
+			$this->url . 'assets/dist/js/clanbite-popups.js',
 			array( 'wp-hooks', 'clanbite-components' ),
-			(string) filemtime( $this->path . 'assets/js/clanbite-popups.js' ),
+			(string) filemtime( $this->path . 'assets/dist/js/clanbite-popups.js' ),
 			true
 		);
 
 		// Copy-to-clipboard (clanbite.clipboard.copy) shared by every extension.
 		wp_register_script(
 			'clanbite-clipboard',
-			$this->url . 'assets/js/clanbite-copy-text.js',
+			$this->url . 'assets/dist/js/clanbite-copy-text.js',
 			array( 'clanbite-components' ),
-			(string) filemtime( $this->path . 'assets/js/clanbite-copy-text.js' ),
+			(string) filemtime( $this->path . 'assets/dist/js/clanbite-copy-text.js' ),
 			true
 		);
 
 		wp_register_script(
 			'clanbite-toasts',
-			$this->url . 'assets/js/clanbite-toasts.js',
+			$this->url . 'assets/dist/js/clanbite-toasts.js',
 			array( 'wp-hooks' ),
 			self::VERSION,
 			true
@@ -651,7 +653,7 @@ final class Main {
 	}
 
 	/**
-	 * Block inserter icon sharpening (see assets/block-icons-editor.css).
+	 * Block inserter icon sharpening (see assets/dist/block-icons-editor.css).
 	 *
 	 * @return void
 	 */
@@ -662,7 +664,7 @@ final class Main {
 
 		wp_enqueue_style(
 			'clanbite-block-icons-editor',
-			$this->url . 'assets/block-icons-editor.css',
+			$this->url . 'assets/dist/block-icons-editor.css',
 			array(),
 			self::VERSION
 		);
