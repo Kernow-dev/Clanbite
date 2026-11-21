@@ -559,6 +559,18 @@ final class Main {
 	}
 
 	/**
+	 * Cache-busting version for a built file under `assets/dist/`.
+	 *
+	 * @param string $relative Path relative to the plugin root.
+	 * @return string File modification time, or the plugin version when the file has not been built.
+	 */
+	private function asset_version( string $relative ): string {
+		$mtime = is_readable( $this->path . $relative ) ? filemtime( $this->path . $relative ) : false;
+		return false === $mtime ? self::VERSION : (string) $mtime;
+	}
+
+
+	/**
 	 * Register stylesheets shared by Clanbite and its companion plugins.
 	 *
 	 * `clanbite-toasts` (style and script) is the shared popup system, see `inc/toasts.php`.
@@ -620,7 +632,7 @@ final class Main {
 			'clanbite-components',
 			$this->url . 'assets/dist/js/clanbite-components.js',
 			array( 'wp-hooks' ),
-			(string) filemtime( $this->path . 'assets/dist/js/clanbite-components.js' ),
+			$this->asset_version( 'assets/dist/js/clanbite-components.js' ),
 			true
 		);
 
@@ -629,7 +641,7 @@ final class Main {
 			'clanbite-popups',
 			$this->url . 'assets/dist/js/clanbite-popups.js',
 			array( 'wp-hooks', 'clanbite-components' ),
-			(string) filemtime( $this->path . 'assets/dist/js/clanbite-popups.js' ),
+			$this->asset_version( 'assets/dist/js/clanbite-popups.js' ),
 			true
 		);
 
@@ -638,7 +650,7 @@ final class Main {
 			'clanbite-clipboard',
 			$this->url . 'assets/dist/js/clanbite-copy-text.js',
 			array( 'clanbite-components' ),
-			(string) filemtime( $this->path . 'assets/dist/js/clanbite-copy-text.js' ),
+			$this->asset_version( 'assets/dist/js/clanbite-copy-text.js' ),
 			true
 		);
 

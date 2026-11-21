@@ -64,7 +64,7 @@ Copy `phpstan.neon.dist` to `phpstan.neon` for local overrides (the latter is gi
 
 ## WordPress admin (Clanbite menu)
 
-The top-level **Clanbite** menu opens a **React** settings shell (`src/admin/index.js`, built to `assets/dist/clanbite-admin.js`).
+The top-level **Clanbite** menu opens a **React** settings shell (`src/admin/index.js`, built to `assets/dist/clanbite-admin.js`). Every other non-block script and stylesheet lives in `src/assets/` and is built to the same relative path under `assets/dist/`.
 
 - **Tabs:** **General** (core options, `clanbite_general_settings`), **Extensions** (enable/disable; runs uninstallers for removed slugs), then one tab per **root** extension that exposes settings via `Skeleton::get_settings_admin()`.
 - **Deep links:** the active tab is stored in the query string as `?page=clanbite&tab=<id>` (e.g. `general`, `extensions`, `ext-clanbite_teams`). Invalid `tab` values fall back to the first tab and the URL is corrected. Save notices stay visible above the tab row when switching tabs.
@@ -77,7 +77,7 @@ Build after changing the admin UI:
 npm run build:admin
 ```
 
-Uses `webpack.config.cjs` (CopyPlugin removed so only the admin bundle is emitted into `assets/dist/`).
+Uses `webpack.config.cjs` (CopyPlugin removed so only the admin bundle and the scripts and styles from `src/assets/` are emitted into `assets/dist/`; `npm run build:production` runs it together with the block build).
 
 Block sources live under `src/blocks/` (matches, players, teams). The match post sidebar script lives under `src/clanbite-match-editor/src/`. Everything compiles into the plugin root `build/` (plus per-extension `blocks-manifest.php` files). From the plugin root:
 
