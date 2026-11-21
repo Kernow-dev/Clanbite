@@ -517,8 +517,8 @@ function clanbite_register_player_notifications_page_assets(): void {
 	$main = clanbite();
 	$ver  = \Kernowdev\Clanbite\Main::VERSION;
 
-	$css_rel = 'assets/css/clanbite-player-notifications-page.css';
-	$js_rel  = 'assets/js/clanbite-player-notifications-page.js';
+	$css_rel = 'assets/dist/css/clanbite-player-notifications-page.css';
+	$js_rel  = 'assets/dist/js/clanbite-player-notifications-page.js';
 	$css_abs = $main->path . $css_rel;
 	$js_abs  = $main->path . $js_rel;
 

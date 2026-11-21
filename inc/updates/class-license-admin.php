@@ -10,7 +10,7 @@ namespace Kernowdev\Clanbite\Updates;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Adds an integration tab (`slotId` {@see License_Admin::SLOT_ID}) whose view is `assets/js/clanbite-license.js`, mounted through the
+ * Adds an integration tab (`slotId` {@see License_Admin::SLOT_ID}) whose view is `assets/dist/js/clanbite-license.js`, mounted through the
  * core admin's `clanbite:admin-integration-mount` event. The tab only appears when an add-on that uses the update server is
  * installed (or the site is already activated).
  */
@@ -227,14 +227,14 @@ final class License_Admin {
 		}
 		wp_enqueue_script(
 			'clanbite-license',
-			clanbite()->url . 'assets/js/clanbite-license.js',
+			clanbite()->url . 'assets/dist/js/clanbite-license.js',
 			array( 'wp-element', 'wp-components', 'wp-api-fetch', 'wp-i18n' ),
 			\Kernowdev\Clanbite\Main::VERSION,
 			true
 		);
 		wp_enqueue_style(
 			'clanbite-license',
-			clanbite()->url . 'assets/css/clanbite-license.css',
+			clanbite()->url . 'assets/dist/css/clanbite-license.css',
 			array(),
 			\Kernowdev\Clanbite\Main::VERSION
 		);

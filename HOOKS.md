@@ -4622,7 +4622,7 @@ Registered with `wp.hooks.addFilter()` / `addAction()` on the front end or in th
 
 #### `clanbite.components.registered`
 
-*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-components.js`
+*Action (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-components.js`
 
 Fires when a component registers its browser API.
 
@@ -4685,7 +4685,7 @@ Prefer the shared `clanbite.toasts.*` filters (for example `clanbite.toasts.payl
 
 #### `clanbite.playerMedia.dialog`
 
-*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-player-media-editor.js`
+*Action (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-player-media-editor.js`
 
 Fires when the avatar or cover popup opens, so add-ons can add their own controls to it.
 
@@ -4700,7 +4700,7 @@ Fires when the avatar or cover popup opens, so add-ons can add their own control
 
 #### `clanbite.playerMedia.maxZoom`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-player-media-editor.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-player-media-editor.js`
 
 Filters the largest zoom the avatar and cover editor offers.
 
@@ -4711,7 +4711,7 @@ Filters the largest zoom the avatar and cover editor offers.
 
 #### `clanbite.popup.shouldOpen`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-popups.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-popups.js`
 
 Filters whether a Clanbite popup may open. Return `false` to keep it closed.
 
@@ -4722,7 +4722,7 @@ Filters whether a Clanbite popup may open. Return `false` to keep it closed.
 
 #### `clanbite.popup.toggled`
 
-*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-popups.js`
+*Action (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-popups.js`
 
 Fires whenever a Clanbite popup opens or closes, however it was triggered.
 
@@ -4732,7 +4732,7 @@ Fires whenever a Clanbite popup opens or closes, however it was triggered.
 
 #### `clanbite.teams.joinModes`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/admin/team-options-editor.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/admin/team-options-editor.js`
 
 Filters the join-mode options offered in the team editor's Membership panel.
 
@@ -4743,7 +4743,7 @@ Filters the join-mode options offered in the team editor's Membership panel.
 
 #### `clanbite.teams.optionControls`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/admin/team-options-editor.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/admin/team-options-editor.js`
 
 Filters the controls rendered in the team editor's Membership panel.
 
@@ -4756,7 +4756,7 @@ Append `wp.element` elements to add your own options; persist them with `setMeta
 
 #### `clanbite.toasts.allowedUrl`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-toasts.js`
 
 Filters whether a URL may be used in a toast (icon image or action link).
 
@@ -4771,7 +4771,7 @@ The default allows `http(s)://` and root-relative URLs only. Return `true` to al
 
 #### `clanbite.toasts.container`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-toasts.js`
 
 Filters the element the toast stacks are added to (default `document.body`).
 
@@ -4786,7 +4786,7 @@ inside something else, for example a dialog that makes the rest of the page iner
 
 #### `clanbite.toasts.dismissed`
 
-*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+*Action (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-toasts.js`
 
 Fires after a toast is dismissed.
 
@@ -4798,7 +4798,7 @@ Fires after a toast is dismissed.
 
 #### `clanbite.toasts.element`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-toasts.js`
 
 Lets a handler build the toast element itself (custom markup).
 
@@ -4814,7 +4814,7 @@ Return `null` (the default) for the standard toast.
 
 #### `clanbite.toasts.payload`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-toasts.js`
 
 Filters a toast's options before it is shown.
 
@@ -4827,7 +4827,7 @@ options object.
 
 #### `clanbite.toasts.settings`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-toasts.js`
 
 Filters the site-wide popup settings for one toast, after the server's values are applied.
 
@@ -4841,7 +4841,7 @@ an extension passes to `show()` itself still win over these.
 
 #### `clanbite.toasts.shouldShow`
 
-*Filter (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-toasts.js`
 
 Filters whether a toast is shown. Return `false` to suppress it.
 
@@ -4852,7 +4852,7 @@ Filters whether a toast is shown. Return `false` to suppress it.
 
 #### `clanbite.toasts.shown`
 
-*Action (JavaScript, `wp.hooks`)* · `assets/js/clanbite-toasts.js`
+*Action (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-toasts.js`
 
 Fires after a toast is on screen.
 

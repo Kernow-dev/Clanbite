@@ -22,7 +22,7 @@ const createHooks = () => {
 
 const load = ( file ) => {
 	jest.isolateModules( () => {
-		require( `../../assets/js/${ file }` );
+		require( `../../src/assets/js/${ file }` );
 	} );
 };
 

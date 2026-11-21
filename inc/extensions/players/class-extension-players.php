@@ -1961,10 +1961,10 @@ class Players extends Skeleton {
 	 */
 	private function media_editor_config( int $user_id, array $media, string $avatar, string $cover ): array {
 		// File times as versions: the editor files change between releases of the same version number, and a stale cached copy would break the popup.
-		$css_ver = (string) ( @filemtime( clanbite()->path . 'assets/css/clanbite-player-media-editor.css' ) ?: \Kernowdev\Clanbite\Main::VERSION ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A missing file falls back to the plugin version.
-		$js_ver  = (string) ( @filemtime( clanbite()->path . 'assets/js/clanbite-player-media-editor.js' ) ?: \Kernowdev\Clanbite\Main::VERSION ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A missing file falls back to the plugin version.
-		wp_enqueue_style( 'clanbite-player-media-editor', clanbite()->url . 'assets/css/clanbite-player-media-editor.css', array(), $css_ver );
-		wp_enqueue_script( 'clanbite-player-media-editor', clanbite()->url . 'assets/js/clanbite-player-media-editor.js', array( 'wp-i18n' ), $js_ver, true );
+		$css_ver = (string) ( @filemtime( clanbite()->path . 'assets/dist/css/clanbite-player-media-editor.css' ) ?: \Kernowdev\Clanbite\Main::VERSION ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A missing file falls back to the plugin version.
+		$js_ver  = (string) ( @filemtime( clanbite()->path . 'assets/dist/js/clanbite-player-media-editor.js' ) ?: \Kernowdev\Clanbite\Main::VERSION ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A missing file falls back to the plugin version.
+		wp_enqueue_style( 'clanbite-player-media-editor', clanbite()->url . 'assets/dist/css/clanbite-player-media-editor.css', array(), $css_ver );
+		wp_enqueue_script( 'clanbite-player-media-editor', clanbite()->url . 'assets/dist/js/clanbite-player-media-editor.js', array( 'wp-i18n' ), $js_ver, true );
 
 		$config = array(
 			'state'         => $media + array(

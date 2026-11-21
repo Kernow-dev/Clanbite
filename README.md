@@ -64,7 +64,7 @@ Copy `phpstan.neon.dist` to `phpstan.neon` for local overrides (the latter is gi
 
 ## WordPress admin (Clanbite menu)
 
-The top-level **Clanbite** menu opens a **React** settings shell (`src/admin/index.js`, built to `assets/dist/clanbite-admin.js`).
+The top-level **Clanbite** menu opens a **React** settings shell (`src/admin/index.js`, built to `assets/dist/clanbite-admin.js`). Every other non-block script and stylesheet lives in `src/assets/` and is built to the same relative path under `assets/dist/`.
 
 - **Tabs:** **General** (core options, `clanbite_general_settings`), **Extensions** (enable/disable; runs uninstallers for removed slugs), then one tab per **root** extension that exposes settings via `Skeleton::get_settings_admin()`.
 - **Deep links:** the active tab is stored in the query string as `?page=clanbite&tab=<id>` (e.g. `general`, `extensions`, `ext-clanbite_teams`). Invalid `tab` values fall back to the first tab and the URL is corrected. Save notices stay visible above the tab row when switching tabs.
@@ -77,7 +77,7 @@ Build after changing the admin UI:
 npm run build:admin
 ```
 
-Uses `webpack.config.cjs` (CopyPlugin removed so only the admin bundle is emitted into `assets/dist/`).
+Uses `webpack.config.cjs` (CopyPlugin removed so only the admin bundle and the scripts and styles from `src/assets/` are emitted into `assets/dist/`; `npm run build:production` runs it together with the block build).
 
 Block sources live under `src/blocks/` (matches, players, teams). The match post sidebar script lives under `src/clanbite-match-editor/src/`. Everything compiles into the plugin root `build/` (plus per-extension `blocks-manifest.php` files). From the plugin root:
 
@@ -307,7 +307,7 @@ For ad-hoc or third-party blocks that ship as separate compiled folders, you can
 
 First-party blocks declare `supports` (spacing, color, typography, border, shadow, and link color where relevant) and `selectors` in each block’s `block.json`, so **Appearance → Editor → Styles** can target the right DOM nodes. Dynamic blocks pass the `WP_Block` instance into `get_block_wrapper_attributes( …, $block )` on the front end so those styles apply there too.
 
-**Buttons.** Every Clanbite action button (core and the Forums, Social Kit, Points and Ranks add-ons) is `wp-element-button clanbite-button clanbite-button--{primary|ghost|danger}`, so your theme styles them all with one rule: `styles.elements.button` (and `styles.blocks.core/button` for the `wp-block-button` link form). Out of the box the plugins adapt to the page: colours come from the shared `clanbite-tokens` handle (surface, text, border, accent, danger, success), derived from your theme presets with readable text computed for contrast, and buttons have a zero-specificity default look that any theme rule overrides. Set any token in `:root` (for example `--clanbite-accent`) to change it everywhere. The `clanbite-buttons` style handle (`assets/css/clanbite-buttons.css`) only adds the outline (`--ghost`), `--danger`, `--small` and toggle/disabled/focus states. Retune it with `--clanbite-button-danger`, `--clanbite-button-wash` and `--clanbite-focus-ring`, or override the variant classes. The danger colour follows your palette slug `danger`. Add-on authors list `clanbite-buttons` in the `style` array of their `block.json`; see `DESIGN-SYSTEM.md`.
+**Buttons.** Every Clanbite action button (core and the Forums, Social Kit, Points and Ranks add-ons) is `wp-element-button clanbite-button clanbite-button--{primary|ghost|danger}`, so your theme styles them all with one rule: `styles.elements.button` (and `styles.blocks.core/button` for the `wp-block-button` link form). Out of the box the plugins adapt to the page: colours come from the shared `clanbite-tokens` handle (surface, text, border, accent, danger, success), derived from your theme presets with readable text computed for contrast, and buttons have a zero-specificity default look that any theme rule overrides. Set any token in `:root` (for example `--clanbite-accent`) to change it everywhere. The `clanbite-buttons` style handle (`src/assets/css/clanbite-buttons.css`) only adds the outline (`--ghost`), `--danger`, `--small` and toggle/disabled/focus states. Retune it with `--clanbite-button-danger`, `--clanbite-button-wash` and `--clanbite-focus-ring`, or override the variant classes. The danger colour follows your palette slug `danger`. Add-on authors list `clanbite-buttons` in the `style` array of their `block.json`; see `DESIGN-SYSTEM.md`.
 
 To set **defaults for every Clanbite block** from your theme, merge the `styles.blocks` entries into your theme’s `theme.json` under the existing `styles` key (add `styles.blocks` if it is missing). If a block name is already present, merge objects by hand or replace with your overrides.
 

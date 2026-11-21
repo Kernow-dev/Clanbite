@@ -3600,7 +3600,7 @@ class Teams extends Skeleton {
 
 		wp_enqueue_script(
 			'clanbite-team-options-editor',
-			clanbite()->url . 'assets/js/admin/team-options-editor.js',
+			clanbite()->url . 'assets/dist/js/admin/team-options-editor.js',
 			array(
 				'wp-plugins',
 				'wp-editor',

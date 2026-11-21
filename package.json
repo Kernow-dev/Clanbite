@@ -1,6 +1,6 @@
 {
 	"name": "clanbite",
-	"version": "1.6.9",
+	"version": "1.6.10",
 	"description": "Community management system for gamers and sports teams plugin for WordPress.",
 	"keywords": [
 		"gaming",
@@ -43,7 +43,7 @@
 		"build:admin": "wp-scripts build --config webpack.config.cjs && node scripts/wrap-asset-php-guard.mjs",
 		"build:blocks:manifests": "wp-scripts build-blocks-manifest --input=build/matches --output=build/matches/blocks-manifest.php && wp-scripts build-blocks-manifest --input=build/players --output=build/players/blocks-manifest.php && wp-scripts build-blocks-manifest --input=build/teams --output=build/teams/blocks-manifest.php && node scripts/wrap-asset-php-guard.mjs",
 		"copy:flags": "node scripts/copy-flagpack-flags.mjs",
-		"build:blocks": "wp-scripts build --source-path=src/blocks --output-path=build --webpack-copy-php && node scripts/copy-block-view-modules.mjs && npm run copy:flags && npm run build:clanbite-match-editor:integrate && npm run build:blocks:manifests",
+		"build:blocks": "wp-scripts build --experimental-modules --source-path=src/blocks --output-path=build --webpack-copy-php && npm run copy:flags && npm run build:clanbite-match-editor:integrate && npm run build:blocks:manifests",
 		"build:clanbite-match-editor:integrate": "wp-scripts build index.js --output-path=.clanbite-match-editor-build --source-path=src/clanbite-match-editor/src && rm -rf build/clanbite-match-editor && mkdir -p build/clanbite-match-editor && cp -R .clanbite-match-editor-build/. build/clanbite-match-editor/ && rm -rf .clanbite-match-editor-build",
 		"build:production": "npm run build:admin && npm run build:blocks",
 		"check-engines": "wp-scripts check-engines",
