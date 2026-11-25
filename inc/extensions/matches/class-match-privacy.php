@@ -86,15 +86,16 @@ final class Match_Privacy {
 			return array();
 		}
 
+		// Keep get_posts(): it skips query filters by default, so another plugin's filter cannot drop a match from this
+		// list and leave it visible.
 		// phpcs:disable WordPress.DB.SlowDBQuery -- Restricted matches are found by their visibility meta.
 		$posts = get_posts(
 			array(
-				'post_type'        => 'clanbite_match',
-				'post_status'      => 'publish',
-				'posts_per_page'   => 2000,
-				'suppress_filters' => true,
-				'no_found_rows'    => true,
-				'meta_query'       => array(
+				'post_type'      => 'clanbite_match',
+				'post_status'    => 'publish',
+				'posts_per_page' => 2000,
+				'no_found_rows'  => true,
+				'meta_query'     => array(
 					array(
 						'key'     => 'clanbite_match_visibility',
 						'value'   => array( '', Matches::VISIBILITY_PUBLIC ),
