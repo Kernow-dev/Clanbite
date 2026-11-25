@@ -3,8 +3,8 @@ Contributors: kernowdev
 Tags: community, esports, gaming, teams, clan
 Requires at least: 6.9
 Tested up to: 7.1
-Requires PHP: 8.4
-Stable tag: 1.7.0
+Requires PHP: 8.2
+Stable tag: 1.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -143,7 +143,7 @@ For PHP architecture, hooks, and REST, see the bundled `README.md`.
 
 == Installation ==
 
-**Requirements:** WordPress 6.9 or later and PHP 8.4 or later.
+**Requirements:** WordPress 6.9 or later and PHP 8.2 or later.
 
 1. In your WordPress dashboard, go to **Plugins → Add New**, search for **Clanbite**, then click **Install Now** and **Activate**. You can also upload the ZIP file.
 2. Open **Clanbite** in the admin menu and review the **General** settings.
@@ -181,13 +181,32 @@ Yes. Look for the **Messages** tab within each extension's settings.
 
 Yes. Start with the [developer documentation](https://developer.clanbite.com) and the [hook reference](https://github.com/Kernow-dev/Clanbite/blob/main/HOOKS.md).
 
+= What do I need to run Clanbite? =
+
+WordPress 6.9 or later and PHP 8.2 or later. Your host or the Site Health screen (Tools → Site Health → Info) can tell you which PHP version your site uses.
+
+= Where is my community's data, and who can see it? =
+
+Clanbite keeps its data on your own WordPress site, and nothing is sent to the author of Clanbite. Matches and events have visibility settings, so you can keep them to the right people. A player's personal events can also be kept to themselves.
+
+Connections with other Clanbite websites are off until a site administrator turns them on. Avatars in notifications may come from Gravatar. The External services section above explains both, including what is sent.
+
+= How do I report a security problem? =
+
+Please report it privately, not in the support forum or a public issue. Use [Report a vulnerability](https://github.com/Kernow-dev/Clanbite/security/advisories/new) on GitHub, and see our [security policy](https://github.com/Kernow-dev/Clanbite/blob/main/SECURITY.md).
+
 = Where do I get help? =
 
 For help setting up your site, use the [support forum](https://wordpress.org/support/plugin/clanbite/). For bugs and feature ideas, open an issue on [GitHub](https://github.com/Kernow-dev/Clanbite/issues). Ideas are very welcome: tell me what your community needs.
 
 == Changelog ==
 
-= 1.7.0 =
+= 1.7.1 =
+* Important, if you use Clanbite add-ons and are updating from 1.6.10 or earlier: install the free Clanbite Add-on Manager (1.0.1 or later on PHP 8.2 or 8.3) from https://clanbite.com/add-on-manager/ **before** updating, or your add-ons will stop receiving updates until you do.
+* Changed: Clanbite now works on PHP 8.2 or later (1.7.0 needed PHP 8.4), so sites on PHP 8.2 and 8.3 can get the security fixes in 1.7.0. Some add-on releases still need PHP 8.4.
+* Changed: added answers about requirements, privacy and reporting security problems to the FAQ, and filled in the changelog.
+
+= 1.7.0 - 2026-11-25 =
 * Important, if you use Clanbite add-ons: install the free Clanbite Add-on Manager from https://clanbite.com/add-on-manager/ **before** updating, or your add-ons will stop receiving updates until you do. Your licence activation is kept.
 * Changed: installing, licensing and updating add-ons has been removed from Clanbite, as WordPress.org does not allow a directory plugin to install or update plugins from another server. The Licence tab now comes from the Add-on Manager, and Clanbite no longer contacts the add-on server.
 * For developers: the licence and updater code has moved to the Add-on Manager. Its `clanbite_*` functions, hooks and `clanbite/v1/admin/license` routes are only available while the manager is active, and the `Kernowdev\Clanbite\Updates` classes no longer exist. The add-on compatibility classes are now in `Kernowdev\Clanbite\Compat`.
@@ -215,24 +234,24 @@ For help setting up your site, use the [support forum](https://wordpress.org/sup
 * Changed: the whole notification in the bell dropdown and on the notifications page is now clickable, not just its title. Keyboard focus, middle-click and “mark as read” work as before.
 * Changed: built with the latest WordPress build tools.
 
-= 1.6.10 =
+= 1.6.10 - 2026-11-21 =
 * Changed: every script and stylesheet the plugin serves is now built with `@wordpress/scripts` and minified for production (smaller downloads, same behaviour); no setting or API changes.
 
-= 1.6.9 =
+= 1.6.9 - 2026-11-20 =
 * Fixed: a notification bell on a page left open for a long time (or after the nonce expired) kept failing with 403 errors until the page was reloaded. It now asks WordPress for a fresh nonce and carries on, and stops asking when the visitor is signed out.
 
-= 1.6.8 =
+= 1.6.8 - 2026-11-19 =
 * Fixed: the 1.6.7 package could not load (a development file its autoloader listed was missing), which caused a critical error on update. This release is built with production dependencies only. No other changes.
 
-= 1.6.7 =
+= 1.6.7 - 2026-11-19 =
 * Changed: every stored name that still used the old `cp_` prefix (extension slugs, the group post type, meta keys, options and the add-ons' tables) now uses `clanbite_`. A one-time upgrade moves existing data across; nothing needs doing by hand. Add-ons that read the old names must update. The player Events page now picks an event with `?clanbite_event_view=`, and the event-post visibility filter is `clanbite_event_post_viewer_can_see`.
 * Improved: blocks now look like the front end in the block editor (server-rendered previews with sample content where a site has none).
 * Maintenance: the developer-docs workflow is pinned to a reviewed commit, passes only the secrets it needs, and a manual republish now requires a published release tag.
 
-= 1.6.6 =
+= 1.6.6 - 2026-11-18 =
 * New: the official Clanbite Shop add-on is recognised as a first-party extension (`clanbite_shop`).
 
-= 1.6.5 =
+= 1.6.5 - 2026-11-17 =
 * Fix: block stylesheets (of Clanbite and every add-on) are now versioned by their build time, so a browser or CDN that cached the old CSS loads the new one after an update.
 
 = 1.6.4 =
@@ -241,7 +260,7 @@ For help setting up your site, use the [support forum](https://wordpress.org/sup
 * Settings: "Enable team ranks" and the rank status-update switch now live only under Ranks (the duplicate switch on the Players tab is gone).
 * Fix: open popups (reaction tooltips and pickers, post and share menus) move into the browser's top layer so no post, card or avatar can cover or clip them.
 
-= 1.6.3 =
+= 1.6.3 - 2026-11-17 =
 * Players can choose which part of their avatar and cover image is shown: in Player settings → Profile, "Set avatar" and "Set cover image" open a popup where you choose an image, drag the focal point, zoom, reset the position or remove the image to go back to the default. The avatar is cut to the chosen square (the original is kept so you can reposition it later). Developers can add their own controls to the popup (see the README).
 * Components registry: avatars, popups, clipboard, relative time and the extensions' own pieces (reactions, @mentions) are registered once and used by every extension, so third parties change them in one place. See the README (clanbite_register_component(), clanbite_render_component(), window.clanbite.components).
 * Avatars carry where they are shown (a class such as is-forum or is-social-feed) and who is looking, for per-surface styling and filters (clanbite_avatar_args).
@@ -253,13 +272,13 @@ For help setting up your site, use the [support forum](https://wordpress.org/sup
 * Fix: avatars no longer cover popups that open above them (reaction tooltips over the friends card).
 * Fix: the player notifications page layout (the "Mark all as read" button and each notification) is no longer broken by stray paragraphs.
 
-= 1.6.2 =
+= 1.6.2 - 2026-11-16 =
 * Notifications now show the same avatar as the rest of the site (shape, XP ring and rank badge), in the bell and on the notifications page.
 
-= 1.6.1 =
+= 1.6.1 - 2026-11-16 =
 * Fixes: the "After signing in, send members to" setting now works with the normal login form (it was ignored because the form always sends the dashboard address). Settings that move members after sign-in leave a destination chosen by another plugin alone, and updating Clanbite no longer reruns the one-time post-type migration.
 
-= 1.6.0 =
+= 1.6.0 - 2026-11-15 =
 * Install add-ons from the Licence tab: it lists every add-on your licence includes (and the free ones, even without a licence) with Install and Activate buttons, so there is nothing to download by hand. Packages are checked and signed like updates.
 * New setting under Clanbite → General → Login: send members to the dashboard, the home page or a custom page after they sign in.
 * A tidier Licence tab, and updates that no longer show a "not tested with your version of WordPress" warning when the add-on is tested with your WordPress release line.
@@ -267,25 +286,29 @@ For help setting up your site, use the [support forum](https://wordpress.org/sup
 * Add-on updates: Clanbite add-ons that carry a licence can now be updated from Plugins → Updates. Enter your licence key under Clanbite → Settings → Licence, or use the Activate link under the add-on on the Plugins screen. Updates are checked against your licence, verified before they install, and only offered when they work with your version of Clanbite.
 * Add-on safety guard: if an add-on declares that it cannot run on the installed Clanbite, Clanbite switches it off with a notice instead of letting it break the site, and switches it back on once it is compatible.
 
-= 1.5.0 =
+= 1.5.0 - 2026-11-13 =
 * New shared popups ("toasts") for every Clanbite extension: one position, length and look. Settings under Notifications → Popups: on/off, position (six corners), how long they stay (a preset or your own number of seconds), pause when hovered, and a countdown bar that fills as a popup nears expiry. Developers use `clanbite.toasts.show()`; everything is filterable (`clanbite.toasts.*` in the browser, `clanbite_toast_*` in PHP).
 * The notification bell and the player settings screen now use the shared popups.
 * New Messages sub-tab on each extension's settings tab (Teams → Messages, Ranks → Messages, …): customise the wording of notifications, popups and automatic posts. Teams, Events and the player settings popups are included; extensions register their own with `clanbite_register_message()` (see README).
 * Admin: dropdown labels are sentence case like the rest of the screen, and the settings code documentation was completed.
 
-= 1.4.0 =
+= 1.4.0 - 2026-11-13 =
 * Redesigned Clanbite → Settings to match the WordPress admin: full-width header with tabs, white cards, native buttons, toggles and modals, a responsive layout, and a save confirmation that stays in view.
 * New sub-navigation for every settings tab, for extensions to add their own views: `clanbite_register_admin_sub_tab()` and the `clanbite_admin_rest_sub_tabs` filter (see README).
 * The Clanbite menu icon now follows the admin colour scheme (hover, active and custom schemes).
 * Player avatars carry `data-clanbite-avatar-type` and `data-clanbite-avatar-id`, so the Ranks extension can update the ring and badge without a page refresh.
 
-= 1.3.0 =
+= 1.3.0 - 2026-11-12 =
 * Tested up to WordPress 7.1.
 * New shared avatar system: shaped frame (circle, square, hexagon), XP progress ring and level badge, filterable with `clanbite_avatar_data`.
 * New shared form layout (`clanbite-forms`) for team and group management; fixes for the team cover and profile header on dark themes.
 * Shared button variant `clanbite-button--plain`.
 
-= 1.1.0 =
+= 1.2.0 - 2026-07-17 =
+* New: each Clanbite block has its own icon in the block editor.
+* Changed: reworked block styles around shared styles for common parts such as buttons, avatars and covers, with a documented design system.
+
+= 1.1.0 - 2026-05-22 =
 * WordPress 7.0 compatibility verified.
 * Added PHP 8.2+ and WordPress 6.7+ requirements validation.
 * Fixed block category duplication prevention.
@@ -297,6 +320,9 @@ For help setting up your site, use the [support forum](https://wordpress.org/sup
 * Unified maintenance step and database schema versioning for new installs.
 
 == Upgrade Notice ==
+
+= 1.7.1 =
+Using add-ons? Install the free Add-on Manager from clanbite.com first. Now runs on PHP 8.2+. From 1.6.10 or earlier, two-way challenges are off until enabled in General settings.
 
 = 1.7.0 =
 Using Clanbite add-ons? Install the free Add-on Manager from clanbite.com first. Two-way challenges are now off until you turn them on in General settings.

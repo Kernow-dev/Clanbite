@@ -37,3 +37,4 @@ vendor/wp-coding-standards/
 /HOOKS.md
 /DESIGN-SYSTEM.md
 tests/
+/SECURITY.md

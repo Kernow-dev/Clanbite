@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ruleset name="Clanbite">
 	<description>
-		PHPCS for the Clanbite core plugin: WordPress Coding Standards (Core + Docs + Security) and PHP 8.4 / WordPress
+		PHPCS for the Clanbite core plugin: WordPress Coding Standards (Core + Docs + Security) and PHP 8.2 / WordPress
 		compatibility, matching the companion plugins (Forums, Points, Ranks, Social Kit).
 		Block render callbacks echo markup via wp_kses( ..., clanbite_block_fragment_allowed_html() ).
 		{@see clanbite_esc_block_fragment_html()} remains a string helper for non-echo contexts.
@@ -20,7 +20,7 @@
 	<exclude-pattern>*/build/*</exclude-pattern>
 
 	<config name="minimum_supported_wp_version" value="6.9"/>
-	<config name="testVersion" value="8.4-"/>
+	<config name="testVersion" value="8.2-"/>
 
 	<rule ref="WordPress-Core"/>
 	<rule ref="WordPress-Docs"/>

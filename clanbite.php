@@ -3,9 +3,9 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Run your clan or esports club on WordPress: profiles, teams, matches, events, and challenges between Clanbite sites.
- * Version: 1.7.0
+ * Version: 1.7.1
  * Requires at least: 6.9
- * Requires PHP: 8.4
+ * Requires PHP: 8.2
  * Author: kernow.dev
  * Author URI: https://kernow.dev
  * Donate link: https://kernow.dev
@@ -17,7 +17,7 @@
  * @link    https://clanbite.com/
  *
  * @package clanbite
- * @version 1.7.0
+ * @version 1.7.1
  */
 
 namespace Kernowdev\Clanbite;
@@ -78,7 +78,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.7.0';
+	public const VERSION = '1.7.1';
 
 	/**
 	 * Maintenance upgrade counter: the number of the last step in {@see Maintenance}. Raise it with each new step.
@@ -212,11 +212,11 @@ final class Main {
 	 * @return boolean True if requirements are met.
 	 */
 	public function meets_requirements(): bool {
-		// Check PHP version (as declared in plugin header: Requires PHP: 8.4).
-		if ( version_compare( PHP_VERSION, '8.4', '<' ) ) {
+		// Check PHP version (as declared in plugin header: Requires PHP: 8.2).
+		if ( version_compare( PHP_VERSION, '8.2', '<' ) ) {
 			$this->activation_errors[] = sprintf(
 				/* translators: %s: Current PHP version */
-				__( 'Clanbite requires PHP 8.4 or higher. You are running version %s.', 'clanbite' ),
+				__( 'Clanbite requires PHP 8.2 or higher. You are running version %s.', 'clanbite' ),
 				PHP_VERSION
 			);
 
