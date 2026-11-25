@@ -321,6 +321,9 @@ if ( ! \Kernowdev\Clanbite\Extensions\Teams\Team_Invites::notifications_availabl
 	}
 	$t->ok( 'a signed-out visitor cannot invite', 401 === $invite( '', $team['A'], 'player' ) );
 
+	// The invite checks start with the player off team A. Do it here: the team ranks section, which also removes them, only runs with Ranks.
+	$form( 'capA', $team['A'], array( 'member_roles' => array( $u['capA'] => 'admin', $u['editorA'] => 'editor' ) ) );
+
 	$ids = $found( $find( 'capA', $team['A'], $run ) );
 	$t->ok( 'the captain finds a player who is not on the roster', in_array( $u['player'], $ids, true ) );
 	$t->ok( 'the search leaves out the roster and the captain', ! array_intersect( $ids, array( $u['capA'], $u['editorA'] ) ) );

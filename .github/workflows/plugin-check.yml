@@ -67,6 +67,7 @@ jobs:
             --exclude='phpstan-bootstrap.php' \
             --exclude='.editorconfig' \
             --exclude='AGENTS.md' \
+            --exclude='SECURITY.md' \
             --exclude='.gitignore' \
             --exclude='.distignore' \
             --exclude='.cursor/' \
