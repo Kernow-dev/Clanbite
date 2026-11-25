@@ -44,16 +44,45 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            # WordPress.org: only full releases. Drafts never fire `published`; pre-releases are skipped here.
-            # Deploys the exact files that ship in the zip (the zip holds a top-level `clanbite/` folder), so
-            # SVN trunk and the tag match the GitHub release. Needs SVN_USERNAME / SVN_PASSWORD repository secrets.
-            - name: Unpack release zip for WordPress.org
+            # Hands the exact zip attached to the release to the deploy job below.
+            - name: Keep the zip for the WordPress.org job
               if: ${{ ! github.event.release.prerelease }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: clanbite-release-zip
+                  path: clanbite.zip
+                  if-no-files-found: error
+
+    # WordPress.org: only full releases. Drafts never fire `published`; pre-releases are skipped here.
+    # The `wordpress-org` environment (repository Settings → Environments) holds this job until the owner approves it,
+    # allows only `v*` tags, and is the only home of the SVN_USERNAME / SVN_PASSWORD secrets. Keep them out of the
+    # repository-wide secrets, where any workflow could use them without approval.
+    wordpress-org:
+        needs: plugin-zip
+        if: ${{ ! github.event.release.prerelease }}
+        runs-on: ubuntu-latest
+        environment: wordpress-org
+        permissions:
+            contents: read
+        steps:
+            # Only for the optional `.wordpress-org` listing assets folder; the plugin files come from the zip.
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Download the release zip
+              uses: actions/download-artifact@v4
+              with:
+                  name: clanbite-release-zip
+
+            # Deploys the exact files that ship in the zip (the zip holds a top-level `clanbite/` folder), so
+            # SVN trunk and the tag match the GitHub release.
+            - name: Unpack release zip for WordPress.org
               run: unzip -q clanbite.zip -d wporg-build
 
+            # Pinned to a commit (release 2.3.0) because this step receives the WordPress.org password. Review the
+            # changes in the action before moving the pin.
             - name: Deploy to WordPress.org
-              if: ${{ ! github.event.release.prerelease }}
-              uses: 10up/action-wordpress-plugin-deploy@stable
+              uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
               env:
                   SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
                   SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}

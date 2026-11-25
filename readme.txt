@@ -4,7 +4,7 @@ Tags: community, esports, gaming, teams, clan
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.7.1
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -200,6 +200,9 @@ Please report it privately, not in the support forum or a public issue. Use [Rep
 For help setting up your site, use the [support forum](https://wordpress.org/support/plugin/clanbite/). For bugs and feature ideas, open an issue on [GitHub](https://github.com/Kernow-dev/Clanbite/issues). Ideas are very welcome: tell me what your community needs.
 
 == Changelog ==
+
+= 1.8.0 =
+* New: Clanbite can run the Clanbite Support Desk add-on (a private support desk with tickets, support staff and purchase-based support).
 
 = 1.7.1 =
 * Important, if you use Clanbite add-ons and are updating from 1.6.10 or earlier: install the free Clanbite Add-on Manager (1.0.1 or later on PHP 8.2 or 8.3) from https://clanbite.com/add-on-manager/ **before** updating, or your add-ons will stop receiving updates until you do.

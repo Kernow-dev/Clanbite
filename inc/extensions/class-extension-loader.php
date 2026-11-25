@@ -436,6 +436,8 @@ class Loader {
 			'clanbite_ranks'         => 'Kernowdev\ClanbiteRanks\Extension\Ranks',
 			// Official first-party extension shipped in the separate Clanbite Shop plugin (not core-bundled).
 			'clanbite_shop'          => 'Kernowdev\ClanbiteShop\Extension\Shop',
+			// Official first-party extension shipped in the separate Clanbite Support Desk plugin (not core-bundled).
+			'clanbite_support_desk'  => 'Kernowdev\ClanbiteSupportDesk\Extension\Support_Desk',
 		);
 
 		/**
