@@ -79,6 +79,36 @@ jobs:
             - name: Unpack release zip for WordPress.org
               run: unzip -q clanbite.zip -d wporg-build
 
+            # Approval can come long after the release, so this runs just before deploying. The deploy action only skips a
+            # version that is already published: an older one that is not would overwrite trunk, and its Stable tag, with
+            # older code. Stops the deployment when the directory cannot be read.
+            - name: Refuse to replace a newer version on WordPress.org
+              env:
+                  RELEASE_TAG: ${{ github.event.release.tag_name }}
+                  SVN_URL: https://plugins.svn.wordpress.org/clanbite
+              run: |
+                  set -euo pipefail
+                  version="${RELEASE_TAG#v}"
+                  if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                      echo "::error::'$RELEASE_TAG' is not a version tag such as v1.2.3."
+                      exit 1
+                  fi
+                  unreadable() {
+                      echo "::error::Could not read the published versions from WordPress.org, so nothing was deployed. Re-run this job."
+                      exit 1
+                  }
+                  tags_page=$(curl -fsSL --retry 3 --max-time 30 "$SVN_URL/tags/") || unreadable
+                  readme=$(curl -fsSL --retry 3 --max-time 30 "$SVN_URL/trunk/readme.txt") || unreadable
+                  tags=$(grep -oE 'href="[0-9]+(\.[0-9]+)+/"' <<< "$tags_page" | grep -oE '[0-9]+(\.[0-9]+)+') || unreadable
+                  stable=$(grep -i -m1 '^Stable tag:' <<< "$readme" | grep -oE '[0-9]+(\.[0-9]+)+') || unreadable
+                  newest=$(printf '%s\n%s\n' "$tags" "$stable" | sort -V | tail -n 1)
+                  highest=$(printf '%s\n%s\n' "$newest" "$version" | sort -V | tail -n 1)
+                  if [[ "$newest" != "$version" && "$highest" == "$newest" ]]; then
+                      echo "::error::WordPress.org already has $newest, which is newer than $version. Not deploying, so users are not downgraded."
+                      exit 1
+                  fi
+                  echo "Deploying $version (newest on WordPress.org: $newest)."
+
             # Pinned to a commit (release 2.3.0) because this step receives the WordPress.org password. Review the
             # changes in the action before moving the pin.
             - name: Deploy to WordPress.org
