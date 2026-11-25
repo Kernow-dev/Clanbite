@@ -850,6 +850,8 @@ Your REST route must validate `X-WP-Nonce`, check capabilities, and return appro
 
 ### First-party extensions in separate plugins
 
+The official add-ons are Social Kit, Forums, Points, Ranks, Shop and, from 1.8.0, **Support Desk** (`clanbite_support_desk`).
+
 Official extensions that ship outside the main package register on **`clanbite_official_registered_extensions`** and must match the slug → class map in `Loader::get_official_extensions()`. Core validates the class name only; it does not `require` add-on files (the companion plugin must load before Clanbite so the class exists). Those extensions get the **Official** badge but not the **Core** badge unless their slug is also listed in `clanbite_core_bundled_extension_slugs`.
 
 **Example — Clanbite Social Kit (`clanbite_social_kit`):** the separate plugin registers the extension and may mirror domain events (matches, RSVPs, team actions) into an activity feed using the same hooks documented for third-party integrations (`clanbite_match_*`, `clanbite_event_rsvp_updated`, team lifecycle actions, etc.). There is no second registration API — only `clanbite_official_registered_extensions` plus the whitelist entry in `Loader::get_official_extensions()`.
