@@ -5,13 +5,13 @@
  * @package clanbite
  */
 
-namespace Kernowdev\Clanbite\Updates;
+namespace Kernowdev\Clanbite\Compat;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Updates to Clanbite itself come from wordpress.org (or an auto-update, or FTP) and the update server cannot gate them. This class is
- * the safety net on the site: any plugin whose main file declares `Requires Clanbite: <constraint>` is checked against the Clanbite that
+ * Updates to Clanbite itself come from wordpress.org (or an auto-update, or FTP), so nothing outside the site can gate them. This
+ * class is the safety net on the site: any plugin whose main file declares `Requires Clanbite: <constraint>` is checked against the Clanbite that
  * is actually installed, and when it does not fit it is **deactivated** (silently, so none of its code runs) instead of being left to
  * fatal the site. It also covers the add-ons' other declared needs: `Requires Clanbite Add-ons`, `Requires PHP` and `Requires at least`.
  *
@@ -24,8 +24,8 @@ defined( 'ABSPATH' ) || exit;
  * What it does: deactivates the plugin, remembers why (`clanbite_disabled_addons`), shows a notice and a Site Health entry, warns before a
  * Clanbite update that would turn add-ons off, and **re-enables** what it disabled as soon as the plugin is compatible again (for
  * example after the add-on is updated). Opt out with the `clanbite_addon_guard_enabled` filter or the `CLANBITE_DISABLE_ADDON_GUARD`
- * constant. Plugins without a `Requires Clanbite` header are not touched, except first-party add-ons (they use the Clanbite update
- * server), which are assumed to be built for Clanbite 1.x.
+ * constant. Plugins without a `Requires Clanbite` header are not touched, except first-party add-ons (known by their `Update URI`
+ * header), which are assumed to be built for Clanbite 1.x.
  */
 final class Compat_Monitor {
 
@@ -194,8 +194,8 @@ final class Compat_Monitor {
 	/**
 	 * The Clanbite versions a plugin says it works with.
 	 *
-	 * A plugin that declares `Requires Clanbite` uses that. A first-party add-on released before the header existed (it uses the Clanbite
-	 * update server in its `Update URI`) is assumed to be built for Clanbite 1.x, which is true of every add-on that predates the
+	 * A plugin that declares `Requires Clanbite` uses that. A first-party add-on released before the header existed (recognised by the
+	 * address in its `Update URI` header; nothing is contacted) is assumed to be built for Clanbite 1.x, which is true of every add-on that predates the
 	 * header. Anything else without the header is not judged.
 	 *
 	 * @param array<string, mixed> $data Plugin data from `get_plugins()`.
@@ -206,8 +206,7 @@ final class Compat_Monitor {
 		if ( '' !== $declared ) {
 			return $declared;
 		}
-		$host = strtolower( (string) wp_parse_url( (string) ( $data['UpdateURI'] ?? '' ), PHP_URL_HOST ) );
-		if ( '' === $host || License_Client::server_host() !== $host ) {
+		if ( ! Addon_Manager_Notice::is_first_party( $data ) ) {
 			return '';
 		}
 
@@ -447,7 +446,7 @@ final class Compat_Monitor {
 		foreach ( $disabled as $entry ) {
 			echo '<li>' . esc_html( (string) $entry['name'] . ' ' . (string) $entry['version'] ) . ': ' . esc_html( implode( '; ', array_map( 'strval', (array) $entry['reasons'] ) ) ) . '</li>';
 		}
-		echo '</ul><p>' . esc_html__( 'They turn back on by themselves as soon as a compatible version is installed.', 'clanbite' ) . ' <a href="' . esc_url( admin_url( 'update-core.php?force-check=1' ) ) . '">' . esc_html__( 'Check for updates', 'clanbite' ) . '</a> · <a href="' . esc_url( License_Admin::url() ) . '">' . esc_html__( 'Licence', 'clanbite' ) . '</a></p></div>';
+		echo '</ul><p>' . esc_html__( 'They turn back on by themselves as soon as a compatible version is installed.', 'clanbite' ) . ' <a href="' . esc_url( admin_url( 'update-core.php?force-check=1' ) ) . '">' . esc_html__( 'Check for updates', 'clanbite' ) . '</a></p></div>';
 	}
 
 	/**

@@ -85,12 +85,11 @@ class Team_Data_Store_CPT extends WP_Post_Meta_Data_Store implements Team_Data_S
 		$roles = get_post_meta( $id, 'clanbite_team_member_roles', true );
 		$team->set_member_roles( is_array( $roles ) ? $roles : array() );
 
-		$accept_raw = get_post_meta( $id, 'clanbite_team_accept_challenges', true );
-		if ( '' === $accept_raw ) {
-			$team->set_accept_challenges( true );
-		} else {
-			$team->set_accept_challenges( rest_sanitize_boolean( $accept_raw ) );
-		}
+		// A saved "no" is stored as an empty string, so only a setting that was never saved means "yes".
+		$team->set_accept_challenges(
+			! metadata_exists( 'post', $id, 'clanbite_team_accept_challenges' )
+			|| rest_sanitize_boolean( get_post_meta( $id, 'clanbite_team_accept_challenges', true ) )
+		);
 
 		$team->set_country( (string) get_post_meta( $id, 'clanbite_team_country', true ) );
 		$team->set_wins( max( 0, (int) get_post_meta( $id, 'clanbite_team_wins', true ) ) );

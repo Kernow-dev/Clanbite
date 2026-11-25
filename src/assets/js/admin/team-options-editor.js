@@ -103,7 +103,8 @@
 					__nextHasNoMarginBottom: true,
 					label: __( 'Country', 'clanbite' ),
 					value:
-						meta.clanbite_team_country != null
+						meta.clanbite_team_country !== null &&
+						meta.clanbite_team_country !== undefined
 							? String( meta.clanbite_team_country )
 							: '',
 					options: getCountryOptions(),
@@ -233,7 +234,7 @@
 						overflow: 'hidden',
 						background: '#f0f0f1',
 						border: '1px solid #c3c4c7',
-				  }
+					}
 				: {
 						position: 'relative',
 						width: '120px',
@@ -242,7 +243,7 @@
 						overflow: 'hidden',
 						background: '#f0f0f1',
 						border: '1px solid #c3c4c7',
-				  };
+					};
 
 		const imgStyle =
 			variant === 'cover'
@@ -252,13 +253,13 @@
 						minHeight: '120px',
 						objectFit: 'cover',
 						display: 'block',
-				  }
+					}
 				: {
 						width: '100%',
 						height: '100%',
 						objectFit: 'cover',
 						display: 'block',
-				  };
+					};
 
 		return el(
 			PanelRow,
@@ -282,7 +283,7 @@
 								style: { marginTop: 0 },
 							},
 							help
-					  )
+						)
 					: null,
 				el(
 					'div',
@@ -300,14 +301,14 @@
 									},
 								},
 								el( Spinner, null )
-						  )
+							)
 						: null,
 					previewSrc && ! ( media.state === 'loading' && id )
 						? el( 'img', {
 								src: previewSrc,
 								alt: '',
 								style: imgStyle,
-						  } )
+							} )
 						: null,
 					! previewSrc &&
 						! ( media.state === 'loading' && id ) &&
@@ -326,7 +327,7 @@
 									'Image unavailable. Replace it or use the site default.',
 									'clanbite'
 								)
-						  )
+							)
 						: null
 				),
 				el(
@@ -373,7 +374,7 @@
 									},
 								},
 								__( 'Use site default', 'clanbite' )
-						  )
+							)
 						: null
 				),
 				el(
@@ -386,11 +387,11 @@
 						? __(
 								'Custom image — replace or restore the site default above.',
 								'clanbite'
-						  )
+							)
 						: __(
 								'Using site default image on the front end.',
 								'clanbite'
-						  )
+							)
 				)
 			)
 		);
@@ -544,8 +545,8 @@
 		 *
 		 * Append `wp.element` elements to add your own options; persist them with `setMetaValue()`.
 		 *
-		 * @param {Array}                                                                                              controls React elements for the panel.
-		 * @param {{ meta: Object, setMetaValue: Function, patchMeta: Function, components: Object, element: Object }} context  Editor helpers.
+		 * @param {Array}                                                                                                                                                controls React elements for the panel.
+		 * @param {{ meta: Object, setMetaValue: ( ...args: unknown[] ) => unknown, patchMeta: ( ...args: unknown[] ) => unknown, components: Object, element: Object }} context  Editor helpers.
 		 */
 		const filtered = applyFilters(
 			'clanbite.teams.optionControls',
@@ -561,8 +562,8 @@
 
 		const list = Array.isArray( filtered )
 			? filtered.filter( function ( node ) {
-					return node != null;
-			  } )
+					return node !== null && node !== undefined;
+				} )
 			: [];
 
 		return wp.element.createElement.apply(

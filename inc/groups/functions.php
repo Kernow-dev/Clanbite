@@ -76,6 +76,33 @@ function clanbite_groups_get_manage_url( int $group_id ): string {
 }
 
 /**
+ * Whether a viewer may see what belongs to a group, such as its events.
+ *
+ * The plugin that owns `clanbite_group` answers through the filter, applying the group's join setting and bans. This is a
+ * ceiling: an item's own visibility can be stricter, never wider.
+ *
+ * @since 1.7.0
+ *
+ * @param int      $group_id Group post ID.
+ * @param int|null $user_id  Viewer, or null for the current user (0 when signed out).
+ * @return bool
+ */
+function clanbite_groups_viewer_can_see_content( int $group_id, ?int $user_id = null ): bool {
+	$user_id = (int) ( $user_id ?? get_current_user_id() );
+
+	/**
+	 * Filters whether a viewer may see a group's content.
+	 *
+	 * @since 1.7.0
+	 *
+	 * @param bool $can      Default true.
+	 * @param int  $group_id Group post ID.
+	 * @param int  $user_id  Viewer (0 when signed out).
+	 */
+	return (bool) apply_filters( 'clanbite_groups_viewer_can_see_content', true, $group_id, $user_id );
+}
+
+/**
  * Whether the user may see the Settings link in group profile navigation.
  *
  * Extensions implementing group roles should filter this (e.g. group admin/editor).

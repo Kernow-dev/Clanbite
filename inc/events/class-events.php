@@ -70,6 +70,7 @@ final class Events {
 		add_action( 'init', array( $this, 'register_player_events_subpage' ), 15 );
 		add_action( 'init', array( $this, 'register_group_events_subpage' ), 15 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_filter( 'rest_dispatch_request', array( $this, 'guard_core_event_routes' ), 10, 2 );
 		add_action( 'init', array( $this, 'register_blocks' ), 20 );
 		add_action( 'admin_post_clanbite_delete_event', array( $this, 'handle_frontend_delete_event' ) );
 		add_filter( 'clanbite_event_can_view_attendees', array( $this, 'filter_clanbite_event_attendee_list_access' ), 15, 4 );
@@ -319,6 +320,32 @@ final class Events {
 	 */
 	public function maybe_create_tables(): void {
 		Event_Rsvp_Schema::maybe_upgrade();
+	}
+
+	/**
+	 * Close WordPress' own event routes (`/wp/v2/clanbite_event`) to everyone but the site's content editors.
+	 *
+	 * WordPress lets anyone read a published post of a REST-enabled type, whatever its `public` setting, and knows
+	 * nothing about who may see an event. Clanbite itself uses `clanbite/v1/event-posts`, which does.
+	 *
+	 * @param mixed            $result  Pre-dispatch result.
+	 * @param \WP_REST_Request $request Request.
+	 * @return mixed
+	 */
+	public function guard_core_event_routes( $result, $request ) {
+		$object = get_post_type_object( Event_Post_Type::POST_TYPE );
+		$base   = $object && $object->rest_base ? (string) $object->rest_base : Event_Post_Type::POST_TYPE;
+
+		// Routes match without regard to case.
+		if ( 1 !== preg_match( '#^/wp/v2/' . preg_quote( $base, '#' ) . '(?:/|$)#i', (string) $request->get_route() ) || current_user_can( 'edit_others_posts' ) ) {
+			return $result;
+		}
+
+		return new \WP_Error(
+			'clanbite_event_core_route_forbidden',
+			__( 'Use the Clanbite events API to read events.', 'clanbite' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**

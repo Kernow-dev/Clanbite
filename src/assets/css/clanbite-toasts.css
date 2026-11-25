@@ -87,11 +87,8 @@
 	border-radius: var(--clanbite-toast-radius, var(--clanbite-radius, 0.5em));
 	background: var(--clanbite-toast-bg, var(--clanbite-surface, #fff));
 	color: var(--clanbite-toast-color, var(--clanbite-on-surface, #1e1e1e));
-	box-shadow:
-		var(
-			--clanbite-toast-shadow,
-			0 8px 24px color-mix(in srgb, currentcolor 22%, transparent)
-		);
+	/* stylelint-disable-next-line @stylistic/max-line-length */
+	box-shadow: var(--clanbite-toast-shadow, 0 8px 24px color-mix(in srgb, currentcolor 22%, transparent));
 	overflow: hidden;
 	font-size: var(--clanbite-toast-font-size, 14px);
 	line-height: 1.4;
@@ -144,6 +141,7 @@
 	margin-top: 2px;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .clanbite-toast-item__message {
 	margin: 0;
 	overflow-wrap: anywhere;
@@ -165,7 +163,10 @@
 	transition: width 900ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
-/* Countdown bar along the bottom edge: fills as the toast nears expiry and freezes while paused. */
+/*
+ * Countdown bar along the bottom edge: fills as the toast nears expiry and
+ * freezes while paused.
+ */
 .clanbite-toast-item__timer {
 	position: absolute;
 	inset-inline: 0;

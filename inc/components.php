@@ -303,6 +303,33 @@ function clanbite_register_core_components(): void {
 	);
 
 	clanbite_register_component(
+		'skeleton',
+		array(
+			'label'       => __( 'Skeleton loaders', 'clanbite' ),
+			'description' => __( 'Loading placeholders (avatar, line, text, block, list item, card) that share one look, are restyled with CSS tokens and extended with clanbite_register_skeleton().', 'clanbite' ),
+			'provider'    => 'clanbite',
+			'version'     => '1.0.0',
+			'requires'    => array( 'avatar' ),
+			'args'        => array(
+				'type'    => 'Skeleton slug: avatar, line, text, block, circle, list-item, card or one an extension registered.',
+				'size'    => 'Avatar skeleton: large, medium, small or a size slug.',
+				'shape'   => 'Avatar skeleton: circle, square or hexagon.',
+				'context' => 'Where it is shown; added as the class is-{context}.',
+			),
+			'render'      => static function ( array $args ): string {
+				$type = isset( $args['type'] ) ? (string) $args['type'] : '';
+				unset( $args['type'] );
+
+				return '' === $type ? '' : clanbite_render_skeleton( $type, $args );
+			},
+			'enqueue'     => static function (): void {
+				clanbite_enqueue_skeleton();
+				wp_enqueue_script( 'clanbite-skeleton' );
+			},
+		)
+	);
+
+	clanbite_register_component(
 		'popups',
 		array(
 			'label'       => __( 'Popup lifecycle', 'clanbite' ),

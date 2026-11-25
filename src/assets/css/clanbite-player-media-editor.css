@@ -1,9 +1,13 @@
 /*
- * Avatar and cover editor (Player settings → Profile): the header preview, the two buttons, and the popup.
+ * Avatar and cover editor (Player settings → Profile): the header preview,
+ * the two buttons, and the popup.
  * Colours come from the theme-adaptive Clanbite tokens.
  */
 
-/* Header preview: the cover with the shared avatar on it, and the two buttons on the picture. */
+/*
+ * Header preview: the cover with the shared avatar on it, and the two buttons
+ * on the picture.
+ */
 .clanbite-media-editor {
 	margin-bottom: 1rem;
 }
@@ -43,7 +47,10 @@
 	line-height: 0;
 }
 
-/* Same size as the avatar in the player profile header, so what you set here is what visitors see. */
+/*
+ * Same size as the avatar in the player profile header, so what you set here
+ * is what visitors see.
+ */
 .clanbite-media-editor .clanbite-media-header__avatar .clanbite-avatar {
 	--clanbite-avatar-size: 168px;
 }
@@ -162,6 +169,7 @@
 	line-height: 0;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .clanbite-media-stage img {
 	display: block;
 	width: 100%;
@@ -187,6 +195,7 @@
 	cursor: grabbing;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .clanbite-media-stage__dot:focus-visible {
 	outline: 2px solid var(--clanbite-accent, Highlight);
 	outline-offset: 2px;
@@ -272,6 +281,7 @@
 	flex: 0 0 auto;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .clanbite-media-preview__frame img {
 	display: block;
 	width: 100%;

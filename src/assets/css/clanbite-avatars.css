@@ -1,20 +1,27 @@
 /**
  * Clanbite avatars (style handle `clanbite-avatars`).
  *
- * Loaded by every block that renders an avatar (core, Social Kit, Forums): list the handle in the block's `block.json`
- * `style` array, or `wp_enqueue_style( 'clanbite-avatars' )` from template output.
+ * Loaded by every block that renders an avatar (core, Social Kit, Forums):
+ * list the handle in the block's `block.json`
+ * `style` array, or `wp_enqueue_style( 'clanbite-avatars' )` from template
+ * output.
  *
- * One avatar system for players, teams and groups, in three shapes (circle, square, hexagon), with an optional XP ring around
+ * One avatar system for players, teams and groups, in three shapes (circle,
+ * square, hexagon), with an optional XP ring around
  * the photo and a rank badge at the lower right.
  *
- * Geometry lives in a 100 x 100 coordinate space shared with the SVG frame that PHP draws (clanbite_avatar_frame_svg() in
- * inc/avatar-helpers.php): keep the clip values below in sync with the radii used there.
+ * Geometry lives in a 100 x 100 coordinate space shared with the SVG frame
+ * that PHP draws (clanbite_avatar_frame_svg() in
+ * inc/avatar-helpers.php): keep the clip values below in sync with the
+ * radii used there.
  *
  *   frame border  radius 50     photo with ring  radius 37
  *   ring          radius 43     photo (no ring)  radius 45
  *
- * Everything is sized from `--clanbite-avatar-size`, so any size works. Colours come from the theme-adaptive tokens
- * (`--clanbite-surface`, `--clanbite-accent`, ...) with standalone fallbacks; override the `--clanbite-avatar-*` properties
+ * Everything is sized from `--clanbite-avatar-size`, so any size works.
+ * Colours come from the theme-adaptive tokens
+ * (`--clanbite-surface`, `--clanbite-accent`, ...) with standalone
+ * fallbacks; override the `--clanbite-avatar-*` properties
  * below to restyle.
  */
 
@@ -27,7 +34,11 @@
 
 /* Avatar container */
 .clanbite-avatar {
-	/* Box size; set it on any ancestor or on the avatar to override the presets below. */
+
+	/*
+	 * Box size; set it on any ancestor or on the avatar to override the
+	 * presets below.
+	 */
 	--clanbite-avatar-size: 96px;
 
 	position: relative;
@@ -39,7 +50,10 @@
 	max-width: 100%;
 }
 
-/* Hidden parts (Interactivity templates toggle `hidden`): an author `display` value must not beat it. */
+/*
+ * Hidden parts (Interactivity templates toggle `hidden`): an author `display`
+ * value must not beat it.
+ */
 .clanbite-avatar [hidden] {
 	display: none !important;
 }
@@ -62,7 +76,10 @@
 .clanbite-team-avatar__media {
 	position: relative;
 
-	/* Keep the ring, photo and badge stacking inside the avatar, so a popup above it is never covered by them. */
+	/*
+	 * Keep the ring, photo and badge stacking inside the avatar, so a popup
+	 * above it is never covered by them.
+	 */
 	isolation: isolate;
 	display: inline-block;
 	flex: none;
@@ -88,7 +105,10 @@
 	filter: drop-shadow(0 1px 3px rgb(0 0 0 / 18%));
 }
 
-/* Photo: clipped to the shape, inside the border (and inside the ring when there is one) */
+/*
+ * Photo: clipped to the shape, inside the border (and inside the ring when
+ * there is one)
+ */
 .clanbite-avatar__clip,
 .clanbite-player-avatar__clip,
 .clanbite-team-avatar__clip {
@@ -141,7 +161,10 @@
 	background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 6%, transparent));
 }
 
-/* Avatar overlays (custom badges added through the `clanbite_avatar_overlays` actions) */
+/*
+ * Avatar overlays (custom badges added through the `clanbite_avatar_overlays`
+ * actions)
+ */
 .clanbite-avatar__overlay,
 .clanbite-player-avatar__rank-overlay {
 	position: absolute;
@@ -193,8 +216,8 @@
 
 /* Hexagon, regular and point-up */
 .clanbite-avatar--shape-hexagon {
-	--clanbite-avatar-clip-plain: polygon(45.50% 7.60%, 46.92% 6.94%, 48.44% 6.53%, 50.00% 6.39%, 51.56% 6.53%, 53.08% 6.94%, 54.50% 7.60%, 84.47% 24.90%, 85.76% 25.80%, 86.87% 26.91%, 87.77% 28.20%, 88.43% 29.62%, 88.83% 31.13%, 88.97% 32.70%, 88.97% 67.30%, 88.83% 68.87%, 88.43% 70.38%, 87.77% 71.80%, 86.87% 73.09%, 85.76% 74.20%, 84.47% 75.10%, 54.50% 92.40%, 53.08% 93.06%, 51.56% 93.47%, 50.00% 93.61%, 48.44% 93.47%, 46.92% 93.06%, 45.50% 92.40%, 15.53% 75.10%, 14.24% 74.20%, 13.13% 73.09%, 12.23% 71.80%, 11.57% 70.38%, 11.17% 68.87%, 11.03% 67.30%, 11.03% 32.70%, 11.17% 31.13%, 11.57% 29.62%, 12.23% 28.20%, 13.13% 26.91%, 14.24% 25.80%, 15.53% 24.90%);
-	--clanbite-avatar-clip-ring: polygon(46.30% 15.14%, 47.47% 14.59%, 48.72% 14.26%, 50.00% 14.14%, 51.28% 14.26%, 52.53% 14.59%, 53.70% 15.14%, 78.34% 29.36%, 79.40% 30.10%, 80.31% 31.02%, 81.05% 32.07%, 81.60% 33.24%, 81.93% 34.49%, 82.04% 35.77%, 82.04% 64.23%, 81.93% 65.51%, 81.60% 66.76%, 81.05% 67.93%, 80.31% 68.98%, 79.40% 69.90%, 78.34% 70.64%, 53.70% 84.86%, 52.53% 85.41%, 51.28% 85.74%, 50.00% 85.86%, 48.72% 85.74%, 47.47% 85.41%, 46.30% 84.86%, 21.66% 70.64%, 20.60% 69.90%, 19.69% 68.98%, 18.95% 67.93%, 18.40% 66.76%, 18.07% 65.51%, 17.96% 64.23%, 17.96% 35.77%, 18.07% 34.49%, 18.40% 33.24%, 18.95% 32.07%, 19.69% 31.02%, 20.60% 30.10%, 21.66% 29.36%);
+	--clanbite-avatar-clip-plain: polygon(45.5% 7.6%, 46.92% 6.94%, 48.44% 6.53%, 50% 6.39%, 51.56% 6.53%, 53.08% 6.94%, 54.5% 7.6%, 84.47% 24.9%, 85.76% 25.8%, 86.87% 26.91%, 87.77% 28.2%, 88.43% 29.62%, 88.83% 31.13%, 88.97% 32.7%, 88.97% 67.3%, 88.83% 68.87%, 88.43% 70.38%, 87.77% 71.8%, 86.87% 73.09%, 85.76% 74.2%, 84.47% 75.1%, 54.5% 92.4%, 53.08% 93.06%, 51.56% 93.47%, 50% 93.61%, 48.44% 93.47%, 46.92% 93.06%, 45.5% 92.4%, 15.53% 75.1%, 14.24% 74.2%, 13.13% 73.09%, 12.23% 71.8%, 11.57% 70.38%, 11.17% 68.87%, 11.03% 67.3%, 11.03% 32.7%, 11.17% 31.13%, 11.57% 29.62%, 12.23% 28.2%, 13.13% 26.91%, 14.24% 25.8%, 15.53% 24.9%);
+	--clanbite-avatar-clip-ring: polygon(46.3% 15.14%, 47.47% 14.59%, 48.72% 14.26%, 50% 14.14%, 51.28% 14.26%, 52.53% 14.59%, 53.7% 15.14%, 78.34% 29.36%, 79.4% 30.1%, 80.31% 31.02%, 81.05% 32.07%, 81.6% 33.24%, 81.93% 34.49%, 82.04% 35.77%, 82.04% 64.23%, 81.93% 65.51%, 81.6% 66.76%, 81.05% 67.93%, 80.31% 68.98%, 79.4% 69.9%, 78.34% 70.64%, 53.7% 84.86%, 52.53% 85.41%, 51.28% 85.74%, 50% 85.86%, 48.72% 85.74%, 47.47% 85.41%, 46.3% 84.86%, 21.66% 70.64%, 20.6% 69.9%, 19.69% 68.98%, 18.95% 67.93%, 18.4% 66.76%, 18.07% 65.51%, 17.96% 64.23%, 17.96% 35.77%, 18.07% 34.49%, 18.4% 33.24%, 18.95% 32.07%, 19.69% 31.02%, 20.6% 30.1%, 21.66% 29.36%);
 }
 
 /* ==========================================================================
@@ -202,6 +225,7 @@
    ========================================================================== */
 
 .clanbite-avatar__badge {
+
 	/* Scales with the avatar, never smaller than a readable digit. */
 	--clanbite-avatar-badge-size: clamp(18px, calc(var(--clanbite-avatar-size) * 0.3), 44px);
 
@@ -255,13 +279,17 @@
 /**
  * Avatar XP ring
  *
- * The ring is part of the avatar frame (an SVG in the avatar's own shape: circle, square or hexagon). A faint track runs
- * all the way round; the progress arc starts at the top and runs clockwise, `stroke-dasharray` being "<percent> 100" on a
- * path of length 100. Colours follow the theme tokens; restyle with the custom properties:
+ * The ring is part of the avatar frame (an SVG in the avatar's own shape:
+ * circle, square or hexagon). A faint track runs
+ * all the way round; the progress arc starts at the top and runs clockwise,
+ * `stroke-dasharray` being "<percent> 100" on a
+ * path of length 100. Colours follow the theme tokens; restyle with the
+ * custom properties:
  *
  *   --clanbite-avatar-ring        arc colour (default: accent)
  *   --clanbite-avatar-ring-track  track colour
- *   --clanbite-avatar-ring-width  stroke width in frame units (default 5, of 100)
+ * --clanbite-avatar-ring-width  stroke width in frame units (default 5, of
+ * 100)
  */
 
 .clanbite-avatar__ring-track,
@@ -280,12 +308,18 @@
 	stroke-linecap: round;
 }
 
-/* The arc only moves when XP is given in real time (the rank script adds this class for a moment); on page load it just appears. */
+/*
+ * The arc only moves when XP is given in real time (the rank script adds this
+ * class for a moment); on page load it just appears.
+ */
 .clanbite-avatar--ring-live .clanbite-avatar__ring-progress {
 	transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* A ring at 0% would still draw a round cap dot; hide the arc until there is progress. */
+/*
+ * A ring at 0% would still draw a round cap dot; hide the arc until there is
+ * progress.
+ */
 .clanbite-avatar__ring-progress[stroke-dasharray^="0 "] {
 	stroke-opacity: 0;
 }

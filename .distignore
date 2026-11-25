@@ -9,6 +9,7 @@
 package.json
 package-lock.json
 webpack.config.cjs
+webpack.modules.config.cjs
 .eslintrc*
 .prettier*
 phpcs.xml

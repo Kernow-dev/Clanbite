@@ -16,7 +16,8 @@
 	flex-direction: row;
 	align-items: flex-start;
 
-	// Legacy aliases listed explicitly: `@extend` in the shared partial cannot reach rules defined here under `@use`.
+	// Legacy aliases listed explicitly: `@extend` in the shared partial cannot
+	// reach rules defined here under `@use`.
 	.clanbite-avatar__media,
 	.clanbite-player-avatar__media,
 	.clanbite-team-avatar__media {

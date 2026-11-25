@@ -41,6 +41,13 @@ class Teams extends Skeleton {
 	public const TEAM_ROLE_BANNED = 'banned';
 
 	/**
+	 * Invitation service, created on first use.
+	 *
+	 * @var \Kernowdev\Clanbite\Extensions\Teams\Team_Invites|null
+	 */
+	private $invites = null;
+
+	/**
 	 * Slug for the virtual `wp_template_part` resolved from `templates/teams/parts/team-profile-header.html`.
 	 */
 	public const TEAM_PROFILE_HEADER_TEMPLATE_PART_SLUG = 'clanbite-team-profile-header';
@@ -174,6 +181,7 @@ class Teams extends Skeleton {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_team_editor_assets' ) );
 		add_action( 'wp_ajax_clanbite_team_invite_search', array( $this, 'ajax_team_invite_search' ) );
 		add_action( 'wp_ajax_clanbite_save_team_media', array( $this, 'ajax_save_team_media' ) );
+		$this->get_invites()->register();
 
 		// Register notification action handlers for team invites.
 		add_filter( 'clanbite_notification_action_handler', array( $this, 'handle_notification_actions' ), 10, 5 );
@@ -196,6 +204,8 @@ class Teams extends Skeleton {
 		add_action( 'add_meta_boxes', array( $this, 'add_team_events_meta_box' ) );
 		add_action( 'save_post_clanbite_team', array( $this, 'save_team_events_meta_box' ), 10, 2 );
 		add_filter( 'map_meta_cap', array( $this, 'map_team_front_edit_meta_cap' ), 10, 4 );
+		add_filter( 'rest_pre_insert_clanbite_team', array( $this, 'rest_guard_protected_team_fields' ), 99, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'guard_protected_team_post_data' ), 99, 2 );
 		add_filter( 'wp_unique_post_slug', array( $this, 'reserve_team_route_slugs' ), 10, 6 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_team_manage_form_assets' ), 20 );
 
@@ -322,6 +332,20 @@ class Teams extends Skeleton {
 	 * @return array
 	 */
 	public function map_team_front_edit_meta_cap( array $caps, string $cap, $user_id, array $args ): array {
+		$meta_caps = array( 'add_post_meta', 'edit_post_meta', 'delete_post_meta' );
+		if ( in_array( $cap, $meta_caps, true ) && isset( $args[0], $args[1] ) ) {
+			// Roster roles change only through the roster itself. Compared loosely because the database matches meta keys without regard to case.
+			if (
+				'clanbite_team_member_roles' === strtolower( trim( (string) $args[1] ) )
+				&& 'clanbite_team' === get_post_type( (int) $args[0] )
+				&& ! $this->user_is_teams_site_admin( (int) $user_id )
+			) {
+				return array( 'do_not_allow' );
+			}
+
+			return $caps;
+		}
+
 		if ( 'edit_post' !== $cap || empty( $args ) ) {
 			return $caps;
 		}
@@ -333,15 +357,126 @@ class Teams extends Skeleton {
 			return $caps;
 		}
 
+		// With front-end editing off, a WordPress role such as Author must not keep access through the team's authorship.
+		if ( $this->is_team_field_restricted_user( $user_id ) && ! $this->can_edit_team_frontend( $post_id ) ) {
+			return array( 'do_not_allow' );
+		}
+
 		if ( ! $this->user_can_manage_team_on_frontend( $post_id, $user_id ) ) {
 			return $caps;
 		}
 
-		if ( ! $this->user_is_teams_site_admin( $user_id ) && ! $this->can_edit_team_frontend( $post_id ) ) {
-			return $caps;
+		return array( 'read' );
+	}
+
+	/**
+	 * Whether a user's access to team posts is limited to what the team manage screen offers.
+	 *
+	 * True for everyone except teams site admins and WordPress roles that can edit other people's posts.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool
+	 */
+	protected function is_team_field_restricted_user( int $user_id ): bool {
+		return $user_id > 0
+			&& ! $this->user_is_teams_site_admin( $user_id )
+			&& ! user_can( $user_id, 'edit_others_posts' );
+	}
+
+	/**
+	 * Team post columns the current user may not change.
+	 *
+	 * Team admins and editors can edit their team's post, but who owns it, whether it is published and where it lives
+	 * stay with the site's own roles.
+	 *
+	 * @param int $team_id Team post ID.
+	 * @return string[] `wp_posts` column names, empty when nothing is protected.
+	 */
+	protected function get_protected_team_post_fields( int $team_id ): array {
+		$user_id = get_current_user_id();
+		if ( ! $this->is_team_field_restricted_user( $user_id ) ) {
+			return array();
 		}
 
-		return array( 'read' );
+		$fields = array( 'post_author', 'post_status', 'post_name', 'post_password', 'post_parent', 'post_date', 'post_date_gmt' );
+
+		/**
+		 * Filters the team post columns a restricted user (such as a team admin or editor) may not change.
+		 *
+		 * @since 1.7.0
+		 *
+		 * @param string[] $fields  Protected `wp_posts` column names.
+		 * @param int      $team_id Team post ID.
+		 * @param int      $user_id Current user ID.
+		 */
+		return (array) apply_filters( 'clanbite_team_protected_post_fields', $fields, $team_id, $user_id );
+	}
+
+	/**
+	 * Reject REST updates that try to change a protected team field, so the client is told rather than ignored.
+	 *
+	 * @param \stdClass|\WP_Error $prepared Prepared post object.
+	 * @param \WP_REST_Request    $request  Request.
+	 * @return \stdClass|\WP_Error
+	 */
+	public function rest_guard_protected_team_fields( $prepared, $request ) {
+		unset( $request );
+
+		if ( is_wp_error( $prepared ) || empty( $prepared->ID ) ) {
+			return $prepared;
+		}
+
+		$current = get_post( (int) $prepared->ID );
+		if ( ! $current instanceof \WP_Post ) {
+			return $prepared;
+		}
+
+		foreach ( $this->get_protected_team_post_fields( $current->ID ) as $field ) {
+			if ( isset( $prepared->$field ) && (string) $prepared->$field !== (string) $current->$field ) {
+				return new \WP_Error(
+					'clanbite_team_field_protected',
+					__( 'Team managers cannot change who owns a team, its status or its address.', 'clanbite' ),
+					array( 'status' => 403 )
+				);
+			}
+		}
+
+		return $prepared;
+	}
+
+	/**
+	 * Keep protected team fields unchanged however the post is saved (wp-admin, quick edit, XML-RPC or code run for the user).
+	 *
+	 * Moving to and from the Trash stays possible for users who may delete the team post.
+	 *
+	 * @param array<string, mixed> $data    Slashed post data about to be saved.
+	 * @param array<string, mixed> $postarr Original post array.
+	 * @return array<string, mixed>
+	 */
+	public function guard_protected_team_post_data( array $data, array $postarr ): array {
+		$team_id = isset( $postarr['ID'] ) ? (int) $postarr['ID'] : 0;
+		if ( $team_id < 1 || 'clanbite_team' !== ( $data['post_type'] ?? '' ) ) {
+			return $data;
+		}
+
+		$current = get_post( $team_id );
+		if ( ! $current instanceof \WP_Post || 'clanbite_team' !== $current->post_type ) {
+			return $data;
+		}
+
+		$fields = $this->get_protected_team_post_fields( $team_id );
+		$trash  = 'trash' === $current->post_status || 'trash' === ( $data['post_status'] ?? '' );
+		if ( $trash && current_user_can( 'delete_post', $team_id ) ) {
+			$fields = array_diff( $fields, array( 'post_status', 'post_name' ) );
+		}
+
+		foreach ( $fields as $field ) {
+			if ( array_key_exists( $field, $data ) && isset( $current->$field ) ) {
+				$data[ $field ] = wp_slash( (string) $current->$field );
+			}
+		}
+
+		return $data;
 	}
 
 	/**
@@ -545,12 +680,9 @@ class Teams extends Skeleton {
 	 * @return bool
 	 */
 	public function user_accepts_team_invites( int $user_id ): bool {
-		$raw = get_user_meta( $user_id, 'clanbite_open_to_team_invites', true );
-		if ( '' === $raw || null === $raw ) {
-			$accepts = true;
-		} else {
-			$accepts = rest_sanitize_boolean( $raw );
-		}
+		// A saved "no" is stored as an empty string, so only a setting that was never saved means "yes".
+		$accepts = ! metadata_exists( 'user', $user_id, 'clanbite_open_to_team_invites' )
+			|| rest_sanitize_boolean( get_user_meta( $user_id, 'clanbite_open_to_team_invites', true ) );
 
 		/**
 		 * Filter whether a user accepts team invites.
@@ -1713,6 +1845,40 @@ class Teams extends Skeleton {
 	}
 
 	/**
+	 * Limit a roster submitted from the manage screen to people already on it.
+	 *
+	 * The screen changes roles and removes members. People join by accepting an invitation (or another approved route),
+	 * so a team admin cannot add someone by posting an extra user ID.
+	 *
+	 * @param int                $team_id  Team post ID.
+	 * @param int                $actor_id User saving the roster.
+	 * @param array<int, string> $new_map  Submitted user ID to role map.
+	 * @return array<int, string>
+	 */
+	protected function restrict_roster_submission( int $team_id, int $actor_id, array $new_map ): array {
+		$current    = $this->get_team_member_roles_map( $team_id );
+		$site_admin = $this->user_is_teams_site_admin( $actor_id );
+
+		foreach ( array_keys( array_diff_key( $new_map, $current ) ) as $user_id ) {
+			/**
+			 * Filters whether the manage screen may add someone who is not yet on the roster, without an invitation.
+			 *
+			 * @since 1.7.0
+			 *
+			 * @param bool $allow    Default true for teams site admins only.
+			 * @param int  $user_id  User being added.
+			 * @param int  $team_id  Team post ID.
+			 * @param int  $actor_id User saving the roster.
+			 */
+			if ( ! apply_filters( 'clanbite_team_manage_can_add_member_directly', $site_admin, (int) $user_id, $team_id, $actor_id ) ) {
+				unset( $new_map[ $user_id ] );
+			}
+		}
+
+		return $new_map;
+	}
+
+	/**
 	 * Persist roster and sync per-user membership index for invite limits.
 	 *
 	 * @param int                $team_id Team post ID.
@@ -1886,6 +2052,18 @@ class Teams extends Skeleton {
 	}
 
 	/**
+	 * Invitation rules and REST routes.
+	 *
+	 * @return \Kernowdev\Clanbite\Extensions\Teams\Team_Invites
+	 */
+	public function get_invites(): \Kernowdev\Clanbite\Extensions\Teams\Team_Invites {
+		require_once __DIR__ . '/class-team-invites.php';
+		$this->invites ??= new \Kernowdev\Clanbite\Extensions\Teams\Team_Invites( $this );
+
+		return $this->invites;
+	}
+
+	/**
 	 * Send a team invite notification to a user.
 	 *
 	 * @param int $team_id    Team ID.
@@ -1903,6 +2081,10 @@ class Teams extends Skeleton {
 				'notifications_unavailable',
 				__( 'Notifications are not available. Enable the Notifications extension under Clanbite → Extensions.', 'clanbite' )
 			);
+		}
+
+		if ( in_array( $user_id, $this->get_invites()->get_pending_user_ids( $team_id ), true ) ) {
+			return new \WP_Error( 'duplicate', __( 'That player already has an invitation waiting.', 'clanbite' ) );
 		}
 
 		$team      = get_post( $team_id );
@@ -1936,6 +2118,8 @@ class Teams extends Skeleton {
 				'actor_id'    => $inviter_id,
 				'object_type' => 'team',
 				'object_id'   => $team_id,
+				// Waiting invitations are checked above. The built-in check would also block re-inviting after a decline.
+				'dedupe'      => false,
 				'url'         => $team_url,
 				'actions'     => array(
 					array(
@@ -2014,7 +2198,7 @@ class Teams extends Skeleton {
 	 * @param int    $user_id      User accepting the invite.
 	 * @return array{success: bool, message: string, redirect?: string}
 	 */
-	private function handle_team_invite_accept( object $notification, int $user_id ): array {
+	private function handle_team_invite_accept( object $notification, int $user_id ) {
 		$team_id = $notification->object_id ?? 0;
 
 		if ( $team_id <= 0 ) {
@@ -2039,6 +2223,18 @@ class Teams extends Skeleton {
 				'success' => false,
 				'message' => __( 'You are already a member of this team.', 'clanbite' ),
 			);
+		}
+
+		if ( ! $this->get_invites()->is_still_valid( (int) $team_id, $user_id, (int) ( $notification->actor_id ?? 0 ) ) ) {
+			if ( ! empty( $notification->id ) ) {
+				\Kernowdev\Clanbite\Extensions\Notification\Notification_Data_Access::update_status( (int) $notification->id, 'expired' );
+			}
+			return new \WP_Error( 'clanbite_invite_expired', __( 'This invitation is no longer valid.', 'clanbite' ), array( 'status' => 410 ) );
+		}
+
+		// Left pending, so the player can accept after leaving their other team.
+		if ( $this->user_at_team_membership_limit( $user_id ) ) {
+			return new \WP_Error( 'clanbite_invite_team_limit', __( 'You can only belong to one team. Leave your current team to accept.', 'clanbite' ), array( 'status' => 409 ) );
 		}
 
 		// Add user to team as member.
@@ -2478,6 +2674,67 @@ class Teams extends Skeleton {
 				</tbody>
 			</table>
 			<p class="description"><?php esc_html_e( 'Banned members cannot view this team. At least one admin is required.', 'clanbite' ); ?></p>
+			<?php $this->render_team_manage_invite_box( $team_id ); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * The invite box under the roster: player search and the invitations still waiting for a reply.
+	 *
+	 * Its fields have no `name` and its buttons are not submit buttons, so it never saves the surrounding manage form.
+	 *
+	 * @param int $team_id Team post ID.
+	 * @return void
+	 */
+	protected function render_team_manage_invite_box( int $team_id ): void {
+		$invites = $this->get_invites();
+		$allowed = $invites->check_can_invite( $team_id, get_current_user_id() );
+		if ( is_wp_error( $allowed ) ) {
+			echo '<p class="description clanbite-team-invite__unavailable">' . esc_html( $allowed->get_error_message() ) . '</p>';
+			return;
+		}
+
+		$pending = array_filter( array_map( 'get_userdata', $invites->get_pending_user_ids( $team_id ) ) );
+		$context = array(
+			'searchUrl' => rest_url( "clanbite/v1/teams/{$team_id}/invite-search" ),
+			'inviteUrl' => rest_url( "clanbite/v1/teams/{$team_id}/invites" ),
+			'restNonce' => wp_create_nonce( 'wp_rest' ),
+			'i18n'      => array(
+				'invite'      => __( 'Invite', 'clanbite' ),
+				/* translators: %s: player name. */
+				'inviteLabel' => __( 'Invite %s', 'clanbite' ),
+				/* translators: %s: player name. */
+				'sent'        => __( 'Invitation sent to %s.', 'clanbite' ),
+				/* translators: %d: number of players. */
+				'found'       => __( 'Players found: %d', 'clanbite' ),
+				'none'        => __( 'No players found. Players who are already on the roster, already invited or not accepting invitations are not listed.', 'clanbite' ),
+				'failed'      => __( 'Something went wrong. Please try again.', 'clanbite' ),
+			),
+		);
+		$input   = 'clanbite-team-invite-' . $team_id;
+		?>
+		<div class="clanbite-team-invite" data-wp-context="<?php echo esc_attr( (string) wp_json_encode( $context ) ); ?>">
+			<h3 class="clanbite-team-invite__title"><?php esc_html_e( 'Invite players', 'clanbite' ); ?></h3>
+			<label for="<?php echo esc_attr( $input ); ?>"><?php esc_html_e( 'Search by name or username', 'clanbite' ); ?></label>
+			<input
+				type="search"
+				id="<?php echo esc_attr( $input ); ?>"
+				class="clanbite-team-invite__search"
+				autocomplete="off"
+				data-wp-on--input="actions.onInviteSearch"
+				data-wp-on--keydown="actions.onInviteSearchKeydown"
+			/>
+			<p class="clanbite-team-invite__status" role="status" data-invite-status></p>
+			<ul class="clanbite-team-invite__results clanbite-team-create-form__invite-suggestions" data-invite-results data-wp-on--click="actions.sendInvite"></ul>
+			<div class="clanbite-team-invite__pending" data-invite-pending<?php echo $pending ? '' : ' hidden'; ?>>
+				<h4><?php esc_html_e( 'Waiting for a reply', 'clanbite' ); ?></h4>
+				<ul data-invite-pending-list>
+					<?php foreach ( $pending as $user ) : ?>
+						<li><?php echo esc_html( sprintf( '%1$s (%2$s)', $user->display_name, $user->user_login ) ); ?></li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
 		</div>
 		<?php
 	}
@@ -3003,6 +3260,7 @@ class Teams extends Skeleton {
 			foreach ( $member_roles as $mid => $role ) {
 				$new_map[ absint( $mid ) ] = $this->sanitize_team_member_role( sanitize_text_field( (string) $role ) );
 			}
+			$new_map = $this->restrict_roster_submission( $team_id, $user_id, $new_map );
 			if ( ! $this->persist_team_roles_map( $team_id, $new_map ) ) {
 				wp_safe_redirect(
 					add_query_arg(
@@ -3405,9 +3663,7 @@ class Teams extends Skeleton {
 	 */
 	public function render_team_events_meta_box( \WP_Post $post ): void {
 		wp_nonce_field( 'clanbite_team_events_meta', 'clanbite_team_events_meta_nonce' );
-		$raw = get_post_meta( $post->ID, 'clanbite_team_events_enabled', true );
-		// Empty meta: enabled; explicit off stored as false/0.
-		$checked = ! ( false === $raw || 0 === $raw || '0' === $raw );
+		$checked = clanbite_events_entity_switch_is_on( $post->ID, 'clanbite_team_events_enabled' );
 		?>
 		<p>
 			<label>
@@ -3718,8 +3974,9 @@ class Teams extends Skeleton {
 	 * @return array<string, mixed>
 	 */
 	public function get_team_options( int $team_id ): array {
-		$accept_raw        = get_post_meta( $team_id, 'clanbite_team_accept_challenges', true );
-		$accept_challenges = ( '' === $accept_raw ) ? true : rest_sanitize_boolean( $accept_raw );
+		// A saved "no" is stored as an empty string, so only a setting that was never saved means "yes".
+		$accept_challenges = ! metadata_exists( 'post', $team_id, 'clanbite_team_accept_challenges' )
+			|| rest_sanitize_boolean( get_post_meta( $team_id, 'clanbite_team_accept_challenges', true ) );
 
 		$team_obj = $this->get_team( $team_id );
 

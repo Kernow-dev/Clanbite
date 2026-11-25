@@ -14,8 +14,10 @@
 	z-index: 999999;
 
 	// Type variants (core Clanbite only)
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-modal--confirm { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-modal--challenge { }
 
 	// Note: Plugin-specific variants (--forums, --social-kit, --points, --ranks)

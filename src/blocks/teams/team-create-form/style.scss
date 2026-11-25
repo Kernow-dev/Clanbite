@@ -40,11 +40,13 @@
 		border-color: var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 	}
 
+	// stylelint-disable-next-line no-descending-specificity
 	&:focus-visible {
 		outline: 2px solid var(--clanbite-accent, #2271b1);
 		outline-offset: 2px;
 	}
 
+	// stylelint-disable-next-line no-descending-specificity
 	&:disabled {
 		cursor: not-allowed;
 		opacity: 0.55;
@@ -113,8 +115,11 @@
 	display: grid;
 	gap: 1rem;
 
-	/* Step panels: visibility follows data-active-step on the form (avoids Interactivity ref timing with data-wp-bind--hidden). */
-	& > .clanbite-team-create-form__step {
+	/*
+	 * Step panels: visibility follows data-active-step on the form (avoids
+	 * Interactivity ref timing with data-wp-bind--hidden).
+	 */
+	> .clanbite-team-create-form__step {
 		display: none;
 	}
 
@@ -239,7 +244,8 @@
 .clanbite-team-create-form__invite-option.is-active,
 .clanbite-team-create-form__invite-option:focus-visible {
 	background: color-mix(in srgb, var(--clanbite-accent, #2271b1) 14%, transparent);
-	// The tint alone is ~1.1:1 against white, so the active/focused option also gets an inset ring.
+	// The tint alone is ~1.1:1 against white, so the active/focused option
+	// also gets an inset ring.
 	box-shadow: inset 0 0 0 2px var(--clanbite-accent, #2271b1);
 	outline: 2px solid transparent;
 }
@@ -263,4 +269,35 @@
 	border: 0;
 	background: transparent;
 	cursor: pointer;
+}
+
+// Invite box on the manage screen Roster tab (this stylesheet loads there too).
+.clanbite-team-invite {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-top: 1.5rem;
+}
+
+.clanbite-team-invite__title,
+.clanbite-team-invite__status,
+.clanbite-team-invite__pending h4 {
+	margin: 0;
+}
+
+.clanbite-team-invite__status:empty {
+	display: none;
+}
+
+.clanbite-team-invite__results li {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.25rem 0;
+}
+
+.clanbite-team-invite__pending[hidden] {
+	display: none;
 }

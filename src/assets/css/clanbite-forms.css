@@ -1,11 +1,16 @@
 /**
  * Clanbite form layout (style handle `clanbite-forms`).
  *
- * Gives the team create / manage forms and the group settings form one consistent, theme-adaptive layout: a label above a
- * full-width control, muted helper text, checkbox rows, media cards, a roster table and a danger zone. Colours and radii
- * come from the shared tokens (`clanbite-tokens`) with standalone fallbacks; control borders and backgrounds are already
- * set by the token sheet, so this file only handles layout and rhythm. Add the handle to any other form container by
- * adding its class to the lists below, or give the form a `.clanbite-form-layout` class.
+ * Gives the team create / manage forms and the group settings form one
+ * consistent, theme-adaptive layout: a label above a
+ * full-width control, muted helper text, checkbox rows, media cards, a
+ * roster table and a danger zone. Colours and radii
+ * come from the shared tokens (`clanbite-tokens`) with standalone
+ * fallbacks; control borders and backgrounds are already
+ * set by the token sheet, so this file only handles layout and rhythm. Add
+ * the handle to any other form container by
+ * adding its class to the lists below, or give the form a `.clanbite-form-
+ * layout` class.
  */
 
 :is(.clanbite-group-settings__form, .clanbite-form-layout) {
@@ -37,7 +42,10 @@
 	display: none;
 }
 
-/* Full-width controls (number "small-text" inputs, checkboxes, radios and files keep their natural size). */
+/*
+ * Full-width controls (number "small-text" inputs, checkboxes, radios and
+ * files keep their natural size).
+ */
 :is(.clanbite-team-manage-form__section, .clanbite-team-create-form__step, .clanbite-group-settings__form, .clanbite-form-layout) :is(input:not([type="checkbox"], [type="radio"], [type="file"], [type="hidden"], [type="number"]), select, textarea) {
 	box-sizing: border-box;
 	width: 100%;
@@ -89,6 +97,7 @@
 	align-items: center;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .clanbite-team-manage-form__record > label {
 	flex: 1 1 100%;
 }
@@ -220,6 +229,7 @@
 }
 
 /* Step navigation: Back on the left, the primary actions on the right. */
+/* stylelint-disable-next-line no-duplicate-selectors */
 .clanbite-team-manage-form__step-actions {
 	justify-content: space-between;
 	width: 100%;
@@ -230,6 +240,7 @@
 }
 
 /* The danger zone is a manage section too; keep its own rhythm. */
+/* stylelint-disable-next-line no-duplicate-selectors */
 :is(.clanbite-team-manage-form__danger-zone, .clanbite-group-settings__danger) {
 	padding-block: 1.25rem;
 }
@@ -242,7 +253,10 @@
 	display: block;
 }
 
-/* Beat the create-form sheet's `p.description { margin: 0 }`: helper text hugs its field and leaves room below. */
+/*
+ * Beat the create-form sheet's `p.description { margin: 0 }`: helper text hugs
+ * its field and leaves room below.
+ */
 :is(.clanbite-team-manage-form__section, .clanbite-team-create-form__step, .clanbite-group-settings__form, .clanbite-form-layout):is(.clanbite-team-manage-form__section, .clanbite-team-create-form__step, .clanbite-group-settings__form, .clanbite-form-layout):is(.clanbite-team-manage-form__section, .clanbite-team-create-form__step, .clanbite-group-settings__form, .clanbite-form-layout) p.description {
 	margin: -0.7rem 0 1.15rem;
 }
@@ -251,7 +265,10 @@
 	margin: 0 0 0.85rem;
 }
 
-/* Controls outside a Clanbite block wrapper (group templates, add-ons): same look as the token sheet gives block forms. */
+/*
+ * Controls outside a Clanbite block wrapper (group templates, add-ons): same
+ * look as the token sheet gives block forms.
+ */
 :where(.clanbite-team-manage-form__section, .clanbite-team-create-form__step, .clanbite-group-settings__form, .clanbite-form-layout) :where(
 	input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="hidden"], [type="color"], [type="submit"], [type="button"], [type="reset"], [type="image"]),
 	select,
@@ -265,6 +282,7 @@
 	font: inherit;
 }
 
+/* stylelint-disable-next-line no-duplicate-selectors */
 :is(.clanbite-team-manage-form__danger-zone, .clanbite-group-settings__danger) :is(h2, h3) {
 	color: var(--clanbite-danger, currentcolor);
 }

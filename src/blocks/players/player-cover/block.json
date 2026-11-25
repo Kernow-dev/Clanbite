@@ -6,7 +6,7 @@
 	"title": "Player Cover",
 	"category": "clanbite-players",
 	"icon": "smiley",
-	"description": "Example block scaffolded with Create Block tool.",
+	"description": "Displays the player's cover image.",
 	"example": {},
 	"textdomain": "clanbite",
 	"attributes": {

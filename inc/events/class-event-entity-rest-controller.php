@@ -479,8 +479,8 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		$query_args = array(
 			'post_type'      => Event_Post_Type::POST_TYPE,
 			'post_status'    => array( 'publish', 'draft', 'pending' ),
-			'posts_per_page' => $per_page,
-			'paged'          => $page,
+			'posts_per_page' => $this->get_visibility_scan_limit(),
+			'no_found_rows'  => true,
 			'meta_query'     => $meta_query,
 		);
 
@@ -502,25 +502,43 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 		// phpcs:enable WordPress.DB.SlowDBQuery
 
 		$viewer_id = is_user_logged_in() ? (int) get_current_user_id() : 0;
-		$items     = array();
 
-		foreach ( $q->posts as $post ) {
-			if ( ! ( $post instanceof \WP_Post ) ) {
-				continue;
-			}
-			if ( ! Event_Permissions::viewer_can_see( $post, $viewer_id ) ) {
-				continue;
-			}
-			$items[] = $this->post_to_response( $post );
-		}
+		// Privacy is applied before paging and counting. A total that included hidden events would reveal they exist,
+		// and searching against it would reveal words in them.
+		$visible = array_values(
+			array_filter(
+				$q->posts,
+				static fn( $post ): bool => $post instanceof \WP_Post && Event_Permissions::viewer_can_see( $post, $viewer_id )
+			)
+		);
+		$items   = array_map(
+			array( $this, 'post_to_response' ),
+			array_slice( $visible, ( $page - 1 ) * $per_page, $per_page )
+		);
 
 		return new WP_REST_Response(
 			array(
 				'items' => $items,
-				'total' => (int) $q->found_posts,
+				'total' => count( $visible ),
 			),
 			200
 		);
+	}
+
+	/**
+	 * How many matching events a list request checks for visibility.
+	 *
+	 * @return int
+	 */
+	private function get_visibility_scan_limit(): int {
+		/**
+		 * Filters how many matching events a list request checks, in the requested order, before paging.
+		 *
+		 * @since 1.7.0
+		 *
+		 * @param int $limit Default 1000.
+		 */
+		return max( 1, (int) apply_filters( 'clanbite_events_rest_visibility_scan_limit', 1000 ) );
 	}
 
 	/**

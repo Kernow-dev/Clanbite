@@ -1,13 +1,19 @@
 /**
  * Unified Button Styles
  *
- * The button contract (variants, states, focus ring) lives in `assets/css/clanbite-buttons.css`, registered by
- * core Clanbite as the `clanbite-buttons` style handle and listed in each block's `block.json` `style` array.
- * Keeping it in one plain stylesheet means a single copy loads for all plugins and a theme can restyle every
- * Clanbite button through theme.json (`styles.elements.button`) or the `--clanbite-button-*` custom properties.
+ * The button contract (variants, states, focus ring) lives in
+ * `assets/css/clanbite-buttons.css`, registered by
+ * core Clanbite as the `clanbite-buttons` style handle and listed in each
+ * block's `block.json` `style` array.
+ * Keeping it in one plain stylesheet means a single copy loads for all
+ * plugins and a theme can restyle every
+ * Clanbite button through theme.json (`styles.elements.button`) or the
+ * `--clanbite-button-*` custom properties.
  *
- * Do not set background, colour, border, padding, radius or font on a button class in block SCSS: that overrides
- * the theme. Block SCSS may only position buttons (margin, flex, grid, width). See DESIGN-SYSTEM.md.
+ * Do not set background, colour, border, padding, radius or font on a
+ * button class in block SCSS: that overrides
+ * the theme. Block SCSS may only position buttons (margin, flex, grid,
+ * width). See DESIGN-SYSTEM.md.
  */
 
 // Wrapper reset: `wp-block-button` supplies its own margin and display.

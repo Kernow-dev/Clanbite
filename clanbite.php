@@ -2,10 +2,10 @@
 /**
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
- * Description: Community management system for Gamers and Sports teams
- * Version: 1.6.10
+ * Description: Run your clan or esports club on WordPress: profiles, teams, matches, events, and challenges between Clanbite sites.
+ * Version: 1.7.0
  * Requires at least: 6.9
- * Requires PHP: 8.2
+ * Requires PHP: 8.4
  * Author: kernow.dev
  * Author URI: https://kernow.dev
  * Donate link: https://kernow.dev
@@ -17,7 +17,7 @@
  * @link    https://clanbite.com/
  *
  * @package clanbite
- * @version 1.3.0
+ * @version 1.7.0
  */
 
 namespace Kernowdev\Clanbite;
@@ -63,9 +63,10 @@ require_once __DIR__ . '/inc/class-editor-preview.php';
 require_once __DIR__ . '/inc/functions-editor-preview.php';
 \Kernowdev\Clanbite\Editor_Preview::register();
 require_once __DIR__ . '/inc/components.php';
+require_once __DIR__ . '/inc/skeleton.php';
 require_once __DIR__ . '/inc/functions-time.php';
+require_once __DIR__ . '/inc/functions-site-connections.php';
 require_once __DIR__ . '/inc/messages.php';
-require_once __DIR__ . '/inc/updates/functions.php';
 
 /**
  * Main initiation class.
@@ -77,14 +78,14 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.6.10';
+	public const VERSION = '1.7.0';
 
 	/**
 	 * Maintenance upgrade counter: the number of the last step in {@see Maintenance}. Raise it with each new step.
 	 *
 	 * @var int
 	 */
-	public const MAINTENANCE_VERSION = 2;
+	public const MAINTENANCE_VERSION = 3;
 
 	/**
 	 * Singleton instance of plugin.
@@ -211,11 +212,11 @@ final class Main {
 	 * @return boolean True if requirements are met.
 	 */
 	public function meets_requirements(): bool {
-		// Check PHP version (as declared in plugin header: Requires PHP: 8.2).
-		if ( version_compare( PHP_VERSION, '8.2', '<' ) ) {
+		// Check PHP version (as declared in plugin header: Requires PHP: 8.4).
+		if ( version_compare( PHP_VERSION, '8.4', '<' ) ) {
 			$this->activation_errors[] = sprintf(
 				/* translators: %s: Current PHP version */
-				__( 'Clanbite requires PHP 8.2 or higher. You are running version %s.', 'clanbite' ),
+				__( 'Clanbite requires PHP 8.4 or higher. You are running version %s.', 'clanbite' ),
 				PHP_VERSION
 			);
 
@@ -310,11 +311,9 @@ final class Main {
 
 		Abilities_Api::register_hooks();
 
-		// Licence activation and updates for add-ons served by the Clanbite Extension Server.
-		Updates\Updater::register();
-		Updates\License_Rest::register();
-		Updates\License_Admin::register();
-		Updates\Compat_Monitor::register();
+		// Safety net for add-ons that cannot run on this version, and a pointer to the separate Add-on Manager.
+		Compat\Compat_Monitor::register();
+		Compat\Addon_Manager_Notice::register();
 
 		add_action( 'init', array( Front_Seo::class, 'register' ), 20 );
 
@@ -619,6 +618,14 @@ final class Main {
 			self::VERSION
 		);
 
+		// Shared loading placeholders, see `inc/skeleton.php`. Depends on the avatar styles so a skeleton matches an avatar's size and shape.
+		wp_register_style(
+			'clanbite-skeleton',
+			$this->url . 'assets/dist/css/clanbite-skeleton.css',
+			array( 'clanbite-tokens', 'clanbite-avatars' ),
+			self::VERSION
+		);
+
 		// Shared popups. Extensions enqueue these (or call clanbite_enqueue_toasts()), or list the handle as a dependency.
 		wp_register_style(
 			'clanbite-toasts',
@@ -636,6 +643,14 @@ final class Main {
 			true
 		);
 
+		// Skeleton loaders (clanbite.skeletons.render), the browser twin of clanbite_render_skeleton().
+		wp_register_script(
+			'clanbite-skeleton',
+			$this->url . 'assets/dist/js/clanbite-skeleton.js',
+			array( 'wp-hooks', 'clanbite-components' ),
+			$this->asset_version( 'assets/dist/js/clanbite-skeleton.js' ),
+			true
+		);
 		// Popup lifecycle (clanbite.popup.toggled / clanbite.popup.shouldOpen) in one place; see clanbite_register_core_components().
 		wp_register_script(
 			'clanbite-popups',

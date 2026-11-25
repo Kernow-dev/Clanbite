@@ -17,6 +17,9 @@ $default_view   = sanitize_key( (string) ( $attributes['defaultView'] ?? 'month'
 
 $resolved_player_id = 0;
 
+// The loading placeholders (month, week, day and list) are drawn in the browser by core's shared skeleton helper.
+wp_enqueue_script( 'clanbite-skeleton' );
+
 if ( ! in_array( $default_view, array( 'month', 'week', 'day', 'list' ), true ) ) {
 	$default_view = 'month';
 }

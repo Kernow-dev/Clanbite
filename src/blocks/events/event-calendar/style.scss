@@ -5,7 +5,6 @@
 	// never a fixed light scheme.
 	--cal-bg: var(--clanbite-surface, Canvas);
 	--cal-surface: color-mix(in srgb, currentcolor 6%, var(--cal-bg));
-	--cal-skeleton: color-mix(in srgb, currentcolor 14%, var(--cal-bg));
 	--cal-border: color-mix(in srgb, currentcolor 22%, transparent);
 	--cal-muted: color-mix(in srgb, currentcolor 62%, transparent);
 	--cal-accent: var(--wp--preset--color--primary, #2271b1);
@@ -57,7 +56,7 @@
 	padding: 0;
 	margin: -1px;
 	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
+	clip-path: inset(50%);
 	white-space: nowrap;
 	border: 0;
 }
@@ -67,6 +66,7 @@
 	font-size: 0.875rem;
 }
 
+// stylelint-disable-next-line no-duplicate-selectors
 .clanbite-event-calendar__error {
 	color: var(--cal-danger);
 }
@@ -194,25 +194,8 @@ span.clanbite-event-calendar__list-title {
 	color: inherit;
 }
 
-@keyframes clanbite-cal-skel {
-
-	0% {
-		opacity: 0.45;
-	}
-
-	50% {
-		opacity: 0.9;
-	}
-
-	100% {
-		opacity: 0.45;
-	}
-}
-
-.clanbite-event-calendar__skeleton {
-	animation: clanbite-cal-skel 1.1s ease-in-out infinite;
-}
-
+// Loading placeholders: the shimmer and fill come from Clanbite core's shared
+// skeleton loaders (clanbite-skeleton); only the layout around them is here.
 .clanbite-event-calendar__skel-dow-row,
 .clanbite-event-calendar__skel-grid {
 	display: grid;
@@ -242,25 +225,12 @@ span.clanbite-event-calendar__list-title {
 	min-height: 5.5rem;
 }
 
-.clanbite-event-calendar__skel-num {
-	display: block;
-	width: 1.25rem;
-	height: 0.65rem;
-	border-radius: 2px;
-	background: var(--cal-skeleton);
-	margin-bottom: 0.35rem;
+.clanbite-event-calendar__skeleton .clanbite-skeleton {
+	margin: 0 0 0.25rem;
 }
 
-.clanbite-event-calendar__skel-line {
-	display: block;
-	height: 0.45rem;
-	border-radius: 2px;
-	background: var(--cal-skeleton);
-	margin-bottom: 0.25rem;
-
-	&.clanbite-event-calendar__skel-line--short {
-		width: 60%;
-	}
+.clanbite-event-calendar__skel-cell .clanbite-skeleton--block {
+	margin-bottom: 0.35rem;
 }
 
 .clanbite-event-calendar__skeleton--week {
@@ -289,16 +259,16 @@ span.clanbite-event-calendar__list-title {
 	border-bottom: 1px solid var(--cal-border);
 }
 
-.clanbite-event-calendar__skel-pill {
-	flex: 0 0 7rem;
-	height: 0.65rem;
-	border-radius: 4px;
-	background: var(--cal-skeleton);
+.clanbite-event-calendar__skeleton--list .clanbite-skeleton {
+	margin: 0;
 }
 
-.clanbite-event-calendar__skeleton--list .clanbite-event-calendar__skel-line {
+.clanbite-event-calendar__skeleton--list .clanbite-skeleton--block {
+	flex: 0 0 7rem;
+}
+
+.clanbite-event-calendar__skeleton--list .clanbite-skeleton--line {
 	flex: 1;
-	margin: 0;
 }
 
 .clanbite-event-calendar__ev-time {
@@ -345,6 +315,7 @@ span.clanbite-event-calendar__list-title {
 		margin: 0 0 0.25rem;
 	}
 
+	// stylelint-disable-next-line no-descending-specificity
 	a {
 		color: var(--cal-accent);
 	}
@@ -360,6 +331,7 @@ span.clanbite-event-calendar__list-title {
 		margin: 0 0 0.5rem;
 	}
 
+	// stylelint-disable-next-line no-descending-specificity
 	a {
 		color: var(--cal-accent);
 	}

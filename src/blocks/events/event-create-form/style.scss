@@ -40,11 +40,13 @@
 		border-color: var(--clanbite-border, color-mix(in srgb, currentcolor 22%, transparent));
 	}
 
+	// stylelint-disable-next-line no-descending-specificity
 	&:focus-visible {
 		outline: 2px solid var(--clanbite-accent, #2271b1);
 		outline-offset: 2px;
 	}
 
+	// stylelint-disable-next-line no-descending-specificity
 	&:disabled {
 		cursor: not-allowed;
 		opacity: 0.55;
@@ -190,8 +192,8 @@
 	color: var(--clanbite-on-accent, #fff);
 
 	&:hover {
-		background: color-mix(in srgb, var(--clanbite-accent, #2271b1) 82%, black);
-		border-color: color-mix(in srgb, var(--clanbite-accent, #2271b1) 82%, black);
+		background: color-mix(in srgb, var(--clanbite-accent, #2271b1) 82%, #000);
+		border-color: color-mix(in srgb, var(--clanbite-accent, #2271b1) 82%, #000);
 	}
 }
 

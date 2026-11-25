@@ -113,8 +113,8 @@
 	/**
 	 * Only http(s) and root-relative URLs may be used for icons and action links (no `javascript:`, `data:` or `//host`).
 	 *
-	 * @param {*}      url     Candidate URL.
-	 * @param {string} context `icon` or `action`.
+	 * @param {unknown} url     Candidate URL.
+	 * @param {string}  context `icon` or `action`.
 	 * @return {string} The URL, or an empty string when it is not allowed.
 	 */
 	function safeUrl( url, context ) {
@@ -357,7 +357,7 @@
 	 * @param {Object[]} [options.actions]      `{ label, href | onClick(event, handle), keepOpen }` links or buttons.
 	 * @param {string}   [options.className]    Extra class on the toast element.
 	 * @param {string}   [options.source]       Your plugin slug, for styling, filtering and debugging (`data-source`).
-	 * @return {{id: string, element: HTMLElement, dismiss: Function}|null} Handle, or `null` when nothing was shown.
+	 * @return {{id: string, element: HTMLElement, dismiss: ( ...args: unknown[] ) => unknown}|null} Handle, or `null` when nothing was shown.
 	 */
 	function show( options ) {
 		const site = siteSettings( options );

@@ -2,9 +2,11 @@
  * Registers the Match details panel in the block editor document sidebar for `clanbite_match`.
  */
 import { registerPlugin } from '@wordpress/plugins';
-import { PluginDocumentSettingPanel } from '@wordpress/editor';
+import {
+	PluginDocumentSettingPanel,
+	store as editorStore,
+} from '@wordpress/editor';
 import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { useEntityProp } from '@wordpress/core-data';
 import { PanelRow, TextControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';

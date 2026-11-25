@@ -188,47 +188,74 @@ function eventsTouchingYmd( items, ymd ) {
 	return out;
 }
 
+/**
+ * A loading placeholder from Clanbite's shared skeleton loaders (`clanbite.skeletons`, loaded by the block's render.php).
+ *
+ * @param {string} type Skeleton type (`line`, `block`…).
+ * @param {Object} args Skeleton arguments.
+ * @return {string} HTML, empty when the skeleton script is missing.
+ */
+function skeleton( type, args = {} ) {
+	return (
+		window.clanbite?.skeletons?.render( type, {
+			context: 'calendar',
+			...args,
+		} ) || ''
+	);
+}
+
 function renderSkeleton( surface, view ) {
 	if ( ! surface ) {
 		return;
 	}
 	const v = view || 'month';
+	// Built once and reused: a month draws 42 cells.
+	const line = skeleton( 'line', { height: '0.45rem', radius: '2px' } );
 	if ( v === 'list' ) {
-		let rows = '';
-		for ( let i = 0; i < 8; i++ ) {
-			rows +=
-				'<div class="clanbite-event-calendar__skel-list-row"><span class="clanbite-event-calendar__skel-pill"></span><span class="clanbite-event-calendar__skel-line"></span></div>';
-		}
-		surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--list">${ rows }</div>`;
+		const row = `<div class="clanbite-event-calendar__skel-list-row">${ skeleton(
+			'block',
+			{ width: '7rem', height: '0.65rem', radius: '4px' }
+		) }${ line }</div>`;
+		surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--list">${ row.repeat(
+			8
+		) }</div>`;
 		return;
 	}
 	if ( v === 'day' ) {
-		let rows = '';
-		for ( let i = 0; i < 5; i++ ) {
-			rows += '<div class="clanbite-event-calendar__skel-line"></div>';
-		}
-		surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--day">${ rows }</div>`;
+		surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--day">${ line.repeat(
+			5
+		) }</div>`;
 		return;
 	}
 	if ( v === 'week' ) {
-		let cols = '';
-		for ( let i = 0; i < 7; i++ ) {
-			cols +=
-				'<div class="clanbite-event-calendar__skeleton-week-col"><div class="clanbite-event-calendar__skel-line"></div><div class="clanbite-event-calendar__skel-line"></div><div class="clanbite-event-calendar__skel-line clanbite-event-calendar__skel-line--short"></div></div>';
-		}
-		surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--week">${ cols }</div>`;
+		const shortLine = skeleton( 'line', {
+			width: '60%',
+			height: '0.45rem',
+			radius: '2px',
+		} );
+		const col = `<div class="clanbite-event-calendar__skeleton-week-col">${ line }${ line }${ shortLine }</div>`;
+		surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--week">${ col.repeat(
+			7
+		) }</div>`;
 		return;
 	}
-	let dow = '';
-	for ( let i = 0; i < 7; i++ ) {
-		dow += '<div class="clanbite-event-calendar__skel-dow"></div>';
-	}
-	let grid = '';
-	for ( let c = 0; c < 42; c++ ) {
-		grid +=
-			'<div class="clanbite-event-calendar__skel-cell"><span class="clanbite-event-calendar__skel-num"></span><span class="clanbite-event-calendar__skel-line"></span><span class="clanbite-event-calendar__skel-line clanbite-event-calendar__skel-line--short"></span></div>';
-	}
-	surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--month"><div class="clanbite-event-calendar__skel-dow-row">${ dow }</div><div class="clanbite-event-calendar__skel-grid">${ grid }</div></div>`;
+	const shortLine = skeleton( 'line', {
+		width: '60%',
+		height: '0.45rem',
+		radius: '2px',
+	} );
+	const dow = '<div class="clanbite-event-calendar__skel-dow"></div>'.repeat(
+		7
+	);
+	const num = skeleton( 'block', {
+		width: '1.25rem',
+		height: '0.65rem',
+		radius: '2px',
+	} );
+	const cell = `<div class="clanbite-event-calendar__skel-cell">${ num }${ line }${ shortLine }</div>`;
+	surface.innerHTML = `<div class="clanbite-event-calendar__skeleton clanbite-event-calendar__skeleton--month"><div class="clanbite-event-calendar__skel-dow-row">${ dow }</div><div class="clanbite-event-calendar__skel-grid">${ cell.repeat(
+		42
+	) }</div></div>`;
 }
 
 function renderMonthCellEvents( ranges, cellYmd, i18n, maxItems ) {
@@ -431,7 +458,7 @@ function renderSurface( root, ctx, items, i18n ) {
 					? s.toLocaleString( undefined, {
 							dateStyle: 'medium',
 							timeStyle: 'short',
-					  } )
+						} )
 					: '';
 				if (
 					e &&
@@ -592,11 +619,11 @@ const { actions } = store( 'clanbite-event-calendar', {
 			} catch ( e ) {
 				ctx.fetchError =
 					e?.message || i18n.error || 'Could not load events.';
-				const surface = root.querySelector(
+				const errorSurface = root.querySelector(
 					'.clanbite-event-calendar__surface'
 				);
-				if ( surface ) {
-					surface.innerHTML = '';
+				if ( errorSurface ) {
+					errorSurface.innerHTML = '';
 				}
 			} finally {
 				ctx.calLoading = false;

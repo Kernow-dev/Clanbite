@@ -4,7 +4,7 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**382 PHP hooks and 19 JavaScript hooks**.
+**386 PHP hooks and 21 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
@@ -12,15 +12,15 @@ Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand fo
 
 - [Admin](#admin) (11)
 - [Avatars](#avatars) (43)
-- [Events](#events) (23)
+- [Events](#events) (24)
 - [Extensions](#extensions) (27)
-- [General](#general) (54)
+- [General](#general) (52)
 - [Matches](#matches) (18)
 - [Notifications](#notifications) (21)
 - [Players](#players) (90)
-- [Profile sub-pages and groups](#profile-sub-pages-and-groups) (12)
-- [Teams](#teams) (83)
-- [JavaScript hooks](#javascript-hooks) (19)
+- [Profile sub-pages and groups](#profile-sub-pages-and-groups) (13)
+- [Teams](#teams) (87)
+- [JavaScript hooks](#javascript-hooks) (21)
 
 ## Admin
 
@@ -77,8 +77,6 @@ Filter: `clanbite_admin_rest_manage_capability` — primitive capability require
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `$capability` | `string` | Default `manage_options`. |
-
-*Also fired in:* `inc/updates/class-license-rest.php`
 
 #### `clanbite_admin_rest_settings_registry`
 
@@ -888,6 +886,18 @@ Filter maximum page size for ranged event queries.
 | --- | --- | --- |
 | `$max` | `int` | Upper bound for `per_page` when a start/end window is set. |
 
+#### `clanbite_events_rest_visibility_scan_limit`
+
+*Filter* · `inc/events/class-event-entity-rest-controller.php`
+
+Filters how many matching events a list request checks, in the requested order, before paging.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$limit` | `int` | Default 1000. |
+
+**Since:** 1.7.0
+
 #### `clanbite_group_event_member_user_ids`
 
 *Filter* · `inc/events/class-event-member-outreach.php`
@@ -1327,7 +1337,7 @@ _No arguments._
 
 #### `clanbite_addon_disabled`
 
-*Action* · `inc/updates/class-compat-monitor.php`
+*Action* · `inc/compat/class-compat-monitor.php`
 
 Fires after an incompatible add-on was deactivated.
 
@@ -1341,7 +1351,7 @@ Fires after an incompatible add-on was deactivated.
 
 #### `clanbite_addon_guard_enabled`
 
-*Filter* · `inc/updates/class-compat-monitor.php`
+*Filter* · `inc/compat/class-compat-monitor.php`
 
 Filters whether incompatible add-ons are deactivated automatically.
 
@@ -1353,22 +1363,9 @@ Return false to only show warnings (not recommended: an incompatible add-on can 
 
 **Since:** 1.6.0
 
-#### `clanbite_addon_installed`
-
-*Action* · `inc/updates/class-installer.php`
-
-Fires after an add-on was installed from the Licence tab (it is installed, not yet activated).
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$slug` | `string` | Plugin slug. |
-| `$file` | `string` | Plugin file relative to the plugins directory. |
-
-**Since:** 1.6.0
-
 #### `clanbite_addon_reenabled`
 
-*Action* · `inc/updates/class-compat-monitor.php`
+*Action* · `inc/compat/class-compat-monitor.php`
 
 Fires after an add-on that was switched off came back because it is compatible again.
 
@@ -1521,7 +1518,7 @@ Filters relative time wording shown by Clanbite and its extensions.
 
 #### `clanbite_legacy_addon_constraint`
 
-*Filter* · `inc/updates/class-compat-monitor.php`
+*Filter* · `inc/compat/class-compat-monitor.php`
 
 Filters the Clanbite versions assumed for a first-party add-on that has no `Requires Clanbite` header.
 
@@ -1529,56 +1526,6 @@ Filters the Clanbite versions assumed for a first-party add-on that has no `Requ
 | --- | --- | --- |
 | `$constraint` | `string` | Default `^1.0.0`. |
 | `$data` | `array<string, mixed>` | Plugin data. |
-
-**Since:** 1.6.0
-
-#### `clanbite_license_account_url`
-
-*Filter* · `inc/updates/class-license-client.php`
-
-Filters the URL where customers manage or renew their licence.
-
-The default is the address the update server sends (its Customer account page setting); an empty string hides the link.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$url` | `string` | An https address, or an empty string for none. |
-
-**Since:** 1.6.0
-
-#### `clanbite_license_activated`
-
-*Action* · `inc/updates/class-license-client.php`
-
-Fires after this site activated a Clanbite licence.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$license` | `array<string, mixed>` | Licence summary from the server (`status`, `plan`, `expires`, `sites_used`, …). |
-
-**Since:** 1.6.0
-
-#### `clanbite_license_can_install_addons`
-
-*Filter* · `inc/updates/class-installer.php`
-
-Filters whether the Licence tab offers to install add-ons.
-
-Return false to hide the Install buttons (for example on a managed host that handles plugins itself).
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$allowed` | `bool` | Whether the current user may install plugins and file changes are allowed. |
-
-**Since:** 1.6.0
-
-#### `clanbite_license_deactivated`
-
-*Action* · `inc/updates/class-license-client.php`
-
-Fires after this site's licence was deactivated.
-
-_No arguments._
 
 **Since:** 1.6.0
 
@@ -1681,17 +1628,18 @@ _No arguments._
 
 **Since:** 1.6.3
 
-#### `clanbite_release_public_keys`
+#### `clanbite_register_skeletons`
 
-*Filter* · `inc/updates/functions.php`
+*Action* · `inc/skeleton.php`
 
-Filters the trusted release public keys (base64 Ed25519).
+Fires once when skeletons are collected: call `clanbite_register_skeleton()` here.
 
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$keys` | `string[]` | Public keys (Clanbite's built in key plus `CLANBITE_RELEASE_PUBLIC_KEY`). Empty means signatures are not checked. |
+Core registers its presets (`avatar`, `line`, `text`, `block`, `circle`, `card`, `list-item`) first; a third party can
+replace one with the `replace` argument.
 
-**Since:** 1.6.0
+_No arguments._
+
+**Since:** 1.7.0
 
 #### `clanbite_render_block_markup_file`
 
@@ -1788,6 +1736,86 @@ Extra JSON-LD @graph nodes for a team profile.
 | `$extra_graph` | `array<int, array<string, mixed>>` | Nodes. |
 | `$team_id` | `int` | Team post ID. |
 
+#### `clanbite_site_connections_enabled`
+
+*Filter* · `inc/functions-site-connections.php`
+
+Filters whether connections with other Clanbite sites are allowed.
+
+Returning true counts as the site owner's consent: only do so when they have agreed to what is sent.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$enabled` | `bool` | Whether the administrator turned the setting on. |
+
+**Since:** 1.7.0
+
+#### `clanbite_skeleton_args`
+
+*Filter* · `inc/skeleton.php`
+
+Filters the arguments of a skeleton before it is built.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$args` | `array<string, mixed>` | Arguments passed to `clanbite_render_skeleton()`. |
+| `$type` | `string` | Skeleton slug. |
+
+**Since:** 1.7.0
+
+#### `clanbite_skeleton_classes`
+
+*Filter* · `inc/skeleton.php`
+
+Filters the CSS classes of a skeleton primitive.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$classes` | `string[]` | CSS classes. |
+| `$type` | `string` | Skeleton preset the primitive belongs to. |
+| `$args` | `array<string, mixed>` | Arguments passed to `clanbite_skeleton_element()`. |
+
+**Since:** 1.7.0
+
+#### `clanbite_skeleton_html`
+
+*Filter* · `inc/skeleton.php`
+
+Filters the finished HTML of any skeleton: the one place to restyle or replace them all.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$html` | `string` | HTML. |
+| `$type` | `string` | Skeleton slug. |
+| `$args` | `array<string, mixed>` | Arguments the skeleton was built with. |
+
+**Since:** 1.7.0
+
+#### `clanbite_skeleton_html_{type}`
+
+*Filter* · `inc/skeleton.php`
+
+Filters the finished HTML of one kind of skeleton (`clanbite_skeleton_html_avatar`, `clanbite_skeleton_html_card`…).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$html` | `string` | HTML. |
+| `$args` | `array<string, mixed>` | Arguments the skeleton was built with. |
+
+**Since:** 1.7.0
+
+#### `clanbite_skeletons`
+
+*Filter* · `inc/skeleton.php`
+
+Filters the registered skeletons, for example to remove or swap one site-wide.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$skeletons` | `array<string, array<string, mixed>>` | Definitions keyed by slug. |
+
+**Since:** 1.7.0
+
 #### `clanbite_toast_config`
 
 *Filter* · `inc/toasts.php`
@@ -1869,51 +1897,6 @@ Filters whether popups are available (Notifications is on and "Show popups" is n
 | `$available` | `bool` | False when the Notifications extension or its "Show popups" switch is off. |
 
 **Since:** 1.5.0
-
-#### `clanbite_updatable_plugins`
-
-*Filter* · `inc/updates/class-updater.php`
-
-Filters the plugins that receive updates from the Clanbite update server.
-
-Add a plugin file here only if the plugin also carries an `Update URI` header on the server's host (WordPress asks
-wordpress.org for plugins without one).
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$out` | `array<string, array<string, mixed>>` | Plugin file => plugin data. |
-| `$plugins` | `array<string, array<string, mixed>>` | Every installed plugin. |
-
-**Since:** 1.6.0
-
-#### `clanbite_update_channel`
-
-*Filter* · `inc/updates/class-license-client.php`
-
-Filters the release channel this site asks for.
-
-`beta` also offers pre-releases of add-ons the server marks as having a beta channel; anything else means `stable`.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$channel` | `string` | Default `stable`. |
-
-**Since:** 1.6.0
-
-#### `clanbite_update_server_url`
-
-*Filter* · `inc/updates/functions.php`
-
-Filters the update server URL.
-
-Only HTTPS URLs are used (plain HTTP is accepted on `local` environments). Prefer the constant: filters added by a
-theme load too late for the update check.
-
-| Parameter | Type | Description |
-| --- | --- | --- |
-| `$url` | `string` | Base URL. |
-
-**Since:** 1.6.0
 
 #### `clanbite_visibility_container_editor_script_handle`
 
@@ -3558,6 +3541,20 @@ Filter whether a user counts as a group member for core features (events, etc.).
 | `$group_id` | `int` | Group ID. |
 | `$user_id` | `int` | User ID. |
 
+#### `clanbite_groups_viewer_can_see_content`
+
+*Filter* · `inc/groups/functions.php`
+
+Filters whether a viewer may see a group's content.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$can` | `bool` | Default true. |
+| `$group_id` | `int` | Group post ID. |
+| `$user_id` | `int` | Viewer (0 when signed out). |
+
+**Since:** 1.7.0
+
 #### `clanbite_player_subpages`
 
 *Filter* · `inc/profile-subpages.php`
@@ -4069,6 +4066,37 @@ Fires after a user declines a team invite.
 | `$user_id` | `int` | User who declined. |
 | `$notification` | `object` | The notification object. |
 
+#### `clanbite_team_invite_is_still_valid`
+
+*Filter* · `inc/extensions/teams/class-team-invites.php`
+
+Filters whether a team invitation can still be accepted.
+
+Return true for invitations your own code sends on behalf of someone who is not a team admin.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$valid` | `bool` | Whether the invitation is still valid. |
+| `$team_id` | `int` | Team post ID. |
+| `$user_id` | `int` | Invited user ID. |
+| `$inviter_id` | `int` | User who sent it. |
+
+**Since:** 1.7.0
+
+#### `clanbite_team_invite_rate_limit`
+
+*Filter* · `inc/extensions/teams/class-team-invites.php`
+
+Filters how many invitations one user may send per hour.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$limit` | `int` | Invitations per hour (default 30; 0 removes the limit). |
+| `$inviter_id` | `int` | Inviting user ID. |
+| `$team_id` | `int` | Team post ID. |
+
+**Since:** 1.7.0
+
 #### `clanbite_team_invite_sent`
 
 *Action* · `inc/extensions/teams/class-extension-teams.php`
@@ -4128,6 +4156,21 @@ Fires after the manage form has populated the team entity and before it is saved
 | `$team_id` | `int` | Team post ID. |
 | `$team_entity` | `Team` | Mutable team entity. |
 | `$extension` | `Teams` | Teams extension instance. |
+
+#### `clanbite_team_manage_can_add_member_directly`
+
+*Filter* · `inc/extensions/teams/class-extension-teams.php`
+
+Filters whether the manage screen may add someone who is not yet on the roster, without an invitation.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$allow` | `bool` | Default true for teams site admins only. |
+| `$user_id` | `int` | User being added. |
+| `$team_id` | `int` | Team post ID. |
+| `$actor_id` | `int` | User saving the roster. |
+
+**Since:** 1.7.0
 
 #### `clanbite_team_manage_form_after`
 
@@ -4333,6 +4376,20 @@ Filter the team profile URL built from a slug (no virtual action segment).
 | `$url` | `string` | Full URL. |
 | `$slug` | `string` | Sanitized `post_name`. |
 | `$extension` | `Teams` | Teams extension instance. |
+
+#### `clanbite_team_protected_post_fields`
+
+*Filter* · `inc/extensions/teams/class-extension-teams.php`
+
+Filters the team post columns a restricted user (such as a team admin or editor) may not change.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$fields` | `string[]` | Protected `wp_posts` column names. |
+| `$team_id` | `int` | Team post ID. |
+| `$user_id` | `int` | Current user ID. |
+
+**Since:** 1.7.0
 
 #### `clanbite_team_roster_updated`
 
@@ -4695,8 +4752,8 @@ Fires when the avatar or cover popup opens, so add-ons can add their own control
 | `context.kind` | `{string}` | `avatar` or `cover`. |
 | `context.dialog` | `{HTMLElement}` | The popup element. |
 | `context.extras` | `{HTMLElement}` | An empty container for your controls. |
-| `context.getPosition` | `{Function}` | Returns the current `{ x, y, zoom }`. |
-| `context.setPosition` | `{Function}` | Sets the position (`{ x, y, zoom }`) and redraws the preview. |
+| `unknown}` | `{( ...args: unknown[] ) =>` | context.getPosition Returns the current `{ x, y, zoom }`. |
+| `unknown}` | `{( ...args: unknown[] ) =>` | context.setPosition Sets the position (`{ x, y, zoom }`) and redraws the preview. |
 
 #### `clanbite.playerMedia.maxZoom`
 
@@ -4730,6 +4787,29 @@ Fires whenever a Clanbite popup opens or closes, however it was triggered.
 | --- | --- | --- |
 | `detail` | `{{ name: string, open: boolean, root: Element }}` | `name` identifies the popup; `root` is its element. |
 
+#### `clanbite.skeleton.args`
+
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-skeleton.js`
+
+Filters the arguments of a skeleton before it is built.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `args` | `{Object}` | Arguments passed to `clanbite.skeletons.render()`. |
+| `type` | `{string}` | Skeleton type. |
+
+#### `clanbite.skeleton.html`
+
+*Filter (JavaScript, `wp.hooks`)* · `src/assets/js/clanbite-skeleton.js`
+
+Filters the finished HTML of any skeleton: the one place to restyle or replace them all.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `html` | `{string}` | HTML. |
+| `type` | `{string}` | Skeleton type. |
+| `args` | `{Object}` | Arguments the skeleton was built with. |
+
 #### `clanbite.teams.joinModes`
 
 *Filter (JavaScript, `wp.hooks`)* · `src/assets/js/admin/team-options-editor.js`
@@ -4752,7 +4832,7 @@ Append `wp.element` elements to add your own options; persist them with `setMeta
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `controls` | `{Array}` | React elements for the panel. |
-| `context` | `{{ meta: Object, setMetaValue: Function, patchMeta: Function, components: Object, element: Object }}` | Editor helpers. |
+| `unknown,` | `{{ meta: Object, setMetaValue: ( ...args: unknown[] ) => unknown, patchMeta: ( ...args: unknown[] ) =>` | components: Object, element: Object }} context Editor helpers. |
 
 #### `clanbite.toasts.allowedUrl`
 

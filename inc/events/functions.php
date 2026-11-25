@@ -252,6 +252,27 @@ function clanbite_player_profile_events_subpage_visible_for_viewer( int $player_
 }
 
 /**
+ * Read a team's or group's own "events enabled" switch, which is on until someone turns it off.
+ *
+ * A saved "off" is stored as an empty string, so only a switch that was never saved counts as on when empty.
+ *
+ * @since 1.7.0
+ *
+ * @param int    $post_id  Team or group post ID.
+ * @param string $meta_key Meta key of the switch.
+ * @return bool
+ */
+function clanbite_events_entity_switch_is_on( int $post_id, string $meta_key ): bool {
+	if ( ! metadata_exists( 'post', $post_id, $meta_key ) ) {
+		return true;
+	}
+
+	$raw = get_post_meta( $post_id, $meta_key, true );
+
+	return '' !== $raw && clanbite_events_parse_entity_enabled_meta( $raw );
+}
+
+/**
  * Read a per-post "events enabled" flag: empty meta inherits enabled when global is on; explicit 0 disables.
  *
  * @param mixed $raw Raw meta value.
@@ -288,9 +309,7 @@ function clanbite_events_are_enabled_for_team( int $team_id ): bool {
 		return false;
 	}
 
-	$raw = get_post_meta( $team_id, 'clanbite_team_events_enabled', true );
-
-	return clanbite_events_parse_entity_enabled_meta( $raw );
+	return clanbite_events_entity_switch_is_on( $team_id, 'clanbite_team_events_enabled' );
 }
 
 /**
@@ -307,9 +326,7 @@ function clanbite_events_are_enabled_for_group( int $group_id ): bool {
 		return false;
 	}
 
-	$raw = get_post_meta( $group_id, 'clanbite_group_events_enabled', true );
-
-	return clanbite_events_parse_entity_enabled_meta( $raw );
+	return clanbite_events_entity_switch_is_on( $group_id, 'clanbite_group_events_enabled' );
 }
 
 /**

@@ -1,6 +1,8 @@
 /**
  * Unit tests for the shared browser scripts: components registry, popup lifecycle and clipboard.
  */
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 /**
  * A minimal stand-in for `wp.hooks` (the real package is not a dependency of this plugin).
  */
@@ -20,17 +22,28 @@ const createHooks = () => {
 	};
 };
 
-const load = ( file ) => {
-	jest.isolateModules( () => {
-		require( `../../src/assets/js/${ file }` );
-	} );
+const scripts = {
+	'clanbite-components.js': () =>
+		import( '../../src/assets/js/clanbite-components.js' ),
+	'clanbite-popups.js': () =>
+		import( '../../src/assets/js/clanbite-popups.js' ),
+	'clanbite-copy-text.js': () =>
+		import( '../../src/assets/js/clanbite-copy-text.js' ),
+	'clanbite-skeleton.js': () =>
+		import( '../../src/assets/js/clanbite-skeleton.js' ),
 };
 
-beforeEach( () => {
+// The scripts are plain browser scripts that attach themselves to `window`: run each one afresh.
+const load = async ( file ) => {
+	vi.resetModules();
+	await scripts[ file ]();
+};
+
+beforeEach( async () => {
 	document.body.innerHTML = '';
 	delete window.clanbite;
 	window.wp = { hooks: createHooks() };
-	load( 'clanbite-components.js' );
+	await load( 'clanbite-components.js' );
 } );
 
 describe( 'components registry', () => {
@@ -98,7 +111,7 @@ describe( 'clipboard', () => {
 	beforeEach( () => load( 'clanbite-copy-text.js' ) );
 
 	it( 'uses the async clipboard API when it exists', async () => {
-		const writeText = jest.fn().mockResolvedValue();
+		const writeText = vi.fn().mockResolvedValue( undefined );
 		Object.defineProperty( window.navigator, 'clipboard', {
 			value: { writeText },
 			configurable: true,
@@ -112,7 +125,7 @@ describe( 'clipboard', () => {
 			value: undefined,
 			configurable: true,
 		} );
-		document.execCommand = jest.fn().mockReturnValue( true );
+		document.execCommand = vi.fn().mockReturnValue( true );
 		expect( await window.clanbite.clipboard.copy( 'hello' ) ).toBe( true );
 		expect( document.execCommand ).toHaveBeenCalledWith( 'copy' );
 		expect( await window.clanbite.clipboard.copy( '' ) ).toBe( false );

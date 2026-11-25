@@ -32,7 +32,7 @@ final class Public_Rest {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( self::class, 'handle_discovery' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => array( self::class, 'connections_allowed' ),
 			)
 		);
 
@@ -42,7 +42,7 @@ final class Public_Rest {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( Cross_Site_Match_Sync::class, 'rest_site_sync_public_key' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => array( self::class, 'connections_allowed' ),
 			)
 		);
 
@@ -52,7 +52,7 @@ final class Public_Rest {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( self::class, 'handle_public_team' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => array( self::class, 'connections_allowed' ),
 				'args'                => array(
 					'slug' => array(
 						'description'       => __( 'Team post slug (`clanbite_team` post_name).', 'clanbite' ),
@@ -69,6 +69,24 @@ final class Public_Rest {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Permission for the endpoints other sites use: public, but only while the administrator has connections turned on.
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function connections_allowed() {
+		return clanbite_site_connections_enabled() ? true : self::connections_off_error();
+	}
+
+	/**
+	 * Answer given to other sites while connections are off. It reveals nothing about the site.
+	 *
+	 * @return WP_Error
+	 */
+	public static function connections_off_error(): WP_Error {
+		return new WP_Error( 'clanbite_connections_off', __( 'This site does not accept connections from other sites.', 'clanbite' ), array( 'status' => 403 ) );
 	}
 
 	/**

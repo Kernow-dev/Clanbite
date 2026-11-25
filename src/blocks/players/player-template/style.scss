@@ -1,4 +1,5 @@
-// Aligned with core `wp-block-post-template` (list + legacy flex columns + grid tweaks).
+// Aligned with core `wp-block-post-template` (list + legacy flex columns +
+// grid tweaks).
 .wp-block-clanbite-player-template {
 	box-sizing: border-box;
 	list-style: none;
@@ -44,7 +45,8 @@
 	}
 }
 
-// Match core mobile grid collapse (repeat class names = specificity bump like core).
+// Match core mobile grid collapse (repeat class names = specificity bump like
+// core).
 @media ( max-width: 599px ) {
 
 	.wp-block-clanbite-player-template-is-layout-grid.wp-block-clanbite-player-template-is-layout-grid.wp-block-clanbite-player-template-is-layout-grid.wp-block-clanbite-player-template-is-layout-grid {
