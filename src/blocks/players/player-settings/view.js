@@ -3,7 +3,7 @@ import { store, getElement } from '@wordpress/interactivity';
 const parseArg = ( value ) => {
 	try {
 		return JSON.parse( value );
-	} catch ( e ) {
+	} catch {
 		return value;
 	}
 };
@@ -14,7 +14,7 @@ const parseMaybeJson = ( value, fallback = {} ) => {
 	}
 	try {
 		return JSON.parse( value );
-	} catch ( e ) {
+	} catch {
 		return fallback;
 	}
 };
@@ -99,7 +99,7 @@ const applyPlayerSettingsPayloadToFields = ( root, payload ) => {
 				return;
 			}
 			radiosHandled.add( field.name );
-			const strVal = raw != null ? String( raw ) : '';
+			const strVal = String( raw ?? '' );
 			root.querySelectorAll( 'input[type="radio"]' ).forEach( ( r ) => {
 				if ( r.name === field.name ) {
 					r.checked = r.value === strVal;
@@ -108,7 +108,7 @@ const applyPlayerSettingsPayloadToFields = ( root, payload ) => {
 			return;
 		}
 
-		field.value = raw != null ? String( raw ) : '';
+		field.value = String( raw ?? '' );
 	} );
 
 	// Forums signature RTE: textarea is source of truth for save; mirror into contenteditable.
@@ -121,8 +121,8 @@ const applyPlayerSettingsPayloadToFields = ( root, payload ) => {
 				'.clanbite-forums-board__rte-editor'
 			);
 			if (
-				ta instanceof HTMLTextAreaElement &&
-				ed instanceof HTMLElement
+				ta instanceof window.HTMLTextAreaElement &&
+				ed instanceof window.HTMLElement
 			) {
 				ed.innerHTML = ta.value;
 			}
@@ -144,7 +144,7 @@ const applyPlayerSettingsPayloadToFields = ( root, payload ) => {
  */
 const setPreviewImage = ( preview, url ) => {
 	const img = preview.querySelector( 'img' );
-	if ( img instanceof HTMLImageElement ) {
+	if ( img instanceof window.HTMLImageElement ) {
 		img.src = url;
 	} else {
 		preview.style.backgroundImage = `url(${ url })`;
@@ -163,7 +163,7 @@ const updateAvatarCoverPreviewsAfterSave = (
 
 	if ( data.avatarUrl ) {
 		const preview = root.querySelector( '.avatar-preview' );
-		if ( preview instanceof HTMLElement ) {
+		if ( preview instanceof window.HTMLElement ) {
 			setPreviewImage( preview, data.avatarUrl );
 		}
 		if ( avatarInput ) {
@@ -173,7 +173,7 @@ const updateAvatarCoverPreviewsAfterSave = (
 
 	if ( data.coverUrl ) {
 		const preview = root.querySelector( '.cover-preview' );
-		if ( preview instanceof HTMLElement ) {
+		if ( preview instanceof window.HTMLElement ) {
 			setPreviewImage( preview, data.coverUrl );
 		}
 		if ( coverInput ) {
@@ -395,7 +395,8 @@ const { state, actions } = store( 'clanbite-player-settings', {
 
 			// Only allow image files
 			if ( ! [ 'image/png', 'image/jpeg' ].includes( file.type ) ) {
-				alert( 'Only PNG or JPEG allowed.' );
+				// eslint-disable-next-line no-alert -- native message for a rejected file type.
+				window.alert( 'Only PNG or JPEG allowed.' );
 				return;
 			}
 
@@ -431,7 +432,8 @@ const { state, actions } = store( 'clanbite-player-settings', {
 
 			// Only allow image files
 			if ( ! [ 'image/png', 'image/jpeg' ].includes( file.type ) ) {
-				alert( 'Only PNG or JPEG allowed.' );
+				// eslint-disable-next-line no-alert -- native message for a rejected file type.
+				window.alert( 'Only PNG or JPEG allowed.' );
 				return;
 			}
 
@@ -464,11 +466,11 @@ const { state, actions } = store( 'clanbite-player-settings', {
 		},
 
 		async save() {
-			const { ref } = getElement();
-
 			if ( ! state.root ) {
 				return;
 			}
+
+			const { ref } = getElement();
 
 			// Grab the nonce from the hidden field
 			const nonceInput = state.root.querySelector(
@@ -601,6 +603,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 					message: state.messages?.networkError,
 				} );
 				state.errors = {};
+				// eslint-disable-next-line no-console -- surfaced for site owners when saving fails.
 				console.error( 'Save failed', err );
 			} finally {
 				state.isSaving = false;
@@ -617,7 +620,8 @@ const { state, actions } = store( 'clanbite-player-settings', {
 		 * - data-clanbite-action-confirm (optional confirmation text)
 		 * - data-clanbite-action-remove-closest (CSS selector to remove on success)
 		 * - data-clanbite-action-success-message / data-clanbite-action-error-message
-		 * @param event
+		 *
+		 * @param {Event} event Click event on the element that carries the action attributes.
 		 */
 		async runPluginAction( event ) {
 			event.preventDefault();
@@ -634,6 +638,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 			const confirmMsg = ref.getAttribute(
 				'data-clanbite-action-confirm'
 			);
+			// eslint-disable-next-line no-alert -- the action asked for a native confirmation (data-clanbite-action-confirm).
 			if ( confirmMsg && ! window.confirm( confirmMsg ) ) {
 				return;
 			}
@@ -688,7 +693,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 					type: 'success',
 					message: successMsg,
 				} );
-			} catch ( err ) {
+			} catch {
 				actions.showToast( {
 					type: 'error',
 					message: errorMsg,

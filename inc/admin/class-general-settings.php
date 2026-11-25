@@ -209,6 +209,7 @@ class General_Settings extends Abstract_Settings {
 			'hide_wp_admin_bar_for_non_admins' => false,
 			'login_redirect'                   => 'dashboard',
 			'login_redirect_url'               => '',
+			'connect_clanbite_sites'           => false,
 		);
 	}
 
@@ -261,6 +262,17 @@ class General_Settings extends Abstract_Settings {
 							'field' => 'login_redirect',
 							'value' => 'custom',
 						),
+					),
+				),
+			),
+			'connections' => array(
+				'title'  => __( 'Other Clanbite sites', 'clanbite' ),
+				'fields' => array(
+					'connect_clanbite_sites' => array(
+						'label'       => __( 'Connect with other Clanbite sites', 'clanbite' ),
+						'type'        => 'checkbox',
+						'description' => __( 'Off by default. When on, team challenges can work between websites. Your server contacts the address a challenger asks it to look up, which tells that site your site address. When you accept their challenge, it sends them the match details, team names, time, links and logo address, and your site address. Other sites can also ask yours whether it runs Clanbite (including the version), for a published team’s public details and for your public signing key, and can send you a signed match. Those sites are run by other people under their own terms.', 'clanbite' ),
+						'default'     => false,
 					),
 				),
 			),

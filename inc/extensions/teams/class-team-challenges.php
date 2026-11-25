@@ -790,7 +790,7 @@ final class Team_Challenges {
 
 		$away_id   = $challenger_team_id;
 		$ext_label = isset( $snapshot['title'] ) ? sanitize_text_field( (string) $snapshot['title'] ) : '';
-		$ext_logo  = isset( $snapshot['logoUrl'] ) ? esc_url_raw( (string) $snapshot['logoUrl'] ) : '';
+		$ext_logo  = isset( $snapshot['logoUrl'] ) ? clanbite_allowed_remote_image_url( esc_url_raw( (string) $snapshot['logoUrl'] ) ) : '';
 		$ext_url   = isset( $snapshot['profileUrl'] ) ? esc_url_raw( (string) $snapshot['profileUrl'] ) : '';
 
 		if ( $away_id < 1 && '' === $ext_label ) {
@@ -1050,6 +1050,10 @@ final class Team_Challenges {
 	 * @return array{clanbite: bool, origin?: string, team?: array<string, mixed>}|WP_Error
 	 */
 	private function fetch_remote_team_bundle( string $profile_url ): array|WP_Error {
+		if ( ! clanbite_site_connections_enabled() ) {
+			return new WP_Error( 'clanbite_connections_off', __( 'This site is not connected to other Clanbite sites. Enter your team details instead.', 'clanbite' ), array( 'status' => 403 ) );
+		}
+
 		$profile_url = esc_url_raw( $profile_url );
 		if ( '' === $profile_url ) {
 			return new WP_Error( 'clanbite_remote_url', __( 'Enter a valid team URL.', 'clanbite' ), array( 'status' => 400 ) );

@@ -132,7 +132,7 @@
 		el.style.width = natural.width + 'px';
 		try {
 			el.showPopover();
-		} catch ( e ) {
+		} catch {
 			el.removeAttribute( 'popover' );
 			el.removeAttribute( 'style' );
 			return;
@@ -167,7 +167,7 @@
 			floating.delete( el );
 			try {
 				el.hidePopover();
-			} catch ( e ) {
+			} catch {
 				// Already closed.
 			}
 			el.removeAttribute( 'popover' );

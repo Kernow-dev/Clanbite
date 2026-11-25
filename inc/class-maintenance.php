@@ -52,4 +52,14 @@ class Maintenance {
 		clanbite_maybe_migrate_cpt_identifiers();
 		clanbite_maybe_migrate_legacy_prefix();
 	}
+
+	/**
+	 * Add-on installing and updating moved to the Add-on Manager: forget cached plugin update data, which may still hold
+	 * download addresses that only Clanbite's old updater could use. The stored licence activation is kept for the manager.
+	 *
+	 * @return void
+	 */
+	private static function run_3(): void {
+		delete_site_transient( 'update_plugins' );
+	}
 }

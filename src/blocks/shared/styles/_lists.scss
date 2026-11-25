@@ -7,12 +7,16 @@
 // Base list container
 .clanbite-list {
 	// Type variants (core Clanbite only)
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-list--matches { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-list--events { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-list--players { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-list--teams { }
 
 	// Note: Plugin-specific variants (--forums, --social-kit, --points, --ranks)

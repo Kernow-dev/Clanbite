@@ -33,7 +33,8 @@
 		background: color-mix(in srgb, currentcolor 12%, transparent);
 	}
 
-	// A real outline (not a faint box-shadow) so the ring keeps >= 3:1 contrast and survives forced-colors mode.
+	// A real outline (not a faint box-shadow) so the ring keeps >= 3:1
+	// contrast and survives forced-colors mode.
 	&:focus-visible {
 		outline: 2px solid currentcolor;
 		outline-offset: 2px;

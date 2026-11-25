@@ -1,7 +1,8 @@
 @use "../../shared/styles/reduced-motion";
 
 /**
- * Align with Social feed / composer surfaces (see clanbite-social-kit social-feed).
+ * Align with Social feed / composer surfaces (see clanbite-social-kit
+ * social-feed).
  */
 .wp-block-clanbite-player-settings {
 	--feed-surface: color-mix(in srgb, currentcolor 6%, transparent);
@@ -246,7 +247,10 @@
 							display: none;
 						}
 
-						/* Stacked labels for text / select / textarea (not checkbox-in-label rows). */
+						/*
+						 * Stacked labels for text / select / textarea (not
+						 * checkbox-in-label rows).
+						 */
 						> label[for]:not(:has(input)) {
 							position: static;
 							margin: 0;

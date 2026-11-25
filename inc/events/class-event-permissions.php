@@ -42,6 +42,15 @@ final class Event_Permissions {
 			return self::viewer_can_see_player_event( $post, $viewer_id, $visibility );
 		}
 
+		// A group's privacy comes first: an event marked public in a private group is still for that group only. Whoever
+		// manages the group (not merely the event's author, who may have left or been banned) and site admins pass.
+		if ( Event_Post_Type::SCOPE_GROUP === $scope && $group_id > 0 && function_exists( 'clanbite_groups_viewer_can_see_content' )
+			&& ! clanbite_groups_viewer_can_see_content( $group_id, $viewer_id )
+			&& ! ( $viewer_id > 0 && ( user_can( $viewer_id, 'manage_options' )
+				|| ( function_exists( 'clanbite_groups_user_can_manage' ) && clanbite_groups_user_can_manage( $group_id, $viewer_id ) ) ) ) ) {
+			return false;
+		}
+
 		if ( Event_Post_Type::VISIBILITY_PUBLIC === $visibility ) {
 			return true;
 		}

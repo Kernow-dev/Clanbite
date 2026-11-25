@@ -16,9 +16,11 @@ import { store, getContext, getElement } from '@wordpress/interactivity';
 /**
  * Popup lifecycle (`clanbite.popup.toggled`, `clanbite.popup.shouldOpen`) comes from the shared popups client
  * (`window.clanbite.popups`, component `popups`), so every Clanbite popup reports and can be vetoed the same way.
- * @param name
- * @param open
- * @param root
+ *
+ * @param {string}       name Popup name.
+ * @param {boolean}      open Whether it is open.
+ * @param {Element|null} root Element the popup belongs to.
+ * @return {void}
  */
 const announcePopup = ( name, open, root ) =>
 	window.clanbite?.popups?.announce( name, open, root );
@@ -29,7 +31,7 @@ let notificationPollTimer = null;
 
 /**
  * Simple fetch wrapper for REST API calls.
- * Uses native fetch since @wordpress/api-fetch isn't available in module scripts.
+ * Uses native fetch since `@wordpress/api-fetch` isn't available in module scripts.
  *
  * @param {string} restUrl        Base REST URL from context.
  * @param {string} nonce          WP REST nonce from context.
@@ -94,7 +96,7 @@ async function refreshRestNonce( restUrl ) {
 		);
 		const text = ( await response.text() ).trim();
 		return response.ok && /^[a-f0-9]{6,}$/i.test( text ) ? text : '';
-	} catch ( refreshError ) {
+	} catch {
 		return '';
 	}
 }
@@ -331,13 +333,12 @@ function createNotificationItemElement( notification, ctx ) {
 			const rawStyle = String( action.style || 'secondary' );
 			const safeStyle = safeClassSuffix( rawStyle ) || 'secondary';
 			btn.className = `clanbite-notification__action clanbite-notification__action--${ safeStyle }`;
-			btn.dataset.action = action.key != null ? String( action.key ) : '';
+			btn.dataset.action = String( action.key ?? '' );
 			btn.dataset.notificationId = String( id );
 			if ( action.confirm ) {
 				btn.dataset.confirm = String( action.confirm );
 			}
-			btn.textContent =
-				action.label != null ? String( action.label ) : '';
+			btn.textContent = String( action.label ?? '' );
 			actionsRow.appendChild( btn );
 		} );
 		content.appendChild( actionsRow );
@@ -569,7 +570,7 @@ function showToast( message, type = 'info' ) {
 	} );
 }
 
-const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
+const { actions } = store( 'clanbite/notification-bell', {
 	state: {
 		get hasUnread() {
 			const ctx = getContext();
@@ -588,7 +589,7 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 	},
 
 	actions: {
-		toggleDropdown( event ) {
+		toggleDropdown() {
 			// Do not stopPropagation: document click handlers on other header UI (e.g. user nav)
 			// must see the bubble so they can close their popovers when this one opens.
 			const ctx = getContext();
@@ -655,6 +656,7 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 
 				renderNotificationsList( ctx, ref );
 			} catch ( error ) {
+				// eslint-disable-next-line no-console -- surfaced for site owners; the bell keeps working
 				console.error( 'Failed to load notifications:', error );
 			} finally {
 				ctx.isLoading = false;
@@ -679,6 +681,7 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 
 				renderNotificationsList( ctx, ref );
 			} catch ( error ) {
+				// eslint-disable-next-line no-console -- surfaced for site owners; the bell keeps working
 				console.error( 'Failed to mark all as read:', error );
 			}
 		},
@@ -711,6 +714,7 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 
 				renderNotificationsList( ctx, ref );
 			} catch ( error ) {
+				// eslint-disable-next-line no-console -- surfaced for site owners; the bell keeps working
 				console.error( 'Failed to mark as read:', error );
 			}
 		},
@@ -775,6 +779,7 @@ const { state, actions, callbacks } = store( 'clanbite/notification-bell', {
 					}
 				}
 			} catch ( error ) {
+				// eslint-disable-next-line no-console -- surfaced for site owners; the bell keeps working
 				console.error( 'Failed to execute action:', error );
 				const failed = ctx.i18n?.actionFailed || '';
 				// A network failure carries the browser's own wording ("Failed to fetch"): show the site's message instead.
@@ -871,6 +876,7 @@ async function fetchInitialCount( ctx ) {
 		ctx.lastTimestamp = response.timestamp;
 	} catch ( error ) {
 		// Silently fail - the badge will just show the server-rendered count.
+		// eslint-disable-next-line no-console -- surfaced for site owners; the bell keeps working
 		console.error( 'Failed to fetch notification count:', error );
 	}
 }
@@ -906,7 +912,8 @@ function startPolling( ctx ) {
 		// Reduce background network work when the page is hidden or offline.
 		if (
 			document.hidden ||
-			( typeof navigator !== 'undefined' && ! navigator.onLine )
+			( typeof window.navigator !== 'undefined' &&
+				! window.navigator.onLine )
 		) {
 			ctx.pollInterval = Math.max( ctx.pollInterval || 4000, 15000 );
 			notificationPollTimer = setTimeout( poll, ctx.pollInterval );
@@ -994,6 +1001,7 @@ function startPolling( ctx ) {
 			}
 			// Increase interval on error.
 			ctx.pollInterval = Math.min( ctx.pollInterval * 2, 30000 );
+			// eslint-disable-next-line no-console -- surfaced for site owners; the bell keeps working
 			console.error( 'Notification poll failed:', error );
 		}
 
@@ -1059,6 +1067,7 @@ function initSyncProvider( ctx ) {
 					ctx.unreadCount = data.unread_count || 0;
 				}
 			} catch ( handlerError ) {
+				// eslint-disable-next-line no-console -- surfaced for site owners; the bell keeps working
 				console.error(
 					'Clanbite notification bell: WebSocket message handler error',
 					handlerError
@@ -1073,6 +1082,7 @@ function initSyncProvider( ctx ) {
 
 		ctx.syncProviderActive = true;
 	} catch ( error ) {
+		// eslint-disable-next-line no-console -- surfaced for site owners; the bell keeps working
 		console.error( 'Failed to initialize sync provider:', error );
 		startPolling( ctx );
 	}

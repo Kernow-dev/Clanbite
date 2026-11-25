@@ -6,7 +6,7 @@
 	"title": "Player Avatar",
 	"category": "clanbite-players",
 	"icon": "smiley",
-	"description": "Example block scaffolded with Create Block tool.",
+	"description": "Displays the player's avatar on profiles and in player loops.",
 	"example": {},
 	"usesContext": [ "clanbite/playerId" ],
 	"attributes": {

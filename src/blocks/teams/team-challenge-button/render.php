@@ -174,10 +174,12 @@ $team_challenge_button_root_open = '<div '
 					</div>
 				<?php endif; ?>
 
+				<?php if ( clanbite_site_connections_enabled() ) : ?>
 				<div class="clanbite-team-challenge__field">
 					<label for="clanbite-ch-url-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Opponent team URL (optional)', 'clanbite' ); ?></label>
-					<input id="clanbite-ch-url-<?php echo esc_attr( (string) $team_id ); ?>" name="opponent_team_url" type="url" inputmode="url" placeholder="https://example.com/teams/their-slug/" data-wp-on--blur="actions.lookupRemote" />
-					<p class="description"><?php esc_html_e( 'If they use Clanbite, we load their public team details for the match listing.', 'clanbite' ); ?></p>
+					<input id="clanbite-ch-url-<?php echo esc_attr( (string) $team_id ); ?>" name="opponent_team_url" type="url" inputmode="url" placeholder="https://example.com/teams/their-slug/" />
+					<p class="description" id="clanbite-ch-url-help-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'If your team is on a Clanbite site: choosing "Look up team" or sending the challenge makes this website contact that address to read your team’s public details. That tells it this website’s address. If your challenge is accepted, the match details are sent to it too.', 'clanbite' ); ?></p>
+					<button type="button" class="wp-element-button clanbite-button clanbite-button--ghost" data-wp-on--click="actions.lookupRemote" data-wp-bind--disabled="context.lookupLoading" aria-describedby="clanbite-ch-url-help-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Look up team', 'clanbite' ); ?></button>
 				</div>
 
 				<div class="clanbite-team-challenge__preview" hidden data-wp-bind--hidden="!context.previewTitle">
@@ -191,9 +193,11 @@ $team_challenge_button_root_open = '<div '
 				</div>
 				<p class="clanbite-team-challenge__notice is-error" data-wp-bind--hidden="!context.remoteError" data-wp-text="context.remoteError" hidden></p>
 
+				<?php endif; ?>
+
 				<div class="clanbite-team-challenge__field clanbite-team-challenge__manual-brand">
 					<p class="description">
-						<?php esc_html_e( 'If the challenger site does not run Clanbite, add how your team should appear on the match (optional).', 'clanbite' ); ?>
+						<?php esc_html_e( 'Add how your team should appear on the match (optional).', 'clanbite' ); ?>
 					</p>
 					<label for="clanbite-ch-brand-<?php echo esc_attr( (string) $team_id ); ?>"><?php esc_html_e( 'Your team or org name (optional)', 'clanbite' ); ?></label>
 					<input id="clanbite-ch-brand-<?php echo esc_attr( (string) $team_id ); ?>" name="challenger_team_name" type="text" autocomplete="organization" />

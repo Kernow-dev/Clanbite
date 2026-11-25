@@ -24,8 +24,10 @@ export function getPositionClassName( contentPosition ) {
 }
 
 /**
- * @param {string|undefined} contentPosition
- * @return {boolean}
+ * Whether the content position is the centre of the block.
+ *
+ * @param {string|undefined} contentPosition Content position such as `center center`.
+ * @return {boolean} True when there is no position or it is `center center`.
  */
 export function isContentPositionCenter( contentPosition ) {
 	return ! contentPosition || contentPosition === 'center center';
@@ -34,8 +36,8 @@ export function isContentPositionCenter( contentPosition ) {
 /**
  * Recursively drop empty nested objects / empty values from a style-like object.
  *
- * @param {Record<string, *>|undefined} object
- * @return {Record<string, *>|undefined}
+ * @param {Record<string, unknown>|undefined} object Style-like object.
+ * @return {Record<string, unknown>|undefined} The object without empty values, or undefined when nothing is left.
  */
 export function cleanEmptyObject( object ) {
 	if ( ! object ) {

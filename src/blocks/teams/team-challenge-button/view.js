@@ -6,9 +6,11 @@ import { store, getContext, getElement } from '@wordpress/interactivity';
 /**
  * Popup lifecycle (`clanbite.popup.toggled`, `clanbite.popup.shouldOpen`) comes from the shared popups client
  * (`window.clanbite.popups`, component `popups`), so every Clanbite popup reports and can be vetoed the same way.
- * @param name
- * @param open
- * @param root
+ *
+ * @param {string}       name Popup name.
+ * @param {boolean}      open Whether it is open.
+ * @param {Element|null} root Element the popup belongs to.
+ * @return {void}
  */
 const announcePopup = ( name, open, root ) =>
 	window.clanbite?.popups?.announce( name, open, root );
@@ -31,10 +33,10 @@ store( 'clanbite-team-challenge-button', {
 	},
 	actions: {
 		open() {
-			const ctx = getContext();
 			if ( ! allowPopupOpen( 'team-challenge', getElement().ref ) ) {
 				return;
 			}
+			const ctx = getContext();
 			ctx.open = true;
 			ctx.formError = '';
 			ctx.formSuccess = '';
@@ -57,7 +59,10 @@ store( 'clanbite-team-challenge-button', {
 		},
 		async lookupRemote( event ) {
 			const ctx = getContext();
-			const url = String( event.target.value || '' ).trim();
+			const input = event.target
+				.closest( 'form' )
+				?.querySelector( '[name="opponent_team_url"]' );
+			const url = String( input?.value || '' ).trim();
 			ctx.previewTitle = '';
 			ctx.previewLogo = '';
 			ctx.previewPermalink = '';
@@ -109,11 +114,11 @@ store( 'clanbite-team-challenge-button', {
 			}
 		},
 		async uploadLogo( event ) {
-			const ctx = getContext();
 			const input = event.target;
-			if ( ! ( input instanceof HTMLInputElement ) ) {
+			if ( ! ( input instanceof window.HTMLInputElement ) ) {
 				return;
 			}
+			const ctx = getContext();
 			const file = input.files && input.files[ 0 ];
 			ctx.logoAttachmentId = 0;
 			ctx.logoUploadMessage = '';
@@ -156,11 +161,11 @@ store( 'clanbite-team-challenge-button', {
 		},
 		async submit( event ) {
 			event.preventDefault();
-			const ctx = getContext();
 			const form = event.target;
-			if ( ! ( form instanceof HTMLFormElement ) ) {
+			if ( ! ( form instanceof window.HTMLFormElement ) ) {
 				return;
 			}
+			const ctx = getContext();
 			ctx.loading = true;
 			ctx.formError = '';
 			ctx.formSuccess = '';

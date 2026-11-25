@@ -3,13 +3,17 @@
 /**
  * Avatar XP ring
  *
- * The ring is part of the avatar frame (an SVG in the avatar's own shape: circle, square or hexagon). A faint track runs
- * all the way round; the progress arc starts at the top and runs clockwise, `stroke-dasharray` being "<percent> 100" on a
- * path of length 100. Colours follow the theme tokens; restyle with the custom properties:
+ * The ring is part of the avatar frame (an SVG in the avatar's own shape:
+ * circle, square or hexagon). A faint track runs
+ * all the way round; the progress arc starts at the top and runs clockwise,
+ * `stroke-dasharray` being "<percent> 100" on a
+ * path of length 100. Colours follow the theme tokens; restyle with the
+ * custom properties:
  *
  *   --clanbite-avatar-ring        arc colour (default: accent)
  *   --clanbite-avatar-ring-track  track colour
- *   --clanbite-avatar-ring-width  stroke width in frame units (default 5, of 100)
+ * --clanbite-avatar-ring-width  stroke width in frame units (default 5, of
+ * 100)
  */
 
 .clanbite-avatar__ring-track,
@@ -29,7 +33,8 @@
 	transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-// A ring at 0% would still draw a round cap dot; hide the arc until there is progress.
+// A ring at 0% would still draw a round cap dot; hide the arc until there is
+// progress.
 .clanbite-avatar__ring-progress[stroke-dasharray^="0 "] {
 	stroke-opacity: 0;
 }

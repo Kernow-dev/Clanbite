@@ -167,6 +167,8 @@ class Matches extends Skeleton {
 		add_action( 'manage_clanbite_match_posts_custom_column', array( $this, 'render_match_admin_column' ), 10, 2 );
 		add_action( 'save_post_clanbite_match', array( $this, 'validate_match_on_save' ), 10, 2 );
 		add_filter( 'single_template', array( $this, 'maybe_single_match_template' ) );
+		require_once __DIR__ . '/class-match-privacy.php';
+		( new \Kernowdev\Clanbite\Extensions\Matches\Match_Privacy( $this ) )->register();
 		add_filter( 'clanbite_team_create_form_steps', array( $this, 'register_team_create_matches_step' ), 25 );
 	}
 
@@ -298,7 +300,7 @@ class Matches extends Skeleton {
 
 		$away_ext = array(
 			'label'      => (string) get_post_meta( $post->ID, 'clanbite_match_away_external_label', true ),
-			'logoUrl'    => (string) get_post_meta( $post->ID, 'clanbite_match_away_external_logo_url', true ),
+			'logoUrl'    => clanbite_allowed_remote_image_url( (string) get_post_meta( $post->ID, 'clanbite_match_away_external_logo_url', true ) ),
 			'profileUrl' => (string) get_post_meta( $post->ID, 'clanbite_match_away_external_profile_url', true ),
 		);
 		if ( $away_id > 0 ) {

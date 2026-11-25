@@ -2,6 +2,8 @@
  * Unified Clanbite wp-admin (tabs: General, Extensions, per-extension settings).
  * Active tab is synced to `?tab=<id>` for deep links and refresh.
  */
+
+/* global wpApiSettings, clanbiteAdmin */
 import {
 	render,
 	useState,
@@ -72,10 +74,10 @@ const IconPickerBootstrapContext = createContext( {
 /**
  * Icon URL stored via pack picker and/or media library (no raw URL field; `icon_picker` + type url).
  *
- * @param {Object}   props
- * @param {Object}   props.field    Field schema from REST.
- * @param {unknown}  props.value    Current value.
- * @param {Function} props.onChange ( fieldId, next ) => void
+ * @param {Object}                            props
+ * @param {Object}                            props.field    Field schema from REST.
+ * @param {unknown}                           props.value    Current value.
+ * @param {( ...args: unknown[] ) => unknown} props.onChange ( fieldId, next ) => void
  * @return {import('react').ReactNode} Rendered controls.
  */
 function IconUrlFieldControl( { field, value, onChange } ) {
@@ -93,19 +95,23 @@ function IconUrlFieldControl( { field, value, onChange } ) {
 						typeof window !== 'undefined'
 							? window.clanbiteAdmin?.iconPacks
 							: undefined
-				  );
+					);
 		return filterIconPacksByFieldScope( field, allPacks );
 	} )();
-	const i18n =
+	let i18n = {};
+	if (
 		contextI18n &&
 		typeof contextI18n === 'object' &&
 		Object.keys( contextI18n ).length > 0
-			? contextI18n
-			: typeof window !== 'undefined' &&
-			  window.clanbiteAdmin?.iconPickerI18n &&
-			  typeof window.clanbiteAdmin.iconPickerI18n === 'object'
-			? window.clanbiteAdmin.iconPickerI18n
-			: {};
+	) {
+		i18n = contextI18n;
+	} else if (
+		typeof window !== 'undefined' &&
+		window.clanbiteAdmin?.iconPickerI18n &&
+		typeof window.clanbiteAdmin.iconPickerI18n === 'object'
+	) {
+		i18n = window.clanbiteAdmin.iconPickerI18n;
+	}
 
 	const openMediaFrame = () => {
 		if ( ! window.wp || ! window.wp.media ) {
@@ -408,7 +414,7 @@ function setupApiFetch() {
 			: ( clanbiteAdmin?.restUrl || '' ).replace(
 					/clanbite\/v1\/$/,
 					''
-			  ) || '/wp-json/';
+				) || '/wp-json/';
 	const nonce =
 		typeof wpApiSettings !== 'undefined' && wpApiSettings?.nonce
 			? wpApiSettings.nonce
@@ -420,11 +426,11 @@ function setupApiFetch() {
 /**
  * Repeater-style user IDs with search (REST) and removable rows (avatar + name).
  *
- * @param {Object}   props
- * @param {Object}   props.field    Field schema (`user_search_path`, `label`, `description`, `id`).
- * @param {unknown}  props.value    Expected number[] from settings.
- * @param {Function} props.onChange ( fieldId, nextValue ) => void
- * @return {import('react').ReactNode}
+ * @param {Object}                            props
+ * @param {Object}                            props.field    Field schema (`user_search_path`, `label`, `description`, `id`).
+ * @param {unknown}                           props.value    Expected number[] from settings.
+ * @param {( ...args: unknown[] ) => unknown} props.onChange ( fieldId, nextValue ) => void
+ * @return {import('react').ReactNode} The control.
  */
 function UserIdListControl( { field, value, onChange } ) {
 	const fid = field.id;
@@ -439,7 +445,7 @@ function UserIdListControl( { field, value, onChange } ) {
 						.map( ( v ) => parseInt( v, 10 ) )
 						.filter( ( n ) => n > 0 )
 				),
-		  ]
+			]
 		: [];
 
 	const [ query, setQuery ] = useState( '' );
@@ -502,6 +508,7 @@ function UserIdListControl( { field, value, onChange } ) {
 		return () => {
 			cancelled = true;
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `ids` is represented by `idsKey` (a stable string): a new array each render must not refetch.
 	}, [ idsKey, searchPath ] );
 
 	useEffect( () => {
@@ -556,6 +563,7 @@ function UserIdListControl( { field, value, onChange } ) {
 				name:
 					u.name ||
 					u.slug ||
+					/* translators: %d: user ID */
 					sprintf( __( 'User %d', 'clanbite' ), uid ),
 				avatar: av,
 			},
@@ -588,7 +596,8 @@ function UserIdListControl( { field, value, onChange } ) {
 						const row = details[ uid ];
 						const label = row?.name
 							? row.name
-							: sprintf( __( 'User %d', 'clanbite' ), uid );
+							: /* translators: %d: user ID */
+								sprintf( __( 'User %d', 'clanbite' ), uid );
 						return (
 							<li
 								key={ uid }
@@ -665,6 +674,7 @@ function UserIdListControl( { field, value, onChange } ) {
 							const name =
 								u.name ||
 								u.slug ||
+								/* translators: %d: user ID */
 								sprintf( __( 'User %d', 'clanbite' ), uid );
 							return (
 								<li key={ uid || u.slug } role="option">
@@ -732,10 +742,10 @@ function restPostTitleText( p ) {
 /**
  * Multi-select list of post IDs (teams, groups, etc.) for extension settings.
  *
- * @param {Object}             props          Props.
- * @param {Object}             props.field    Field schema from PHP (`post_id_list`).
- * @param {number[]|undefined} props.value    Selected post IDs.
- * @param {Function}           props.onChange `( fieldId, nextIds ) => void`.
+ * @param {Object}                            props          Props.
+ * @param {Object}                            props.field    Field schema from PHP (`post_id_list`).
+ * @param {number[]|undefined}                props.value    Selected post IDs.
+ * @param {( ...args: unknown[] ) => unknown} props.onChange `( fieldId, nextIds ) => void`.
  * @return {import('react').ReactNode} Field UI.
  */
 function PostIdListControl( { field, value, onChange } ) {
@@ -751,7 +761,7 @@ function PostIdListControl( { field, value, onChange } ) {
 						.map( ( v ) => parseInt( v, 10 ) )
 						.filter( ( n ) => n > 0 )
 				),
-		  ]
+			]
 		: [];
 
 	const [ query, setQuery ] = useState( '' );
@@ -804,6 +814,7 @@ function PostIdListControl( { field, value, onChange } ) {
 		return () => {
 			cancelled = true;
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- `ids` is represented by `idsKey` (a stable string): a new array each render must not refetch.
 	}, [ idsKey, searchPath ] );
 
 	useEffect( () => {
@@ -980,11 +991,11 @@ function PostIdListControl( { field, value, onChange } ) {
 /**
  * Nested repeaters for extension settings (e.g. Points types + rules).
  *
- * @param {Object}   props
- * @param {Object}   props.field    Field schema (`fields`, `add_label`, `default_row`).
- * @param {unknown}  props.value    Expected array of row objects.
- * @param {Function} props.onChange ( fieldId, nextRows ) => void
- * @return {import('react').ReactNode}
+ * @param {Object}                            props
+ * @param {Object}                            props.field    Field schema (`fields`, `add_label`, `default_row`).
+ * @param {unknown}                           props.value    Expected array of row objects.
+ * @param {( ...args: unknown[] ) => unknown} props.onChange ( fieldId, nextRows ) => void
+ * @return {import('react').ReactNode} The control.
  */
 function RepeaterControl( { field, value, onChange } ) {
 	const id = field.id;
@@ -1055,6 +1066,7 @@ function RepeaterControl( { field, value, onChange } ) {
 	};
 
 	const removeRow = ( index ) => {
+		// eslint-disable-next-line no-alert -- native confirmation before deleting a settings row.
 		if ( ! window.confirm( __( 'Delete this row?', 'clanbite' ) ) ) {
 			return;
 		}
@@ -1121,12 +1133,12 @@ function RepeaterControl( { field, value, onChange } ) {
 								__( 'Edit %1$s %2$d', 'clanbite' ),
 								entityName,
 								editingIndex + 1
-						  )
+							)
 						: sprintf(
 								/* translators: %s: entity label (e.g. rule). */
 								__( 'Add %s', 'clanbite' ),
 								entityName
-						  )
+							)
 				}
 				onRequestClose={ closeDraftRow }
 			>
@@ -1366,12 +1378,14 @@ function FieldControl( { field, value, onChange } ) {
 							return (
 								<label
 									key={ shapeValue }
+									htmlFor={ `avatar-shape-${ id }-${ shapeValue }` }
 									className={ `clanbite-admin-avatar-shape-radio__option ${
 										isChecked ? 'is-checked' : ''
 									}` }
 								>
 									<input
 										type="radio"
+										id={ `avatar-shape-${ id }-${ shapeValue }` }
 										name={ `avatar-shape-${ id }` }
 										value={ shapeValue }
 										checked={ isChecked }
@@ -1547,7 +1561,7 @@ function SettingsSections( { sections, optionKey, values, onFieldChange } ) {
  * @param {string[]} props.installedSlugs       Currently toggled-on slugs in the UI.
  * @param {string}   props.requiresClanbite     Minimum core version (`x.y.z`) or empty.
  * @param {boolean}  props.meetsClanbiteVersion Whether core satisfies `requiresClanbite`.
- * @return {import('react').ReactNode}
+ * @return {import('react').ReactNode} The table cell content.
  */
 function ExtensionRequiresCell( {
 	requires,
@@ -1636,10 +1650,12 @@ function extensionCanBeTurnedOn( ext, pendingInstalledSlugs ) {
  * Integration tab mount point: fires `clanbite:admin-integration-mount` / `unmount` on this element.
  *
  * Depends on `bootstrapRevision` (not `bootstrap` identity) so re-renders that reuse state do not re-dispatch DOM events.
- * @param root0
- * @param root0.slotId
- * @param root0.bootstrap
- * @param root0.bootstrapRevision
+ *
+ * @param {Object} props                   Component props.
+ * @param {string} props.slotId            Integration slot ID of the tab.
+ * @param {Object} props.bootstrap         Latest admin bootstrap payload.
+ * @param {number} props.bootstrapRevision Bumped each time the bootstrap is replaced.
+ * @return {import('react').ReactNode} The mount element.
  */
 function IntegrationSlot( { slotId, bootstrap, bootstrapRevision } ) {
 	const ref = useRef( null );
@@ -1681,12 +1697,12 @@ function IntegrationSlot( { slotId, bootstrap, bootstrapRevision } ) {
  * Body of any tab. When the tab row carries `subTabs` (see `clanbite_register_admin_sub_tab()` in PHP), a small
  * sub-navigation switches between the tab's own content and each registered integration view.
  *
- * @param {Object}      props
- * @param {Object}      props.meta              Tab descriptor from the bootstrap payload.
- * @param {JSX.Element} props.settingsView      The tab's own content.
- * @param {Object}      props.bootstrap         Admin bootstrap payload (passed to integration views).
- * @param {number}      props.bootstrapRevision Bumped when the bootstrap payload reloads.
- * @param {Function}    props.renderGroups      Renders settings groups (used by sub-tabs that carry `sectionGroups`).
+ * @param {Object}                            props
+ * @param {Object}                            props.meta              Tab descriptor from the bootstrap payload.
+ * @param {import('react').ReactNode}         props.settingsView      The tab's own content.
+ * @param {Object}                            props.bootstrap         Admin bootstrap payload (passed to integration views).
+ * @param {number}                            props.bootstrapRevision Bumped when the bootstrap payload reloads.
+ * @param {( ...args: unknown[] ) => unknown} props.renderGroups      Renders settings groups (used by sub-tabs that carry `sectionGroups`).
  */
 function TabBody( {
 	meta,
@@ -1703,7 +1719,7 @@ function TabBody( {
 					( t.slotId ||
 						( Array.isArray( t.sectionGroups ) &&
 							t.sectionGroups.length ) )
-		  )
+			)
 		: [];
 	const [ view, setView ] = useState( () => {
 		const fromUrl = getViewFromLocation();
@@ -1830,7 +1846,7 @@ function AdminHeader( { versionLabel } ) {
 				</div>
 				<div className="clanbite-admin-header-actions">
 					<a
-						href="https://clanbite.com"
+						href="https://developer.clanbite.com"
 						className="button clanbite-admin-header-btn"
 						target="_blank"
 						rel="noopener noreferrer"
@@ -2048,7 +2064,7 @@ function App() {
 						Object.keys( sent )
 							.filter( ( id ) => id in current )
 							.map( ( id ) => [ id, current[ id ] ] )
-				  )
+					)
 				: current;
 			const res = await apiFetch( {
 				path: `clanbite/v1/admin/settings/${ optionKey }`,
@@ -2100,15 +2116,16 @@ function App() {
 		}
 	};
 
-	const versionLabel = pluginMeta.version
-		? pluginMeta.isBeta
+	let versionLabel = '';
+	if ( pluginMeta.version ) {
+		versionLabel = pluginMeta.isBeta
 			? sprintf(
-					/* translators: 1: version, 2: "beta" label */
+					/* translators: 1: plugin version */
 					__( '%1$s beta', 'clanbite' ),
 					pluginMeta.version
-			  )
-			: pluginMeta.version
-		: '';
+				)
+			: pluginMeta.version;
+	}
 
 	if ( error ) {
 		return (

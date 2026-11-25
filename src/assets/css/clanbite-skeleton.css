@@ -1,0 +1,139 @@
+/*
+ * Clanbite skeletons: the loading placeholders every surface shares.
+ *
+ * Restyle all of them from your theme with these properties (on :root, or on
+ * any ancestor to change one area):
+ *
+ *   --clanbite-skeleton-base       Resting colour.
+ *   --clanbite-skeleton-highlight  Colour of the moving highlight.
+ *   --clanbite-skeleton-radius     Corner radius of lines and blocks.
+ *   --clanbite-skeleton-duration   Time of one sweep.
+ *
+ * The defaults are made from the text colour, so they suit light and dark
+ * themes. A skeleton is decorative: mark the loading region aria-busy.
+ */
+
+.clanbite-skeleton,
+.clanbite-skeleton-surface {
+	--clanbite-skeleton-default-base: color-mix(in srgb, currentcolor 11%, transparent);
+	--clanbite-skeleton-default-highlight: color-mix(in srgb, currentcolor 9%, transparent);
+	--clanbite-skeleton-fill: var(--clanbite-skeleton-base, var(--clanbite-skeleton-default-base));
+	--clanbite-skeleton-shine: var(--clanbite-skeleton-highlight, var(--clanbite-skeleton-default-highlight));
+
+	position: relative;
+	overflow: hidden;
+	background: var(--clanbite-skeleton-fill);
+}
+
+.clanbite-skeleton {
+	display: block;
+	width: var(--clanbite-skeleton-width, 100%);
+	height: var(--clanbite-skeleton-height, 4rem);
+	border-radius: var(--clanbite-skeleton-radius, 6px);
+}
+
+/*
+ * A surface is a shimmer behind content that is still loading (an image):
+ * size and round it yourself, and add .is-loaded once the content has arrived.
+ */
+.clanbite-skeleton-surface.is-loaded {
+	background: none;
+}
+
+.clanbite-skeleton-surface.is-loaded::after {
+	display: none;
+}
+
+/* The highlight sweeps across with a transform (composited by the browser). */
+.clanbite-skeleton::after,
+.clanbite-skeleton-surface::after {
+	--shine: var(--clanbite-skeleton-shine);
+
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(90deg, transparent, var(--shine), transparent);
+	transform: translateX(-100%);
+	animation-name: clanbite-skeleton-sweep;
+	animation-duration: var(--clanbite-skeleton-duration, 1.4s);
+	animation-timing-function: ease-in-out;
+	animation-iteration-count: infinite;
+}
+
+@keyframes clanbite-skeleton-sweep {
+
+	to {
+		transform: translateX(100%);
+	}
+}
+
+/* An author display value must not beat the hidden attribute. */
+.clanbite-skeleton[hidden],
+.clanbite-skeleton-group[hidden] {
+	display: none !important;
+}
+
+/* A line of text: one row of the surrounding font size. */
+.clanbite-skeleton--line {
+	height: var(--clanbite-skeleton-height, 0.85em);
+	margin: 0.4em 0;
+}
+
+.clanbite-skeleton--circle {
+	width: var(--clanbite-skeleton-width, 2.5rem);
+	height: var(--clanbite-skeleton-height, 2.5rem);
+	flex: none;
+	border-radius: 50%;
+}
+
+/*
+ * Avatar: the real avatar's own size and shape classes (clanbite-avatar--large,
+ * clanbite-avatar--shape-hexagon…) set --clanbite-avatar-size and the clip, so
+ * the placeholder is exactly as big and as shaped as the avatar that replaces
+ * it, whatever size slugs a site defines.
+ */
+.clanbite-skeleton--avatar {
+	flex: none;
+	width: var(--clanbite-avatar-size, 64px);
+	height: var(--clanbite-avatar-size, 64px);
+	border-radius: 0;
+	clip-path: var(--clanbite-avatar-clip-plain, circle(45% at 50% 50%));
+}
+
+/* Groups of primitives */
+.clanbite-skeleton-group {
+	display: block;
+}
+
+.clanbite-skeleton-group--text .clanbite-skeleton--line {
+	margin: 0.55em 0;
+}
+
+.clanbite-skeleton-group--list-item {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.clanbite-skeleton-group__body {
+	display: block;
+	flex: 1;
+	min-width: 0;
+}
+
+.clanbite-skeleton-group--card {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+/* Reduced motion: keep the placeholder, drop the sweep. */
+@media (prefers-reduced-motion: reduce) {
+
+	.clanbite-skeleton::after,
+	.clanbite-skeleton-surface::after {
+		animation: none;
+		transform: none;
+		opacity: 0;
+	}
+}

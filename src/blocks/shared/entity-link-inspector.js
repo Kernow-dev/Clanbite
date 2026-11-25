@@ -3,18 +3,23 @@
  */
 import { __ } from '@wordpress/i18n';
 import { InspectorControls } from '@wordpress/block-editor';
+/* eslint-disable @wordpress/no-unsafe-wp-apis -- No stable export of the tools panel exists yet (see AGENTS.md). */
 import {
 	ToggleControl,
 	TextControl,
 	__experimentalToolsPanel as ToolsPanel,
 	__experimentalToolsPanelItem as ToolsPanelItem,
 } from '@wordpress/components';
+/* eslint-enable @wordpress/no-unsafe-wp-apis */
 
 /**
- * @param {Object}   props
- * @param {Object}   props.attributes    Block attributes.
- * @param {Function} props.setAttributes setAttributes.
- * @param {string}   props.toggleLabel   Label for the “link to entity” toggle.
+ * Inspector panel with the link options of an entity block.
+ *
+ * @param {Object}                            props
+ * @param {Object}                            props.attributes    Block attributes.
+ * @param {( ...args: unknown[] ) => unknown} props.setAttributes setAttributes.
+ * @param {string}                            props.toggleLabel   Label for the “link to entity” toggle.
+ * @return {import('react').ReactNode} The inspector controls.
  */
 export function EntityLinkInspector( {
 	attributes,

@@ -7,10 +7,13 @@
 // Base form container
 .clanbite-form {
 	// Type variants (core Clanbite only)
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-form--create { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-form--edit { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-form--inline { }
 
 	// Note: Plugin-specific variants (--forums, --social-kit, --points, --ranks)
@@ -59,16 +62,22 @@
 	margin-bottom: 1.25rem;
 
 	// Type variants
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-form-field--text { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-form-field--email { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-form-field--select { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-form-field--textarea { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-form-field--radio { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-form-field--checkbox { }
 
 	&.clanbite-form-field--hidden {
@@ -94,7 +103,8 @@
 	font-size: 1rem;
 
 	&:focus {
-		// Transparent (not none) so the focus indicator is still drawn in forced-colors / high-contrast mode.
+		// Transparent (not none) so the focus indicator is still drawn in
+		// forced-colors / high-contrast mode.
 		outline: 2px solid transparent;
 		border-color: var(--clanbite-accent, #0073aa);
 		box-shadow: 0 0 0 2px var(--clanbite-accent, #0073aa);

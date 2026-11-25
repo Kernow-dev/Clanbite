@@ -395,6 +395,16 @@ Unified list structure:
 - `clanbite-list__item-meta` - Item metadata
 - `clanbite-list__item-actions` - Item action buttons
 
+### 9. Skeleton loaders
+
+Loading placeholders share one stylesheet (`clanbite-skeleton`) and one API: `clanbite_render_skeleton( $type, $args )` in PHP and `clanbite.skeletons.render( type, args )` in the browser.
+
+- Shapes: `clanbite-skeleton--line`, `--block`, `--circle` and `--avatar`, grouped by `clanbite-skeleton-group--{text|list-item|card}`.
+- The avatar skeleton takes the avatar's size and shape classes, so it is the size and shape of the avatar it stands in for.
+- `clanbite-skeleton-surface` is the shimmer for content that loads in place (an image): size it yourself and add `is-loaded` when the content has arrived.
+- A skeleton has the same footprint as the content that replaces it; never use one where the server already renders the content.
+- Colours come from `--clanbite-skeleton-base` / `-highlight`, motion from `--clanbite-skeleton-duration`; do not set colours or animations in a block's own SCSS.
+
 ## Utility Classes
 
 Common utility classes across all blocks:

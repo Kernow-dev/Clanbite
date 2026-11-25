@@ -50,7 +50,7 @@ function syncWizardUi( root, step, stepCount ) {
  *
  * @param {string} restUrl REST endpoint URL.
  * @param {string} nonce   Value from wp_create_nonce( 'wp_rest' ).
- * @return {string}
+ * @return {string} The REST URL with the nonce added as a query argument.
  */
 function restUrlWithNonceQuery( restUrl, nonce ) {
 	const raw = restUrl || '';
@@ -386,7 +386,7 @@ const { state, actions } = store( 'clanbite-event-create-form', {
 								root.querySelectorAll(
 									'.clanbite-event-create-form__invite-checkbox:checked'
 								)
-						  ).map( ( box ) => Number( box.value ) );
+							).map( ( box ) => Number( box.value ) );
 			}
 
 			let payload;

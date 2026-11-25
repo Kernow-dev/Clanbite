@@ -23,21 +23,21 @@
 		document.querySelector( '[data-clanbite-media-editor]' );
 
 	function config() {
-		const el = rootEl();
-		if ( ! el ) {
+		const editorRoot = rootEl();
+		if ( ! editorRoot ) {
 			return null;
 		}
-		if ( ! el.__clanbiteMedia ) {
+		if ( ! editorRoot.__clanbiteMedia ) {
 			try {
-				el.__clanbiteMedia = JSON.parse(
-					el.getAttribute( 'data-clanbite-media-editor' )
+				editorRoot.__clanbiteMedia = JSON.parse(
+					editorRoot.getAttribute( 'data-clanbite-media-editor' )
 				);
-			} catch ( e ) {
+			} catch {
 				return null;
 			}
-			el.__clanbiteMedia.pending = { avatar: '', cover: '' };
+			editorRoot.__clanbiteMedia.pending = { avatar: '', cover: '' };
 		}
-		return el.__clanbiteMedia;
+		return editorRoot.__clanbiteMedia;
 	}
 
 	const field = ( name ) =>
@@ -132,14 +132,16 @@
 
 	/**
 	 * The image in the page preview: the cover banner or the avatar (the shared avatar's picture).
-	 * @param kind
+	 *
+	 * @param {string} kind `avatar` or `cover`.
 	 */
 	const previewImg = ( kind ) =>
 		document.querySelector( `.${ kind }-preview img` );
 
 	/**
 	 * Shape and ratio: the cover frame follows the real cover on this page, so the preview is cropped the way the site crops it.
-	 * @param target
+	 *
+	 * @param {HTMLElement} target Preview frame that gets the ratio.
 	 */
 	function setCoverRatio( target ) {
 		const cover = document.querySelector( '.clanbite-cover' );
@@ -154,28 +156,33 @@
 
 	/** Shape of the avatar on this site (hexagon, circle, …), read from the preview so the popup matches. */
 	function avatarShape() {
-		const el = document.querySelector( '.avatar-preview .clanbite-avatar' );
-		const m = el && /clanbite-avatar--shape-([a-z-]+)/.exec( el.className );
+		const avatarEl = document.querySelector(
+			'.avatar-preview .clanbite-avatar'
+		);
+		const m =
+			avatarEl &&
+			/clanbite-avatar--shape-([a-z-]+)/.exec( avatarEl.className );
 		return m ? m[ 1 ] : 'circle';
 	}
 
 	function note( text ) {
-		const el = document.querySelector( '.clanbite-media-note' );
-		if ( el ) {
-			el.textContent = text || '';
-			el.hidden = ! text;
+		const noteEl = document.querySelector( '.clanbite-media-note' );
+		if ( noteEl ) {
+			noteEl.textContent = text || '';
+			noteEl.hidden = ! text;
 		}
 	}
 
 	/**
 	 * Is there an uploaded image (stored, or chosen and not saved yet)?
-	 * @param kind
+	 *
+	 * @param {string} kind `avatar` or `cover`.
 	 */
 	function hasImage( kind ) {
-		const cfg = config();
 		if ( field( NAMES[ kind ].remove )?.value === '1' ) {
 			return false;
 		}
+		const cfg = config();
 		if ( cfg.pending[ kind ] ) {
 			return true;
 		}
@@ -230,7 +237,7 @@
 			return;
 		}
 		const t = cfg.i18n;
-		const lastFocus = document.activeElement;
+		const lastFocus = rootEl().ownerDocument.activeElement;
 		const limit = maxZoom( kind );
 		let pos = readPos( kind );
 		let armed = false;
@@ -461,12 +468,15 @@
 				if ( items.length ) {
 					const first = items[ 0 ];
 					const last = items[ items.length - 1 ];
-					if ( event.shiftKey && document.activeElement === first ) {
+					if (
+						event.shiftKey &&
+						dialog.ownerDocument.activeElement === first
+					) {
 						event.preventDefault();
 						last.focus();
 					} else if (
 						! event.shiftKey &&
-						document.activeElement === last
+						dialog.ownerDocument.activeElement === last
 					) {
 						event.preventDefault();
 						first.focus();
@@ -488,12 +498,12 @@
 		/**
 		 * Fires when the avatar or cover popup opens, so add-ons can add their own controls to it.
 		 *
-		 * @param {Object}      context             What is open.
-		 * @param {string}      context.kind        `avatar` or `cover`.
-		 * @param {HTMLElement} context.dialog      The popup element.
-		 * @param {HTMLElement} context.extras      An empty container for your controls.
-		 * @param {Function}    context.getPosition Returns the current `{ x, y, zoom }`.
-		 * @param {Function}    context.setPosition Sets the position (`{ x, y, zoom }`) and redraws the preview.
+		 * @param {Object}                            context             What is open.
+		 * @param {string}                            context.kind        `avatar` or `cover`.
+		 * @param {HTMLElement}                       context.dialog      The popup element.
+		 * @param {HTMLElement}                       context.extras      An empty container for your controls.
+		 * @param {( ...args: unknown[] ) => unknown} context.getPosition Returns the current `{ x, y, zoom }`.
+		 * @param {( ...args: unknown[] ) => unknown} context.setPosition Sets the position (`{ x, y, zoom }`) and redraws the preview.
 		 */
 		window.wp?.hooks?.doAction?.( 'clanbite.playerMedia.dialog', {
 			kind,
@@ -524,7 +534,8 @@
 
 	/**
 	 * Remove the image: the default is shown and the form is told to remove it when saved.
-	 * @param kind
+	 *
+	 * @param {string} kind `avatar` or `cover`.
 	 */
 	function removeImage( kind ) {
 		const cfg = config();
@@ -579,12 +590,12 @@
 		) {
 			return;
 		}
-		const kind =
-			input.name === NAMES.avatar.file
-				? 'avatar'
-				: input.name === NAMES.cover.file
-				? 'cover'
-				: '';
+		let kind = '';
+		if ( input.name === NAMES.avatar.file ) {
+			kind = 'avatar';
+		} else if ( input.name === NAMES.cover.file ) {
+			kind = 'cover';
+		}
 		const cfg = config();
 		if ( ! kind || ! cfg || ! input.files || ! input.files[ 0 ] ) {
 			return;

@@ -12,12 +12,16 @@
 	overflow: hidden;
 
 	// Type variants (core Clanbite only)
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-card--match { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-card--team { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-card--player { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-card--event { }
 
 	// Layout variants

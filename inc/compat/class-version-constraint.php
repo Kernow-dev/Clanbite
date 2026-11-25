@@ -5,7 +5,7 @@
  * @package clanbite
  */
 
-namespace Kernowdev\Clanbite\Updates;
+namespace Kernowdev\Clanbite\Compat;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
  *  - `*` accepts any version.
  *
  * Upper bounds ignore a pre-release suffix on the checked version, so `2.0.0-beta.1` is **not** inside `<2.0.0`. The same logic lives in
- * the update server (`Kernowdev\ClanbiteExtensionServer\Services\Version_Constraint`): keep them identical.
+ * the Add-on Manager and the add-on server: keep all three identical.
  */
 final class Version_Constraint {
 

@@ -7,14 +7,19 @@
 // Base navigation container
 .clanbite-nav {
 	// Type variants (core Clanbite only)
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-nav--profile { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-nav--user { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-nav--tabs { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-nav--toolbar { }
 
+	// stylelint-disable-next-line block-no-empty
 	&.clanbite-nav--pagination { }
 
 	// Note: Plugin-specific variants (--forums, --social-kit, --points, --ranks)
@@ -44,6 +49,7 @@
 }
 
 // Navigation link
+// stylelint-disable-next-line no-descending-specificity
 .clanbite-nav__link {
 	display: flex;
 	align-items: center;
@@ -54,6 +60,7 @@
 	border-radius: 4px;
 	transition: background 0.2s, color 0.2s;
 
+	// stylelint-disable-next-line no-descending-specificity
 	&:hover {
 		background: var(--wp--preset--color--contrast-1, #f5f5f5);
 	}

@@ -209,7 +209,7 @@ final class Cross_Site_Match_Sync {
 	 */
 	private static function fetch_peer_public_key( string $source_site ): string {
 		$source_site = trailingslashit( esc_url_raw( $source_site ) );
-		if ( '' === $source_site || ! wp_http_validate_url( $source_site ) ) {
+		if ( ! clanbite_site_connections_enabled() || '' === $source_site || ! wp_http_validate_url( $source_site ) ) {
 			return '';
 		}
 
@@ -292,6 +292,10 @@ final class Cross_Site_Match_Sync {
 	 * @return void
 	 */
 	public static function maybe_push_mirror_match( int $challenge_id, int $match_id, int $challenged_team_id, array $snapshot, string $scheduled_gmt ): void {
+		if ( ! clanbite_site_connections_enabled() ) {
+			return;
+		}
+
 		$legacy_hmac = '' !== self::get_legacy_hmac_key();
 		if ( ! $legacy_hmac && ! self::sodium_available() ) {
 			return;
@@ -444,6 +448,11 @@ final class Cross_Site_Match_Sync {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function handle_incoming( WP_REST_Request $request ) {
+		// Refused before anything is read: checking a signature would mean contacting the sender.
+		if ( ! clanbite_site_connections_enabled() ) {
+			return Public_Rest::connections_off_error();
+		}
+
 		$raw  = $request->get_body();
 		$body = json_decode( $raw, true );
 		if ( ! is_array( $body ) ) {

@@ -1,33 +1,121 @@
 === Clanbite: Team Management System ===
 Contributors: kernowdev
-Tags: community, teams, esports, gaming
+Tags: community, esports, gaming, teams, clan
 Requires at least: 6.9
 Tested up to: 7.1
-Requires PHP: 8.2
-Stable tag: 1.6.10
+Requires PHP: 8.4
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Community tools for gaming teams and clubs: player profiles, teams, matches, events, notifications, and an extension system.
+Run your clan or esports club on WordPress: profiles, teams, matches, events, and challenges between Clanbite sites.
 
 == Description ==
 
-Clanbite helps you run team and player profiles, schedules, and community features inside WordPress.
+**Your clan deserves its own home.**
 
-* **Players** — Extended player profiles and settings.
-* **Teams** — Rosters, roles, and team-facing templates and blocks.
-* **Matches** — Match records with editor and front-end blocks (requires Teams).
-* **Events & RSVP** — Event posts with RSVP storage for teams and groups.
-* **Notifications** — In-site notifications with a block-ready bell.
-* **Extensions** — Enable bundled features from **Clanbite → Extensions**; third-party plugins can register their own extensions via hooks.
+Clanbite turns WordPress into a community site for gaming clans, esports teams and clubs. Players get profiles, teams get their own pages, matches and events go on the calendar, and other Clanbite communities can challenge yours.
 
-The plugin follows modern WordPress APIs (blocks, REST where used, block themes). See `README.md` in the plugin package for developer hooks and architecture notes.
+It's your website, on your hosting, with your branding. Your community isn't buried in someone else's feed.
 
-Human-readable JavaScript and CSS: minified files under `build/` and `assets/dist/` are produced from the sources described in the Human-readable source code section below. Clone the public repository linked there to review or fork the same sources used to build this package.
+[Website](https://clanbite.com) | [Developer docs](https://developer.clanbite.com) | [GitHub](https://github.com/Kernow-dev/Clanbite) | [Report a bug](https://github.com/Kernow-dev/Clanbite/issues)
+
+= Challenge other communities, even on their own websites =
+
+This is the part I most want you to try. Clanbite sites can talk to each other, once both site owners turn it on.
+
+1. A rival visits your team page, clicks **Challenge**, and enters the address of their Clanbite site.
+2. Clanbite looks up their team and pulls in its public details.
+3. Your team admins get a notification and can accept or decline.
+4. Accept, and the match is created on your site **and sent to theirs**, so both communities have it listed.
+
+Matches sent between sites are signed with Ed25519 keys that each site creates for itself, so there are no API keys or shared passwords to swap.
+
+Opponents who don't use Clanbite can still challenge you by filling in their team's details, and each team chooses whether it accepts challenges.
+
+*Connections between sites are off by default: turn on **Connect with other Clanbite sites** under Clanbite → Settings → General. Two-way match listings need that, plus the Teams and Matches extensions, HTTPS and the PHP sodium extension, on both sites.*
+
+= Player profiles with personality =
+
+* A public profile for every player, plus a player directory
+* Avatars and cover images that players can drag and zoom into position
+* Circle, square or hexagon avatars
+* Tagline, bio, location, birthday, website and social links
+* Profile settings that players manage from the front of your site
+
+= Teams, however your community works =
+
+* Run **one team**, **several teams** under one clan, or a **team directory** where members create their own
+* Admin, editor, member and banned roles
+* Invite players when you create a team or at any time afterwards, and they join when they accept (needs the Notifications extension)
+* Team pages with avatar, cover, motto, country, roster and win, loss and draw records
+* Create and manage teams from the front of your site
+
+= Matches, events and RSVPs =
+
+* Publish matches with teams, times and scores, then show them as cards or lists
+* Month, week, day and list calendar views
+* In-person and virtual events with RSVPs
+* Events for teams, and for groups when a groups add-on is installed
+* Personal player events with invitations and privacy settings (friend features need the Social Kit add-on)
+
+= Notifications people actually notice =
+
+* A notification bell with an unread count, plus a full notifications page
+* Accept or decline a team challenge straight from the notification
+* On-screen popups: you choose where they appear and how long they stay
+* Make it sound like your community: reword notifications and popups from the settings screens
+
+= Built for the block editor =
+
+Clanbite comes with more than 40 blocks for players, teams, matches, events and navigation. Build your pages with them, and edit the included templates in the Site Editor on block themes. Classic theme templates are included too.
+
+There's also a **Visibility container** block that shows content to guests, signed-in members or particular roles.
+
+= Switch on only what you need =
+
+Clanbite is modular. Players is the foundation; enable Teams, Matches, Events and Notifications from **Clanbite → Extensions** as your community needs them.
+
+= Official add-ons =
+
+Want to go further? These are separate plugins, available from [clanbite.com](https://clanbite.com/shop/). They are not part of this download, and Clanbite does not install or update them: their installation and updates are handled by the free Clanbite Add-on Manager, which you can also [get from clanbite.com](https://clanbite.com/add-on-manager/). Some add-ons may need a paid licence.
+
+* **Social Kit:** activity feeds, friends, groups, reactions, @mentions, polls and a Discord webhook relay
+* **Forums:** discussions, topic following and moderation tools
+* **Points:** your own XP or reputation points with earning rules and limits
+* **Ranks:** rank ladders, team ranks and progress rings on avatars
+* **Shop:** merchandise, downloads, licence keys and subscriptions
+
+= For developers =
+
+I want you to be able to make Clanbite your own. You can build extensions that sit alongside the official ones, hook into documented actions and filters, use the REST API, register your own blocks, profile tabs and notification actions, and style everything to match your theme.
+
+* [Developer documentation](https://developer.clanbite.com)
+* [Developer guide (README)](https://github.com/Kernow-dev/Clanbite/blob/main/README.md)
+* [Hook reference](https://github.com/Kernow-dev/Clanbite/blob/main/HOOKS.md)
+* [Design system](https://github.com/Kernow-dev/Clanbite/blob/main/DESIGN-SYSTEM.md)
+* [Source code on GitHub](https://github.com/Kernow-dev/Clanbite)
 
 == External services ==
 
-* **Gravatar (Automattic):** In-site notifications can show an actor portrait using WordPress `get_avatar_url()`, which may resolve to Gravatar when the user has no local Clanbite player avatar. The visitor's browser loads that image URL (standard `<img>` request). No passwords are transmitted to Gravatar. Terms: https://wordpress.com/tos/ — Privacy: https://automattic.com/privacy/
+Clanbite connects to the following outside services.
+
+= Gravatar =
+
+Notifications show an avatar for the person involved. If they have no Clanbite avatar, WordPress may supply a Gravatar image URL, which the viewer's browser then loads. Gravatar is run by Automattic: [terms](https://wordpress.com/tos/) and [privacy policy](https://automattic.com/privacy/).
+
+= Other Clanbite websites (off until you turn it on) =
+
+Clanbite only connects to other websites for team challenges and matches after a site administrator turns on **Connect with other Clanbite sites** under Clanbite → Settings → General. It is off by default. While it is off, your site makes none of the requests below and its endpoints for other sites refuse to answer.
+
+When it is on:
+
+* **Looking up a challenger's team:** when a challenger chooses "Look up team", or sends a challenge with their site's address, your server requests that address to confirm it runs Clanbite and to read the team's public details. The form explains this beside the field. WordPress identifies your site in the request, including your site address and WordPress version, and the other site sees your server's IP address.
+* **Accepting a challenge from another Clanbite site:** your server sends that site the match and challenge reference numbers, their team's number on their site, your team's name, page address and logo address, the match time and visibility, your site address, and a signature. It copies the match onto their site.
+* **Requests from other sites:** they can ask your site whether it runs Clanbite (including the version), for a published team's public details and for your public signing key. They can send a signed match; your server then requests the sender's public signing key from their site to check it.
+* **Images:** a challenger's or opponent's logo may be loaded from their site, so a visitor's browser contacts it.
+
+These sites are run by their own owners, under their own terms and privacy policies. Nothing is sent to the author of Clanbite.
 
 == Human-readable source code ==
 
@@ -55,34 +143,77 @@ For PHP architecture, hooks, and REST, see the bundled `README.md`.
 
 == Installation ==
 
-1. Upload the plugin files to `/wp-content/plugins/clanbite` or install the ZIP from the Plugins screen.
-2. Activate **Clanbite** through the **Plugins** menu.
-3. Open **Clanbite** in the admin menu, review **General** settings, and enable the extensions you need (Players is a common starting point).
-4. Visit **Settings → Permalinks** and click **Save** once if routes for teams or events do not resolve (the plugin flushes rules on upgrade, but a manual save fixes edge cases).
+**Requirements:** WordPress 6.9 or later and PHP 8.4 or later.
+
+1. In your WordPress dashboard, go to **Plugins → Add New**, search for **Clanbite**, then click **Install Now** and **Activate**. You can also upload the ZIP file.
+2. Open **Clanbite** in the admin menu and review the **General** settings.
+3. Go to **Clanbite → Extensions** and switch on what you need. Matches also needs Teams.
+4. If your player or team pages show "not found", go to **Settings → Permalinks** and click **Save Changes**.
+5. Add Clanbite blocks to your pages and navigation. The User Navigation and Notification Bell blocks are a good start.
 
 == Frequently Asked Questions ==
 
-= Does this work with block themes? =
+= Is Clanbite only for gaming? =
 
-Yes. Clanbite registers block types and plugin block templates for full-site editing where applicable.
+It's designed with gaming clans and esports in mind, but the player, team, match and event tools can suit sports clubs and other team-based communities too.
 
-= Where are the settings? =
+= How do challenges between two websites work? =
 
-Use the **Clanbite** top-level admin menu for core options and extension toggles. On the **Plugins** screen, use the **Settings** link (administrators) or **Website** to open clanbite.com.
+Both site owners first turn on **Connect with other Clanbite sites** (off by default). Your challenger then enters their Clanbite site address on your team's challenge form. If you accept, the match is created on your site and a copy is sent to theirs. See "Challenge other communities" in the description for the requirements.
 
-== Support ==
+= Does my opponent need Clanbite? =
 
-* Documentation: see the bundled `README.md` for developers (hooks, extensions, REST).
-* Plugin site: https://clanbite.com
-* Help and bug reports: https://github.com/Kernow-dev/Clanbite/issues
-* WordPress.org: after the plugin is listed on the directory, use the support forum at https://wordpress.org/support/plugin/clanbite/ for site-owner questions.
+No. They can still send a challenge by entering their team's details. They need Clanbite if they want the accepted match to appear on their own site automatically.
 
-== Screenshots ==
+= Does it work with my theme? =
 
-1. Clanbite admin settings and extension management.
-2. Team and player blocks in the block editor.
+Clanbite supports block themes, including templates you can edit in the Site Editor, and includes templates for classic themes. Its buttons follow your theme's button styles.
+
+= Do I have to use every feature? =
+
+No. Players is required, and you can switch the other bundled extensions on or off under **Clanbite → Extensions**.
+
+= Can I change the wording of notifications? =
+
+Yes. Look for the **Messages** tab within each extension's settings.
+
+= Can I build my own extensions? =
+
+Yes. Start with the [developer documentation](https://developer.clanbite.com) and the [hook reference](https://github.com/Kernow-dev/Clanbite/blob/main/HOOKS.md).
+
+= Where do I get help? =
+
+For help setting up your site, use the [support forum](https://wordpress.org/support/plugin/clanbite/). For bugs and feature ideas, open an issue on [GitHub](https://github.com/Kernow-dev/Clanbite/issues). Ideas are very welcome: tell me what your community needs.
 
 == Changelog ==
+
+= 1.7.0 =
+* Important, if you use Clanbite add-ons: install the free Clanbite Add-on Manager from https://clanbite.com/add-on-manager/ **before** updating, or your add-ons will stop receiving updates until you do. Your licence activation is kept.
+* Changed: installing, licensing and updating add-ons has been removed from Clanbite, as WordPress.org does not allow a directory plugin to install or update plugins from another server. The Licence tab now comes from the Add-on Manager, and Clanbite no longer contacts the add-on server.
+* For developers: the licence and updater code has moved to the Add-on Manager. Its `clanbite_*` functions, hooks and `clanbite/v1/admin/license` routes are only available while the manager is active, and the `Kernowdev\Clanbite\Updates` classes no longer exist. The add-on compatibility classes are now in `Kernowdev\Clanbite\Compat`.
+* Changed: connections with other Clanbite sites (two-way team challenges and match listings) are now off until a site administrator turns on "Connect with other Clanbite sites" under Clanbite → Settings → General. If you used them, turn it on after updating.
+* Changed: the challenge form only looks up another site when the challenger chooses "Look up team" or sends the challenge, and explains what that does.
+* Security: events, including players' "Only me" events, could be read through the WordPress REST API (`/wp/v2/clanbite_event`) without signing in. That route is now limited to users who can edit other people's content.
+* Security: match visibility now also applies to WordPress REST and search, match pages, archives, feeds, link previews and sitemaps. Restricted matches could be read through these.
+* Security: events in request-to-join and invite-only groups are only for the group, even if marked Public, including their RSVPs and attendee lists; banned players cannot see a group's events (needs the matching Clanbite Social Kit update).
+* Security: event list totals and searches no longer count events the viewer cannot see.
+* Fixed: turning scheduled events off for a team or group did not stay off.
+* Fixed: the tabs on the front-end team management screen did not work, because their script was missing from the plugin package.
+* New: team admins can invite players at any time from the Roster tab of the team management screen: search by name or username, send an invitation, and see who has not replied yet. Needs the Notifications extension.
+* Changed: an invitation can no longer be accepted once its sender may no longer invite or the team has turned invitations off. On one-team sites it waits until the player has left their other team.
+* Fixed: after declining an invitation, a player could not be invited again by the same person.
+* Fixed: a player who turned team invites off could still be found and invited.
+* Fixed: a team that turned challenges off kept accepting them.
+* Security: team admins and editors can no longer change a team's author, status, address, password, parent or publish date, through the REST API, wp-admin or any other route. Please update.
+* Security: stored team roster roles can no longer be edited through WordPress' custom field permissions.
+* Security: the team manage screen can only change or remove people already on the roster; new members join by accepting an invitation. Teams site admins can still add people, and developers can use the `clanbite_team_manage_can_add_member_directly` filter.
+* Security: turning off front-end editing for a team now also applies to team owners whose WordPress role (such as Author) previously kept access through the REST API and wp-admin.
+* Changed: Clanbite now requires PHP 8.4 or later.
+* Fixed: the Player settings block in the block inserter had no icon like the other blocks.
+* New: shared skeleton loaders. `clanbite_render_skeleton()` (and `clanbite.skeletons.render()` in the browser) draws loading placeholders for avatars, lines, text, blocks, list items and cards with one look, themed through `--clanbite-skeleton-*` CSS properties and extended with `clanbite_register_skeleton()`. The avatar skeleton matches the real avatar's size and shape. A `clanbite-skeleton-surface` class gives images the same shimmer while they load. The event calendar's month, week, day and list loading placeholders now use them too, so the whole plugin family shares one loading look.
+* Fixed: the “Developers” button in the Clanbite admin header opened the main website instead of the developer documentation (developer.clanbite.com).
+* Changed: the whole notification in the bell dropdown and on the notifications page is now clickable, not just its title. Keyboard focus, middle-click and “mark as read” work as before.
+* Changed: built with the latest WordPress build tools.
 
 = 1.6.10 =
 * Changed: every script and stylesheet the plugin serves is now built with `@wordpress/scripts` and minified for production (smaller downloads, same behaviour); no setting or API changes.
@@ -166,6 +297,9 @@ Use the **Clanbite** top-level admin menu for core options and extension toggles
 * Unified maintenance step and database schema versioning for new installs.
 
 == Upgrade Notice ==
+
+= 1.7.0 =
+Using Clanbite add-ons? Install the free Add-on Manager from clanbite.com first. Two-way challenges are now off until you turn them on in General settings.
 
 = 1.1.0 =
 WordPress 7.0 compatible. Includes improved requirements checking and minor bug fixes. Safe to upgrade.

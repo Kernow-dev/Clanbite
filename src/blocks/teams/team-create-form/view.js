@@ -215,7 +215,7 @@ const { state, actions } = store( 'clanbite-team-create-form', {
 				);
 				state.inviteActiveIndex = -1;
 				actions.renderInviteSuggestions();
-			} catch ( error ) {
+			} catch {
 				state.inviteSuggestions = [];
 				state.inviteActiveIndex = -1;
 				actions.renderInviteSuggestions();
@@ -373,7 +373,7 @@ const { state, actions } = store( 'clanbite-team-create-form', {
 					? template.replace(
 							'%d',
 							String( state.inviteSuggestions.length )
-					  )
+						)
 					: '';
 			}
 

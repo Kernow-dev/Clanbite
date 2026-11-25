@@ -27,6 +27,8 @@ import { clanbiteBlockIcon } from '../../shared/block-icons/icons/player-setting
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
  */
 registerBlockType( metadata, {
+	icon: clanbiteBlockIcon(),
+
 	/**
 	 * @see ./edit.js
 	 */

@@ -3,6 +3,8 @@
  *
  * @package
  */
+
+/* global clanbitePlayerNotificationsPageI18n */
 ( function () {
 	'use strict';
 
