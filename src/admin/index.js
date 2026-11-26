@@ -1826,17 +1826,12 @@ function AdminHeader( { versionLabel } ) {
 			<div className="clanbite-admin-header-inner">
 				<div className="clanbite-admin-header-brand">
 					<span className="clanbite-admin-logo-wrap">
+						{ /* The logo carries the name, so it is its text alternative. */ }
 						<img
 							src={ window.clanbiteAdmin?.logoUrl || '' }
-							alt=""
+							alt={ __( 'Clanbite', 'clanbite' ) }
 							className="clanbite-admin-logo"
 						/>
-						<span className="clanbite-admin-brand-title">
-							{ __(
-								'Clanbite: Team Management Software',
-								'clanbite'
-							) }
-						</span>
 					</span>
 					{ versionLabel ? (
 						<div className="clanbite-admin-version">

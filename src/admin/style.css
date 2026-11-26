@@ -68,16 +68,9 @@ body.toplevel_page_clanbite #wpbody-content > .notice {
 }
 
 .clanbite-admin-logo {
-	height: 40px;
+	height: 48px;
 	width: auto;
 	display: block;
-}
-
-.clanbite-admin-brand-title {
-	font-size: 18px;
-	font-weight: 600;
-	line-height: 1.2;
-	color: var(--clanbite-admin-text);
 }
 
 .clanbite-admin-version {
@@ -841,11 +834,7 @@ body.toplevel_page_clanbite .components-modal__frame .components-input-control__
 	}
 
 	.clanbite-admin-logo {
-		height: 32px;
-	}
-
-	.clanbite-admin-brand-title {
-		font-size: 16px;
+		height: 36px;
 	}
 
 	.clanbite-settings-section {
