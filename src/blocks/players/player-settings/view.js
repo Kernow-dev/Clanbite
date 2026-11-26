@@ -619,6 +619,7 @@ const { state, actions } = store( 'clanbite-player-settings', {
 		 * - data-clanbite-action-body (JSON string, optional)
 		 * - data-clanbite-action-confirm (optional confirmation text)
 		 * - data-clanbite-action-remove-closest (CSS selector to remove on success)
+		 * - data-clanbite-action-reload (any value: load the page again after success, for lists the server draws)
 		 * - data-clanbite-action-success-message / data-clanbite-action-error-message
 		 *
 		 * @param {Event} event Click event on the element that carries the action attributes.
@@ -693,6 +694,10 @@ const { state, actions } = store( 'clanbite-player-settings', {
 					type: 'success',
 					message: successMsg,
 				} );
+				if ( ref.getAttribute( 'data-clanbite-action-reload' ) ) {
+					// Long enough to read the message.
+					window.setTimeout( () => window.location.reload(), 1200 );
+				}
 			} catch {
 				actions.showToast( {
 					type: 'error',

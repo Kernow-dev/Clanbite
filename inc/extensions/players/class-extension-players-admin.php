@@ -36,6 +36,24 @@ class Admin extends Abstract_Settings {
 	protected string $page_slug = 'clanbite-players';
 
 	/**
+	 * Clean the player address slug. A slug that cannot be used leaves the saved one in place and says why.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param mixed $value Submitted slug; null when the request did not include the field.
+	 * @return string The slug to store (empty for the default).
+	 */
+	public function sanitize_player_url_slug( $value ): string {
+		$saved  = get_option( $this->option_key, array() );
+		$result = \clanbite_url_slug_submitted( $value, is_array( $saved ) ? (string) ( $saved['player_url_slug'] ?? '' ) : '', 'players' );
+		if ( '' !== $result['problem'] ) {
+			$this->add_save_warning( $result['problem'] );
+		}
+
+		return $result['value'];
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	protected function get_page_title(): string {
@@ -62,6 +80,7 @@ class Admin extends Abstract_Settings {
 			'clanbite_players_defaults',
 			array(
 				'enable_profiles'                 => true,
+				'player_url_slug'                 => '',
 				'enable_avatars'                  => true,
 				'enable_covers'                   => true,
 				'default_avatar'                  => '',
@@ -85,9 +104,21 @@ class Admin extends Abstract_Settings {
 					'enable_profiles' => array(
 						'label'       => __( 'Enable profiles', 'clanbite' ),
 						'type'        => 'checkbox',
-						'description' => __( 'Enable public player pages.', 'clanbite' ),
+						'description' => __( 'Give every player a public profile page, and show the player directory. When off, those pages are not found and names and avatars are not linked. Account settings, avatars and player blocks keep working, and signed-in players can still open their notifications and events.', 'clanbite' ),
 						'default'     => true,
 						'sanitize'    => 'rest_sanitize_boolean',
+					),
+					'player_url_slug' => array(
+						'label'       => __( 'Player address slug', 'clanbite' ),
+						'type'        => 'text',
+						'description' => sprintf(
+							/* translators: %s: example address. */
+							__( 'The first part of player addresses, for example "members". The directory is now at %s. Leave empty for "players". Old addresses redirect to the new ones.', 'clanbite' ),
+							\clanbite_players_url()
+						),
+						'placeholder' => 'players',
+						'default'     => '',
+						'sanitize'    => array( $this, 'sanitize_player_url_slug' ),
 					),
 					'enable_avatars'  => array(
 						'label'       => __( 'Enable avatars', 'clanbite' ),
@@ -287,7 +318,7 @@ class Admin extends Abstract_Settings {
 		add_filter(
 			'author_link',
 			function ( $link, $author_id, $author_nicename ) {
-				return home_url( '/players/' . $author_nicename );
+				return \clanbite_players_url( $author_nicename );
 			},
 			10,
 			3

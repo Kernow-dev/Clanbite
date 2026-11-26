@@ -1,6 +1,6 @@
 {
 	"name": "clanbite",
-	"version": "1.8.1",
+	"version": "1.9.0",
 	"description": "Community management system for gamers and sports teams plugin for WordPress.",
 	"keywords": [
 		"gaming",
@@ -39,6 +39,7 @@
 		"vendor/composer"
 	],
 	"scripts": {
+		"build:blueprint": "node scripts/build-blueprint.mjs",
 		"build": "npm run build:blocks && npm run build:modules",
 		"build:admin": "wp-scripts build --config webpack.config.cjs && node scripts/wrap-asset-php-guard.mjs",
 		"build:blocks:manifests": "wp-scripts build-blocks-manifest --input=build/matches --output=build/matches/blocks-manifest.php && wp-scripts build-blocks-manifest --input=build/players --output=build/players/blocks-manifest.php && wp-scripts build-blocks-manifest --input=build/teams --output=build/teams/blocks-manifest.php && node scripts/wrap-asset-php-guard.mjs",

@@ -13,6 +13,57 @@ defined( 'ABSPATH' ) || exit;
 
 use Kernowdev\Clanbite\Extensions\Teams;
 
+const CLANBITE_TEAMS_DEFAULT_SLUG = 'teams';
+
+/**
+ * The first part of every team address, as set under Clanbite → Settings → Teams: `teams` gives `/teams/{slug}/`.
+ *
+ * Never write `/teams/` into a link or a route check: build links with {@see clanbite_teams_url()} and read request paths with
+ * {@see clanbite_teams_route_path()}. (REST routes are not affected: they keep `teams`.)
+ *
+ * @since 1.9.0
+ *
+ * @return string Lowercase letters, numbers and hyphens.
+ */
+function clanbite_teams_get_slug(): string {
+	$settings = get_option( 'clanbite_teams_settings', array() );
+	$slug     = is_array( $settings ) ? (string) ( $settings['team_url_slug'] ?? '' ) : '';
+
+	/**
+	 * Filter the first part of team addresses. After changing what this returns, flush the permalinks (Settings → Permalinks).
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param string $slug Saved slug, or an empty string for the default.
+	 */
+	return clanbite_url_slug_clean( (string) apply_filters( 'clanbite_teams_slug', $slug ), CLANBITE_TEAMS_DEFAULT_SLUG );
+}
+
+/**
+ * A front-end address in the teams area.
+ *
+ * @since 1.9.0
+ *
+ * @param string $path Path below the teams slug, for example `alpha/events/` or `create/`. Empty for the team directory. It is
+ *                     used as given, so include a trailing slash if you want one.
+ * @return string Absolute URL.
+ */
+function clanbite_teams_url( string $path = '' ): string {
+	return home_url( '/' . clanbite_teams_get_slug() . '/' . ltrim( $path, '/' ) );
+}
+
+/**
+ * Express a request path with `teams` in place of the chosen slug, so that route checks can be written one way.
+ *
+ * @since 1.9.0
+ *
+ * @param string $path Request path relative to the home URL, without leading slash.
+ * @return string
+ */
+function clanbite_teams_route_path( string $path ): string {
+	return clanbite_url_slug_route_path( $path, clanbite_teams_get_slug(), CLANBITE_TEAMS_DEFAULT_SLUG );
+}
+
 /**
  * Active Teams extension instance from the loader.
  *
@@ -102,7 +153,7 @@ function clanbite_teams_get_team_mode(): string {
 function clanbite_teams_get_team_create_url(): string {
 	$t = clanbite_teams();
 
-	return $t ? $t->get_team_create_url() : home_url( '/teams/create/' );
+	return $t ? $t->get_team_create_url() : clanbite_teams_url( 'create/' );
 }
 
 /**
@@ -154,7 +205,7 @@ function clanbite_teams_get_team_events_create_url( int $team_id ): string {
 		return '';
 	}
 
-	return home_url( user_trailingslashit( 'teams/' . $slug . '/events/create' ) );
+	return clanbite_teams_url( user_trailingslashit( $slug . '/events/create' ) );
 }
 
 /**
@@ -339,7 +390,8 @@ function clanbite_team_accepts_challenges( int $team_id ): bool {
 }
 
 /**
- * Parse a team profile URL into origin + slug when it matches `/teams/{slug}/` (with optional subpaths).
+ * Parse a team profile URL into origin + slug: `/teams/{slug}/` (with optional subpaths), or `/{word}/{slug}/` for a site that
+ * renamed its team addresses.
  *
  * @param string $url Full HTTP(S) URL.
  * @return array{origin: string, slug: string}|null Null when the pattern does not match.
@@ -363,7 +415,10 @@ function clanbite_parse_team_profile_url( string $url ): ?array {
 	$port = isset( $parts['port'] ) ? ':' . (int) $parts['port'] : '';
 	$path = isset( $parts['path'] ) ? '/' . ltrim( (string) $parts['path'], '/' ) : '/';
 
-	if ( ! preg_match( '#/teams/([^/]+)#', $path, $m ) ) {
+	// `teams`, or this site's own word for it. Another Clanbite site may use its own word, so an address of the form
+	// `/{word}/{team}/` is accepted too: the other site is asked whether such a team exists.
+	$words = preg_quote( CLANBITE_TEAMS_DEFAULT_SLUG, '#' ) . '|' . preg_quote( clanbite_teams_get_slug(), '#' );
+	if ( ! preg_match( '#/(?:' . $words . ')/([^/]+)#', $path, $m ) && ! preg_match( '#^/[a-z0-9-]+/([^/.]+)/?$#', $path, $m ) ) {
 		return null;
 	}
 
@@ -690,7 +745,7 @@ function clanbite_team_block_resolve_team_id( array $block_context = array() ): 
 }
 
 /**
- * Team post ID from virtual team URLs (`/teams/{slug}/events/`, `/teams/{slug}/manage/`), or 0.
+ * Team post ID from virtual team URLs (`/teams/{slug}/events/`, `/teams/{slug}/manage/`, `/teams/{slug}/matches/`), or 0.
  *
  * @return int
  */
@@ -701,6 +756,9 @@ function clanbite_team_virtual_route_team_id(): int {
 	}
 	if ( (int) get_query_var( 'clanbite_manage_team_id' ) > 0 && 'manage' === $action ) {
 		return (int) get_query_var( 'clanbite_manage_team_id' );
+	}
+	if ( (int) get_query_var( 'clanbite_matches_team_id' ) > 0 && 'matches' === $action ) {
+		return (int) get_query_var( 'clanbite_matches_team_id' );
 	}
 
 	return 0;

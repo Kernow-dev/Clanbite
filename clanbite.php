@@ -3,7 +3,7 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Run your clan or esports club on WordPress: profiles, teams, matches, events, and challenges between Clanbite sites.
- * Version: 1.8.1
+ * Version: 1.9.0
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
@@ -40,6 +40,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/inc/class-block-patterns.php';
 	require_once __DIR__ . '/inc/functions-block-templates.php';
 	require_once __DIR__ . '/inc/functions-request-input.php';
+	require_once __DIR__ . '/inc/url-slugs.php';
 	require_once __DIR__ . '/inc/clanbite-private-media.php';
 	require_once __DIR__ . '/inc/clanbite-team-challenge-uploads.php';
 	require_once __DIR__ . '/inc/clanbite-block-render-escape.php';
@@ -78,7 +79,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.8.1';
+	public const VERSION = '1.9.0';
 
 	/**
 	 * Maintenance upgrade counter: the number of the last step in {@see Maintenance}. Raise it with each new step.
@@ -529,7 +530,30 @@ final class Main {
 			);
 		}
 
+		$canvas = str_ends_with( wp_normalize_path( $template ), '/template-canvas.php' );
+		if ( function_exists( 'wp_is_block_theme' ) && wp_is_block_theme() && ( $canvas || str_starts_with( wp_normalize_path( $template ), $plugins_dir ) ) ) {
+			self::ensure_block_theme_head();
+		}
+
 		return $template;
+	}
+
+	/**
+	 * Give a page the title and mobile viewport tags on block themes.
+	 *
+	 * WordPress adds them only when it finds a block template itself. A page served by a plugin's own template (or by the
+	 * block canvas a plugin filled) gets neither, so it has no title and phones show it as a shrunken desktop page.
+	 *
+	 * @return void
+	 */
+	private static function ensure_block_theme_head(): void {
+		if ( function_exists( '_block_template_viewport_meta_tag' ) && false === has_action( 'wp_head', '_block_template_viewport_meta_tag' ) ) {
+			add_action( 'wp_head', '_block_template_viewport_meta_tag', 0 );
+		}
+		if ( function_exists( '_block_template_render_title_tag' ) && false === has_action( 'wp_head', '_block_template_render_title_tag' ) ) {
+			remove_action( 'wp_head', '_wp_render_title_tag', 1 );
+			add_action( 'wp_head', '_block_template_render_title_tag', 1 );
+		}
 	}
 
 	/**

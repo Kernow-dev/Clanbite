@@ -355,6 +355,38 @@ abstract class Abstract_Settings {
 	}
 
 	/**
+	 * Things the site owner should know about the last save, for example a value that was refused.
+	 *
+	 * @var array<int, string>
+	 */
+	private array $save_warnings = array();
+
+	/**
+	 * Tell the site owner something about this save. It is shown on the settings screen.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param string $message Plain text.
+	 * @return void
+	 */
+	protected function add_save_warning( string $message ): void {
+		if ( ! in_array( $message, $this->save_warnings, true ) ) {
+			$this->save_warnings[] = $message;
+		}
+	}
+
+	/**
+	 * The warnings raised while saving.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @return array<int, string>
+	 */
+	public function get_save_warnings(): array {
+		return $this->save_warnings;
+	}
+
+	/**
 	 * Sanitize a submitted settings payload field by field.
 	 *
 	 * Uses the field's `sanitize` callable when set, otherwise a default per `type`. A field absent from
@@ -519,6 +551,16 @@ abstract class Abstract_Settings {
 			$row['fallback_url'] = (string) $field['fallback_url'];
 		}
 
+		// Inside a repeater, a field can be left out of the table of rows (it is still edited in the row's form).
+		if ( isset( $field['in_table'] ) && ! $field['in_table'] ) {
+			$row['inTable'] = false;
+		}
+
+		// For a switch that adds or removes parts of the settings screen: the page reloads after a save that changed it.
+		if ( ! empty( $field['reload'] ) ) {
+			$row['reload'] = true;
+		}
+
 		if ( isset( $field['placeholder'] ) && is_string( $field['placeholder'] ) ) {
 			$row['placeholder'] = $field['placeholder'];
 		}
@@ -613,7 +655,8 @@ abstract class Abstract_Settings {
 			$fields     = isset( $section['fields'] ) && is_array( $section['fields'] ) ? $section['fields'] : array();
 
 			foreach ( $fields as $field_id => $field ) {
-				if ( ! is_array( $field ) ) {
+				// A hidden field is not shown but stays a field, so saving the screen keeps its value.
+				if ( ! is_array( $field ) || ! empty( $field['hidden'] ) ) {
 					continue;
 				}
 

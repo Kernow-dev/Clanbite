@@ -4,7 +4,7 @@
 > (and the JSDoc above each `wp.hooks` call). Edit that, then run `php scripts/generate-hooks-doc.php`.
 > `php scripts/generate-hooks-doc.php --check` fails when this file is stale.
 
-**386 PHP hooks and 21 JavaScript hooks**.
+**393 PHP hooks and 21 JavaScript hooks**.
 
 Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand for the value that is substituted at run time.
 
@@ -14,12 +14,12 @@ Dynamic hook names use placeholders: `{type}`, `{context}`, `{slug}`… stand fo
 - [Avatars](#avatars) (43)
 - [Events](#events) (24)
 - [Extensions](#extensions) (27)
-- [General](#general) (52)
+- [General](#general) (53)
 - [Matches](#matches) (18)
 - [Notifications](#notifications) (21)
-- [Players](#players) (90)
-- [Profile sub-pages and groups](#profile-sub-pages-and-groups) (13)
-- [Teams](#teams) (87)
+- [Players](#players) (94)
+- [Profile sub-pages and groups](#profile-sub-pages-and-groups) (14)
+- [Teams](#teams) (88)
 - [JavaScript hooks](#javascript-hooks) (21)
 
 ## Admin
@@ -1898,6 +1898,18 @@ Filters whether popups are available (Notifications is on and "Show popups" is n
 
 **Since:** 1.5.0
 
+#### `clanbite_url_slug_areas`
+
+*Filter* · `inc/url-slugs.php`
+
+Filter the areas with an editable address slug. An add-on that owns such an area adds it, so no other area can take its slug.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$areas` | `array<string, array{default: string, post_type: string, current: callable}>` | Areas. |
+
+**Since:** 1.9.0
+
 #### `clanbite_visibility_container_editor_script_handle`
 
 *Filter* · `clanbite.php`
@@ -2936,6 +2948,19 @@ Filters the default Players settings.
 | --- | --- | --- |
 | `$defaults` | `array<string, mixed>` | Defaults keyed by setting. |
 
+#### `clanbite_players_directory_card_markup`
+
+*Filter* · `inc/extensions/players/class-extension-players.php`
+
+Filters the block markup of one card in the player directory. Player blocks inside it show the card's player. Return an empty string to list names only.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$markup` | `string` | Block markup. |
+| `$user_id` | `int` | Player. |
+
+**Since:** 1.9.0
+
 #### `clanbite_players_directory_per_page`
 
 *Filter* · `inc/extensions/players/class-extension-players.php`
@@ -3275,6 +3300,18 @@ Filters the player avatar &lt;img&gt; HTML fragment.
 | `$args` | `array` | Arguments from `clanbite_players_get_player_avatar_img_html()`. |
 | `$url` | `string` | Avatar URL. |
 
+#### `clanbite_players_profiles_enabled`
+
+*Filter* · `inc/extensions/players/functions.php`
+
+Filter whether players have public profile pages.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$enabled` | `bool` | The saved setting. |
+
+**Since:** 1.9.0
+
 #### `clanbite_players_resolve_player_avatar_image_size`
 
 *Filter* · `inc/extensions/players/functions.php`
@@ -3336,6 +3373,18 @@ The dynamic portion is the top-level navigation slug (for example `profile`, `ac
 | --- | --- | --- |
 | `$items` | `array<string, array<string, string>>` | Sub-navigation items keyed by slug (`label`, `description`). |
 
+#### `clanbite_players_slug`
+
+*Filter* · `inc/extensions/players/functions.php`
+
+Filter the first part of player addresses. After changing what this returns, flush the permalinks (Settings → Permalinks).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$slug` | `string` | Saved slug, or an empty string for the default. |
+
+**Since:** 1.9.0
+
 #### `clanbite_players_social_profile_field_definitions`
 
 *Filter* · `inc/extensions/players/functions.php`
@@ -3369,6 +3418,20 @@ Filters the inline SVG markup for a social profile icon.
 | --- | --- | --- |
 | `$markup` | `string` | SVG HTML. |
 | `$slug` | `string` | Field slug. |
+
+#### `clanbite_players_tabs_without_profiles`
+
+*Filter* · `inc/extensions/players/class-extension-players.php`
+
+Filter the profile tabs signed-in players can still open while profiles are off. Only list tabs that are tools with their own permission checks, never ones that show a player's profile.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$tabs` | `array<int, string>` | Tab slugs. |
+
+**Since:** 1.9.0
+
+*Also fired in:* `src/blocks/players/profile-nav/render.php`
 
 #### `clanbite_redirect_author_archive_to_players_url`
 
@@ -3495,6 +3558,18 @@ Prefer `clanbite_register_profile_subpage()` and its player/team/group wrappers 
 | Parameter | Type | Description |
 | --- | --- | --- |
 | `$registry` | `array<string, array<string, mixed>>` | Registered sub-pages keyed by slug. Each entry has `label`, `template_id`, `default_blocks`, `capability` and `position`. |
+
+#### `clanbite_groups_available`
+
+*Filter* · `inc/groups/functions.php`
+
+Filter whether the site has groups.
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$available` | `bool` | True when the `clanbite_group` content type is registered. |
+
+**Since:** 1.9.0
 
 #### `clanbite_groups_avatar_shape`
 
@@ -4603,6 +4678,18 @@ Primitive capability required to manage any team as a site administrator.
 | --- | --- | --- |
 | `$cap` | `string` | Capability name. Default `manage_options`. |
 | `$user_id` | `int` | User ID. |
+
+#### `clanbite_teams_slug`
+
+*Filter* · `inc/extensions/teams/functions.php`
+
+Filter the first part of team addresses. After changing what this returns, flush the permalinks (Settings → Permalinks).
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `$slug` | `string` | Saved slug, or an empty string for the default. |
+
+**Since:** 1.9.0
 
 #### `clanbite_user_accepts_team_invites`
 

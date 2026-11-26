@@ -338,8 +338,12 @@ function clanbite_render_avatar( array $args ): string {
 			// Frame: border, XP ring track and progress arc, drawn in the avatar's shape (markup built from numbers and constants only).
 			echo clanbite_avatar_frame_svg( $shape, $has_ring ? array( 'progress' => $badge['progress'] ) : array( 'ring' => false ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
-			<?php if ( $args['link'] ) : ?>
-				<a href="<?php echo esc_url( clanbite_get_avatar_profile_url( $args['type'], $id ) ); ?>"
+			<?php
+			// An avatar with nowhere to go (for example players without public profiles) is not made a link.
+			$link_url = $args['link'] ? (string) clanbite_get_avatar_profile_url( $args['type'], $id ) : '';
+			?>
+			<?php if ( '' !== $link_url ) : ?>
+				<a href="<?php echo esc_url( $link_url ); ?>"
 					class="clanbite-avatar__link"
 					<?php if ( ! empty( $args['link_target'] ) ) : ?>
 						target="<?php echo esc_attr( $args['link_target'] ); ?>"
@@ -382,7 +386,7 @@ function clanbite_render_avatar( array $args ): string {
 				<img <?php echo clanbite_build_html_attributes( $img_attrs ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- clanbite_build_html_attributes() escapes every name and value. ?> />
 			</div>
 			
-			<?php if ( $args['link'] ) : ?>
+			<?php if ( '' !== $link_url ) : ?>
 				</a>
 			<?php endif; ?>
 			

@@ -1116,12 +1116,12 @@ class Matches extends Skeleton {
 			echo '<a class="clanbite-match-list__link" href="' . esc_url( get_permalink() ) . '">';
 			echo '<span class="clanbite-match-list__teams">';
 			echo esc_html( clanbite_matches_team_title( $h ) . ' vs ' . $away_title );
-			echo '</span>';
+			echo '</span> ';
 			echo '<span class="clanbite-match-list__meta">';
 			echo esc_html( clanbite_matches_format_datetime_local( $raw, $fmt ) );
 			echo ' · ';
 			echo esc_html( $st_lbl );
-			if ( $show_scores ) {
+			if ( $show_scores && $this->status_has_score( $st ) ) {
 				echo ' · ';
 				echo esc_html( (string) $hs . ' – ' . (string) $as );
 			}
@@ -1226,7 +1226,7 @@ class Matches extends Skeleton {
 			</p>
 			<p class="clanbite-match-card__when"><?php echo esc_html( $data['scheduledLabel'] ); ?></p>
 			<p class="clanbite-match-card__status"><?php echo esc_html( $st_lbl ); ?></p>
-			<?php if ( $show_scores ) : ?>
+			<?php if ( $show_scores && $this->status_has_score( (string) $data['status'] ) ) : ?>
 				<p class="clanbite-match-card__score">
 					<?php echo esc_html( (string) $data['homeScore'] . ' – ' . (string) $data['awayScore'] ); ?>
 				</p>
@@ -1241,6 +1241,17 @@ class Matches extends Skeleton {
 	}
 
 	/**
+	 * Whether a match has a score worth showing: one that has not started, or was called off, has none ("0 – 0" would read as
+	 * a result).
+	 *
+	 * @param string $status Match status.
+	 * @return bool
+	 */
+	private function status_has_score( string $status ): bool {
+		return ! in_array( $status, array( '', self::STATUS_SCHEDULED, self::STATUS_CANCELLED ), true );
+	}
+
+	/**
 	 * Sample match rows for the block editor preview (same markup as the real list).
 	 *
 	 * @param bool $show_scores Whether the list shows scores.
@@ -1249,7 +1260,7 @@ class Matches extends Skeleton {
 	private function demo_list_markup( bool $show_scores ): string {
 		$choices = $this->get_status_choices();
 		$rows    = array(
-			array( 'Night Owls vs Rival Squad', '+2 days', 'scheduled', '0 – 0' ),
+			array( 'Night Owls vs Rival Squad', '+2 days', 'scheduled', '' ),
 			array( 'Night Owls vs Midnight Raiders', '-3 days', 'completed', '13 – 9' ),
 			array( 'Night Owls vs Pixel Pirates', '-10 days', 'completed', '7 – 13' ),
 		);
@@ -1258,7 +1269,7 @@ class Matches extends Skeleton {
 		foreach ( $rows as $row ) {
 			$status = isset( $choices[ $row[2] ] ) ? $choices[ $row[2] ] : $row[2];
 			$out   .= '<li class="clanbite-match-list__item"><a class="clanbite-match-list__link" href="#"><span class="clanbite-match-list__teams">' . esc_html( $row[0] ) . '</span><span class="clanbite-match-list__meta">'
-				. esc_html( wp_date( $fmt, strtotime( $row[1] ) ) ) . ' · ' . esc_html( $status ) . ( $show_scores ? ' · ' . esc_html( $row[3] ) : '' ) . '</span></a></li>';
+				. esc_html( wp_date( $fmt, strtotime( $row[1] ) ) ) . ' · ' . esc_html( $status ) . ( $show_scores && '' !== $row[3] ? ' · ' . esc_html( $row[3] ) : '' ) . '</span></a></li>';
 		}
 
 		return $out . '</ul>';

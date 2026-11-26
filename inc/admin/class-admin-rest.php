@@ -485,7 +485,8 @@ class Admin_Rest {
 		);
 
 		$groups_key = Groups_Settings::OPTION_KEY;
-		if ( isset( $this->settings_by_option[ $groups_key ] ) ) {
+		// The Groups tab only makes sense when something on the site provides groups and has them switched on.
+		if ( isset( $this->settings_by_option[ $groups_key ] ) && \clanbite_groups_available() ) {
 			$groups_handler = $this->settings_by_option[ $groups_key ];
 			$groups_schema  = $groups_handler->export_rest_schema();
 			if ( ! empty( $groups_schema ) ) {
@@ -955,6 +956,7 @@ class Admin_Rest {
 			array(
 				'optionKey' => $key,
 				'values'    => $saved,
+				'warnings'  => $handler->get_save_warnings(),
 			)
 		);
 	}

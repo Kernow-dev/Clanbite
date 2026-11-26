@@ -341,7 +341,7 @@ final class Front_Seo {
 	 * @return void
 	 */
 	private static function print_players_directory_seo(): void {
-		$url = home_url( '/players/' );
+		$url = clanbite_players_url();
 
 		if ( self::output_open_graph() ) {
 			$title = __( 'Players', 'clanbite' ) . ' &mdash; ' . get_bloginfo( 'name', 'display' );

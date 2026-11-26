@@ -1006,7 +1006,7 @@ final class Event_Entity_Rest_Controller extends WP_REST_Controller {
 			}
 			$slug = $team_post->post_name;
 			if ( is_string( $slug ) && '' !== $slug ) {
-				return trailingslashit( home_url( '/teams/' . rawurlencode( $slug ) . '/events/' . $pid ) );
+				return trailingslashit( \clanbite_teams_url( rawurlencode( $slug ) . '/events/' . $pid ) );
 			}
 		} elseif ( Event_Post_Type::SCOPE_GROUP === $scope ) {
 			$group_id = (int) get_post_meta( $pid, 'clanbite_event_group_id', true );

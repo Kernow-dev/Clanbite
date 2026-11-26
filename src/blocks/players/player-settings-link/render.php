@@ -28,7 +28,7 @@ if ( $player_id < 1 ) {
  */
 $settings_url = (string) apply_filters(
 	'clanbite_player_profile_settings_url',
-	trailingslashit( home_url( '/players/settings/' ) ),
+	trailingslashit( clanbite_players_url( 'settings/' ) ),
 	$player_id
 );
 

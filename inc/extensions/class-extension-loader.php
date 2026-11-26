@@ -524,6 +524,8 @@ class Loader {
 			return;
 		}
 
+		$updated = array();
+
 		foreach ( $extensions as $slug => $class ) {
 			// Skip extensions that are not installed.
 			if ( ! $this->is_extension_installed( $slug ) ) {
@@ -546,10 +548,41 @@ class Loader {
 
 			if ( '' !== $installed_ver && '' !== $current_ver && version_compare( $installed_ver, $current_ver, '<' ) ) {
 				$this->extensions[ $slug ]->run_updater();
+				// Only reached when the updater finished, so one that stopped part-way runs again.
+				$updated[ $slug ] = $current_ver;
 			}
 
 			// Run extension.
 			$this->extensions[ $slug ]->run();
+		}
+
+		self::persist_extension_versions( $updated );
+	}
+
+	/**
+	 * Record the versions whose updaters have run. Without this every later request would run the same updaters again.
+	 *
+	 * @param array<string, string> $versions Version by extension slug.
+	 * @return void
+	 */
+	private static function persist_extension_versions( array $versions ): void {
+		if ( array() === $versions ) {
+			return;
+		}
+
+		// Read again: an extension may have been switched off while the others started.
+		$installed = self::read_installed_extensions_from_options();
+		foreach ( $versions as $slug => $version ) {
+			if ( isset( $installed[ $slug ] ) ) {
+				$installed[ $slug ]            = (array) $installed[ $slug ];
+				$installed[ $slug ]['version'] = $version;
+			}
+		}
+
+		if ( is_multisite() && is_network_admin() ) {
+			update_site_option( 'clanbite_installed_extensions', $installed );
+		} else {
+			update_option( 'clanbite_installed_extensions', $installed );
 		}
 	}
 

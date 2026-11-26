@@ -102,6 +102,31 @@
 	box-sizing: border-box;
 }
 
+// A name sits on a picture, so the theme's text colour cannot be relied on: a
+// dark theme colour disappears on a dark cover. A soft shade under the content
+// and light text keep it readable on any theme and any image. A colour chosen
+// on the block still wins; themes can set --clanbite-cover-text and
+// --clanbite-cover-shade.
+.clanbite-cover:not(.clanbite-cover--placeholder) {
+
+	> .clanbite-cover__media-clip::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: var(--clanbite-cover-shade, linear-gradient(to bottom, rgb(0 0 0 / 5%), rgb(0 0 0 / 55%)));
+		pointer-events: none;
+	}
+
+	.clanbite-cover__content :is(.wp-block-clanbite-team-name, .wp-block-clanbite-player-display-name):not(.has-text-color) {
+		color: var(--clanbite-cover-text, #fff);
+		text-shadow: 0 1px 4px rgb(0 0 0 / 70%);
+
+		:is(h1, h2, h3, h4, h5, h6, p, a) {
+			color: inherit;
+		}
+	}
+}
+
 // Type-specific variants
 .clanbite-cover--player {
 	// Player-specific overrides

@@ -26,7 +26,7 @@ if ( ! ( $user instanceof WP_User ) ) {
 $current_slug = function_exists( 'clanbite_player_profile_route_current_slug' ) ? clanbite_player_profile_route_current_slug() : '';
 
 $subpages = function_exists( 'clanbite_get_player_subpages' ) ? clanbite_get_player_subpages() : array();
-$base_url = trailingslashit( home_url( '/players/' . $user->user_nicename ) );
+$base_url = trailingslashit( clanbite_players_url( $user->user_nicename ) );
 
 /**
  * Filter the label for the player profile home link.
@@ -44,7 +44,7 @@ $home_label = (string) apply_filters( 'clanbite_player_profile_home_label', __( 
  */
 $settings_url = (string) apply_filters(
 	'clanbite_player_profile_settings_url',
-	trailingslashit( home_url( '/players/settings/' ) ),
+	trailingslashit( clanbite_players_url( 'settings/' ) ),
 	$player_id
 );
 
@@ -83,6 +83,14 @@ $visible_subpages = function_exists( 'clanbite_profile_subpages_visible_for_nav'
 	: array();
 $visible_subpages = is_array( $visible_subpages ) ? $visible_subpages : array();
 
+// With profiles off there is no overview, and only the tool tabs can be opened (by signed-in players, see core's route rules).
+$profiles_public = clanbite_players_profiles_enabled();
+if ( ! $profiles_public ) {
+	/** This filter is documented in inc/extensions/players/class-extension-players.php */
+	$tool_tabs        = (array) apply_filters( 'clanbite_players_tabs_without_profiles', array( 'notifications', 'events' ) );
+	$visible_subpages = is_user_logged_in() ? array_intersect_key( $visible_subpages, array_flip( $tool_tabs ) ) : array();
+}
+
 // Omit the nav when only the home link would appear (matches team profile nav).
 if ( array() === $visible_subpages && ! $show_settings_link ) {
 	return;
@@ -100,6 +108,7 @@ $wrapper = get_block_wrapper_attributes(
 <?php ob_start(); ?>
 <?php clanbite_echo_block_fragment_html( '<nav ' . trim( (string) $wrapper ) . '>' ); ?>
 	<ul class="clanbite-player-profile-nav__list">
+		<?php if ( $profiles_public ) : ?>
 		<li class="clanbite-player-profile-nav__item<?php echo empty( $current_slug ) ? ' is-active' : ''; ?>">
 			<a
 				class="clanbite-player-profile-nav__link"
@@ -109,6 +118,7 @@ $wrapper = get_block_wrapper_attributes(
 				<?php echo esc_html( $home_label ); ?>
 			</a>
 		</li>
+		<?php endif; ?>
 		<?php
 		foreach ( $visible_subpages as $slug => $config ) :
 			$label = $config['label'] ?? ucfirst( $slug );

@@ -196,6 +196,10 @@ class Teams extends Skeleton {
 		add_action( 'template_redirect', array( $this, 'maybe_fix_team_events_route_404' ), 0 );
 		add_action( 'template_redirect', array( $this, 'maybe_redirect_disallowed_team_virtual_actions' ), 3 );
 		add_action( 'template_redirect', array( $this, 'maybe_block_banned_team_access' ), 5 );
+		add_action( 'template_redirect', array( $this, 'maybe_redirect_old_team_address' ), 6 );
+		add_filter( 'document_title_parts', array( $this, 'filter_team_route_title' ), 20 );
+		add_action( 'update_option_clanbite_teams_settings', array( self::class, 'on_slug_setting_saved' ), 10, 2 );
+		add_action( 'add_option_clanbite_teams_settings', array( self::class, 'on_slug_setting_added' ), 10, 2 );
 		add_filter( 'pre_render_block', array( $this, 'prime_clanbite_team_single_loop_for_plugin_template' ), 0, 3 );
 		add_filter( 'render_block_context', array( $this, 'filter_team_singular_block_context' ), 10, 3 );
 		add_filter( 'get_block_templates', array( $this, 'prefer_plugin_single_clanbite_team_block_template' ), 100, 3 );
@@ -538,10 +542,6 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		if ( ! $players->get_setting( 'enable_profiles' ) ) {
-			return;
-		}
-
 		add_filter( 'clanbite_players_settings_nav_items', array( $this, 'register_teams_player_settings_nav' ), 20 );
 		add_filter( 'clanbite_players_settings_nav_teams_sub_items', array( $this, 'register_teams_player_settings_sub_nav' ) );
 		add_action( 'clanbite_player_settings_panel_teams-preferences', array( $this, 'render_player_team_preferences_panel' ) );
@@ -760,7 +760,8 @@ class Teams extends Skeleton {
 	 * @return void
 	 */
 	public function register_team_front_routes(): void {
-		add_rewrite_rule( '^teams/create/?$', 'index.php?clanbite_team_create=1', 'top' );
+		$base = '^' . preg_quote( \clanbite_teams_get_slug(), '#' ) . '/';
+		add_rewrite_rule( $base . 'create/?$', 'index.php?clanbite_team_create=1', 'top' );
 
 		$actions = $this->get_team_front_action_slugs_for_rewrites();
 		foreach ( $actions as $action_slug ) {
@@ -769,7 +770,7 @@ class Teams extends Skeleton {
 				continue;
 			}
 			add_rewrite_rule(
-				'^teams/([^/]+)/' . preg_quote( $action_slug, '/' ) . '/?$',
+				$base . '([^/]+)/' . preg_quote( $action_slug, '/' ) . '/?$',
 				'index.php?clanbite_team_slug=$matches[1]&clanbite_team_action=' . $action_slug,
 				'top'
 			);
@@ -778,14 +779,14 @@ class Teams extends Skeleton {
 		if ( $this->events_extension_is_active() ) {
 			// teams/{slug}/events/create/ — add event (before numeric event ID rule).
 			add_rewrite_rule(
-				'^teams/([^/]+)/events/create/?$',
+				$base . '([^/]+)/events/create/?$',
 				'index.php?clanbite_team_slug=$matches[1]&clanbite_team_action=events&clanbite_team_events_sub=create',
 				'top'
 			);
 
 			// teams/{slug}/events/{id}/ — single scheduled event (must be registered after the generic …/events/ rule).
 			add_rewrite_rule(
-				'^teams/([^/]+)/events/([0-9]+)/?$',
+				$base . '([^/]+)/events/([0-9]+)/?$',
 				'index.php?clanbite_team_slug=$matches[1]&clanbite_team_action=events&clanbite_team_event_id=$matches[2]',
 				'top'
 			);
@@ -793,7 +794,7 @@ class Teams extends Skeleton {
 
 		// Back-compat: /teams/manage/{slug}/ resolves like /teams/{slug}/manage/.
 		add_rewrite_rule(
-			'^teams/manage/([^/]+)/?$',
+			$base . 'manage/([^/]+)/?$',
 			'index.php?clanbite_team_slug=$matches[1]&clanbite_team_action=manage',
 			'top'
 		);
@@ -840,12 +841,102 @@ class Teams extends Skeleton {
 	}
 
 	/**
+	 * Name the create-team and team matches screens in the browser tab. They are not real pages, so WordPress has no title for them.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param mixed $title Title parts.
+	 * @return mixed
+	 */
+	public function filter_team_route_title( $title ) {
+		if ( ! is_array( $title ) || is_404() ) {
+			return $title;
+		}
+		$name = '';
+		if ( get_query_var( 'clanbite_team_create' ) ) {
+			$name = __( 'Create a team', 'clanbite' );
+		} elseif ( 'matches' === get_query_var( 'clanbite_team_action' ) && get_query_var( 'clanbite_matches_team_id' ) ) {
+			/* translators: %s: team name. */
+			$name = sprintf( __( 'Matches — %s', 'clanbite' ), get_the_title( (int) get_query_var( 'clanbite_matches_team_id' ) ) );
+		}
+		if ( '' !== $name ) {
+			$title['title'] = $name;
+			if ( ! isset( $title['site'] ) ) {
+				$title['site'] = get_bloginfo( 'name', 'display' );
+			}
+			unset( $title['tagline'] );
+		}
+
+		return $title;
+	}
+
+	/**
+	 * Send a "not found" address that uses a former team slug to the same place under the current one.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @return void
+	 */
+	public function maybe_redirect_old_team_address(): void {
+		\clanbite_url_slug_redirect_old( 'teams', \clanbite_teams_get_slug() );
+	}
+
+	/**
+	 * When the team address slug changes, remember the old one and rebuild the permalinks.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param mixed $old_value Settings before.
+	 * @param mixed $value     Settings now.
+	 * @return void
+	 */
+	public static function on_slug_setting_saved( $old_value, $value ): void {
+		$slug_of = static function ( $settings ): string {
+			$slug = is_array( $settings ) ? (string) ( $settings['team_url_slug'] ?? '' ) : '';
+
+			return '' === $slug ? \CLANBITE_TEAMS_DEFAULT_SLUG : $slug;
+		};
+		\clanbite_url_slug_changed( 'teams', $slug_of( $old_value ), $slug_of( $value ) );
+	}
+
+	/**
+	 * The same for the first time the settings are saved.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param string $option Option name.
+	 * @param mixed  $value  Settings.
+	 * @return void
+	 */
+	public static function on_slug_setting_added( $option, $value ): void {
+		unset( $option );
+		self::on_slug_setting_saved( array(), $value );
+	}
+
+	/**
 	 * Request path after the home URL path (no leading/trailing slashes).
 	 *
 	 * @return string
 	 */
 	protected function get_canonical_request_path(): string {
 		return clanbite_get_canonical_request_path();
+	}
+
+	/**
+	 * Answer a team subpage with "200 OK". WordPress marks these virtual pages as not found because no post matches them, so
+	 * without this the page shows but browsers, caches and search engines are told it does not exist. Call it only once the
+	 * subpage has passed its own checks.
+	 *
+	 * @return void
+	 */
+	private function mark_team_route_found(): void {
+		global $wp_query;
+
+		if ( $wp_query instanceof \WP_Query && $wp_query->is_404() ) {
+			$wp_query->is_404 = false;
+			status_header( 200 );
+			nocache_headers();
+		}
 	}
 
 	/**
@@ -879,7 +970,7 @@ class Teams extends Skeleton {
 			return $query_vars;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path = \clanbite_teams_route_path( $this->get_canonical_request_path() );
 		if ( '' === $path ) {
 			return $query_vars;
 		}
@@ -944,7 +1035,7 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path = \clanbite_teams_route_path( $this->get_canonical_request_path() );
 		if ( 'teams/create' !== $path && ! str_starts_with( $path, 'teams/create/' ) ) {
 			return;
 		}
@@ -990,7 +1081,7 @@ class Teams extends Skeleton {
 			return;
 		}
 
-		$path       = $this->get_canonical_request_path();
+		$path       = \clanbite_teams_route_path( $this->get_canonical_request_path() );
 		$slug       = '';
 		$event_id   = 0;
 		$events_sub = '';
@@ -1108,7 +1199,7 @@ class Teams extends Skeleton {
 			$pto  = get_post_type_object( 'clanbite_team' );
 			$base = ( $pto && is_array( $pto->rewrite ) && ! empty( $pto->rewrite['slug'] ) )
 				? (string) $pto->rewrite['slug']
-				: 'teams';
+				: \clanbite_teams_get_slug();
 			$url  = home_url( user_trailingslashit( $base . '/' . $slug ) );
 		}
 
@@ -1378,6 +1469,7 @@ class Teams extends Skeleton {
 				}
 
 				set_query_var( 'clanbite_matches_team_id', $team_id );
+				$this->mark_team_route_found();
 
 				$hierarchy       = array( 'teams-matches.php', 'index.php' );
 				$located         = locate_template( array( 'teams-matches.php' ) );
@@ -1399,6 +1491,7 @@ class Teams extends Skeleton {
 				}
 
 				set_query_var( 'clanbite_manage_team_id', $team_id );
+				$this->mark_team_route_found();
 
 				// Hierarchy slug must match register_block_template id segment (teams-manage), not team-manage.
 				$templates       = array( 'teams-manage.php', 'index.php' );
@@ -1492,7 +1585,7 @@ class Teams extends Skeleton {
 	 * @return string
 	 */
 	public function get_team_create_url(): string {
-		$url = home_url( '/teams/create/' );
+		$url = \clanbite_teams_url( 'create/' );
 
 		/**
 		 * Filters the URL of the create-team page.
@@ -1521,7 +1614,7 @@ class Teams extends Skeleton {
 			return '';
 		}
 
-		$path = user_trailingslashit( 'teams/' . $slug . '/' . $action );
+		$path = user_trailingslashit( \clanbite_teams_get_slug() . '/' . $slug . '/' . $action );
 		$url  = home_url( $path );
 
 		/**
@@ -2418,11 +2511,11 @@ class Teams extends Skeleton {
 			</p>
 			<p class="clanbite-team-manage-form__record">
 				<label for="clanbite-manage-team-wins"><?php esc_html_e( 'Record (wins / losses / draws)', 'clanbite' ); ?></label><br />
-				<input type="number" min="0" step="1" id="clanbite-manage-team-wins" name="team_wins" class="small-text" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_wins() : 0 ) ); ?>" />
+				<input type="number" min="0" step="1" id="clanbite-manage-team-wins" name="team_wins" class="small-text" aria-label="<?php esc_attr_e( 'Wins', 'clanbite' ); ?>" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_wins() : 0 ) ); ?>" />
 				<span class="description" aria-hidden="true"> / </span>
-				<input type="number" min="0" step="1" id="clanbite-manage-team-losses" name="team_losses" class="small-text" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_losses() : 0 ) ); ?>" />
+				<input type="number" min="0" step="1" id="clanbite-manage-team-losses" name="team_losses" class="small-text" aria-label="<?php esc_attr_e( 'Losses', 'clanbite' ); ?>" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_losses() : 0 ) ); ?>" />
 				<span class="description" aria-hidden="true"> / </span>
-				<input type="number" min="0" step="1" id="clanbite-manage-team-draws" name="team_draws" class="small-text" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_draws() : 0 ) ); ?>" />
+				<input type="number" min="0" step="1" id="clanbite-manage-team-draws" name="team_draws" class="small-text" aria-label="<?php esc_attr_e( 'Draws', 'clanbite' ); ?>" value="<?php echo esc_attr( (string) ( $team_profile ? $team_profile->get_draws() : 0 ) ); ?>" />
 			</p>
 		</div>
 		<?php
@@ -2663,7 +2756,8 @@ class Teams extends Skeleton {
 						<tr>
 							<td><?php echo esc_html( $member->display_name ); ?> <span class="description">(<?php echo esc_html( $member->user_login ); ?>)</span></td>
 							<td>
-								<select name="member_roles[<?php echo esc_attr( (string) $member_id ); ?>]">
+								<?php /* translators: %s: member name. */ ?>
+								<select name="member_roles[<?php echo esc_attr( (string) $member_id ); ?>]" aria-label="<?php echo esc_attr( sprintf( __( 'Role for %s', 'clanbite' ), $member->display_name ) ); ?>">
 									<?php foreach ( $roles as $value => $label ) : ?>
 										<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $member_role, $value ); ?>><?php echo esc_html( $label ); ?></option>
 									<?php endforeach; ?>
@@ -3452,7 +3546,8 @@ class Teams extends Skeleton {
 				'show_in_menu'    => 'clanbite',
 				'has_archive'     => true,
 				'rewrite'         => array(
-					'slug' => 'teams',
+					// The site owner chooses the word (Teams → Team address slug).
+					'slug' => \clanbite_teams_get_slug(),
 				),
 				'supports'        => array( 'title', 'editor', 'thumbnail', 'author' ),
 				'capability_type' => 'post',
@@ -4621,7 +4716,7 @@ class Teams extends Skeleton {
 					|| ( is_string( $archive ) && '' !== $archive
 						&& untrailingslashit( $redirect ) === untrailingslashit( $archive ) ) ) {
 					$redirect = '' !== $slug
-						? home_url( user_trailingslashit( 'teams/' . $slug ) )
+						? \clanbite_teams_url( user_trailingslashit( $slug ) )
 						: (string) get_permalink( $team_id );
 				}
 

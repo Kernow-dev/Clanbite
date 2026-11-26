@@ -4,7 +4,7 @@ Tags: community, esports, gaming, teams, clan
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.8.1
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -200,6 +200,27 @@ Please report it privately, not in the support forum or a public issue. Use [Rep
 For help setting up your site, use the [support forum](https://wordpress.org/support/plugin/clanbite/). For bugs and feature ideas, open an issue on [GitHub](https://github.com/Kernow-dev/Clanbite/issues). Ideas are very welcome: tell me what your community needs.
 
 == Changelog ==
+
+= 1.9.0 =
+* New: the player directory shows player cards with covers, avatars and taglines instead of a list of names.
+* New: choose the words used in player, team and (with Social Kit 1.7.0) group addresses, for example /members/ or /clans/. Old addresses are sent to the new ones.
+* Changed: "Enable profiles" now only hides the public player directory and profile pages. Account settings, avatars, blocks, notifications and events keep working; before, turning it off disabled most of the Players extension.
+* New: settings screens say why a value was not saved.
+* New: add-ons can have a player settings button reload the page after it succeeds (`data-clanbite-action-reload`).
+* Fixed (performance): after an add-on was updated, its updater ran again on every page load. On a test site a plain page went from 88 database queries to 35.
+* Fixed: the Groups settings tab only appears when groups are switched on.
+* Fixed: long values in a settings table no longer break out of their card.
+* Fixed: pages served by a plugin template on block themes, such as the group directory, now have a page title and the mobile viewport tag.
+* Fixed: the team manage and team matches pages answered "404 Not Found" although they showed.
+* Fixed: the team matches page showed empty placeholders instead of the team's header.
+* Fixed: player and team names on cover images were hard to read on light themes.
+* Fixed: the Accept and Decline buttons on the player notifications page did nothing (they only worked in the notification bell).
+* Fixed: on the player notifications page, button text sat low and stray spacing appeared in the list.
+* Fixed: long event names made calendar columns uneven and could push a day out of view.
+* Fixed: upcoming and cancelled matches no longer show a "0 – 0" score, and match lists put the details on their own line.
+* New: a Live Preview for the plugin directory, with a small demo community.
+* Fixed: signing in from the account settings address now returns you there.
+* Improved accessibility: page titles for account settings, team matches and create team, and labels for the team record and member role fields.
 
 = 1.8.1 =
 * Changed: a new Clanbite logo, with a simpler admin menu icon that stays clear at small sizes.

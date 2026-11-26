@@ -14,6 +14,9 @@ module.exports = {
 		'css/clanbite-player-media-editor': src(
 			'css/clanbite-player-media-editor.css'
 		),
+		'css/clanbite-players-directory': src(
+			'css/clanbite-players-directory.css'
+		),
 		'css/clanbite-player-notifications-page': src(
 			'css/clanbite-player-notifications-page.css'
 		),

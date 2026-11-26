@@ -5,3 +5,17 @@
 	border-radius: 2px;
 	font-size: 13px;
 }
+
+// The title and the details each take a line, whatever the theme does with links.
+.clanbite-match-list__teams,
+.clanbite-match-list__meta {
+	display: block;
+}
+
+.clanbite-match-list__teams {
+	font-weight: 600;
+}
+
+.clanbite-match-list__meta {
+	font-size: 0.875em;
+}
