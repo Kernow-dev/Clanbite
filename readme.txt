@@ -204,6 +204,7 @@ For help setting up your site, use the [support forum](https://wordpress.org/sup
 = 1.8.1 =
 * Changed: a new Clanbite logo, with a simpler admin menu icon that stays clear at small sizes.
 * Changed: the settings screen header shows the new logo, which includes the name, in place of the separate title.
+* Fixed: when several requests arrived together after an update, each could check the add-ons at once, so an add-on being turned back on could run its activation steps more than once.
 
 = 1.8.0 =
 * New: Clanbite can run the Clanbite Support Desk add-on (a private support desk with tickets, support staff and purchase-based support).

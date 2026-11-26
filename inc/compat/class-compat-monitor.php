@@ -34,6 +34,21 @@ final class Compat_Monitor {
 	private const SIGNATURE = 'clanbite_addon_guard_signature';
 
 	/**
+	 * Name of the lock that lets one request at a time run a sweep.
+	 */
+	private const LOCK = 'clanbite_addon_guard';
+
+	/**
+	 * Seconds after which a lock left by a request that died is taken over.
+	 */
+	private const LOCK_EXPIRES = 60;
+
+	/**
+	 * Seconds a sweep that follows an update or activation waits for another request's sweep to finish.
+	 */
+	private const LOCK_WAIT = 10;
+
+	/**
 	 * Header names. WordPress keys the plugin data by the header name itself for extra headers.
 	 */
 	private const HEADER_CORE = 'Requires Clanbite';
@@ -151,7 +166,9 @@ final class Compat_Monitor {
 			return;
 		}
 		if ( get_option( self::SIGNATURE ) !== self::signature() ) {
-			self::sweep();
+			// No waiting: if another request is already at it, this one carries on. Nothing is lost, because a change that is
+			// still unchecked keeps the signature stale for the next request.
+			self::locked_sweep( null, 0, true );
 		}
 	}
 
@@ -309,18 +326,99 @@ final class Compat_Monitor {
 	/**
 	 * Check every plugin, switch off what cannot run and switch back on what can again.
 	 *
+	 * Only one request does this at a time. If another one is still at it after a few seconds, nothing is done here.
+	 *
 	 * @param string|null $core Clanbite version to judge against (default: the running one).
 	 * @return array{disabled: list<string>, reenabled: list<string>}
 	 */
 	public static function sweep( ?string $core = null ): array {
+		return self::locked_sweep( $core, self::LOCK_WAIT, false );
+	}
+
+	/**
+	 * Run a sweep while holding the lock shared by all requests.
+	 *
+	 * Without it, requests arriving together would each work from the plugin list they loaded at their start: an add-on switched
+	 * back on would run its activation hook once per request, and a late request could overwrite the record of what was
+	 * switched off.
+	 *
+	 * @param string|null $core            Clanbite version to judge against (default: the running one).
+	 * @param int         $wait            Seconds to wait for the lock.
+	 * @param bool        $only_if_changed Do nothing if, once the lock is held, another request has already checked everything.
+	 * @return array{disabled: list<string>, reenabled: list<string>}
+	 */
+	private static function locked_sweep( ?string $core, int $wait, bool $only_if_changed ): array {
+		$nothing = array(
+			'disabled'  => array(),
+			'reenabled' => array(),
+		);
+		if ( self::$running || ! self::enabled() || ! self::lock( $wait ) ) {
+			return $nothing;
+		}
+		self::$running = true;
+		try {
+			// Another request may have changed these while this one was loading or waiting.
+			self::forget_cached_state();
+			if ( $only_if_changed && get_option( self::SIGNATURE ) === self::signature() ) {
+				return $nothing;
+			}
+
+			return self::run_sweep( $core );
+		} finally {
+			self::$running = false;
+			\WP_Upgrader::release_lock( self::LOCK );
+		}
+	}
+
+	/**
+	 * Take the lock, using the same database lock WordPress uses for its updates.
+	 *
+	 * @param int $wait Seconds to keep trying.
+	 * @return bool Whether this request holds the lock.
+	 */
+	private static function lock( int $wait ): bool {
+		if ( ! class_exists( '\WP_Upgrader' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		}
+		$until = microtime( true ) + $wait;
+		while ( ! \WP_Upgrader::create_lock( self::LOCK, self::LOCK_EXPIRES ) ) {
+			if ( microtime( true ) >= $until ) {
+				return false;
+			}
+			usleep( 200000 );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Make the next reads of the guard's state come from the database, not from what this request cached earlier.
+	 *
+	 * @return void
+	 */
+	private static function forget_cached_state(): void {
+		foreach ( array( 'alloptions', 'notoptions', 'active_plugins', self::OPTION, self::SIGNATURE, self::SIGNATURE . '_files' ) as $key ) {
+			wp_cache_delete( $key, 'options' );
+		}
+		if ( is_multisite() ) {
+			foreach ( array( 'notoptions', 'active_sitewide_plugins' ) as $key ) {
+				wp_cache_delete( get_current_network_id() . ':' . $key, 'site-options' );
+			}
+		}
+		clearstatcache();
+	}
+
+	/**
+	 * The sweep itself. Call it through {@see self::locked_sweep()}.
+	 *
+	 * @param string|null $core Clanbite version to judge against (default: the running one).
+	 * @return array{disabled: list<string>, reenabled: list<string>}
+	 */
+	private static function run_sweep( ?string $core ): array {
 		$result = array(
 			'disabled'  => array(),
 			'reenabled' => array(),
 		);
-		if ( self::$running || ! self::enabled() ) {
-			return $result;
-		}
-		self::$running = true;
 		if ( ! function_exists( 'get_plugins' ) || ! function_exists( 'deactivate_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -408,7 +506,6 @@ final class Compat_Monitor {
 		}
 		update_option( self::SIGNATURE . '_files', $guarded, true );
 		update_option( self::SIGNATURE, self::signature(), true );
-		self::$running = false;
 
 		return $result;
 	}
