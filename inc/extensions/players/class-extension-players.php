@@ -117,16 +117,23 @@ class Players extends Skeleton {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * Boots the Players admin settings and, when `enable_profiles` is on, the profile features.
+	 * Boots the Players admin settings and the player features. The `enable_profiles` setting only decides whether profile pages
+	 * are public ({@see clanbite_players_profiles_enabled()}); account settings, blocks and avatars never depend on it.
 	 */
 	public function run(): void {
 		// Initiate admin functionality and settings.
 		$this->admin = new Admin();
 
-		// Maybe initiate player profile functionality.
-		if ( $this->admin->get( 'enable_profiles' ) ) {
-			$this->enable_profiles();
-		}
+		$this->enable_profiles();
+		add_action( 'update_option_clanbite_players_settings', array( self::class, 'on_settings_saved' ), 10, 2 );
+		add_action(
+			'add_option_clanbite_players_settings',
+			static function ( $option, $value ): void {
+				self::on_settings_saved( array(), $value );
+			},
+			10,
+			2
+		);
 	}
 
 	/**
@@ -170,7 +177,9 @@ class Players extends Skeleton {
 		add_action( 'template_redirect', array( $this, 'maybe_normalize_player_profile_stolen_query' ), -1 );
 		add_action( 'template_redirect', array( $this, 'maybe_fix_players_directory_404' ), 0 );
 		add_action( 'template_redirect', array( $this, 'maybe_fix_players_profile_404' ), 1 );
+		add_action( 'template_redirect', array( $this, 'maybe_redirect_closed_profile' ), 2 );
 		add_action( 'template_redirect', array( $this, 'maybe_redirect_author_archives_to_players' ), 3 );
+		add_action( 'template_redirect', array( $this, 'maybe_redirect_old_player_address' ), 6 );
 		add_action( 'template_redirect', array( $this, 'maybe_canonicalize_player_profile_subpage' ), 4 );
 		add_filter( 'template_include', array( $this, 'maybe_load_player_profile_template' ), 100 );
 		add_filter( 'get_block_templates', array( $this, 'prefer_plugin_players_directory_block_template' ), 100, 3 );
@@ -180,6 +189,7 @@ class Players extends Skeleton {
 		add_filter( 'get_block_templates', array( $this, 'filter_get_block_templates_include_player_profile_header' ), 10, 3 );
 		add_action( 'template_redirect', array( $this, 'maybe_canonicalize_player_settings_url' ), 5 );
 		add_filter( 'template_include', array( $this, 'maybe_load_player_settings_template' ) );
+		add_filter( 'document_title_parts', array( $this, 'filter_player_settings_title' ), 20 );
 		add_action( 'wp', array( $this, 'set_plugin_block_template_id_for_site_editor' ), 99 );
 		add_action( 'init', array( $this, 'register_players_directory_shortcode' ) );
 		add_action( 'init', array( $this, 'register_profile_templates' ) );
@@ -223,7 +233,11 @@ class Players extends Skeleton {
 	 * @return string Player profile URL.
 	 */
 	public function modify_author_links( $link, $author_id, $author_nicename ) {
-		return home_url( '/players/' . $author_nicename );
+		if ( ! \clanbite_players_profiles_enabled() ) {
+			return $link;
+		}
+
+		return \clanbite_players_url( $author_nicename );
 	}
 
 	/**
@@ -238,11 +252,11 @@ class Players extends Skeleton {
 			return;
 		}
 
-		if ( ! is_author() ) {
+		if ( ! is_author() || ! \clanbite_players_profiles_enabled() ) {
 			return;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path = \clanbite_players_route_path( $this->get_canonical_request_path() );
 		if ( preg_match( '#^players(?:/|$)#', $path ) ) {
 			return;
 		}
@@ -259,9 +273,9 @@ class Players extends Skeleton {
 
 		$paged = max( 0, (int) get_query_var( 'paged' ) );
 		if ( $paged > 1 ) {
-			$target = trailingslashit( home_url( '/players/' . $nicename . '/page/' . $paged ) );
+			$target = trailingslashit( \clanbite_players_url( $nicename . '/page/' . $paged ) );
 		} else {
-			$target = trailingslashit( home_url( '/players/' . $nicename ) );
+			$target = trailingslashit( \clanbite_players_url( $nicename ) );
 		}
 
 		/**
@@ -280,58 +294,61 @@ class Players extends Skeleton {
 	 * @return void
 	 */
 	public function register_profile_endpoints() {
+		// The slug holds only letters, numbers and hyphens, so quoting it is enough to place it in a pattern.
+		$base = '^' . preg_quote( \clanbite_players_get_slug(), '#' ) . '/';
+
 		// 1a. Players settings deep links: /players/settings/{nav}/{panel}/
 		add_rewrite_rule(
-			'^players/settings/([^/]+)/([^/]+)/?$',
+			$base . 'settings/([^/]+)/([^/]+)/?$',
 			'index.php?players_settings=1&players_settings_nav=$matches[1]&players_settings_panel=$matches[2]',
 			'top'
 		);
 
 		// 1b. /players/settings/{nav}/ → canonicalize to first panel in template_redirect
 		add_rewrite_rule(
-			'^players/settings/([^/]+)/?$',
+			$base . 'settings/([^/]+)/?$',
 			'index.php?players_settings=1&players_settings_nav=$matches[1]',
 			'top'
 		);
 
 		// 1c. Players settings index
 		add_rewrite_rule(
-			'^players/settings/?$',
+			$base . 'settings/?$',
 			'index.php?players_settings=1',
 			'top'
 		);
 
 		// 2. Players directory pagination (must run before author rules so "page" is not treated as a username).
 		add_rewrite_rule(
-			'^players/page/([0-9]+)/?$',
+			$base . 'page/([0-9]+)/?$',
 			'index.php?clanbite_players_directory=1&paged=$matches[1]',
 			'top'
 		);
 
 		// 3. Author pagination
 		add_rewrite_rule(
-			'^players/(?!settings/?$)([^/]+)/page/([0-9]+)/?$',
+			$base . '(?!settings/?$)([^/]+)/page/([0-9]+)/?$',
 			'index.php?author_name=$matches[1]&paged=$matches[2]',
 			'top'
 		);
 
 		// 4. Player profile subpages: /players/{nicename}/{subpage}/
 		add_rewrite_rule(
-			'^players/(?!settings/?$)([^/]+)/([^/]+)/?$',
+			$base . '(?!settings/?$)([^/]+)/([^/]+)/?$',
 			'index.php?author_name=$matches[1]&clanbite_player_subpage=$matches[2]',
 			'top'
 		);
 
 		// 5. Author first page (default profile overview).
 		add_rewrite_rule(
-			'^players/(?!settings/?$)([^/]+)/?$',
+			$base . '(?!settings/?$)([^/]+)/?$',
 			'index.php?author_name=$matches[1]',
 			'top'
 		);
 
 		// 6. Players directory root (/players/).
 		add_rewrite_rule(
-			'^players/?$',
+			rtrim( $base, '/' ) . '/?$',
 			'index.php?clanbite_players_directory=1',
 			'top'
 		);
@@ -438,6 +455,90 @@ class Players extends Skeleton {
 	}
 
 	/**
+	 * Whether the requested address is a player page that is closed because profiles are off.
+	 *
+	 * Closed: the directory, every profile overview and every profile tab, except the tool tabs for signed-in players
+	 * (notifications and events, which apply their own permission rules). Account settings are never closed.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @return bool
+	 */
+	public function is_closed_player_route(): bool {
+		if ( \clanbite_players_profiles_enabled() ) {
+			return false;
+		}
+		$path = \clanbite_players_route_path( $this->get_canonical_request_path() );
+		if ( 1 !== preg_match( '#^players(?:/|$)#', $path ) || 1 === preg_match( '#^players/settings(?:/|$)#', $path ) ) {
+			return false;
+		}
+		if ( 1 !== preg_match( '#^players/(?!page(?:/|$))[^/]+/([^/]+)/?$#', $path, $m ) || ! is_user_logged_in() ) {
+			return true;
+		}
+
+		/**
+		 * Filter the profile tabs signed-in players can still open while profiles are off. Only list tabs that are tools with their
+		 * own permission checks, never ones that show a player's profile.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param array<int, string> $tabs Tab slugs.
+		 */
+		$tools = (array) apply_filters( 'clanbite_players_tabs_without_profiles', array( 'notifications', 'events' ) );
+
+		return ! in_array( sanitize_key( $m[1] ), $tools, true );
+	}
+
+	/**
+	 * With profiles off, send a player who opens their own profile to their account settings.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @return void
+	 */
+	public function maybe_redirect_closed_profile(): void {
+		if ( \clanbite_players_profiles_enabled() || ! is_user_logged_in() ) {
+			return;
+		}
+		$path = \clanbite_players_route_path( $this->get_canonical_request_path() );
+		$own  = 'players/' . wp_get_current_user()->user_nicename;
+		if ( $path === $own || $path === $own . '/' ) {
+			wp_safe_redirect( \clanbite_players_url( 'settings/' ), 302 );
+			exit;
+		}
+	}
+
+	/**
+	 * After the player address slug changed, send visitors from an address that used an earlier slug to the same place under the
+	 * current one. Only when nothing else lives there now.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @return void
+	 */
+	public function maybe_redirect_old_player_address(): void {
+		\clanbite_url_slug_redirect_old( 'players', \clanbite_players_get_slug() );
+	}
+
+	/**
+	 * When the player address slug changes: rebuild the permalinks on the next request and remember the old slug.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param mixed $old_value Option before.
+	 * @param mixed $value     Option after.
+	 * @return void
+	 */
+	public static function on_settings_saved( $old_value, $value ): void {
+		$slug_of = static function ( $settings ): string {
+			$slug = is_array( $settings ) ? (string) ( $settings['player_url_slug'] ?? '' ) : '';
+
+			return '' === $slug ? \CLANBITE_PLAYERS_DEFAULT_SLUG : $slug;
+		};
+		\clanbite_url_slug_changed( 'players', $slug_of( $old_value ), $slug_of( $value ) );
+	}
+
+	/**
 	 * Remove query vars that would resolve to a post/page and conflict with virtual player routes.
 	 *
 	 * @param array<string, mixed> $query_vars Query variables.
@@ -462,11 +563,15 @@ class Players extends Skeleton {
 			return $query_vars;
 		}
 
+		if ( $this->is_closed_player_route() ) {
+			return array( 'error' => '404' );
+		}
+
 		if ( ! empty( $query_vars['clanbite_players_directory'] ) ) {
 			return $query_vars;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path = \clanbite_players_route_path( $this->get_canonical_request_path() );
 		if ( '' === $path ) {
 			return $query_vars;
 		}
@@ -545,6 +650,10 @@ class Players extends Skeleton {
 	 * @return void
 	 */
 	public function pre_get_posts_force_player_author_archive( \WP_Query $query ): void {
+		if ( ! is_admin() && $this->is_closed_player_route() ) {
+			return;
+		}
+
 		if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return;
 		}
@@ -561,7 +670,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path = \clanbite_players_route_path( $this->get_canonical_request_path() );
 		if ( '' === $path ) {
 			return;
 		}
@@ -649,7 +758,7 @@ class Players extends Skeleton {
 			return false;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path = \clanbite_players_route_path( $this->get_canonical_request_path() );
 		return '' === $path || (bool) preg_match( '#^players/(?!settings(?:/|$))#', $path );
 	}
 
@@ -710,11 +819,15 @@ class Players extends Skeleton {
 	 * @return void
 	 */
 	public function maybe_fix_players_directory_404(): void {
+		if ( ! is_admin() && $this->is_closed_player_route() ) {
+			return;
+		}
+
 		if ( ! is_404() ) {
 			return;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path = \clanbite_players_route_path( $this->get_canonical_request_path() );
 		if ( 'players' !== $path && ! preg_match( '#^players/page/[0-9]+/?$#', $path ) ) {
 			return;
 		}
@@ -802,6 +915,10 @@ class Players extends Skeleton {
 	 * @return void
 	 */
 	public function maybe_normalize_player_profile_stolen_query(): void {
+		if ( ! is_admin() && $this->is_closed_player_route() ) {
+			return;
+		}
+
 		if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return;
 		}
@@ -814,7 +931,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path = \clanbite_players_route_path( $this->get_canonical_request_path() );
 		if ( '' === $path || 'players' === $path || preg_match( '#^players/page/[0-9]+/?$#', $path ) ) {
 			return;
 		}
@@ -857,6 +974,10 @@ class Players extends Skeleton {
 	 * @return void
 	 */
 	public function maybe_fix_players_profile_404(): void {
+		if ( ! is_admin() && $this->is_closed_player_route() ) {
+			return;
+		}
+
 		if ( is_admin() || wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return;
 		}
@@ -865,7 +986,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		$path = $this->get_canonical_request_path();
+		$path = \clanbite_players_route_path( $this->get_canonical_request_path() );
 		if ( '' === $path || 'players' === $path || preg_match( '#^players/page/[0-9]+/?$#', $path ) ) {
 			return;
 		}
@@ -957,6 +1078,10 @@ class Players extends Skeleton {
 	 * @return string
 	 */
 	public function render_players_directory_shortcode( $atts = array() ): string {
+		if ( ! \clanbite_players_profiles_enabled() ) {
+			return '';
+		}
+
 		/**
 		 * Filters the page size of the players directory shortcode.
 		 *
@@ -994,19 +1119,19 @@ class Players extends Skeleton {
 		if ( empty( $users ) ) {
 			echo '<p class="clanbite-players-directory__empty">' . esc_html__( 'No players found.', 'clanbite' ) . '</p>';
 		} else {
+			$this->enqueue_players_directory_style();
 			echo '<ul class="clanbite-players-directory__list">';
 			foreach ( $users as $user ) {
 				if ( ! $user instanceof \WP_User ) {
 					continue;
 				}
-				$url = trailingslashit( home_url( '/players/' . $user->user_nicename ) );
-				echo '<li class="clanbite-players-directory__item"><a href="' . esc_url( $url ) . '">' . esc_html( $user->display_name ) . '</a></li>';
+				echo '<li class="clanbite-players-directory__item">' . $this->render_players_directory_card( $user ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Block output and escaped fallback.
 			}
 			echo '</ul>';
 		}
 
 		if ( $pages > 1 ) {
-			$base   = trailingslashit( home_url( '/players' ) ) . 'page/%#%/';
+			$base   = \clanbite_players_url( 'page/%#%/' );
 			$paging = paginate_links(
 				array(
 					'base'      => $base,
@@ -1025,7 +1150,63 @@ class Players extends Skeleton {
 
 		echo '</div>';
 
-		return (string) ob_get_clean();
+		// A shortcode block runs wpautop() over this output, which would add paragraphs and line breaks inside the cards.
+		return (string) preg_replace( '/>\s+</', '><', str_replace( array( "\r", "\n", "\t" ), ' ', (string) ob_get_clean() ) );
+	}
+
+	/**
+	 * Load the directory's card styles.
+	 *
+	 * @return void
+	 */
+	private function enqueue_players_directory_style(): void {
+		$file = clanbite()->path . 'assets/dist/css/clanbite-players-directory.css';
+		wp_enqueue_style(
+			'clanbite-players-directory',
+			clanbite()->url . 'assets/dist/css/clanbite-players-directory.css',
+			wp_style_is( 'clanbite-tokens', 'registered' ) ? array( 'clanbite-tokens' ) : array(),
+			is_readable( $file ) ? (string) filemtime( $file ) : \Kernowdev\Clanbite\Main::VERSION
+		);
+	}
+
+	/**
+	 * One player's card in the directory, built from the same player blocks as the cards on team pages.
+	 *
+	 * @param \WP_User $user Player.
+	 * @return string Card HTML.
+	 */
+	private function render_players_directory_card( \WP_User $user ): string {
+		static $template = null;
+		if ( null === $template ) {
+			$file     = clanbite()->path . 'templates/players/parts/player-directory-card.html';
+			$template = is_readable( $file ) ? (string) file_get_contents( $file ) : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local plugin file.
+		}
+
+		/**
+		 * Filters the block markup of one card in the player directory. Player blocks inside it show the card's player. Return an
+		 * empty string to list names only.
+		 *
+		 * @since 1.9.0
+		 *
+		 * @param string $markup  Block markup.
+		 * @param int    $user_id Player.
+		 */
+		$markup = (string) apply_filters( 'clanbite_players_directory_card_markup', $template, (int) $user->ID );
+
+		$html = '';
+		foreach ( parse_blocks( $markup ) as $parsed ) {
+			if ( empty( $parsed['blockName'] ) ) {
+				continue;
+			}
+			$html .= ( new \WP_Block( $parsed, array( 'clanbite/playerId' => (int) $user->ID ) ) )->render();
+		}
+
+		if ( '' === trim( $html ) ) {
+			$url  = \clanbite_get_player_profile_url( (int) $user->ID );
+			$html = '<div class="clanbite-players-directory__body"><a href="' . esc_url( $url ) . '">' . esc_html( $user->display_name ) . '</a></div>';
+		}
+
+		return $html;
 	}
 
 	/**
@@ -1057,7 +1238,7 @@ class Players extends Skeleton {
 
 		// Unknown subpage slug — redirect to profile root.
 		if ( ! isset( $subpages[ $requested ] ) ) {
-			$url = trailingslashit( home_url( '/players/' . $user->user_nicename ) );
+			$url = trailingslashit( \clanbite_players_url( $user->user_nicename ) );
 			wp_safe_redirect( $url, 301 );
 			exit;
 		}
@@ -1070,7 +1251,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		$url = trailingslashit( home_url( '/players/' . $user->user_nicename ) );
+		$url = trailingslashit( \clanbite_players_url( $user->user_nicename ) );
 		wp_safe_redirect( $url, 302 );
 		exit;
 	}
@@ -1420,7 +1601,7 @@ class Players extends Skeleton {
 			return;
 		}
 
-		$target = trailingslashit( home_url( "/players/settings/{$canonical_nav}/{$canonical_panel}/" ) );
+		$target = trailingslashit( \clanbite_players_url( "settings/{$canonical_nav}/{$canonical_panel}/" ) );
 
 		// /players/settings/ — keep as-is (JS defaults to first tab).
 		if ( ! $nav_in ) {
@@ -1441,6 +1622,26 @@ class Players extends Skeleton {
 	}
 
 	/**
+	 * Name the account settings screen in the browser tab. It is not a real page, so WordPress has no title for it.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param mixed $title Title parts.
+	 * @return mixed
+	 */
+	public function filter_player_settings_title( $title ) {
+		if ( is_array( $title ) && get_query_var( 'players_settings' ) ) {
+			$title['title'] = __( 'Account settings', 'clanbite' );
+			if ( ! isset( $title['site'] ) ) {
+				$title['site'] = get_bloginfo( 'name', 'display' );
+			}
+			unset( $title['tagline'] );
+		}
+
+		return $title;
+	}
+
+	/**
 	 * Load the player settings template when `players_settings` is set; guests are sent to the login screen.
 	 *
 	 * @param string $template Template path resolved by core.
@@ -1453,7 +1654,9 @@ class Players extends Skeleton {
 
 		// Redirect to login if user is not logged in.
 		if ( ! is_user_logged_in() ) {
-			wp_safe_redirect( wp_login_url( get_permalink() ) ); // Redirect back after login
+			// The settings screen is not a real page, so ask for the requested address: get_permalink() would name some other post.
+			$asked = \clanbite_get_canonical_request_path();
+			wp_safe_redirect( wp_login_url( home_url( '/' . trailingslashit( $asked ) ) ) ); // Redirect back after login.
 			exit;
 		}
 
@@ -1619,7 +1822,7 @@ class Players extends Skeleton {
 
 		if ( get_query_var( 'players_settings' ) ) {
 			list( $settings_nav, $settings_panel ) = $this->get_resolved_player_settings_route();
-			$config['settings_url_base']           = trailingslashit( home_url( '/players/settings' ) );
+			$config['settings_url_base']           = trailingslashit( \clanbite_players_url( 'settings' ) );
 			$config['settings_initial_nav']        = $settings_nav;
 			$config['settings_initial_panel']      = $settings_panel;
 		}
@@ -2256,7 +2459,7 @@ class Players extends Skeleton {
 				<div class="form-item">
 					<div class="form-input">
 						<label for="account-url"><?php esc_html_e( 'Profile URL', 'clanbite' ); ?></label>
-						<p class="description"><?php echo esc_html( trailingslashit( home_url( '/players/' ) ) ); ?></p>
+						<p class="description"><?php echo esc_html( \clanbite_players_url() ); ?></p>
 						<input type="text" id="account-url" name="account_url" value="<?php echo esc_attr( $user->user_nicename ); ?>" data-wp-class--error="state.isError" disabled>
 						<div class="error-message" hidden data-wp-bind--hidden="state.showError" data-wp-args="account_url" data-wp-text="state.errorMessage"></div>
 					</div>

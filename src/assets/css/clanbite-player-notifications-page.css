@@ -79,3 +79,74 @@
 	border-radius: 4px;
 	font-size: 0.875rem;
 }
+
+/*
+ * One item: picture beside the text, with the time and the buttons on their own
+.clanbite-notifications-page__list
+.clanbite-notification
++ .clanbite-notification {
+ * which can be shown without it.
+ */
+.clanbite-notifications-page__list .clanbite-notification {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.85rem;
+	padding: 1rem;
+}
+
+.clanbite-notifications-page__list .clanbite-notification + .clanbite-notification {
+	border-top: 1px solid color-mix(in srgb, currentcolor 12%, transparent);
+}
+
+.clanbite-notifications-page__list .clanbite-notification__avatar,
+.clanbite-notifications-page__list .clanbite-notification__icon {
+	display: flex;
+	flex: 0 0 2.75rem;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.75rem;
+}
+
+.clanbite-notifications-page__list .clanbite-notification__avatar img {
+	max-width: 2.75rem;
+	height: auto;
+	border-radius: 50%;
+}
+
+.clanbite-notifications-page__list .clanbite-notification__content {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.35rem;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.clanbite-notifications-page__list .clanbite-notification__header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.15rem 0.75rem;
+}
+
+.clanbite-notifications-page__list .clanbite-notification__title {
+	font-weight: 600;
+}
+
+.clanbite-notifications-page__list .clanbite-notification__time {
+	font-size: 0.8125rem;
+	opacity: 0.75;
+}
+
+.clanbite-notifications-page__list .clanbite-notification__message {
+	margin: 0;
+	font-size: 0.9375rem;
+}
+
+.clanbite-notifications-page__list .clanbite-notification__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 0.35rem;
+}

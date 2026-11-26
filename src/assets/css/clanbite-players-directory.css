@@ -1,0 +1,86 @@
+/*
+ * The player directory: one card per player, built from the player blocks.
+ * Colours come from the theme-adaptive tokens, so the cards suit light and dark
+ * themes. Restyle from a theme with the clanbite-players-directory classes.
+ */
+
+.clanbite-players-directory__list {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+	gap: 1.25rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.clanbite-players-directory__item {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	margin: 0;
+	overflow: hidden;
+	border: 1px solid var(--clanbite-border, color-mix(in srgb, currentcolor 16%, transparent));
+	border-radius: var(--clanbite-radius, 14px);
+	background: var(--clanbite-surface-alt, color-mix(in srgb, currentcolor 4%, transparent));
+	list-style: none;
+}
+
+.clanbite-players-directory__item::marker {
+	content: none;
+}
+
+.clanbite-players-directory__item .clanbite-cover {
+	min-height: 110px;
+}
+
+.clanbite-players-directory__item .clanbite-cover__content {
+	padding: 0.75rem 0.9rem;
+}
+
+.clanbite-players-directory__body {
+	flex: 1;
+	padding: 0.75rem 0.9rem 0.9rem;
+	overflow-wrap: anywhere;
+}
+
+.clanbite-players-directory__body > * {
+	margin-block: 0;
+}
+
+.clanbite-players-directory__body > * + * {
+	margin-block-start: 0.25rem;
+}
+
+.clanbite-players-directory__body .wp-block-clanbite-player-display-name :is(h1, h2, h3, h4, h5, h6, p) {
+	margin: 0;
+	font-size: 1.05rem;
+	line-height: 1.3;
+}
+
+.clanbite-players-directory__body .wp-block-clanbite-player-tagline {
+	font-size: 0.875rem;
+	opacity: 0.8;
+}
+
+/* The whole card opens the profile: the name's link is stretched over it. */
+.clanbite-players-directory__body a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.clanbite-players-directory__body .wp-block-clanbite-player-display-name a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+}
+
+.clanbite-players-directory__item:has(a:hover) {
+	border-color: color-mix(in srgb, currentcolor 45%, transparent);
+}
+
+.clanbite-players-directory__item:has(a:focus-visible) {
+	outline: 2px solid currentcolor;
+	outline-offset: 2px;
+}

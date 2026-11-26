@@ -308,6 +308,48 @@ function IconUrlFieldControl( { field, value, onChange } ) {
  *
  * @return {string} Raw value or empty string.
  */
+/**
+ * Fields of one settings group that ask for the page to reload after they change.
+ *
+ * @param {unknown} node      Part of the bootstrap data; searched at any depth.
+ * @param {string}  optionKey Settings group.
+ * @return {string[]} Field ids.
+ */
+function reloadFieldIds( node, optionKey ) {
+	if ( ! node || typeof node !== 'object' ) {
+		return [];
+	}
+	if ( node.optionKey === optionKey && Array.isArray( node.sections ) ) {
+		return node.sections.flatMap( ( section ) =>
+			( section.fields || [] )
+				.filter( ( field ) => field.reload )
+				.map( ( field ) => field.id )
+		);
+	}
+	return Object.values( node ).flatMap( ( child ) =>
+		reloadFieldIds( child, optionKey )
+	);
+}
+
+/**
+ * An address shortened for a table: the host and the last few characters. Addresses are often long, and the path of a webhook
+ * works like a password, so it is not shown in full.
+ *
+ * @param {unknown} value Stored address.
+ * @return {string} Short form.
+ */
+function shortUrl( value ) {
+	const text = String( value ?? '' );
+	if ( text.length <= 32 ) {
+		return text;
+	}
+	try {
+		return `${ new URL( text ).host }/…${ text.slice( -4 ) }`;
+	} catch {
+		return `${ text.slice( 0, 28 ) }…`;
+	}
+}
+
 function getTabFromLocation() {
 	try {
 		return (
@@ -1007,6 +1049,9 @@ function RepeaterControl( { field, value, onChange } ) {
 		field.addLabel || field.add_label || __( 'Add row', 'clanbite' );
 	const inferEntityName = () => {
 		const key = String( id || '' ).toLowerCase();
+		if ( key === 'discord_webhooks' ) {
+			return __( 'webhook', 'clanbite' );
+		}
 		if ( key === 'point_types' ) {
 			return __( 'point type', 'clanbite' );
 		}
@@ -1104,8 +1149,26 @@ function RepeaterControl( { field, value, onChange } ) {
 		setEditingIndex( -1 );
 	};
 
+	// Fields marked as not for the table are only shown in the row's form.
+	const tableFields = subFields.filter( ( sub ) => sub.inTable !== false );
+
 	const summarizeCell = ( row, sub ) => {
 		const cell = row?.[ sub.id ];
+		if ( sub.type === 'password' ) {
+			return cell ? '••••••••' : '';
+		}
+		if ( sub.type === 'url' ) {
+			return shortUrl( cell );
+		}
+		if ( sub.type === 'user_id_list' || sub.type === 'post_id_list' ) {
+			return String( Array.isArray( cell ) ? cell.length : 0 );
+		}
+		if ( sub.type === 'select' ) {
+			const chosen = ( sub.options || [] ).find(
+				( option ) => String( option.value ) === String( cell ?? '' )
+			);
+			return chosen ? chosen.label : String( cell ?? '' );
+		}
 		if ( sub.type === 'repeater' ) {
 			const count = Array.isArray( cell ) ? cell.length : 0;
 			return sprintf(
@@ -1197,7 +1260,7 @@ function RepeaterControl( { field, value, onChange } ) {
 					<table className="widefat striped clanbite-extensions-table clanbite-field-repeater__table">
 						<thead>
 							<tr>
-								{ subFields.map( ( sub ) => (
+								{ tableFields.map( ( sub ) => (
 									<th key={ sub.id }>
 										{ sub.label || sub.id }
 									</th>
@@ -1208,7 +1271,7 @@ function RepeaterControl( { field, value, onChange } ) {
 						<tbody>
 							{ rows.map( ( row, rowIndex ) => (
 								<tr key={ rowIndex }>
-									{ subFields.map( ( sub ) => (
+									{ tableFields.map( ( sub ) => (
 										<td key={ sub.id }>
 											{ summarizeCell( row, sub ) }
 										</td>
@@ -1442,6 +1505,18 @@ function FieldControl( { field, value, onChange } ) {
 				/>
 			);
 		}
+		case 'password':
+			return (
+				<TextControl
+					{ ...common }
+					type="password"
+					autoComplete="new-password"
+					value={ String( value ?? '' ) }
+					onChange={ ( v ) => onChange( id, v ) }
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+				/>
+			);
 		case 'url':
 			if ( field.iconPicker ) {
 				return (
@@ -2068,7 +2143,28 @@ function App() {
 			} );
 			dirtyFields.current[ optionKey ] = {};
 			setValues( ( prev ) => ( { ...prev, [ optionKey ]: res.values } ) );
+			// A switch that adds or removes parts of this screen needs the screen to be built again.
+			if (
+				Object.keys( sent ).some( ( id ) =>
+					reloadFieldIds( bootstrap, optionKey ).includes( id )
+				)
+			) {
+				setToast( __( 'Settings saved. Reloading…', 'clanbite' ) );
+				setTimeout( () => window.location.reload(), 800 );
+				return;
+			}
 			setToast( __( 'Settings saved.', 'clanbite' ) );
+			if ( res.warnings?.length ) {
+				setSaveNotice(
+					<Notice
+						status="warning"
+						isDismissible
+						onRemove={ () => setSaveNotice( null ) }
+					>
+						{ res.warnings.join( ' ' ) }
+					</Notice>
+				);
+			}
 		} catch ( e ) {
 			setSaveNotice(
 				<Notice

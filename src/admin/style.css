@@ -632,6 +632,22 @@ body.toplevel_page_clanbite .components-modal__frame .components-input-control__
 	background: transparent;
 }
 
+/* A repeater never grows past its card: the fieldset may shrink, long values wrap, and a wide table scrolls. */
+.clanbite-field-repeater,
+.clanbite-field-repeater fieldset {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.clanbite-field-repeater .clanbite-extensions-table-wrap {
+	max-width: 100%;
+	overflow-x: auto;
+}
+
+.clanbite-field-repeater__table td {
+	overflow-wrap: break-word;
+}
+
 .clanbite-field-repeater__legend {
 	padding: 0;
 	margin: 0 0 8px;
@@ -645,6 +661,7 @@ body.toplevel_page_clanbite .components-modal__frame .components-input-control__
 }
 
 .clanbite-field-repeater__actions-cell {
+	width: 1%;
 	white-space: nowrap;
 }
 

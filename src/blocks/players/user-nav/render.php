@@ -108,10 +108,14 @@ $user_nav_root_open = '<div '
 			data-wp-on--keydown="actions.onMenuKeydown"
 		>
 			<div class="clanbite-user-nav__dropdown-header" role="none">
-				<a href="<?php echo esc_url( $profile_url ); ?>" class="clanbite-user-nav__profile-link" role="menuitem">
+				<?php
+				// Without public profiles the header leads to the account settings instead.
+				$header_url = '' !== (string) $profile_url ? (string) $profile_url : clanbite_players_url( 'settings/' );
+				?>
+				<a href="<?php echo esc_url( $header_url ); ?>" class="clanbite-user-nav__profile-link" role="menuitem">
 					<div class="clanbite-user-nav__profile-info">
 						<span class="clanbite-user-nav__profile-name"><?php echo esc_html( $display_name ); ?></span>
-						<span class="clanbite-user-nav__profile-label"><?php esc_html_e( 'View Profile', 'clanbite' ); ?></span>
+						<span class="clanbite-user-nav__profile-label"><?php echo '' !== (string) $profile_url ? esc_html__( 'View Profile', 'clanbite' ) : esc_html__( 'Account settings', 'clanbite' ); ?></span>
 					</div>
 				</a>
 			</div>

@@ -844,6 +844,7 @@ By default, that script is **only** enqueued on the player settings route, on **
 | `data-clanbite-action-body` | No | JSON string for the request body (parsed client-side; empty object if omitted). |
 | `data-clanbite-action-confirm` | No | If set, `window.confirm()` must pass before the request runs. |
 | `data-clanbite-action-remove-closest` | No | CSS selector; on success, `closest(selector)` on the clicked element is removed (e.g. list row). |
+- `data-clanbite-action-reload` (any value) — load the page again after success, for lists the server draws (Clanbite 1.9.0+; combine with `-remove-closest` for older versions).
 | `data-clanbite-action-success-message` / `data-clanbite-action-error-message` | No | Toast copy; sensible defaults if omitted. |
 
 Your REST route must validate `X-WP-Nonce`, check capabilities, and return appropriate HTTP status codes (`runPluginAction` treats non-OK responses as errors).
@@ -1616,3 +1617,25 @@ All avatars (player, team, group; server-rendered or Interactivity) go through `
 ## Naming and the old `cp_` prefix
 
 Clanbite names everything with `clanbite`: `clanbite_` for PHP functions, options, meta keys, post types, custom tables and extension slugs (`clanbite_shop`, `clanbite_players`), and `clanbite-` for CSS classes and script handles. Earlier builds used a shorter `cp_` / `cp-` prefix. Version 1.6.7 renames what is stored in the database once, on the first request after the update, as Maintenance step 2 (`Maintenance::run_2()`, which runs `inc/clanbite-cpt-identifier-migration.php` for the post types and then `inc/clanbite-legacy-prefix-migration.php` for everything else; marker options `clanbite_cpt_identifiers_v202611` and `clanbite_legacy_prefix_v1`): the installed-extensions list and per-extension data, post types, post, user, term and comment meta keys, option names, saved template slugs and the add-ons' `{prefix}cp_*` tables. It never overwrites a row that already has the new name. If your own code reads or writes the old names, switch it to the new ones; `clanbite_legacy_prefix_new_name( $old )` returns the new name for any old identifier.
+
+## Player, team and group addresses
+
+The site owner chooses the first word of each kind of address: players (**Settings → Players**), teams (**Settings → Teams**) and, with Social Kit 1.7.0 or later, groups (**Social Kit → Groups**). Never write `/players/`, `/teams/` or `/groups/` into a link or a route check. Only front-end addresses change: REST routes, option keys and template names keep their words.
+
+| Area | Build a link | Read a request path |
+|---|---|---|
+| Players | `clanbite_players_url( 'jane/events/' )` | `clanbite_players_route_path( $path )` |
+| Teams | `clanbite_teams_url( 'alpha/events/' )`, or `get_permalink()` for a team | `clanbite_teams_route_path( $path )` |
+| Groups | `get_permalink()` for a group (Social Kit) | query variables |
+
+Old addresses are sent to the new ones. A slug that WordPress, another content type, a page or another area already uses is refused when saved, and the settings screen says why.
+
+- `clanbite_players_slug`, `clanbite_teams_slug`, `clanbite_social_kit_groups_slug` — change the word in code. Flush permalinks after changing what a filter returns.
+- `clanbite_url_slug_areas` — an add-on with its own editable slug registers it here, so no other area can take it. The shared helpers are `clanbite_url_slug_problem()`, `clanbite_url_slug_submitted()`, `clanbite_url_slug_route_path()`, `clanbite_url_slug_changed()` and `clanbite_url_slug_redirect_old()`.
+- `clanbite_players_profiles_enabled` — whether players have public profile pages. When false, `clanbite_get_player_profile_url()` returns an empty string: show the name or avatar without a link.
+- `clanbite_players_tabs_without_profiles` — profile tabs signed-in players can still open while profiles are off (default `notifications`, `events`). Only list tools that check permissions themselves.
+- `clanbite_players_directory_card_markup` — the block markup of one card in the player directory (default `templates/players/parts/player-directory-card.html`; player blocks inside it show the card’s player; an empty string lists names only).
+
+## Settings screen fields (third-party extensions)
+
+`Abstract_Settings` field definitions also accept: type `password`; `hidden` (not shown, but its saved value is kept); `reload` (the screen reloads after a save that changed the field, for switches that add or remove tabs); and, inside a repeater, `in_table => false` (edited in the row's form, left out of the table). Call `$this->add_save_warning()` from a sanitiser to tell the owner why a value was not saved. The **Groups** tab only appears when `clanbite_groups_available()` is true (filter of the same name).

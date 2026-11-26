@@ -376,14 +376,11 @@ function clanbite_get_notifications_url( ?int $user_id = null ): string {
 	if ( function_exists( 'clanbite_get_player_profile_url' ) ) {
 		$profile_url = (string) clanbite_get_player_profile_url( $user_id );
 	}
-	if ( '' === $profile_url ) {
-		// Same canonical base as {@see clanbite_get_user_nav_menu_items()}: author URLs are rewritten to /players/{nicename}/.
-		$profile_url = (string) get_author_posts_url( $user_id );
-	}
+	// The notifications page is a tool, so it is still reachable when players have no public profile.
 	if ( '' === $profile_url ) {
 		$user = get_userdata( $user_id );
 		if ( $user instanceof \WP_User && is_string( $user->user_nicename ) && '' !== $user->user_nicename ) {
-			$profile_url = home_url( '/players/' . $user->user_nicename );
+			$profile_url = clanbite_players_url( $user->user_nicename );
 		}
 	}
 
@@ -545,6 +542,8 @@ function clanbite_register_player_notifications_page_assets(): void {
 		'clanbitePlayerNotificationsPageI18n',
 		array(
 			'markReadError' => __( 'Could not mark this notification as read. Opening the link anyway — see the browser console for details.', 'clanbite' ),
+			'actionDone'    => __( 'Done.', 'clanbite' ),
+			'actionFailed'  => __( 'That did not work. Please try again.', 'clanbite' ),
 		)
 	);
 }
@@ -845,5 +844,6 @@ function clanbite_render_player_notifications_page_markup(): string {
  * @return string
  */
 function clanbite_player_notifications_shortcode( $atts = array() ): string {
-	return clanbite_render_player_notifications_page_markup();
+	// A shortcode block runs wpautop() over this output, which would put line breaks inside the buttons and paragraphs in the list.
+	return (string) preg_replace( '/>\s+</', '><', trim( (string) preg_replace( '/\s*[\r\n\t]+\s*/', ' ', clanbite_render_player_notifications_page_markup() ) ) );
 }

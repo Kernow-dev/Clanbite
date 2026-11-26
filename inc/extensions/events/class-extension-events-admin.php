@@ -112,7 +112,7 @@ class Events_Admin extends Abstract_Settings {
 					'subpage_player' => array(
 						'label'       => __( 'Player profile: Events tab', 'clanbite' ),
 						'type'        => 'checkbox',
-						'description' => __( 'Show the Events tab and /players/{user}/events/. When off, that URL redirects to the profile root.', 'clanbite' ),
+						'description' => __( 'Show the Events tab and /{players slug}/{user}/events/. When off, that URL redirects to the profile root.', 'clanbite' ),
 						'default'     => true,
 						'sanitize'    => 'rest_sanitize_boolean',
 						'depends_on'  => array(
@@ -132,6 +132,7 @@ class Events_Admin extends Abstract_Settings {
 						),
 					),
 					'subpage_group'  => array(
+						'hidden'      => ! \clanbite_groups_available(),
 						'label'       => __( 'Group profile: Events tab', 'clanbite' ),
 						'type'        => 'checkbox',
 						'description' => __( 'Show the Events tab on group profiles. When off, the group events page is not registered.', 'clanbite' ),

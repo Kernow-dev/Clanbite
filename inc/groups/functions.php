@@ -226,6 +226,26 @@ function clanbite_group_profile_route_current_slug(): string {
 }
 
 /**
+ * Whether the site has groups: some plugin provides the `clanbite_group` content type and has it switched on.
+ *
+ * Core has no groups of its own, so group settings are only shown when this is true.
+ *
+ * @since 1.9.0
+ *
+ * @return bool
+ */
+function clanbite_groups_available(): bool {
+	/**
+	 * Filter whether the site has groups.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param bool $available True when the `clanbite_group` content type is registered.
+	 */
+	return (bool) apply_filters( 'clanbite_groups_available', post_type_exists( 'clanbite_group' ) );
+}
+
+/**
  * Get the configured group avatar shape from settings.
  *
  * @return string Avatar shape: 'circle', 'square', or 'hexagon'. Default 'circle'.

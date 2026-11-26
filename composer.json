@@ -21,6 +21,7 @@
 			"inc/functions-wordban.php",
 			"inc/functions-block-templates.php",
 			"inc/functions-request-input.php",
+			"inc/url-slugs.php",
 			"inc/functions-country-flags.php",
 			"inc/functions-block-entity-link.php",
 			"inc/profile-subpages.php",

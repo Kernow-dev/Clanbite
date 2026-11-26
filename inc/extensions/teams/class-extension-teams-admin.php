@@ -64,6 +64,7 @@ class Admin extends Abstract_Settings {
 			'clanbite_teams_defaults',
 			array(
 				'team_mode'                     => 'single_team',
+				'team_url_slug'                 => '',
 				'player_team_membership'        => 'multiple',
 				'default_team_avatar'           => '',
 				'default_team_cover'            => '',
@@ -99,6 +100,14 @@ class Admin extends Abstract_Settings {
 							'default'     => 'single_team',
 							'options'     => $this->get_team_mode_options(),
 							'sanitize'    => array( $this, 'sanitize_team_mode' ),
+						),
+						'team_url_slug'                 => array(
+							'label'       => __( 'Team address slug', 'clanbite' ),
+							'type'        => 'text',
+							'placeholder' => \CLANBITE_TEAMS_DEFAULT_SLUG,
+							'description' => __( 'The word in team addresses, for example “clans” for /clans/alpha/. Leave empty for “teams”. Old addresses are sent to the new ones. This changes addresses only: the wording on the site stays “Teams”.', 'clanbite' ),
+							'default'     => '',
+							'sanitize'    => array( $this, 'sanitize_team_url_slug' ),
 						),
 						'player_team_membership'        => array(
 							'label'       => __( 'Player team membership', 'clanbite' ),
@@ -208,6 +217,24 @@ class Admin extends Abstract_Settings {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Check the team address slug. A slug that cannot be used keeps the saved one and says why.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return string The slug to save; empty for the default.
+	 */
+	public function sanitize_team_url_slug( $value ): string {
+		$saved  = get_option( $this->option_key, array() );
+		$result = \clanbite_url_slug_submitted( $value, is_array( $saved ) ? (string) ( $saved['team_url_slug'] ?? '' ) : '', 'teams' );
+		if ( '' !== $result['problem'] ) {
+			$this->add_save_warning( $result['problem'] );
+		}
+
+		return $result['value'];
 	}
 
 	/**

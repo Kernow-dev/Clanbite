@@ -127,7 +127,16 @@ function clanbite_events_get_player_events_url( int $owner_id, $event = 0 ): str
 		return '';
 	}
 
-	$base = trailingslashit( (string) clanbite_get_player_profile_url( $owner_id ) ) . 'events/';
+	$profile = (string) clanbite_get_player_profile_url( $owner_id );
+	if ( '' === $profile ) {
+		// No public profiles: the events page is still reachable by signed-in players, so link to it directly.
+		$owner = get_userdata( $owner_id );
+		if ( ! $owner || '' === $owner->user_nicename || clanbite_players_profiles_enabled() ) {
+			return '';
+		}
+		$profile = clanbite_players_url( $owner->user_nicename );
+	}
+	$base = trailingslashit( $profile ) . 'events/';
 	if ( 'new' === $event ) {
 		return add_query_arg( 'clanbite_event_view', 'new', $base );
 	}

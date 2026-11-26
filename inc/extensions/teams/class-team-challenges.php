@@ -1040,7 +1040,7 @@ final class Team_Challenges {
 			return '';
 		}
 
-		return trailingslashit( home_url( '/teams/' . rawurlencode( $slug ) . '/events/' . $event_id ) );
+		return trailingslashit( \clanbite_teams_url( rawurlencode( $slug ) . '/events/' . $event_id ) );
 	}
 
 	/**

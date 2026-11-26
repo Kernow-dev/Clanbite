@@ -429,6 +429,101 @@ function clanbite_get_player_subpage( string $slug ): ?array {
 }
 
 /**
+ * The default first part of player addresses.
+ */
+const CLANBITE_PLAYERS_DEFAULT_SLUG = 'players';
+
+/**
+ * The first part of every player address, as set under Clanbite → Settings → Players: `players` gives `/players/{nicename}/`.
+ *
+ * Never write `/players/` into a link or a route check: build links with {@see clanbite_players_url()} and read request paths with
+ * {@see clanbite_players_route_path()}.
+ *
+ * @since 1.9.0
+ *
+ * @return string Lowercase letters, numbers and hyphens.
+ */
+function clanbite_players_get_slug(): string {
+	$settings = get_option( 'clanbite_players_settings', array() );
+	$slug     = is_array( $settings ) ? (string) ( $settings['player_url_slug'] ?? '' ) : '';
+
+	/**
+	 * Filter the first part of player addresses. After changing what this returns, flush the permalinks (Settings → Permalinks).
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param string $slug Saved slug, or an empty string for the default.
+	 */
+	$slug = (string) apply_filters( 'clanbite_players_slug', $slug );
+
+	return clanbite_url_slug_clean( $slug, CLANBITE_PLAYERS_DEFAULT_SLUG );
+}
+
+/**
+ * A front-end address in the players area.
+ *
+ * @since 1.9.0
+ *
+ * @param string $path Path below the players slug, for example `jane/events/` or `settings/`. Empty for the player directory. It is
+ *                     used as given, so include a trailing slash if you want one.
+ * @return string Absolute URL.
+ */
+function clanbite_players_url( string $path = '' ): string {
+	return home_url( '/' . clanbite_players_get_slug() . '/' . ltrim( $path, '/' ) );
+}
+
+/**
+ * Express a request path with `players` in place of the chosen slug, so that route checks can be written one way.
+ *
+ * With the slug set to `members`, `members/jane` becomes `players/jane`. A path that really starts with `players` is then not a
+ * player route, so it is returned with a leading underscore and cannot match one. Other paths are returned unchanged.
+ *
+ * @since 1.9.0
+ *
+ * @param string $path Request path relative to the home URL, without leading slash.
+ * @return string
+ */
+function clanbite_players_route_path( string $path ): string {
+	return clanbite_url_slug_route_path( $path, clanbite_players_get_slug(), CLANBITE_PLAYERS_DEFAULT_SLUG );
+}
+
+/**
+ * Whether players have public profile pages (Clanbite → Settings → Players → Enable profiles).
+ *
+ * When off, the player directory and profile pages are not found and profile links are left out. Account settings, avatars,
+ * blocks and a signed-in player's tool pages (notifications, events) keep working.
+ *
+ * @since 1.9.0
+ *
+ * @return bool
+ */
+function clanbite_players_profiles_enabled(): bool {
+	$settings = get_option( 'clanbite_players_settings', array() );
+	$enabled  = ! is_array( $settings ) || ! array_key_exists( 'enable_profiles', $settings ) || ! empty( $settings['enable_profiles'] );
+
+	/**
+	 * Filter whether players have public profile pages.
+	 *
+	 * @since 1.9.0
+	 *
+	 * @param bool $enabled The saved setting.
+	 */
+	return (bool) apply_filters( 'clanbite_players_profiles_enabled', $enabled );
+}
+
+/**
+ * Why a slug cannot be used for player addresses.
+ *
+ * @since 1.9.0
+ *
+ * @param string $slug Candidate, already lowercased.
+ * @return string An explanation for the site owner, or an empty string when the slug is fine.
+ */
+function clanbite_players_slug_problem( string $slug ): string {
+	return clanbite_url_slug_problem( $slug, 'players' );
+}
+
+/**
  * Resolve a player user ID from the canonical `/players/{nicename}/…` path (see rewrite rules).
  *
  * Uses {@see clanbite_get_canonical_request_path()} so subdirectory installs and `home_path` prefixes
@@ -441,7 +536,7 @@ function clanbite_player_user_id_from_canonical_request_path(): int {
 		return 0;
 	}
 
-	$path = clanbite_get_canonical_request_path();
+	$path = clanbite_players_route_path( clanbite_get_canonical_request_path() );
 	if ( '' === $path ) {
 		return 0;
 	}
@@ -560,7 +655,8 @@ function clanbite_player_profile_route_current_slug(): string {
  * Used by Social Kit (mentions, REST payloads), notifications, block link helpers, and user-nav when present.
  *
  * @param int $user_id WordPress user ID.
- * @return string Absolute URL, or empty string when the user cannot be resolved.
+ * @return string Absolute URL, or empty string when the user cannot be resolved or profiles are off. Always allow for the empty
+ *                string: show the name or avatar without a link.
  */
 function clanbite_get_player_profile_url( int $user_id ): string {
 	if ( $user_id <= 0 ) {
@@ -577,7 +673,8 @@ function clanbite_get_player_profile_url( int $user_id ): string {
 		return '';
 	}
 
-	$url = trailingslashit( home_url( '/players/' . $nicename ) );
+	// With profiles off there is no profile page to link to.
+	$url = clanbite_players_profiles_enabled() ? trailingslashit( clanbite_players_url( $nicename ) ) : '';
 
 	/**
 	 * Filter the canonical player profile URL for a user.
@@ -1861,17 +1958,9 @@ function clanbite_get_user_nav_menu_items( int $user_id = 0 ): array {
 	$profile_url  = function_exists( 'clanbite_get_player_profile_url' )
 		? clanbite_get_player_profile_url( $user_id )
 		: get_author_posts_url( $user_id );
-	$settings_url = home_url( '/players/settings/' );
+	$settings_url = clanbite_players_url( 'settings/' );
 
 	$items = array(
-		array(
-			'id'       => 'profile',
-			'label'    => __( 'My Profile', 'clanbite' ),
-			'url'      => $profile_url,
-			'icon'     => 'admin-users',
-			'group'    => 'profile',
-			'priority' => 10,
-		),
 		array(
 			'id'       => 'settings',
 			'label'    => __( 'Settings', 'clanbite' ),
@@ -1881,6 +1970,17 @@ function clanbite_get_user_nav_menu_items( int $user_id = 0 ): array {
 			'priority' => 20,
 		),
 	);
+
+	if ( '' !== (string) $profile_url ) {
+		$items[] = array(
+			'id'       => 'profile',
+			'label'    => __( 'My Profile', 'clanbite' ),
+			'url'      => $profile_url,
+			'icon'     => 'admin-users',
+			'group'    => 'profile',
+			'priority' => 10,
+		);
+	}
 
 	if ( function_exists( 'clanbite_get_notifications_url' ) ) {
 		$items[] = array(
