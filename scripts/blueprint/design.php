@@ -21,6 +21,11 @@ require_once ABSPATH . 'wp-admin/includes/image.php';
 $uploads = wp_upload_dir();
 $files   = array();
 foreach ( array( 'hero', 'addon-social-kit', 'addon-forums', 'addon-points', 'addon-ranks', 'addon-shop', 'addon-support-desk' ) as $name ) {
+	// The pictures may not have downloaded. The page is then built without them.
+	$files[ $name ] = '';
+	if ( ! is_readable( "/tmp/clanbite-demo-art/{$name}.webp" ) ) {
+		continue;
+	}
 	$file = trailingslashit( $uploads['path'] ) . "clanbite-demo-{$name}.webp";
 	copy( "/tmp/clanbite-demo-art/{$name}.webp", $file );
 	wp_insert_attachment(
@@ -37,6 +42,11 @@ foreach ( array( 'hero', 'addon-social-kit', 'addon-forums', 'addon-points', 'ad
 $team_badge = static fn( int $id ): string => (string) wp_get_attachment_url( (int) get_post_meta( $id, 'clanbite_team_avatar_id', true ) );
 $team_cover = static fn( int $id ): string => (string) wp_get_attachment_url( (int) get_post_meta( $id, 'clanbite_team_cover_id', true ) );
 $team_url   = static fn( int $id, string $path = '' ): string => trailingslashit( (string) get_permalink( $id ) ) . $path;
+$badge_img  = static function ( int $id ) use ( $team_badge ): string {
+	$url = $team_badge( $id );
+
+	return '' === $url ? '' : '<img src="' . esc_url( $url ) . '" alt="">';
+};
 
 // ---- Look ----
 $palette = array(
@@ -248,7 +258,7 @@ $live  = (int) $demo['live'];
 $home  = (int) get_post_meta( $live, 'clanbite_match_home_team_id', true );
 $away  = (int) get_post_meta( $live, 'clanbite_match_away_team_id', true );
 $score = (int) get_post_meta( $live, 'clanbite_match_home_score', true ) . ' – ' . (int) get_post_meta( $live, 'clanbite_match_away_score', true );
-$side  = static fn( int $id ): string => '<span><img src="' . esc_url( $team_badge( $id ) ) . '" alt="">' . esc_html( get_the_title( $id ) ) . '</span>';
+$side  = static fn( int $id ): string => '<span>' . $badge_img( $id ) . esc_html( get_the_title( $id ) ) . '</span>';
 
 $hero = '<section class="cb-hero" style="background-image:url(' . esc_url( $files['hero'] ) . ')">'
 	. '<div><h1>Your whole gaming community, on your own site</h1><p>Teams, players, matches and events for clans and esports clubs, built into WordPress. You are signed in as the admin, so try anything.</p>'
@@ -269,7 +279,7 @@ foreach ( $teams as $team_id ) {
 			$count( (int) get_post_meta( $team_id, 'clanbite_team_draws', true ), 'draw', 'draws' ),
 		)
 	);
-	$cards .= '<a class="cb-card" href="' . esc_url( get_permalink( $team_id ) ) . '"><span class="cb-card__banner" style="background-image:url(' . esc_url( $team_cover( $team_id ) ) . ')"></span><span class="cb-card__body"><img src="' . esc_url( $team_badge( $team_id ) ) . '" alt=""><strong>' . esc_html( get_the_title( $team_id ) ) . '</strong><span>' . esc_html( get_post_meta( $team_id, 'clanbite_team_motto', true ) ) . '</span><span class="cb-muted">' . esc_html( $record ) . '</span></span></a>';
+	$cards .= '<a class="cb-card" href="' . esc_url( get_permalink( $team_id ) ) . '"><span class="cb-card__banner" style="background-image:url(' . esc_url( $team_cover( $team_id ) ) . ')"></span><span class="cb-card__body">' . $badge_img( $team_id ) . '<strong>' . esc_html( get_the_title( $team_id ) ) . '</strong><span>' . esc_html( get_post_meta( $team_id, 'clanbite_team_motto', true ) ) . '</span><span class="cb-muted">' . esc_html( $record ) . '</span></span></a>';
 }
 
 // The team list: without a template of its own the theme would show teams as blog posts.
@@ -300,7 +310,11 @@ foreach ( array(
 	'shop'         => 'Shop',
 	'support-desk' => 'Support Desk',
 ) as $slug => $label ) {
-	$addons .= '<a href="https://clanbite.com/" target="_blank" rel="noopener"><img src="' . esc_url( $files[ "addon-{$slug}" ] ) . '" alt="' . esc_attr( $label . ' (opens clanbite.com)' ) . '" width="420" height="420" loading="lazy"></a>';
+	$picture = $files[ "addon-{$slug}" ];
+	// Without its picture, a tile shows the name (the tiles set no line height of their own, for the pictures).
+	$addons .= '' === $picture
+		? '<a href="https://clanbite.com/" target="_blank" rel="noopener" style="line-height:1.4;padding:1rem">' . esc_html( $label ) . '</a>'
+		: '<a href="https://clanbite.com/" target="_blank" rel="noopener"><img src="' . esc_url( $picture ) . '" alt="' . esc_attr( $label . ' (opens clanbite.com)' ) . '" width="420" height="420" loading="lazy"></a>';
 }
 
 $content = $html( '<div class="cb-wrap">' . $hero . '<section><h2>Meet the teams</h2><div class="cb-grid">' . $cards . '</div></section><section class="cb-try"><h2>Try it yourself</h2><div class="cb-grid">' . $try . '</div></section></div>' )

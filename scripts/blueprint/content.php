@@ -2,8 +2,8 @@
 /**
  * Live Preview, part 2: a busy sample community (players, teams, matches, events and things waiting for the visitor).
  *
- * Everything here is made up. Dates are set around the day the preview is opened. The artwork has already been written to
- * /tmp/clanbite-demo-art/ by the build script's first PHP step.
+ * Everything here is made up. Dates are set around the day the preview is opened. An earlier step puts the artwork in
+ * /tmp/clanbite-demo-art/ when it can be downloaded; anything missing is simply left out.
  *
  * @package clanbite
  */

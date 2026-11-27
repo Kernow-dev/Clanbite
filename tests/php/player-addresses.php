@@ -237,6 +237,66 @@ if ( isset( clanbite_url_slug_areas()['groups'] ) ) {
 	$t->ok( 'and groups can not take theirs', '' !== clanbite_url_slug_problem( 'clans', 'groups' ) && '' !== clanbite_url_slug_problem( 'members', 'groups' ) && '' === clanbite_url_slug_problem( 'cities', 'groups' ), clanbite_url_slug_problem( 'cities', 'groups' ) );
 }
 
+// ---- The upgrade step for sites that had chosen "random" (WordPress 7.2 uses /random/) ----
+$store  = array();
+$holds  = array();
+$keys   = array( 'clanbite_players_settings', 'clanbite_teams_settings', 'clanbite_social_kit_settings', 'clanbite_players_previous_slugs', 'clanbite_teams_previous_slugs', 'clanbite_groups_previous_slugs', 'clanbite_pending_rewrite_flush' );
+$run_it = static function ( array $values ) use ( &$store, &$holds, $keys ): array {
+	$store = $values;
+	foreach ( $keys as $key ) {
+		// Reads come from the array and writes go into it, so nothing reaches the database.
+		$holds[ $key ] = array(
+			static function () use ( &$store, $key ) {
+				return $store[ $key ] ?? array();
+			},
+			static function ( $value, $old ) use ( &$store, $key ) {
+				$store[ $key ] = $value;
+				return $old;
+			},
+		);
+		add_filter( "pre_option_{$key}", $holds[ $key ][0], 99 );
+		// First in line: filters set earlier in this file would otherwise swap the value before it is seen.
+		add_filter( "pre_update_option_{$key}", $holds[ $key ][1], PHP_INT_MIN, 2 );
+	}
+	\Kernowdev\Clanbite\Maintenance::run( 4 );
+	foreach ( $holds as $key => $pair ) {
+		remove_filter( "pre_option_{$key}", $pair[0], 99 );
+		remove_filter( "pre_update_option_{$key}", $pair[1], PHP_INT_MIN );
+	}
+	return $store;
+};
+
+$after = $run_it(
+	array(
+		'clanbite_players_settings'    => array(
+			'player_url_slug' => 'random',
+			'enable_profiles' => true,
+		),
+		'clanbite_teams_settings'      => array( 'team_url_slug' => 'clans' ),
+		'clanbite_social_kit_settings' => array( 'group_url_slug' => '' ),
+	)
+);
+$t->ok( 'random player addresses go back to the default, keeping the other settings', '' === $after['clanbite_players_settings']['player_url_slug'] && true === $after['clanbite_players_settings']['enable_profiles'], $after );
+$t->ok( 'old links are remembered for redirecting, and permalinks are rebuilt', array( 'random' ) === ( $after['clanbite_players_previous_slugs'] ?? null ) && '1' === ( $after['clanbite_pending_rewrite_flush'] ?? '' ), $after );
+$t->ok( 'other areas are left alone', 'clans' === $after['clanbite_teams_settings']['team_url_slug'] && ! isset( $after['clanbite_teams_previous_slugs'] ) );
+
+$after = $run_it(
+	array(
+		'clanbite_players_settings' => array( 'player_url_slug' => 'teams' ),
+		'clanbite_teams_settings'   => array( 'team_url_slug' => 'random' ),
+	)
+);
+$t->ok( 'if another area has taken the default word, a free one is used', 'teams-2' === $after['clanbite_teams_settings']['team_url_slug'], $after );
+
+$after = $run_it( array( 'clanbite_social_kit_settings' => array( 'group_url_slug' => 'random' ) ) );
+$t->ok( 'group addresses are moved too', '' === $after['clanbite_social_kit_settings']['group_url_slug'] && array( 'random' ) === $after['clanbite_groups_previous_slugs'], $after );
+
+$untouched = array(
+	'clanbite_players_settings' => array( 'player_url_slug' => 'members' ),
+	'clanbite_teams_settings'   => array( 'team_url_slug' => '' ),
+);
+$t->ok( 'sites that never chose it are not changed', $untouched === $run_it( $untouched ) );
+
 if ( null === $before ) {
 	unset( $_SERVER['REQUEST_URI'] );
 } else {

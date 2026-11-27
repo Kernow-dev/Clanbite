@@ -72,7 +72,7 @@ function clanbite_url_slug_problem( string $slug, string $area ): string {
 	}
 
 	// Addresses WordPress needs for itself.
-	$taken = array( 'wp-admin', 'wp-content', 'wp-includes', 'wp-json', 'wp-login', 'wp-sitemap', 'admin', 'login', 'register', 'feed', 'rss', 'rss2', 'atom', 'rdf', 'embed', 'trackback', 'comments', 'comment-page', 'page', 'search', 'author', 'attachment', 'type', 'category', 'tag', 'sitemap', 'robots', 'favicon', 'index', 'settings', 'create', 'manage' );
+	$taken = array( 'wp-admin', 'wp-content', 'wp-includes', 'wp-json', 'wp-login', 'wp-sitemap', 'admin', 'login', 'register', 'feed', 'rss', 'rss2', 'atom', 'rdf', 'embed', 'trackback', 'comments', 'comment-page', 'page', 'search', 'author', 'attachment', 'type', 'category', 'tag', 'sitemap', 'robots', 'favicon', 'index', 'settings', 'create', 'manage', 'random' );
 	if ( in_array( $slug, $taken, true ) ) {
 		return __( 'WordPress or Clanbite already uses that address.', 'clanbite' );
 	}
