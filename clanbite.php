@@ -86,7 +86,7 @@ final class Main {
 	 *
 	 * @var int
 	 */
-	public const MAINTENANCE_VERSION = 3;
+	public const MAINTENANCE_VERSION = 4;
 
 	/**
 	 * Singleton instance of plugin.

@@ -204,6 +204,7 @@ For help setting up your site, use the [support forum](https://wordpress.org/sup
 = 1.9.1 =
 * Ready for WordPress 7.2: matches are left out of its new random-post addresses (/random/), which could otherwise reveal a restricted match.
 * Fixed: the plugin directory did not offer the Live Preview because its setup file was too large.
+* Fixed: a site that had chosen "random" for its player, team or group addresses is moved back to the default word, because WordPress 7.2 uses /random/ itself. Old links are redirected.
 * Also includes everything listed under 1.9.0.
 
 = 1.9.0 =

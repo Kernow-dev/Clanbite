@@ -6,7 +6,14 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+	existsSync,
+	readdirSync,
+	readFileSync,
+	renameSync,
+	rmSync,
+	writeFileSync,
+} from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath( new URL( '..', import.meta.url ) );
@@ -28,10 +35,45 @@ for ( const file of art ) {
 	fingerprint.update( file ).update( readFileSync( artDir + file ) );
 }
 const zipName = `demo-art-${ fingerprint.digest( 'hex' ).slice( 0, 10 ) }.zip`;
-if ( ! existsSync( assets + zipName ) ) {
-	execFileSync( 'zip', [ '-X', '-q', '-j', assets + zipName, ...art ], {
-		cwd: artDir,
-	} );
+
+// Whether an archive is intact and holds exactly today's pictures.
+const holdsTheArt = ( archive ) => {
+	try {
+		execFileSync( 'unzip', [ '-tqq', archive ], { stdio: 'ignore' } );
+		const names = execFileSync( 'unzip', [ '-Z1', archive ] )
+			.toString()
+			.trim()
+			.split( '\n' )
+			.sort();
+
+		return (
+			names.join() === art.join() &&
+			art.every( ( file ) =>
+				execFileSync( 'unzip', [ '-p', archive, file ], {
+					maxBuffer: 20 * 1024 * 1024,
+				} ).equals( readFileSync( artDir + file ) )
+			)
+		);
+	} catch {
+		return false;
+	}
+};
+
+// A sound zip is kept, so that rebuilding does not change it. A new one is made under a temporary name, checked, and only
+// then moved into place: a half-written file is never left under the real name.
+if ( ! existsSync( assets + zipName ) || ! holdsTheArt( assets + zipName ) ) {
+	const draft = `${ assets }.draft-${ process.pid }-${ zipName }`;
+	try {
+		execFileSync( 'zip', [ '-X', '-q', '-j', draft, ...art ], {
+			cwd: artDir,
+		} );
+		if ( ! holdsTheArt( draft ) ) {
+			throw new Error( 'The new artwork zip failed its check.' );
+		}
+		renameSync( draft, assets + zipName );
+	} finally {
+		rmSync( draft, { force: true } );
+	}
 }
 
 const blueprint = {
@@ -42,6 +84,8 @@ const blueprint = {
 		author: 'kernowdev',
 	},
 	landingPage: '/',
+	// The demo's own PHP downloads its pictures.
+	features: { networking: true },
 	preferredVersions: { php: '8.3', wp: 'latest' },
 	steps: [
 		{ step: 'login', username: 'admin' },
@@ -59,12 +103,8 @@ const blueprint = {
 		},
 		{ step: 'runPHP', code: php( 'settings' ) },
 		{
-			step: 'unzip',
-			zipFile: {
-				resource: 'url',
-				url: `https://ps.w.org/clanbite/assets/blueprints/${ zipName }`,
-			},
-			extractToPath: '/tmp/clanbite-demo-art',
+			step: 'runPHP',
+			code: php( 'artwork' ).replaceAll( '{{ART_ZIP}}', zipName ),
 		},
 		{ step: 'runPHP', code: php( 'content' ) },
 		{ step: 'runPHP', code: php( 'design' ) },
