@@ -60,7 +60,10 @@ jobs:
     wordpress-org:
         needs: plugin-zip
         if: ${{ ! github.event.release.prerelease }}
-        runs-on: ubuntu-latest
+        # Pinned: the deploy action installs SVN with apt, which fails on Ubuntu 26.04 (`ubuntu-latest` since November
+        # 2026: "Unable to locate package subversion"). 24.04 is what earlier releases deployed from. Move back once the
+        # action, or the newer image, can provide SVN.
+        runs-on: ubuntu-24.04
         environment: wordpress-org
         permissions:
             contents: read

@@ -451,6 +451,9 @@ class Matches extends Skeleton {
 				'show_in_menu'    => 'clanbite',
 				'show_in_rest'    => true,
 				'has_archive'     => true,
+				// WordPress 7.2 adds /random/{type}/, which redirects to any published post of a type. A match can be
+				// restricted to team members, and even the redirect's address names both teams, so matches stay out of it.
+				'randomable'      => false,
 				'rewrite'         => array( 'slug' => 'matches' ),
 				'supports'        => array( 'title', 'editor', 'excerpt', 'thumbnail', 'author' ),
 				'capability_type' => 'post',

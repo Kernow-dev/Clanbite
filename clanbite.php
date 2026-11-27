@@ -3,7 +3,7 @@
  * Plugin Name: Clanbite: Team Management System
  * Plugin URI: https://clanbite.com
  * Description: Run your clan or esports club on WordPress: profiles, teams, matches, events, and challenges between Clanbite sites.
- * Version: 1.9.0
+ * Version: 1.9.1
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: kernow.dev
@@ -79,7 +79,7 @@ final class Main {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.9.0';
+	public const VERSION = '1.9.1';
 
 	/**
 	 * Maintenance upgrade counter: the number of the last step in {@see Maintenance}. Raise it with each new step.

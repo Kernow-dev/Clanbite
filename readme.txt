@@ -4,7 +4,7 @@ Tags: community, esports, gaming, teams, clan
 Requires at least: 6.9
 Tested up to: 7.1
 Requires PHP: 8.2
-Stable tag: 1.9.0
+Stable tag: 1.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -200,6 +200,11 @@ Please report it privately, not in the support forum or a public issue. Use [Rep
 For help setting up your site, use the [support forum](https://wordpress.org/support/plugin/clanbite/). For bugs and feature ideas, open an issue on [GitHub](https://github.com/Kernow-dev/Clanbite/issues). Ideas are very welcome: tell me what your community needs.
 
 == Changelog ==
+
+= 1.9.1 =
+* Ready for WordPress 7.2: matches are left out of its new random-post addresses (/random/), which could otherwise reveal a restricted match.
+* Fixed: the plugin directory did not offer the Live Preview because its setup file was too large.
+* Also includes everything listed under 1.9.0.
 
 = 1.9.0 =
 * New: the player directory shows player cards with covers, avatars and taglines instead of a list of names.
