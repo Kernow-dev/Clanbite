@@ -2,9 +2,9 @@
 Contributors: kernowdev
 Tags: community, esports, gaming, teams, clan
 Requires at least: 6.9
-Tested up to: 7.1
+Tested up to: 7.2
 Requires PHP: 8.2
-Stable tag: 1.9.1
+Stable tag: 1.9.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -199,15 +199,25 @@ Please report it privately, not in the support forum or a public issue. Use [Rep
 
 For help setting up your site, use the [support forum](https://wordpress.org/support/plugin/clanbite/). For bugs and feature ideas, open an issue on [GitHub](https://github.com/Kernow-dev/Clanbite/issues). Ideas are very welcome: tell me what your community needs.
 
+== Screenshots ==
+
+1. A team page: cover, badge, country, record, profile tabs and member cards.
+2. The player directory, with a card for each player's cover, avatar and tagline.
+3. A team's events calendar in list view, with month, week and day views a click away.
+4. The Extensions settings screen: switch on only the features your community needs.
+
 == Changelog ==
 
-= 1.9.1 =
+= 1.9.2 - 2026-11-27 =
+* Plugin page: marked as tested with WordPress 7.2 (checked on release candidate 2), added screenshots and release dates, and moved the add-on upgrade warning to where the Updates screen shows it. No changes to how Clanbite works.
+
+= 1.9.1 - 2026-11-27 =
 * Ready for WordPress 7.2: matches are left out of its new random-post addresses (/random/), which could otherwise reveal a restricted match.
 * Fixed: the plugin directory did not offer the Live Preview because its setup file was too large.
 * Fixed: a site that had chosen "random" for its player, team or group addresses is moved back to the default word, because WordPress 7.2 uses /random/ itself. Old links are redirected.
 * Also includes everything listed under 1.9.0.
 
-= 1.9.0 =
+= 1.9.0 - 2026-11-26 =
 * New: the player directory shows player cards with covers, avatars and taglines instead of a list of names.
 * New: choose the words used in player, team and (with Social Kit 1.7.0) group addresses, for example /members/ or /clans/. Old addresses are sent to the new ones.
 * Changed: "Enable profiles" now only hides the public player directory and profile pages. Account settings, avatars, blocks, notifications and events keep working; before, turning it off disabled most of the Players extension.
@@ -228,15 +238,15 @@ For help setting up your site, use the [support forum](https://wordpress.org/sup
 * Fixed: signing in from the account settings address now returns you there.
 * Improved accessibility: page titles for account settings, team matches and create team, and labels for the team record and member role fields.
 
-= 1.8.1 =
+= 1.8.1 - 2026-11-26 =
 * Changed: a new Clanbite logo, with a simpler admin menu icon that stays clear at small sizes.
 * Changed: the settings screen header shows the new logo, which includes the name, in place of the separate title.
 * Fixed: when several requests arrived together after an update, each could check the add-ons at once, so an add-on being turned back on could run its activation steps more than once.
 
-= 1.8.0 =
+= 1.8.0 - 2026-11-25 =
 * New: Clanbite can run the Clanbite Support Desk add-on (a private support desk with tickets, support staff and purchase-based support).
 
-= 1.7.1 =
+= 1.7.1 - 2026-11-25 =
 * Important, if you use Clanbite add-ons and are updating from 1.6.10 or earlier: install the free Clanbite Add-on Manager (1.0.1 or later on PHP 8.2 or 8.3) from https://clanbite.com/add-on-manager/ **before** updating, or your add-ons will stop receiving updates until you do.
 * Changed: Clanbite now works on PHP 8.2 or later (1.7.0 needed PHP 8.4), so sites on PHP 8.2 and 8.3 can get the security fixes in 1.7.0. Some add-on releases still need PHP 8.4.
 * Changed: added answers about requirements, privacy and reporting security problems to the FAQ, and filled in the changelog.
@@ -355,6 +365,9 @@ For help setting up your site, use the [support forum](https://wordpress.org/sup
 * Unified maintenance step and database schema versioning for new installs.
 
 == Upgrade Notice ==
+
+= 1.9.2 =
+Use Clanbite add-ons and have 1.6.10 or earlier? First install the free Add-on Manager from clanbite.com, or add-ons stop updating. Two-way challenges will be off until enabled in General settings.
 
 = 1.7.1 =
 Using add-ons? Install the free Add-on Manager from clanbite.com first. Now runs on PHP 8.2+. From 1.6.10 or earlier, two-way challenges are off until enabled in General settings.
